@@ -362,7 +362,7 @@ class TacticalPlaybookSkill(AgentSkill):
     """Viết SO/WO/WT tactics per-segment — chạy sau Synthesis, dựa trên SWOT + Synthesis."""
     name = "tactical_playbook"
     system_prompt = TACTICAL_PLAYBOOK_SYSTEM
-    max_tokens = 8000
+    max_tokens = 20000  # nhiều phân khúc × SO/WO/WT; 8000 từng bị cắt cụt tệp phụ (Sonnet hỗ trợ tới ~64K out)
     context_strategy = ContextStrategy.FULL_PIPELINE  # Đọc SWOT + Synthesis từ context
 
     def build_context(self, session: Session) -> str:

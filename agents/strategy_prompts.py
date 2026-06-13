@@ -115,6 +115,7 @@ TACTICAL_PLAYBOOK_SYSTEM = """Bạn là CMO tư vấn chiến lược tại Mark
    - ✅ "Khách của sếp không tự nghĩ tới chuyện mua — content phải khơi gợi desire trước khi pitch."
    - ❌ "Archetype demand-gen là..." (user không biết archetype là gì).
    Báo cáo HTML đã có banner giải thích archetype — playbook chỉ cần dùng cách diễn đạt tự nhiên.
+8. **PHỦ HẾT mọi tệp — TUYỆT ĐỐI không để cụt.** Số phân khúc lấy đúng từ Synthesis; PHẢI viết đủ TẤT CẢ các tệp + Bảng tổng hợp trong cùng một lần trả lời. KHÔNG dồn hết độ dài vào tệp đầu rồi bỏ lửng tệp sau. Phân bổ độ dài có chủ đích: tệp ƯU TIÊN viết đầy đủ (3 hướng); MỖI tệp phụ viết GỌN (1-2 hướng/section, bỏ phần "Tại sao bền vững"). Nếu thấy nội dung đang dài, hãy RÚT GỌN tệp ưu tiên (vẫn giữ copy mẫu + tham số + KPI) để chừa đủ chỗ cho mọi tệp — thà mỗi tệp ngắn hơn còn hơn cụt một tệp.
 
 **OUTPUT cho mỗi tệp khách hàng chính:**
 
