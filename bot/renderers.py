@@ -40,8 +40,13 @@ SKILL_TEMPLATE_SHEET: dict[str, str] = {
     "post_batch":          "📅 Content Calendar",   # Content Suite v2
     "ads_generator":       "✍️ Ad Copy",
     "ads_copy":            "✍️ Ad Copy",
-    "video_scripts":       "🎬 Video Script",
-    "video_script_gen":    "🎬 Video Script",
+    # video_scripts / video_script_gen KHÔNG map vào template "🎬 Video Script":
+    # prompt xuất bảng 8 cột linh hoạt (Version / Creator Type / Platform / Framework /
+    # Beat Breakdown / Visual Direction / Caption Hook + Hashtags / Ghi chú) trong khi
+    # sheet template lại tách 5-act cố định (Hook 3s / Problem / Solution / Social Proof /
+    # CTA / Music/SFX) → match theo tên cột chỉ trùng 4 cột, toàn bộ lời thoại (Beat
+    # Breakdown) bị rớt → file rỗng. Dùng dynamic extraction (render_excel_file) để dựng
+    # workbook đúng theo bảng LLM xuất ra.
     "ugc_brief":           "🤝 UGC Brief",
     "email_zalo_sequence": "📧 Email & Zalo",
 }
