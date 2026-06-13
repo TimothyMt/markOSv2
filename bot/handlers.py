@@ -6022,6 +6022,7 @@ def _sanitize_telegram_md(text: str) -> str:
     legacy render được. LLM đôi khi vẫn xuất `#`, `>` dù prompt đã cấm.
 
     - `### Heading` / `## H` / `# H`  → `*Heading*`
+    - inline `**đậm**`                 → `*đậm*` (Telegram legacy dùng 1 dấu sao)
     - leading `> blockquote`          → bỏ dấu `>`
     - dòng phân cách `---` / `***`     → bỏ (Telegram không render thành line)
     """
@@ -6031,10 +6032,10 @@ def _sanitize_telegram_md(text: str) -> str:
     out_lines = []
     for line in text.split("\n"):
         stripped = line.lstrip()
-        # Heading → bold
+        # Heading → bold (bỏ `*` lồng bên trong để khỏi double-wrap)
         m = _re.match(r"^(#{1,6})\s+(.*)$", stripped)
         if m:
-            heading = m.group(2).strip().rstrip("#").strip()
+            heading = m.group(2).strip().rstrip("#").strip().replace("*", "")
             out_lines.append(f"*{heading}*" if heading else "")
             continue
         # Blockquote → bỏ dấu >
@@ -6045,7 +6046,15 @@ def _sanitize_telegram_md(text: str) -> str:
         if _re.match(r"^([-*_])\1{2,}\s*$", stripped):
             continue
         out_lines.append(line)
-    return "\n".join(out_lines).strip()
+    result = "\n".join(out_lines).strip()
+    # Inline markdown bold `**x**` → Telegram legacy `*x*`. Prompt yêu cầu LLM
+    # xuất `**...**` (markdown chuẩn — bản HTML report cũng cần) nên ở Telegram
+    # phải hạ về 1 dấu sao thì các đầu mục phụ như "**S (Specific — Cụ thể):**"
+    # mới in đậm thay vì lòi dấu sao. `[^\n]` để 1 cặp `**` lệch không nuốt cả
+    # các dòng sau; dọn nốt `**` lẻ để tránh lỗi "Can't parse entities".
+    result = _re.sub(r"\*\*([^\n]+?)\*\*", r"*\1*", result)
+    result = result.replace("**", "")
+    return result
 
 
 # Regex: matches facebook.com / fb.com / m.facebook.com URLs
