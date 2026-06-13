@@ -488,7 +488,7 @@ async def update_budget(
     if not token:
         raise RuntimeError("FB_ACCESS_TOKEN chưa setup")
     if budget_type not in ("daily_budget", "lifetime_budget"):
-        raise ValueError(f"budget_type phải là daily_budget hoặc lifetime_budget")
+        raise ValueError("budget_type phải là daily_budget hoặc lifetime_budget")
 
     api_amount = amount_vnd * _FB_BUDGET_MULTIPLIER
 

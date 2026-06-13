@@ -7,7 +7,6 @@ Chạy: python run_local.py
 Dừng: Ctrl+C
 """
 import logging
-import asyncio
 from telegram.ext import (
     Application,
     CommandHandler,

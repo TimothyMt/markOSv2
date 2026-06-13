@@ -37,7 +37,7 @@ def format_digest(summary: dict) -> str:
     lines = [
         f"📊 *Feedback Digest — {period} ngày qua*",
         "",
-        f"📈 *Tổng quan:*",
+        "📈 *Tổng quan:*",
         f"  - Total feedback: {summary['total_count']}",
         f"  - Avg rating: {summary['avg_rating']}/5",
         "",

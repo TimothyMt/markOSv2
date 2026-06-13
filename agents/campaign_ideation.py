@@ -622,7 +622,7 @@ def format_options_card(options: list[dict]) -> str:
     lines = ["💡 *Em đề xuất 3 campaign options dựa trên Strategy của sếp:*\n"]
 
     for i, opt in enumerate(options, 1):
-        lines.append(f"━━━━━━━━━━━━━━━━━━━━")
+        lines.append("━━━━━━━━━━━━━━━━━━━━")
         lines.append(f"*OPTION {i}: {opt.get('name', '?')}*\n")
         lines.append(f"🎯 *Mục tiêu:* {opt.get('goal', '?')}")
         lines.append(f"🎁 *Cơ chế offer:* {opt.get('key_offer', '?')}")
@@ -630,7 +630,7 @@ def format_options_card(options: list[dict]) -> str:
         lines.append(f"👥 *Target:* {opt.get('target_segment', '?')}")
         lines.append(f"💭 *Vì sao phù hợp:* {opt.get('why_fit', '?')}\n")
 
-    lines.append(f"━━━━━━━━━━━━━━━━━━━━")
+    lines.append("━━━━━━━━━━━━━━━━━━━━")
     lines.append("\n_💰 Budget / 👥 Team / 📅 Thời lượng / 🎟 % giảm — sếp sẽ quyết ở bước sau._\n")
     lines.append("👇 *Sếp chọn option nào để em làm Brief Campaign?*")
     return "\n".join(lines)
@@ -999,8 +999,6 @@ def get_finalize_fields(lever: dict) -> list[dict]:
 def format_dynamic_finalize_form(campaign: dict, lever: dict) -> str:
     """Form động dựa trên lever đã chọn: lever params + Thời lượng campaign
     (ngày bắt đầu mặc định = hôm nay, ngày kết thúc tự tính)."""
-    fields = get_finalize_fields(lever)
-
     lines = [
         f"✅ *Đã chốt: \"{campaign.get('name', '?')}\"*",
         f"🎟 *Cách ưu đãi:* {lever.get('name', '?')}",

@@ -14,8 +14,8 @@ from telegram.error import TimedOut, NetworkError
 from storage import get_session, save_session, reset_session
 from storage.models import PipelineStage
 from agents.pipeline import run_intake, run_targeted_pipeline, run_operational_skill, run_multi_agent_targeted
-from agents.prompts import INTAKE_CONFIRM_TEMPLATE, PROGRESS_MESSAGES, TASK_OPENING_QUESTIONS
-from agents.task_registry import TASK_REGISTRY, OPERATIONAL_TASKS, STRATEGIC_TASKS, get_task, needs_intake
+from agents.prompts import TASK_OPENING_QUESTIONS
+from agents.task_registry import OPERATIONAL_TASKS, get_task, needs_intake
 from frameworks.kpi_library import KPI_LIBRARY
 from frameworks.industry_context import suggest_key_message_hint
 from bot.keyboards import (
@@ -23,7 +23,6 @@ from bot.keyboards import (
     QUICK_MENU_KEYBOARD,
     TASK_SELECT_KEYBOARD,
     CONFIRM_KEYBOARD,
-    RESTART_KEYBOARD,
     BIZNAME_SKIP_KEYBOARD,
     stage_done_keyboard,
     get_action_keyboard,
@@ -337,7 +336,7 @@ async def cmd_settings(update: Update, context: ContextTypes.DEFAULT_TYPE):
     label_map = {"none": "🔴 Không rành", "moderate": "🟡 Hiểu cơ bản", "fluent": "🟢 Thông thạo"}
 
     # Token info (real tracking)
-    from tools.token_tracker import usage_summary, is_low, get_remaining, fmt
+    from tools.token_tracker import usage_summary, is_low
     token_line = usage_summary(session)
     low_warning = "\n⚠️ _Token gần hết, sếp liên hệ admin để nạp thêm._" if is_low(session) else ""
 
@@ -3081,7 +3080,7 @@ async def _handle_callback_inner(update, context, query, session, data, user_id)
         page_id = data.replace("monitor_diff_", "")
         await query.edit_message_reply_markup(reply_markup=None)
         await query.message.reply_text(
-            f"🔍 Em đang phân tích ads mới của đối thủ này...",
+            "🔍 Em đang phân tích ads mới của đối thủ này...",
             parse_mode=ParseMode.MARKDOWN,
         )
         try:
@@ -3206,7 +3205,7 @@ async def _handle_callback_inner(update, context, query, session, data, user_id)
             "sales_inbox_script":  "💬 Kịch Bản Sales",
         }
         label = labels.get(skill_key, skill_key)
-        await query.answer(f"Skill này sắp ra mắt", show_alert=False)
+        await query.answer("Skill này sắp ra mắt", show_alert=False)
         await query.message.reply_text(
             f"🚧 *{label}* — sắp ra mắt!\n\n"
             f"_Skill này đang được hoàn thiện. Em sẽ thông báo sếp ngay khi ready._\n\n"
@@ -4410,8 +4409,8 @@ async def _handle_feedback_text(update: Update, context: ContextTypes.DEFAULT_TY
         )
     else:
         msg = (
-            f"Em note rồi ạ. Sếp có muốn em chạy lại ngay với feedback này không?\n\n"
-            f"_Em sẽ giữ nguyên context của sếp, chỉ điều chỉnh theo correction sếp đưa._"
+            "Em note rồi ạ. Sếp có muốn em chạy lại ngay với feedback này không?\n\n"
+            "_Em sẽ giữ nguyên context của sếp, chỉ điều chỉnh theo correction sếp đưa._"
         )
 
     await update.message.reply_text(
@@ -4556,7 +4555,7 @@ async def _handle_ops_intake_reply(update: Update, context: ContextTypes.DEFAULT
                 )
             session.pending_intake["_fb_data_spy"] = session.pending_intake.pop("_fb_data", "") or ""
             # 2. Prefetch account analytics (FB Marketing API)
-            analytics_status = await _prefetch_performance_data(update.message, session)
+            await _prefetch_performance_data(update.message, session)
             session.pending_intake["_fb_data_analytics"] = session.pending_intake.pop("_fb_data", "") or ""
             # Gate: cần ít nhất 1 nguồn data
             if not session.pending_intake.get("_fb_data_spy") and not session.pending_intake.get("_fb_data_analytics"):
@@ -4698,14 +4697,10 @@ def _extract_image_prompt_from_brief(parsed: dict, session) -> str:
     offer = intake.get("offer", "") or ""
     brand = session.profile.business_name or "Brand"
     industry = session.profile.industry or ""
-    ads_format = intake.get("ads_format", "image")
 
     # Map size → aspect ratio
     aspect_map = {"vertical": "vertical", "square": "square", "horizontal": "horizontal"}
     aspect = aspect_map.get(intake.get("_last_image_size_hint", "square"), "square")
-
-    # Build context_text từ industry + product để categorize
-    context_text = f"{industry} {product} {ads_format}"
 
     try:
         from tools.image_prompt_library import build_prompt
@@ -5627,10 +5622,10 @@ async def _ask_budget_team_before_campaigns(message: Message, session) -> None:
     session.pending_intake["_awaiting_budget_team"] = "1"
     await save_session(session)
     await message.reply_text(
-        f"💰 *Trước khi em trích campaign — cho em biết quy mô để đề xuất sát thực tế:*\n\n"
-        f"• Ngân sách marketing/tháng (cho campaign này, ước tính cũng được)\n"
-        f"• Team: số người + vai trò (vd \"1 content + thuê ngoài video\")\n\n"
-        f"_Vd: \"15-20tr/tháng · 1 mình làm content, outsource video lúc cần\"_",
+        "💰 *Trước khi em trích campaign — cho em biết quy mô để đề xuất sát thực tế:*\n\n"
+        "• Ngân sách marketing/tháng (cho campaign này, ước tính cũng được)\n"
+        "• Team: số người + vai trò (vd \"1 content + thuê ngoài video\")\n\n"
+        "_Vd: \"15-20tr/tháng · 1 mình làm content, outsource video lúc cần\"_",
         parse_mode=ParseMode.MARKDOWN,
     )
 
@@ -5676,7 +5671,7 @@ async def _show_extracted_campaigns(message: Message, session, show_all: bool = 
             return
 
         await message.reply_text(
-            f"✅ *Strategy đã chốt! Em đang trích campaign từ Roadmap...*",
+            "✅ *Strategy đã chốt! Em đang trích campaign từ Roadmap...*",
             parse_mode=ParseMode.MARKDOWN,
         )
 
@@ -5813,7 +5808,6 @@ async def _run_pipeline_sequentially(message: Message, session):
             continue
 
         stage_count += 1
-        is_last = stage_count == total_stages
 
         parsed = parse_agent_output(result)
         parsed_stages.append((stage_key, parsed))
@@ -6688,7 +6682,7 @@ async def _prefetch_competitor_ads(message: Message, session) -> dict:
         return {
             "ok": False,
             "reason": "no_ads_in_country",
-            "detail": f"Page tồn tại nhưng không có ads đang chạy ở VN (country=VN, limit=20)",
+            "detail": "Page tồn tại nhưng không có ads đang chạy ở VN (country=VN, limit=20)",
         }
 
     fb_data = format_ads_for_analysis(ads, competitor_name or "đối thủ")
@@ -7235,7 +7229,7 @@ async def _handle_strategy_edit_text(update, context, session, text: str):
         chat_id=update.effective_chat.id, action=ChatAction.TYPING,
     )
 
-    from agents.surgical_edit import patch_document, summarize_changes, PATCH_OK, PATCH_ASK, PATCH_NOOP
+    from agents.surgical_edit import patch_document, summarize_changes, PATCH_ASK, PATCH_NOOP
 
     try:
         status, payload, detect = await patch_document(synthesis, comment)
@@ -7320,7 +7314,7 @@ async def _handle_brief_edit_text(update, context, session, text: str):
         chat_id=update.effective_chat.id, action=ChatAction.TYPING,
     )
 
-    from agents.surgical_edit import patch_document, summarize_changes, PATCH_OK, PATCH_ASK, PATCH_NOOP
+    from agents.surgical_edit import patch_document, summarize_changes, PATCH_ASK, PATCH_NOOP
 
     try:
         status, payload, detect = await patch_document(brief, comment)
@@ -7621,7 +7615,6 @@ async def _confirm_brief_and_gen_calendar(message, session, context, update):
     session.selected_task = "content_calendar"
     await save_session(session)
 
-    addr = _addr(session)
     await message.reply_text(
         f"✅ Brief đã duyệt! Em lưu lại campaign *{campaign_name}* rồi.",
         parse_mode=ParseMode.MARKDOWN,
@@ -8175,7 +8168,6 @@ async def _ask_offer_preferences_custom(message: Message, session, campaign: dic
     session.pending_intake["_chosen_campaign"] = _json.dumps(campaign, ensure_ascii=False)
     session.pending_intake["_awaiting_offer_prefs"] = "1"
     await save_session(session)
-    addr = _addr(session)
     bait_hint = await generate_bait_hint(session)
     await message.reply_text(
         f"✏️ *OK, sếp tự định nghĩa ưu đãi.*\n\n"
@@ -9634,7 +9626,7 @@ def _build_metric_keyboard(tracked: list, with_done: bool = False, extra_rows: l
 async def cmd_connect_ads(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """/connect_ads — bắt đầu OAuth flow để kết nối FB Ad Account."""
     user_id = update.effective_user.id
-    from config import FB_APP_ID, FB_APP_SECRET, WEBHOOK_BASE_URL
+    from config import FB_APP_ID, FB_APP_SECRET
 
     if not FB_APP_ID or not FB_APP_SECRET:
         await update.message.reply_text(
@@ -9872,7 +9864,7 @@ async def _handle_ads_threshold_text(update: Update, session, text: str) -> None
         if "alert_roas_drop_pct" in updates: summary.append(f"ROAS giảm > {updates['alert_roas_drop_pct']:.0f}%")
         if "alert_cpm_spike_pct" in updates: summary.append(f"CPM tăng > {updates['alert_cpm_spike_pct']:.0f}%")
         await update.message.reply_text(
-            f"✅ *Ngưỡng alert đã lưu:*\n" + "\n".join(f"• {s}" for s in summary),
+            "✅ *Ngưỡng alert đã lưu:*\n" + "\n".join(f"• {s}" for s in summary),
             parse_mode=ParseMode.MARKDOWN,
         )
     else:

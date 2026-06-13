@@ -11,7 +11,6 @@ Usage (one-shot):
 """
 import asyncio
 import logging
-from typing import Optional
 
 from telegram import Bot, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.constants import ParseMode

@@ -3,7 +3,7 @@ Data models for session state management.
 """
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Optional, Union
+from typing import Optional
 from enum import Enum
 
 

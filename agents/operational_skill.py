@@ -7,7 +7,6 @@ This generic class handles 6 of 8 ops skills via config.
 Special ops skills (AdsCopySkill, VideoScriptsSkill) have custom logic — keep as subclass.
 """
 from dataclasses import dataclass, field
-from typing import Optional
 
 from agents.skills import (
     AgentSkill,
@@ -162,7 +161,7 @@ class OperationalSkill(AgentSkill):
 
         try:
             msg = self._config.user_msg_template.format_map(_SafeIntake(intake))
-        except Exception as e:
+        except Exception:
             # Last-resort fallback — strip all placeholders
             import re as _re
             msg = _re.sub(r"\{[^{}]+\}", "(không có thông tin)", self._config.user_msg_template)

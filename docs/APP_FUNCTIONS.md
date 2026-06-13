@@ -307,7 +307,7 @@ travel_hospitality`
 | Path | Vì sao bỏ |
 |---|---|
 | `storage/session.py` — nhánh v1 (`_clear_v1_row`, write vào table `sessions` cũ) | Mặc định đã ở Phase D (`DB_V2_READ=true`, `DB_V2_WRITE=false`) — chỉ còn v2. Nhánh v1 chỉ là an toàn lưới cho rollback, repo mới bắt đầu sạch nên không cần. |
-| `scripts/backfill_v2.py`, `scripts/verify_v2_drift.py` | Script một-lần cho migration v1→v2 đã xong. Repo mới start thẳng ở v2, không cần backfill. |
+| `scripts/backfill_v2.py`, `scripts/verify_v2_drift.py` | **Đã xoá ở repo này** — script một-lần cho migration v1→v2 đã xong. Repo mới start thẳng ở v2, không cần backfill. Bản gốc còn trong git history của `marketing-os-bot` nếu cần. |
 | `_pending_three_tier/` | (Đã xoá ở commit này) — code nhánh three-tier không dùng, bản gốc còn trong git history nếu cần tham khảo. |
 | `__pycache__/`, `.pytest_cache/` | Build cache, không track. |
 

@@ -16,7 +16,7 @@ from typing import Optional
 
 import anthropic
 
-from config import ANTHROPIC_API_KEY, CLAUDE_HAIKU_MODEL, CLAUDE_SONNET_MODEL
+from config import ANTHROPIC_API_KEY, CLAUDE_HAIKU_MODEL
 
 logger = logging.getLogger(__name__)
 

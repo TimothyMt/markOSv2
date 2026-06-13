@@ -28,7 +28,6 @@ from agents.orchestrator import (
     run_multi_agent_pipeline,
     get_strategic_pipeline_tiers,
     PipelineAbortError,
-    AgentResult,
 )
 
 
@@ -201,7 +200,7 @@ async def test_1_happy_path():
 
     # Latency check — with mock 0.1s per call, parallel should be <5s total
     assert elapsed < 5, f"Expected <5s with mock, got {elapsed:.2f}s — parallel chưa work?"
-    print(f"✓ All 7 agents succeeded, session has all 8 stage results")
+    print("✓ All 7 agents succeeded, session has all 8 stage results")
     print(f"✓ Latency {elapsed:.2f}s confirms parallel execution (T1 3 agents in ~{behavior.latency_sec}s, not {3*behavior.latency_sec}s)")
     return True
 
@@ -226,8 +225,8 @@ async def test_2_nice_to_have_fail():
     assert results["synthesizer_agent"].success
     # Final synthesis must be in session
     assert session.results.get("synthesis"), "Synthesis should have run despite market fail"
-    print(f"✓ market_research failed (isolated), 6 other agents succeeded")
-    print(f"✓ Synthesis ran successfully → pipeline degraded gracefully")
+    print("✓ market_research failed (isolated), 6 other agents succeeded")
+    print("✓ Synthesis ran successfully → pipeline degraded gracefully")
     return True
 
 
@@ -271,7 +270,7 @@ async def test_4_synthesis_fail():
     # T1-T3 results should still be in session
     assert session.results.get("market_research")
     assert session.results.get("customer_insight")
-    print(f"✓ T1-T3 results preserved in session (user có thể dùng partial)")
+    print("✓ T1-T3 results preserved in session (user có thể dùng partial)")
     return True
 
 
@@ -302,7 +301,7 @@ async def test_5_timeout_isolation():
     # Other agents should still succeed
     assert results["customer_insight_agent"].success
     assert results["synthesizer_agent"].success
-    print(f"✓ competitor timeout isolated, 6 other agents succeeded")
+    print("✓ competitor timeout isolated, 6 other agents succeeded")
     return True
 
 

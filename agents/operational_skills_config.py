@@ -17,7 +17,6 @@ from agents.skills import (
 from agents.operational_prompts import (
     CAMPAIGN_BRIEF_SYSTEM,
     CONTENT_CALENDAR_SYSTEM,
-    CONTENT_GENERATOR_SYSTEM,
     VIDEO_SCRIPT_GEN_SYSTEM,
     UGC_BRIEF_SYSTEM,
     ADS_COPY_SYSTEM,
@@ -1093,7 +1092,6 @@ QUAN TRỌNG:
         → vision có thể dùng tiếp.
         """
         from tools import krillin_client
-        import asyncio
 
         if not video_source:
             return ("**(Không có transcript — sếp chưa cung cấp link hay paste lời thoại)**", "", [])

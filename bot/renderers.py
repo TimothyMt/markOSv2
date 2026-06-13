@@ -15,7 +15,7 @@ import logging
 from datetime import datetime
 from typing import Optional
 
-from agents.skills import OutputFormat, PrimaryDeliverable
+from agents.skills import OutputFormat
 
 logger = logging.getLogger(__name__)
 

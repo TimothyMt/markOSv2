@@ -30,14 +30,6 @@ async def _auto_save_history(session) -> None:
         logger.warning("_auto_save_history failed (user=%s): %s", getattr(session, "user_id", "?"), e)
 from storage.models import Session, BusinessProfile, PipelineStage
 from agents.prompts import (
-    INTAKE_SYSTEM,
-    MARKET_RESEARCH_SYSTEM,
-    COMPETITOR_SYSTEM,
-    CUSTOMER_INSIGHT_SYSTEM,
-    MARKETING_PSYCHOLOGY_SYSTEM,
-    PRICING_STRATEGY_SYSTEM,
-    SOCIAL_LISTENING_SYSTEM,
-    STRATEGY_SYNTHESIZER_SYSTEM,
     PROGRESS_MESSAGES,
     get_intake_system,
 )
@@ -55,9 +47,6 @@ from agents.skills import (
 )
 from agents.critic import run_critic
 from agents.output_formats import get_format_instruction, get_lang_instruction
-from frameworks.kpi_library import get_framework_as_text
-from frameworks.save_framework import generate_save_analysis
-from frameworks.smart_framework import format_smart_prompt
 
 client = anthropic.AsyncAnthropic(
     api_key=ANTHROPIC_API_KEY,
@@ -791,7 +780,7 @@ async def run_strategic_single_skill(task_name: str, session: Session) -> str:
 #   timeout     — giây timeout per agent trong orchestrator
 # ─────────────────────────────────────────────────────────────────
 
-from dataclasses import dataclass, field as dc_field
+from dataclasses import dataclass
 from typing import Callable as _Callable
 
 

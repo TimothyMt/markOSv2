@@ -12,7 +12,6 @@ Workflow:
   save_session_v2(session) → split data → upsert to 4 tables
 """
 import logging
-from typing import Optional
 
 from storage.models import Session, BusinessProfile, PipelineStage, VersionedResult
 

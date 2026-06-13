@@ -2,7 +2,7 @@
 KPI Library — Pre-calibrated frameworks for each industry.
 Intake agent detects industry → load matching KPIFramework → inject into all downstream agents.
 """
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Optional
 
 
@@ -900,7 +900,7 @@ def get_framework_as_text(industry: str) -> str:
 
     lines += [
         "",
-        f"### Lưu ý đặc thù ngành:",
+        "### Lưu ý đặc thù ngành:",
         fw.context_note,
     ]
 

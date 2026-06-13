@@ -1,5 +1,7 @@
 # 📋 DB v2 Migration Plan & Test Runbook
 
+> **Lưu ý (markOSv2)**: Migration v1→v2 đã hoàn tất. Các script một-lần `scripts/backfill_v2.py` và `scripts/verify_v2_drift.py` đã được **xoá** ở repo này (bản gốc còn trong git history của `marketing-os-bot`). Tài liệu giữ lại làm hồ sơ lịch sử.
+>
 > **Status**: Phase A (chưa bắt đầu migrate) | **Branch**: `refactor/db-v2-normalize`
 > **Tài liệu này = runbook**: làm tới đâu tick tới đó. Quay lại check bất cứ lúc nào.
 

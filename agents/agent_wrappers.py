@@ -13,7 +13,6 @@ mapping với 8 strategic skill classes hiện có + 1 conditional logic cho USP
 from __future__ import annotations
 
 import logging
-from typing import Optional
 
 from storage.models import Session
 from agents.skills import (
@@ -45,7 +44,6 @@ async def _run_skill_via_router(skill: AgentSkill, session: Session, task_type) 
     """
     from tools.llm_router import call as router_call, AllProvidersFailedError
     from agents.output_formats import get_format_instruction, get_lang_instruction
-    from tools.token_tracker import track_usage_raw
 
     context = skill.build_context(session)
     user_msg = skill.build_user_msg(session)

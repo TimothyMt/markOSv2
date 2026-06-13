@@ -836,7 +836,7 @@ def build_single_skill_report(
 </div>"""
 
     # Single tab with skill name
-    radio = f'<input type="radio" name="tab" id="tab-0" class="tab-state" checked>'
+    radio = '<input type="radio" name="tab" id="tab-0" class="tab-state" checked>'
     tab_label = (
         f'<label for="tab-0" class="tab-btn">'
         f'<span>{meta["icon"]}</span> {meta["title"]}'
@@ -1037,7 +1037,7 @@ async def _generate_banner_copy_via_llm(
     )
 
     user_parts = [
-        f"# Business",
+        "# Business",
         f"- Tên brand: {business_name}",
         f"- Ngành: {industry_vi}",
         f"- Archetype mua hàng: {label_full}",

@@ -442,7 +442,7 @@ async def _smoke_test():
     assert "mock_fail" in results and not results["mock_fail"].success
     assert "ValueError" in results["mock_fail"].error
     assert len(progress_msgs) == 2  # start + end
-    print(f"  ✓ All 3 agents returned, 2 success + 1 fail (isolated)")
+    print("  ✓ All 3 agents returned, 2 success + 1 fail (isolated)")
     print(f"  ✓ Latencies: fast={results['mock_fast'].latency_sec:.2f}s, "
           f"slow={results['mock_slow'].latency_sec:.2f}s, "
           f"fail={results['mock_fail'].latency_sec:.2f}s")

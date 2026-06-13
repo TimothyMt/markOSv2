@@ -28,7 +28,6 @@ import re
 import sys
 from dataclasses import dataclass, field
 from typing import Optional
-from unittest.mock import AsyncMock, MagicMock, patch, PropertyMock
 
 import pytest
 
@@ -147,17 +146,10 @@ async def _capture_injected(skill_name: str, session: _FakeSession,
     Chạy phần injection logic của _run_skill mà không call LLM thật.
     Returns (context, user_msg) AFTER injection.
     """
-    from agents.pipeline import _run_skill
-    from agents.skills import AgentSkill
 
     # Patch storage.get_brand_voice
     async def _mock_get_bv(user_id):
         return bv_mock
-
-    # Patch _run_skill để chỉ chạy injection + trả về (ctx, msg) thay vì call LLM
-    captured: dict = {}
-
-    original_executor = None  # sẽ patch _execute_skill_with_llm
 
     skill = _FakeSkill(skill_name)
 

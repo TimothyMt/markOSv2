@@ -2,12 +2,10 @@
 CRUD helpers cho table tracked_competitors.
 Lưu trữ các đối thủ user đang theo dõi tự động qua FB Ads Library.
 """
-import json
 import logging
 from datetime import datetime
-from typing import Optional
 
-from storage.session import _client, TABLE as _SESSIONS_TABLE  # reuse client
+from storage.session import _client  # reuse client
 
 logger = logging.getLogger(__name__)
 

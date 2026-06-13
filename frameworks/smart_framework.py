@@ -154,7 +154,7 @@ def format_smart_prompt(industry: str, stage: str, goals: list[str]) -> str:
 
     for tmpl in templates:
         lines += [
-            f"",
+            "",
             f"**{tmpl['goal_type']}** (timeframe mặc định: {tmpl['timeframe_default']}):",
             f"_{tmpl['template']}_",
             f"KPIs cần track: {', '.join(tmpl['metrics'])}",

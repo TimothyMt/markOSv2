@@ -244,7 +244,7 @@ async def run_advisor(session: Session, engagement_id: Optional[str] = None) -> 
     """
     from agents.discovery import (
         assemble_research_from_deepdives, generate_diagnostic_brief,
-        persist_discovery, render_brief_card,
+        render_brief_card,
     )
 
     # 1. Gom deep-dive → research → brief xếp hạng giả thuyết

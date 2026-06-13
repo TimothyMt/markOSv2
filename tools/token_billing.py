@@ -10,7 +10,6 @@ All prices in USD per 1M tokens (input, output).
 """
 from __future__ import annotations
 
-from typing import Optional
 
 # ─────────────────────────────────────────────────────────────────
 # Price table — (input_usd_per_1m, output_usd_per_1m)
@@ -196,7 +195,7 @@ def format_cost_report(session) -> str:
     total_vnd = summary["total_vnd"]
 
     lines = [
-        f"💰 *Chi phí API (session này)*",
+        "💰 *Chi phí API (session này)*",
         f"Tổng: {fmt_usd(total_usd)} ≈ {fmt_vnd(total_vnd)}",
         "",
         "*Theo provider:*",

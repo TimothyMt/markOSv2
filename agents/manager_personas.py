@@ -9,7 +9,7 @@ Invoke: user tag @manager hoặc hỏi về domain → router xác định perso
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Optional
 
 from storage.models import Session
@@ -719,7 +719,6 @@ def render_persona_intro(persona: ManagerPersona, first_time: bool = True) -> st
     """Intro card khi persona được gọi. Pure."""
     if not first_time:
         return f"{persona.emoji} *{persona.name}* đây ạ —"
-    skills_str = " · ".join(persona.owns_skills)
     return (
         f"{persona.emoji} *{persona.name}* ({persona.role})\n"
         f"_{persona.domain_summary}_\n\n"
