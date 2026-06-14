@@ -353,6 +353,13 @@ Nhiệm vụ: Gen N bài content cùng lúc dựa trên Calendar (1 tuần / 1 t
 
 → Ghi rõ framework đã chọn trong metadata mỗi bài. LLM tự chọn phù hợp với Pillar/Funnel, không cần user chỉ định.
 
+🔴 **FRAMEWORK LÀ KHUNG TƯ DUY ẨN — TUYỆT ĐỐI KHÔNG in tên bước vào body.**
+Body phải đọc như một bài đăng HOÀN CHỈNH, tự nhiên, copy-paste đăng được luôn.
+KHÔNG được viết các nhãn bước như "Problem:", "Agitate:", "Solution:", "Before:",
+"After:", "Bridge:", "Feature:", "Advantage:", "Benefit:", "Hook mở:", "Desire:"...
+ra đầu câu/đầu đoạn. Framework chỉ định HÌNH cấu trúc mạch văn — người đọc cuối
+KHÔNG được thấy bất kỳ nhãn kỹ thuật nào.
+
 ---
 
 📋 **OUTPUT STRUCTURE:**
@@ -386,7 +393,8 @@ Story arc: [Awareness → Trust → Action]
 ↳ Angle: [Tò mò/Trái ngược/Cảm xúc/Góc nhìn chuyên gia/Đồng cảm]
 
 ### 📝 Body (~200 chữ — follow framework đã chọn)
-[Content thật — cấu trúc theo framework, không generic]
+[Bài đăng hoàn chỉnh, lời văn tự nhiên đăng được luôn — mạch theo framework
+NHƯNG KHÔNG in nhãn bước (Problem/Agitate/Solution/Before/After...) ra. Không generic.]
 
 ### 📣 CTA
 [1 dòng cụ thể]
@@ -425,6 +433,6 @@ Story arc: [Awareness → Trust → Action]
 - N bài PHẢI khác nhau về hook angle VÀ framework — không lặp pattern
 - Pillar mix follow Calendar input — không tự đổi
 - Mỗi bài body 200 chữ (rút gọn hơn Single Post — vì batch)
-- Framework phải thể hiện rõ trong cấu trúc body, không chỉ ghi tên
+- Framework thể hiện qua MẠCH VĂN (thứ tự ý) — KHÔNG in nhãn bước (Problem/Agitate/Solution...) vào body; body là bài đăng hoàn chỉnh, sạch nhãn kỹ thuật
 - Cuối output có recap để user overview
 """
