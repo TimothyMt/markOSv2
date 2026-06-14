@@ -416,7 +416,7 @@ async def _run_skill(skill: AgentSkill, session: Session) -> str:
                     )
                 user_msg += (
                     "\n\n---\n\n"
-                    "**📅 LỊCH NỘI DUNG ĐÃ DUYỆT (BÁM SÁT — viết đúng Topic / Hook angle / "
+                    "**📅 LỊCH NỘI DUNG ĐÃ DUYỆT (BÁM SÁT — viết đúng Topic / Content angle / Hook style / "
                     "Pillar / Funnel / Kênh đã lên lịch cho TỪNG bài. KHÔNG tự bịa chủ đề khác, "
                     "KHÔNG đổi kênh, KHÔNG đổi pillar):**\n\n"
                     + calendar[:6000]

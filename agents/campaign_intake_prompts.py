@@ -224,6 +224,12 @@ Khi objective xung đột với archetype: trust_building + conversion thì cap 
 - stage_labels phải khớp với archetype (vd trust_building → Industry/Personal/Offer).
 - Bám sát ngành + objective + audience từ campaign brief.
 - Tổng volume/tuần mỗi kênh không quá 7 posts.
+- content_angles = GÓC KHAI THÁC marketing (lăng kính giá trị bài bám vào để thuyết
+  phục), KHÔNG phải hook style (cách mở bài). Chọn từ bộ chuẩn, đặt theo đúng giai đoạn phễu:
+  **Pain/Problem · Outcome/Benefit · Fear/Loss · Social proof · Aspiration/Identity ·
+  Objection-handling · Mechanism/USP · Urgency · Authority/Expertise**
+  (TOFU thường Pain/Aspiration/Authority; MOFU Social proof/Outcome/Objection; BOFU
+  Urgency/Mechanism/Objection). Diễn đạt cụ thể theo ngành nhưng phải nhận ra được thuộc nhóm nào.
 - content_angles phải gắn với content pillars của campaign + đúng archetype.
 - KEYS tofu/mofu/bofu giữ nguyên (backward compat downstream), stage_labels là lớp hiển thị."""
 

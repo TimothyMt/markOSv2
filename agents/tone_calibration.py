@@ -70,15 +70,25 @@ def parse_first_post(calendar_text: str) -> Optional[dict]:
             continue
 
         # Find important column indices
+        # "topic"/"chủ đề" trước; tránh match nhầm "Content angle" (chứa "content")
         topic_idx = next(
             (i for i, h in enumerate(header_cells_orig)
-             if any(k in h.lower() for k in ["topic", "chủ đề", "nội dung", "content"])),
+             if "topic" in h.lower() or "chủ đề" in h.lower()
+                or ("nội dung" in h.lower() and "angle" not in h.lower())),
             min(7, len(first_data_row) - 1),
         )
+        # "Hook style" (cách mở) ưu tiên hơn "Content angle" (góc khai thác) cho preview hook
         hook_idx = next(
+            (i for i, h in enumerate(header_cells_orig) if "hook" in h.lower()),
+            next(
+                (i for i, h in enumerate(header_cells_orig) if "angle" in h.lower()),
+                min(6, len(first_data_row) - 1),
+            ),
+        )
+        cangle_idx = next(
             (i for i, h in enumerate(header_cells_orig)
-             if any(k in h.lower() for k in ["hook", "angle"])),
-            min(6, len(first_data_row) - 1),
+             if "content angle" in h.lower() or ("angle" in h.lower() and "hook" not in h.lower())),
+            None,
         )
         day_idx = 0
         channel_idx = next(
@@ -101,15 +111,17 @@ def parse_first_post(calendar_text: str) -> Optional[dict]:
         channel = first_data_row[channel_idx] if channel_idx < len(first_data_row) else ""
         pillar_val = (first_data_row[pillar_idx] if pillar_idx is not None and pillar_idx < len(first_data_row) else "Educate")
         funnel_val = (first_data_row[funnel_idx] if funnel_idx is not None and funnel_idx < len(first_data_row) else "TOFU")
+        cangle_val = (first_data_row[cangle_idx] if cangle_idx is not None and cangle_idx < len(first_data_row) else "")
 
         if topic and len(topic) > 10:
-            preview = f"📅 {day} | {channel}\n🎯 Hook angle: {hook}\n📝 Topic: {topic}"
+            preview = f"📅 {day} | {channel}\n🎯 Hook style: {hook}\n📝 Topic: {topic}"
             return {
                 "preview":   preview,
                 "full_block": first_row_raw,
                 "row_meta":  {
                     "day": day, "channel": channel, "topic": topic,
-                    "hook_angle": hook, "pillar": pillar_val, "funnel": funnel_val,
+                    "hook_angle": hook, "content_angle": cangle_val,
+                    "pillar": pillar_val, "funnel": funnel_val,
                 },
             }
 
@@ -126,7 +138,7 @@ def parse_first_post(calendar_text: str) -> Optional[dict]:
 
     # ── Fallback: first paragraph that looks like content, not metadata ──
     # Skip paragraphs that are metadata/instructions (contain "Lưu ý", "Owner", "Giờ đăng" etc.)
-    skip_keywords = ["lưu ý", "owner", "giờ đăng", "hook angle", "tổng kế hoạch", "tổng số bài"]
+    skip_keywords = ["lưu ý", "owner", "giờ đăng", "hook angle", "hook style", "content angle", "tổng kế hoạch", "tổng số bài"]
     paragraphs = [
         p.strip() for p in calendar_text.split("\n\n")
         if len(p.strip()) > 100
@@ -175,6 +187,7 @@ async def generate_sample_post(
     channel = row_meta.get("channel", "Facebook")
     topic   = row_meta.get("topic", "")
     hook_angle = row_meta.get("hook_angle", "Tò mò")
+    content_angle = row_meta.get("content_angle", "")
 
     framework_hint = {
         "educate": "PAS hoặc Star-Story",
@@ -197,7 +210,8 @@ async def generate_sample_post(
 - Kênh: {channel}
 - Pillar: {pillar} | Funnel: {funnel}
 - Topic: {topic}
-- Hook angle: {hook_angle}
+- Content angle (góc khai thác): {content_angle or 'theo funnel'}
+- Hook style (cách mở): {hook_angle}
 - Framework gợi ý: {framework_hint}
 
 **Business Profile:**
@@ -218,7 +232,7 @@ Viết bài {channel} hoàn chỉnh theo thông tin trên."""
         return resp.content[0].text.strip()
     except Exception as e:
         logger.warning("generate_sample_post failed: %s", e)
-        return f"[Topic: {topic}]\n[Hook angle: {hook_angle}]\n\n_(Em không gen được bài mẫu — sếp check tone dựa trên kế hoạch trên nhé.)_"
+        return f"[Topic: {topic}]\n[Hook style: {hook_angle}]\n\n_(Em không gen được bài mẫu — sếp check tone dựa trên kế hoạch trên nhé.)_"
 
 
 

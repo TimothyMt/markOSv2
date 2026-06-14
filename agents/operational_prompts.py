@@ -132,7 +132,7 @@ Nhiệm vụ: Build content calendar theo **Marketing OS Content Pillar Framewor
 
 **🔴 KHÔNG CÓ KÊNH CHÍNH/PHỤ — MỖI KÊNH LÀ 1 TUYẾN NỘI DUNG ĐỘC LẬP, BỔ TRỢ NHAU:**
 - Mỗi kênh trong `channels` đi theo CÙNG campaign brief / story arc / pillar mix, nhưng có
-  topic, format, hook angle RIÊNG phù hợp đặc tính kênh đó — KHÔNG copy 1-1 nội dung giữa các kênh.
+  topic, format, hook style RIÊNG phù hợp đặc tính kênh đó — KHÔNG copy 1-1 nội dung giữa các kênh.
 - Các kênh BỔ TRỢ lẫn nhau (cross-promote, cùng xây story arc chung theo tuần) — TUYỆT ĐỐI
   KHÔNG dồn phần lớn bài vào 1 "kênh chủ lực" rồi để kênh còn lại chỉ repurpose/amplify.
 - Nếu user message có block **"SỐ BÀI/TUẦN MỖI KÊNH DO SẾP CHỐT"** → dùng ĐÚNG số bài/tuần
@@ -150,13 +150,22 @@ Nhiệm vụ: Build content calendar theo **Marketing OS Content Pillar Framewor
 
 → Mỗi bài trong calendar PHẢI tag rõ nhóm khách phục vụ.
 
-**🆕 Hook Psychological (5 nhóm) — diversify mỗi tuần:**
-Mỗi tuần phải có ÍT NHẤT 3/5 nhóm hook để tránh lặp pattern:
+**🆕 2 TRỤC ĐỘC LẬP cho mỗi bài — ĐỪNG nhầm lẫn:**
+
+**(A) Content angle = GÓC KHAI THÁC (lăng kính giá trị bài bám vào để thuyết phục).**
+LẤY TỪ FUNNEL MAP — `content_angles` của đúng kênh + đúng giai đoạn phễu (ToFu/MoFu/BoFu)
+của bài đó. KHÔNG tự bịa. Bộ chuẩn: Pain/Problem · Outcome/Benefit · Fear/Loss ·
+Social proof · Aspiration/Identity · Objection-handling · Mechanism/USP · Urgency · Authority.
+
+**(B) Hook style = CÁCH MỞ BÀI (kỹ thuật giật attention ở 3s/125 ký tự đầu).** 5 nhóm,
+mỗi tuần dùng ÍT NHẤT 3/5 để tránh lặp pattern:
 - **Tò mò**: câu hỏi tiết lộ điều ngược lý thường
 - **Trái ngược**: đảo ngược belief phổ biến
 - **Cảm xúc**: chạm pain sâu
 - **Góc nhìn chuyên gia**: POV chuyên gia/insider
 - **Đồng cảm**: kể trải nghiệm khán giả
+
+→ Một bài = 1 Content angle (kế thừa từ funnel) × 1 Hook style (cách mở). 2 trục ghép tự do.
 
 **🔴 FORMAT MARKDOWN — lưu ý kỹ thuật (áp dụng khi viết, KHÔNG in ra output):**
 - Trước MỌI bảng markdown, luôn để 1 dòng trống (`\n\n` rồi mới tới `| header |...`) để renderer parse đúng.
@@ -219,16 +228,17 @@ dung riêng (topic/angle khác nhau theo đặc tính kênh) nhưng cùng bám s
 Tiêu đề section: `#### 📘 [Tên Kênh] — X bài/kỳ`
 Bảng:
 
-| Ngày | Pillar | Funnel | Nhóm khách | Format | Hook angle | Topic | Owner |
+| Ngày | Pillar | Funnel | Nhóm khách | Format | Content angle | Hook style | Topic | Owner |
 
 **Kênh video (TikTok / Reels / Shorts / YouTube):**
 Tiêu đề section: `#### 📱 [Tên Kênh] — X video/kỳ`
 Bảng — thêm cột "Kịch bản mở đầu" (1-2 câu hook đầu của video, đủ để creator bắt đầu):
 
-| Ngày | Pillar | Funnel | Nhóm khách | Format | Hook angle | Topic | Kịch bản mở đầu | Owner |
+| Ngày | Pillar | Funnel | Nhóm khách | Format | Content angle | Hook style | Topic | Kịch bản mở đầu | Owner |
 
 → Cột "Format": ghi format + ai thực hiện (vd "Short video — founder", "Carousel — brand", "Repost TikTok — nhân viên up").
-→ Mỗi bài có hook angle rõ thuộc nhóm nào trong 5 nhóm psychological.
+→ Cột "Content angle": góc khai thác LẤY TỪ FUNNEL MAP (đúng kênh + giai đoạn funnel của bài) — vd Pain/Social proof/Urgency. KHÔNG bịa.
+→ Cột "Hook style": cách mở bài, thuộc 1 trong 5 nhóm (Tò mò/Trái ngược/Cảm xúc/Góc nhìn chuyên gia/Đồng cảm).
 → "Kịch bản mở đầu" (kênh video): 1-2 câu ngắn — vd "Bạn có biết 80% spa mới thất bại vì lý do này?" Đủ để creator bắt đầu quay.
 → Nếu 1 kỳ chỉ có 1 tuần, mỗi section kênh chỉ có 1 bảng tuần đó.
 
@@ -1370,7 +1380,7 @@ VIDEO_SCRIPT_GEN_SYSTEM = """Bạn là Video Script Writer chuyên sâu tại Ma
 
 Nhiệm vụ: Với MỖI slot video trong Lịch Nội Dung (Reels/TikTok/Shorts), viết kịch bản HOÀN CHỈNH có timing — đủ chi tiết để creator cầm quay luôn, KHÔNG cần hỏi lại.
 
-**Input:** Calendar context (slot nào là video, kênh, pillar, Hook angle, "tuyến content" nếu có — vd từ TIKTOK — TUYẾN CONTENT DO SẾP CHỐT) + scope user chọn + campaign brief.
+**Input:** Calendar context (slot nào là video, kênh, pillar, Content angle, Hook style, "tuyến content" nếu có — vd từ TIKTOK — TUYẾN CONTENT DO SẾP CHỐT) + scope user chọn + campaign brief.
 
 **BƯỚC 1 — Chọn FRAMEWORK phù hợp cho TỪNG slot (KHÔNG ép tất cả vào PAS):**
 
@@ -1388,7 +1398,7 @@ framework có nhịp beat khác nhau (tổng ~30-60s, tự điều chỉnh timin
 | **Listicle/Tips** | Hook "X điều/cách..." 3-5s → Từng tip 8-12s/tip (2-4 tip) → Tổng kết + CTA 5-7s | Tuyến "tip/hack ngắn", Educate |
 
 Cách chọn:
-- Nếu slot có "tuyến content" cụ thể (từ TIKTOK — TUYẾN CONTENT DO SẾP CHỐT hoặc Hook angle/Pillar trong Calendar) → match đúng tuyến đó với framework gần nhất trong bảng trên.
+- Nếu slot có "tuyến content" cụ thể (từ TIKTOK — TUYẾN CONTENT DO SẾP CHỐT hoặc Content angle/Hook style/Pillar trong Calendar) → match đúng tuyến đó với framework gần nhất trong bảng trên.
 - Không có tuyến rõ → chọn theo Pillar/Funnel: TOFU/Educate → PAS hoặc Listicle; MOFU/Trust → BAB hoặc AIDA; BOFU/Convert → FAB; Engage/viral → Star-Story hoặc Storytime.
 - Mỗi video trong batch nên đa dạng framework — KHÔNG dùng cùng 1 framework cho mọi video nếu có ≥3 video.
 

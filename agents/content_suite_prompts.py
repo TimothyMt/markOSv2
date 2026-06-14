@@ -110,7 +110,7 @@ Vd: "Inbox 'tư vấn' — mình sẽ check + tư vấn size phù hợp cho bạ
 
 ═══════════════════════════════════════════════════
 📊 Meta:
-- Hook angle recommend: [Tên angle]
+- Hook style recommend: [Tò mò/Trái ngược/Cảm xúc/Góc nhìn chuyên gia/Đồng cảm]
 - Estimated read time: [X]
 - Target benchmark: [CTR/engagement guess theo industry]
 ═══════════════════════════════════════════════════
@@ -334,7 +334,14 @@ Nhiệm vụ: Gen N bài content cùng lúc dựa trên Calendar (1 tuần / 1 t
 
 ---
 
-## 5 HOOK ANGLES — diversify mỗi tuần (mỗi bài chọn 1)
+## 2 TRỤC mỗi bài — ĐỪNG nhầm: Content angle (góc khai thác) vs Hook style (cách mở)
+
+**(A) Content angle = GÓC KHAI THÁC** (lăng kính giá trị cả bài bám vào để thuyết phục).
+🔴 LẤY TỪ Calendar/Funnel Map đã có trong context — cột "Content angle" của đúng bài/slot
+đó. KHÔNG tự bịa. Bộ chuẩn: Pain/Problem · Outcome/Benefit · Fear/Loss · Social proof ·
+Aspiration/Identity · Objection-handling · Mechanism/USP · Urgency · Authority.
+
+**(B) Hook style = CÁCH MỞ BÀI** (kỹ thuật giật attention ở câu đầu) — mỗi bài chọn 1:
 
 1. **Tò mò**: câu hỏi tiết lộ paradox — "Tại sao 90% X không Y?"
 2. **Trái ngược**: đảo belief phổ biến — "X KHÔNG cần Y"
@@ -342,7 +349,8 @@ Nhiệm vụ: Gen N bài content cùng lúc dựa trên Calendar (1 tuần / 1 t
 4. **Góc nhìn chuyên gia**: POV insider — "8 năm làm X, đây là sai lầm số 1"
 5. **Đồng cảm**: kể trải nghiệm khán giả — "Bạn đứng trước kệ skincare 30 phút..."
 
-→ Không lặp cùng 1 angle liên tiếp 2 bài. Mỗi tuần phải dùng ít nhất 3/5 angles.
+→ Không lặp cùng 1 Hook style liên tiếp 2 bài. Mỗi tuần dùng ít nhất 3/5 Hook style.
+→ Content angle bám đúng giai đoạn phễu của bài (ToFu Pain/Aspiration · MoFu Social proof/Outcome · BoFu Urgency/Objection).
 
 ---
 
@@ -391,11 +399,12 @@ Story arc: [Awareness → Trust → Action]
 
 **Pillar:** [X] | **Funnel:** [Y] | **Source:** [Brand/UGC/EGC/FGC]
 **Format:** [Single image / Carousel / Video / Live]
+**Content angle:** [góc khai thác kế thừa từ Calendar/Funnel — vd Social proof / Pain / Urgency]
+**Hook style:** [Tò mò / Trái ngược / Cảm xúc / Góc nhìn chuyên gia / Đồng cảm]
 **Framework:** [PAS / BAB / AIDA / FAB / Star-Story]
 
 ### 🪝 Hook (recommend 1)
 "[Hook 12-15 từ]"
-↳ Angle: [Tò mò/Trái ngược/Cảm xúc/Góc nhìn chuyên gia/Đồng cảm]
 
 ### 📝 Body (~200 chữ — follow framework đã chọn)
 [Bài đăng hoàn chỉnh, lời văn tự nhiên đăng được luôn — mạch theo framework
@@ -427,7 +436,8 @@ NHƯNG KHÔNG in nhãn bước (Problem/Agitate/Solution/Before/After...) ra. Kh
 ═══════════════════════════════════════════════════
 📊 Recap:
 - Total: [N] bài
-- Hook angles dùng: [list angles + count mỗi angle]
+- Content angles dùng: [list content angle + count — bám funnel: Pain/Social proof/Urgency...]
+- Hook styles dùng: [list hook style + count — Tò mò/Trái ngược/...]
 - Frameworks dùng: [list frameworks + count]
 - Channels: [list]
 - Khi nào cần adapt sang TikTok/Zalo → dùng skill Channel Adapter
@@ -435,7 +445,8 @@ NHƯNG KHÔNG in nhãn bước (Problem/Agitate/Solution/Before/After...) ra. Kh
 ```
 
 **Quy tắc:**
-- N bài PHẢI khác nhau về hook angle VÀ framework — không lặp pattern
+- N bài PHẢI khác nhau về Hook style VÀ framework — không lặp pattern
+- Content angle kế thừa từ Calendar/Funnel Map (KHÔNG tự bịa); Hook style chọn theo 5 nhóm
 - Pillar mix follow Calendar input — không tự đổi
 - Mỗi bài body 200 chữ (rút gọn hơn Single Post — vì batch)
 - Framework thể hiện qua MẠCH VĂN (thứ tự ý) — KHÔNG in nhãn bước (Problem/Agitate/Solution...) vào body; body là bài đăng hoàn chỉnh, sạch nhãn kỹ thuật

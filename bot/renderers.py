@@ -34,7 +34,7 @@ _TEMPLATE_PATH = os.path.join(
 SKILL_TEMPLATE_SHEET: dict[str, str] = {
     "content_generator":   "📅 Content Calendar",
     # content_calendar KHÔNG map vào template cố định: nó là bảng KẾ HOẠCH
-    # (Funnel / Nhóm khách / Topic / Hook angle...) — cột khác hẳn template
+    # (Funnel / Nhóm khách / Topic / Content angle / Hook style...) — cột khác hẳn template
     # post 15-cột → ép vào template chỉ ra file rỗng. Dùng dynamic extraction
     # (render_excel_file) để dựng workbook từ chính các bảng kế hoạch của nó.
     # post_batch KHÔNG map vào template "📅 Content Calendar": output của
@@ -396,7 +396,7 @@ def _parse_post_batch_narrative(
         return mm.group(1).strip() if mm else ""
 
     headers = ["Tuần", "Bài", "Ngày/Giờ", "Kênh", "Pillar", "Funnel",
-               "Format", "Angle", _PB_FULLPOST_COL, "🎨 Visual"]
+               "Format", "Content angle", "Hook style", _PB_FULLPOST_COL, "🎨 Visual"]
     rows: list[list[str]] = []
 
     for idx, m in enumerate(matches):
@@ -415,6 +415,8 @@ def _parse_post_batch_narrative(
         pillar = _meta(block, "Pillar")
         funnel = _meta(block, "Funnel")
         fmt = _meta(block, "Format")
+        content_angle = _meta(block, "Content angle")
+        hook_style = _meta(block, "Hook style")
 
         hook_raw = _section(block, "Hook")
         body = _section(block, "Body")
@@ -422,10 +424,11 @@ def _parse_post_batch_narrative(
         hashtags = _section(block, r"Hashtag|#️⃣")
         visual = _section(block, "Visual")
 
-        angle = ""
-        am = re.search(r"(?im)Angle[ \t]*:?[ \t]*([^\n]+)", hook_raw)
-        if am:
-            angle = am.group(1).strip(" []")
+        # Fallback: bản cũ ghi "↳ Angle:" trong section Hook → coi như hook style
+        if not hook_style:
+            am = re.search(r"(?im)Angle[ \t]*:?[ \t]*([^\n]+)", hook_raw)
+            if am:
+                hook_style = am.group(1).strip(" []")
 
         hook = ""
         for line in hook_raw.splitlines():
@@ -444,7 +447,7 @@ def _parse_post_batch_narrative(
 
         rows.append([
             _week_for(m.start()), bai_num, ngay, kenh, pillar, funnel,
-            fmt, angle, full_post, visual,
+            fmt, content_angle, hook_style, full_post, visual,
         ])
 
     if not rows:
@@ -822,7 +825,7 @@ def _haiku_rebuild_table(text: str, skill_name: str) -> Optional[str]:
         ),
         "content_calendar": (
             "Lịch nội dung với cột: "
-            "Tuần | Ngày | Kênh | Pillar | Funnel | Nhóm khách | Source | Hook angle | Topic | Format | Owner"
+            "Tuần | Ngày | Kênh | Pillar | Funnel | Nhóm khách | Source | Content angle | Hook style | Topic | Format | Owner"
         ),
     }
     schema_desc = schemas.get(skill_name, "Tự deduce cấu trúc từ output")
