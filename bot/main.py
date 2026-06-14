@@ -48,6 +48,7 @@ from bot.handlers import (
     cmd_history,
     cmd_post,
     cmd_video_script_gen,
+    cmd_content_generator,
 )
 
 logging.basicConfig(
@@ -88,6 +89,7 @@ def _build_app() -> Application:
     app.add_handler(CommandHandler("history",      cmd_history))
     app.add_handler(CommandHandler("post",         cmd_post))
     app.add_handler(CommandHandler("video_script_gen", cmd_video_script_gen))
+    app.add_handler(CommandHandler("content_generator", cmd_content_generator))
 
     app.add_handler(CallbackQueryHandler(handle_callback))
     app.add_handler(MessageHandler(filters.PHOTO, handle_photo))

@@ -427,6 +427,19 @@ async def cmd_video_script_gen(update: Update, context: ContextTypes.DEFAULT_TYP
     )
 
 
+@with_user_lock
+async def cmd_content_generator(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """/content_generator — mở nhanh menu sản xuất nội dung (Nam — Content),
+    không cần đi qua Main Menu → ✍️ Nam — Content."""
+    await update.message.reply_text(
+        "✍️ *Nam đây sếp!* Sếp muốn viết content kiểu nào?\n\n"
+        "📅 *Theo Lịch Nội Dung* — bám sát calendar đã duyệt, sản xuất hàng loạt.\n"
+        "✍️ *Bài mới theo yêu cầu* — viết 1 bài lẻ, em hỏi sếp vài câu rồi viết.",
+        parse_mode=ParseMode.MARKDOWN,
+        reply_markup=NAM_MODE_KEYBOARD,
+    )
+
+
 # ─── Main message handler ─────────────────────────────────────────
 
 @with_user_lock
