@@ -414,6 +414,19 @@ async def cmd_dbg_funnel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await _emit_funnel_approve_prompt(update.message, session, prompt)
 
 
+@with_user_lock
+async def cmd_video_script_gen(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """/video_script_gen — mở nhanh menu viết kịch bản video (Trang — TikTok),
+    không cần đi qua Main Menu → 🎬 Trang — TikTok."""
+    await update.message.reply_text(
+        "🎬 *Trang đây sếp!* Sếp muốn làm video kiểu nào?\n\n"
+        "🎬 *Theo Lịch Nội Dung* — kịch bản cho các slot video trong calendar.\n"
+        "📝 *Kịch bản mới* — 1 kịch bản lẻ theo yêu cầu, em hỏi creator type rồi viết.",
+        parse_mode=ParseMode.MARKDOWN,
+        reply_markup=TRANG_MODE_KEYBOARD,
+    )
+
+
 # ─── Main message handler ─────────────────────────────────────────
 
 @with_user_lock
