@@ -37,7 +37,13 @@ SKILL_TEMPLATE_SHEET: dict[str, str] = {
     # (Funnel / Nhóm khách / Topic / Hook angle...) — cột khác hẳn template
     # post 15-cột → ép vào template chỉ ra file rỗng. Dùng dynamic extraction
     # (render_excel_file) để dựng workbook từ chính các bảng kế hoạch của nó.
-    "post_batch":          "📅 Content Calendar",   # Content Suite v2
+    # post_batch KHÔNG map vào template "📅 Content Calendar": output của
+    # POST_BATCH_SYSTEM là narrative theo từng bài (## BÀI 1, ### Hook, ###
+    # Body, ### CTA...), KHÔNG có pipe table sẵn → phải Haiku-rebuild trước.
+    # Headers sau rebuild (Tuần|Bài|Ngày|Kênh|Pillar|...) chỉ trùng ~3/11 cột
+    # template (Ngày/Kênh/CTA) → file gần như trống. Dùng dynamic extraction
+    # (render_excel_file, đã có schema riêng cho post_batch + xử lý master
+    # table giống content_generator) để dựng workbook đúng cấu trúc.
     "ads_generator":       "✍️ Ad Copy",
     "ads_copy":            "✍️ Ad Copy",
     # video_scripts / video_script_gen KHÔNG map vào template "🎬 Video Script":
@@ -577,9 +583,10 @@ def render_excel_file(
             new_sheets.append((t_title, new_headers, new_rows))
         sheets_to_render = new_sheets
 
-    # SPECIAL — Content Generator: chỉ giữ MASTER table (có cột Tuần + Bài),
-    # bỏ qua các mini-table phụ trong content (size guides, comparison tables, etc.)
-    if skill_name == "content_generator":
+    # SPECIAL — Content Generator / Post Batch: chỉ giữ MASTER table (có cột
+    # Tuần + Bài), bỏ qua các mini-table phụ trong content (size guides,
+    # comparison tables, etc.)
+    if skill_name in ("content_generator", "post_batch"):
         master_table = None
         for t_title, t_headers, t_rows in tables:
             cleaned_headers_lower = [_clean_cell(h).lower().strip() for h in t_headers]
@@ -602,7 +609,7 @@ def render_excel_file(
                     sheets_to_render.append((f"{week_label} ({len(week_rows)} bài)", s_headers, week_rows))
         else:
             # Không có master table → LLM output thiếu. Vẫn render những gì có để debug
-            logger.warning("content_generator: master table (Tuần+Bài columns) not found in output. Falling back to default render.")
+            logger.warning("%s: master table (Tuần+Bài columns) not found in output. Falling back to default render.", skill_name)
 
     used_names = set()
     for idx, (table_title, headers, rows) in enumerate(sheets_to_render):
@@ -688,6 +695,12 @@ def _haiku_rebuild_table(text: str, skill_name: str) -> Optional[str]:
             "Bài content output với 15 cột: "
             "Tuần | Bài | Ngày | Kênh | Pillar | Funnel | Source | Format | "
             "Angle | Hook | Body | CTA | Hashtags | Visual | Status"
+        ),
+        "post_batch": (
+            "Batch content — mỗi '## BÀI N — [Ngày Giờ] | [Kênh]' là 1 row, "
+            "lấy Tuần từ '## Tuần [X] Overview', cột: "
+            "Tuần | Bài | Ngày | Kênh | Pillar | Funnel | Source | Format | "
+            "Angle | Hook | Body | CTA | Hashtags | Visual"
         ),
         "content_calendar": (
             "Lịch nội dung với cột: "
