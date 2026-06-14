@@ -255,7 +255,8 @@ class ContentGeneratorPipeline:
         pi.setdefault("creator_type", "ugc")
 
         # video_script_gen + VideoScriptsSkill — pass scope from gate
-        pi.setdefault("scope", pi.get("scope") or f"{pi.get('weeks', '4 tuần')} — theo calendar")
+        # (scope luôn được hỏi ở form content_generator; fallback chỉ cho path cũ)
+        pi.setdefault("scope", pi.get("scope") or "Theo calendar")
         pi.setdefault("funnel", "TOFU")
         pi.setdefault("duration", "45s")
 

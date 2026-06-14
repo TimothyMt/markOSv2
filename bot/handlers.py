@@ -4093,11 +4093,6 @@ async def _send_single_shot_form(message: Message, session, task_name: str, _ski
         return
 
     intake_fields = task.intake_fields
-    if task_name == "content_generator" and session.pending_intake.get("scope"):
-        # Weekly mode (scope đã chốt = "Tuần N" ở _handle_week_selection_text)
-        # — field "weeks" (Lên plan mấy tuần?) không còn ý nghĩa, scope đã
-        # quyết định phạm vi chạy. Bỏ khỏi form, không prefill, không hỏi.
-        intake_fields = [f for f in intake_fields if f["key"] != "weeks"]
 
     # Ads tasks pull data từ 1 Ad Account cụ thể — nếu user có nhiều account,
     # cho chọn account trước khi vào form (tránh audit/phân tích nhầm account).
@@ -4246,7 +4241,6 @@ async def _send_single_shot_form(message: Message, session, task_name: str, _ski
             _brief_map = {
                 # field key         ← pending_intake source
                 "ads_usp":          intake.get("key_offer") or intake.get("campaign_goal"),
-                "weeks":            intake.get("duration"),
                 "highlight_angles": intake.get("campaign_goal") or intake.get("campaign_name"),
             }
             _intake_field_keys = {f["key"] for f in intake_fields}

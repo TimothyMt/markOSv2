@@ -224,7 +224,6 @@ OPERATIONAL_TASKS: dict[str, TaskConfig] = {
         description="Sản xuất toàn bộ content package: bài đăng + video script + UGC brief + ads — output Excel",
         skill_class_name="ContentGeneratorPipeline",
         intake_fields=[
-            {"key": "weeks",            "label": "Lên plan mấy tuần?",                   "example": "4 tuần / 2 tuần / 1 tuần",                     "required": True},
             {"key": "scope",            "label": "Sản xuất cho tuần / ngày nào?",         "example": "Tuần 1 (5-11/01/2026) — 14 bài",               "required": True},
             {"key": "highlight_angles", "label": "Angle / chủ đề muốn nhấn vào?",         "example": "Giảm đau hiệu quả; before/after thật; review khách", "required": False},
             {"key": "ads_usp",          "label": "USP + ưu đãi muốn đẩy qua ads?",        "example": "Giảm 20% tháng này; combo Tết 680K (gốc 850K)","required": False},
