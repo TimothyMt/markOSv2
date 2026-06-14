@@ -344,6 +344,114 @@ def _split_table_by_week(headers: list, rows: list[list]) -> Optional[dict]:
     return groups
 
 
+# Cột "bài đăng hoàn chỉnh" cho post_batch — ghép sẵn để copy 1 ô đăng được luôn.
+_PB_FULLPOST_COL = "📝 Bài đăng hoàn chỉnh (copy đăng luôn)"
+
+
+def _parse_post_batch_narrative(
+    text: str,
+) -> Optional[tuple[str, list[str], list[list[str]]]]:
+    """Parse output narrative của POST_BATCH_SYSTEM (## BÀI N → Hook/Body/CTA/
+    Hashtags/Visual) thành 1 master table — KHÔNG qua Haiku nên GIỮ NGUYÊN VĂN
+    lời bài (Haiku hay nén Body thành ghi chú khung sườn).
+
+    Cột `📝 Bài đăng hoàn chỉnh` = Hook + Body + CTA + Hashtags ghép sẵn (xuống
+    dòng thật) → copy 1 ô là đăng FB được luôn.
+
+    Trả về (title, headers, rows) hoặc None nếu output không theo cấu trúc này.
+    """
+    if not text:
+        return None
+
+    post_re = re.compile(r"(?im)^#{2,3}[ \t]*[^\n]*?\bB[ÀA]I[ \t]+(\d+)\b([^\n]*)$")
+    week_re = re.compile(r"(?im)^#{2,3}[ \t]*[^\n]*?\bTU[ẦA]N[ \t]+(\d+)\b")
+
+    matches = list(post_re.finditer(text))
+    if not matches:
+        return None
+
+    week_marks = [(m.start(), m.group(1)) for m in week_re.finditer(text)]
+
+    def _week_for(pos: int) -> str:
+        wk = ""
+        for mpos, wnum in week_marks:
+            if mpos <= pos:
+                wk = wnum
+            else:
+                break
+        return wk
+
+    def _section(block: str, names: str) -> str:
+        mm = re.search(
+            rf"(?ims)^#{{2,4}}[ \t]*[^\n]*?(?:{names})[^\n]*\n(.*?)(?=^#{{2,4}}[ \t]|\Z)",
+            block,
+        )
+        return mm.group(1).strip() if mm else ""
+
+    def _meta(block: str, label: str) -> str:
+        mm = re.search(rf"(?im)\*\*[ \t]*{label}[ \t]*:?[ \t]*\*\*[ \t]*([^\n|]+)", block)
+        if mm:
+            return mm.group(1).strip()
+        mm = re.search(rf"(?im)\b{label}[ \t]*:[ \t]*([^\n|]+)", block)
+        return mm.group(1).strip() if mm else ""
+
+    headers = ["Tuần", "Bài", "Ngày/Giờ", "Kênh", "Pillar", "Funnel",
+               "Format", "Angle", _PB_FULLPOST_COL, "🎨 Visual"]
+    rows: list[list[str]] = []
+
+    for idx, m in enumerate(matches):
+        start = m.end()
+        end = matches[idx + 1].start() if idx + 1 < len(matches) else len(text)
+        block = text[start:end]
+        bai_num = m.group(1)
+
+        # Header tail: "— Mon 12:00 | TikTok"
+        tail = m.group(2).strip().lstrip("—-–").strip()
+        ngay, kenh = tail, ""
+        if "|" in tail:
+            parts = tail.split("|", 1)
+            ngay, kenh = parts[0].strip(), parts[1].strip()
+
+        pillar = _meta(block, "Pillar")
+        funnel = _meta(block, "Funnel")
+        fmt = _meta(block, "Format")
+
+        hook_raw = _section(block, "Hook")
+        body = _section(block, "Body")
+        cta = _section(block, "CTA")
+        hashtags = _section(block, r"Hashtag|#️⃣")
+        visual = _section(block, "Visual")
+
+        angle = ""
+        am = re.search(r"(?im)Angle[ \t]*:?[ \t]*([^\n]+)", hook_raw)
+        if am:
+            angle = am.group(1).strip(" []")
+
+        hook = ""
+        for line in hook_raw.splitlines():
+            ls = line.strip()
+            if not ls or ls.startswith("↳") or ls.lower().startswith("angle"):
+                continue
+            hook = ls.strip(' "')
+            break
+
+        full_post = "\n\n".join(p for p in [
+            f'"{hook}"' if hook else "",
+            body,
+            cta,
+            hashtags,
+        ] if p)
+
+        rows.append([
+            _week_for(m.start()), bai_num, ngay, kenh, pillar, funnel,
+            fmt, angle, full_post, visual,
+        ])
+
+    if not rows:
+        return None
+    return ("📊 Tổng hợp", headers, rows)
+
+
 def _norm_header(s: str) -> str:
     """Normalize header for fuzzy column matching (strip punctuation, lowercase)."""
     return re.sub(r'[^a-z0-9À-ɏ]', '', s.lower()) if s else ""
@@ -525,7 +633,17 @@ def render_excel_file(
     else:
         full_text = parsed.get("detail", "") + "\n\n" + parsed.get("raw", "")
 
-    tables = _extract_markdown_tables(full_text)
+    # post_batch: parse narrative trực tiếp (giữ nguyên văn lời bài) thay vì
+    # để Haiku nén Body. Fallback về extraction/Haiku nếu cấu trúc không khớp.
+    tables = None
+    if skill_name == "post_batch":
+        pb_table = _parse_post_batch_narrative(full_text)
+        if pb_table and pb_table[2]:
+            tables = [pb_table]
+            logger.info("render_excel_file [post_batch]: parsed %d posts deterministically (full caption)", len(pb_table[2]))
+
+    if tables is None:
+        tables = _extract_markdown_tables(full_text)
     if not tables:
         logger.warning("render_excel_file [%s]: no markdown tables found via parser, trying Haiku rebuild (full_text len=%d)",
                        skill_name, len(full_text))
