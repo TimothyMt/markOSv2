@@ -7070,7 +7070,9 @@ async def _run_content_generation_for_channel(message, session, weekly: bool) ->
     session.selected_task = "content_generator"
     session.pending_intake.pop("_content_gen_week", None)
     session.pending_intake.pop("_content_gen_weekly_mode", None)
-    session.pending_intake.pop("scope", None)
+    # Full-month mode: scope = toàn bộ Calendar đã duyệt — KHÔNG hỏi lại sếp
+    # (hỏi "tuần/ngày nào" sẽ mâu thuẫn với việc đã chọn "chạy hết cả tháng").
+    session.pending_intake["scope"] = "Toàn bộ Lịch Nội Dung đã duyệt (tất cả tuần/ngày)"
     await save_session(session)
     channel_focus = session.pending_intake.get("channel_focus")
     intro = (
