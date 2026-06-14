@@ -26,6 +26,11 @@ _SHARED_RULES = """
 - KHÔNG bịa số liệu (vd: "85% khách hài lòng" không có nguồn)
 - KHÔNG generic ("Tìm hiểu thêm" / "Bạn có biết...?" / "Hôm nay mình chia sẻ...")
 - KHÔNG copy-paste cho nhiều bài — mỗi bài phải có angle riêng
+- KHÔNG in NHÃN BƯỚC framework vào lời bài. Body/caption là bài đăng HOÀN CHỈNH,
+  đọc tự nhiên, copy-paste đăng được luôn. Framework (PAS/BAB/AIDA/FAB/Star-Story)
+  chỉ là khung tư duy ẩn định hình mạch văn — TUYỆT ĐỐI không viết "Problem:",
+  "Agitate:", "Solution:", "Before:", "After:", "Bridge:", "Feature:", "Advantage:",
+  "Benefit:", "Mở:", "Giữa:", "Đóng:"... ra đầu câu/đoạn cho người đọc cuối thấy.
 """
 
 
