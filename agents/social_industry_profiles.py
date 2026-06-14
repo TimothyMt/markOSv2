@@ -10,7 +10,11 @@ get_social_industry_profile(industry) trả về block text inject vào user_msg
 """
 
 # Mỗi profile = chuyên môn viết content hữu cơ riêng cho 1 ngành.
-# Cấu trúc thống nhất: Hook pattern · Tone · Kênh+giờ vàng · CTA · Angle đặc thù · Tránh.
+# Cấu trúc thống nhất: Hook pattern · Tone · Kênh+giờ vàng · CTA · Tuyến nội dung đặc thù · Tránh.
+# LƯU Ý THUẬT NGỮ: "Tuyến nội dung đặc thù" = các FORMAT/tuyến content riêng của ngành
+# (food porn, unboxing, before/after...). KHÁC với "Content angle" (lăng kính chiến lược:
+# Pain/Outcome/Social proof/Urgency... do Funnel Map quyết định). Mỗi tuyến phục vụ 1 angle —
+# dòng "→ Angle tương ứng" map sẵn để LLM điền đúng cột Content angle của Calendar.
 SOCIAL_INDUSTRY_PROFILES: dict[str, str] = {
     "fnb": """**🎯 BỘ NÃO NGÀNH: F&B (quán ăn / cafe / nhà hàng)**
 
@@ -26,11 +30,12 @@ SOCIAL_INDUSTRY_PROFILES: dict[str, str] = {
 
 **CTA mạnh:** "Tag đứa bạn hay rủ đi ăn" · "Inbox 'đặt bàn' giữ chỗ cuối tuần" · "Comment 'menu' nhận bảng giá"
 
-**Content angle đặc thù:**
+**Tuyến nội dung đặc thù (format):**
 - Món signature cận cảnh (food porn)
 - Khách review thật (UGC) + phản ứng lần đầu nếm
 - Combo/deal theo khung giờ (happy hour, set trưa)
 - Câu chuyện đầu bếp / nguồn nguyên liệu
+**→ Angle tương ứng:** food porn→Aspiration · review khách→Social proof · combo/deal→Urgency · chuyện đầu bếp→Authority
 
 **Tránh:** Caption khô kiểu "Quán có món X giá Y". Đừng liệt kê menu — kể trải nghiệm ăn.""",
 
@@ -48,11 +53,12 @@ SOCIAL_INDUSTRY_PROFILES: dict[str, str] = {
 
 **CTA mạnh:** "Inbox 'tư vấn da' để được soi da free" · "DM 'booking' giữ lịch" · "Comment loại da của bạn để mình gợi ý"
 
-**Content angle đặc thù:**
+**Tuyến nội dung đặc thù (format):**
 - Soi da / phân tích vấn đề da khách thật
 - Routine sáng-tối theo loại da
 - Khách kể trải nghiệm (UGC, EGC nhân viên)
 - Giải thích thành phần (niacinamide, BHA...) đơn giản
+**→ Angle tương ứng:** soi da/vấn đề→Pain · routine→Mechanism/Outcome · khách kể→Social proof · thành phần→Authority
 
 **Tránh:** Claim chữa khỏi 100%, cam kết phi thực tế. Đừng dọa khách (fear-mongering quá đà).""",
 
@@ -70,11 +76,12 @@ SOCIAL_INDUSTRY_PROFILES: dict[str, str] = {
 
 **CTA mạnh:** "Comment 'tài liệu' nhận free lộ trình" · "Inbox 'test trình độ'" · "Join nhóm học miễn phí (link bio)"
 
-**Content angle đặc thù:**
+**Tuyến nội dung đặc thù (format):**
 - Tip/hack học nhanh (giá trị free trước)
 - Học viên success story + lộ trình cụ thể
 - Phá vỡ lầm tưởng phương pháp học
 - Mini-lesson demo chất lượng giảng dạy
+**→ Angle tương ứng:** tip/hack→Authority · success story→Social proof/Outcome · phá lầm tưởng→Objection · mini-lesson→Mechanism/Authority
 
 **Tránh:** Hứa "giỏi sau X ngày" phi thực tế. Đừng chỉ khoe bằng cấp — chứng minh bằng giá trị thật.""",
 
@@ -92,11 +99,12 @@ SOCIAL_INDUSTRY_PROFILES: dict[str, str] = {
 
 **CTA mạnh:** "Inbox 'đặt hàng' chốt đơn" · "Link giỏ hàng ở bio/comment" · "Comment 'size' để được tư vấn"
 
-**Content angle đặc thù:**
+**Tuyến nội dung đặc thù (format):**
 - Demo sản phẩm thực tế (unboxing, công dụng)
 - Review khách thật + ảnh nhận hàng (UGC)
 - Flash sale / combo / freeship theo khung giờ
 - So sánh trước-sau khi dùng sản phẩm
+**→ Angle tương ứng:** demo/unboxing→Mechanism/Outcome · review khách→Social proof · flash sale/combo→Urgency · trước-sau→Outcome/Pain
 
 **Tránh:** Spam giá liên tục không có giá trị. Đừng dùng ảnh stock — khách e-com tin ảnh thật.""",
 
@@ -114,11 +122,12 @@ SOCIAL_INDUSTRY_PROFILES: dict[str, str] = {
 
 **CTA mạnh:** "Đăng ký demo 1:1 (link bio)" · "Dùng thử miễn phí 14 ngày" · "Inbox 'tư vấn giải pháp'"
 
-**Content angle đặc thù:**
+**Tuyến nội dung đặc thù (format):**
 - Case study khách + con số ROI cụ thể
 - So sánh quy trình thủ công vs dùng phần mềm
 - Tip/insight ngành (thought leadership)
 - Demo tính năng giải quyết pain cụ thể
+**→ Angle tương ứng:** case study+ROI→Social proof/Outcome · thủ công vs phần mềm→Objection · tip/insight→Authority · demo tính năng→Mechanism/Pain
 
 **Tránh:** Jargon kỹ thuật quá đà. Đừng nói về tính năng — nói về kết quả kinh doanh tính năng đó tạo ra.""",
 
@@ -136,11 +145,12 @@ SOCIAL_INDUSTRY_PROFILES: dict[str, str] = {
 
 **CTA mạnh:** "Inbox 'audit miễn phí'" · "Đặt lịch tư vấn 30 phút (link)" · "Comment 'case study' nhận tài liệu"
 
-**Content angle đặc thù:**
+**Tuyến nội dung đặc thù (format):**
 - Case study client + số liệu trước/sau
 - Framework/quy trình độc quyền (cho free để build trust)
 - Phân tích sai lầm phổ biến của ngành client
 - Behind-the-scenes cách team làm việc
+**→ Angle tương ứng:** case study→Social proof/Outcome · framework độc quyền→Authority/Mechanism · phân tích sai lầm→Objection/Authority · behind-the-scenes→Authority
 
 **Tránh:** Generic "chúng tôi cung cấp dịch vụ X". Đừng nói chung chung — show kết quả + tư duy cụ thể.""",
 
@@ -158,11 +168,12 @@ SOCIAL_INDUSTRY_PROFILES: dict[str, str] = {
 
 **CTA mạnh:** "Inbox 'xem dự án' nhận bảng giá + chính sách" · "Để lại SĐT nhận tư vấn 1:1" · "Hotline xem nhà mẫu cuối tuần"
 
-**Content angle đặc thù:**
+**Tuyến nội dung đặc thù (format):**
 - Tour dự án/căn hộ (video walkthrough)
 - Phân tích tiềm năng tăng giá khu vực + tiện ích
 - Hướng dẫn pháp lý / vay mua nhà (giá trị free)
 - Câu chuyện khách đã an cư/đầu tư thành công
+**→ Angle tương ứng:** tour dự án→Aspiration/Mechanism · tiềm năng tăng giá→Outcome/Authority · pháp lý/vay→Objection/Authority · khách an cư→Social proof
 
 **Tránh:** Cam kết lợi nhuận chắc chắn (rủi ro pháp lý). Đừng spam giá — xây niềm tin trước vì deal lớn, quyết định lâu.""",
 
@@ -180,11 +191,12 @@ SOCIAL_INDUSTRY_PROFILES: dict[str, str] = {
 
 **CTA mạnh:** "Ghé store [địa chỉ] cuối tuần" · "Inbox giữ hàng" · "Comment 'ship' đặt online"
 
-**Content angle đặc thù:**
+**Tuyến nội dung đặc thù (format):**
 - Hàng mới về / bộ sưu tập theo mùa
 - Không khí store, sự kiện tại cửa hàng
 - Combo/khuyến mãi theo dịp
 - Khách mua sắm thật (UGC tại store)
+**→ Angle tương ứng:** hàng mới/BST→Aspiration · không khí store→Aspiration · combo/khuyến mãi→Urgency · khách mua sắm→Social proof
 
 **Tránh:** Chỉ đăng ảnh sản phẩm trên nền trắng. Bán lẻ cần cảm giác cộng đồng + trải nghiệm tại chỗ.""",
 
@@ -202,11 +214,12 @@ SOCIAL_INDUSTRY_PROFILES: dict[str, str] = {
 
 **CTA mạnh:** "Tag đứa bạn hợp set này" · "Inbox 'size' tư vấn" · "Link shop ở bio · Comment 'mã' nhận giá"
 
-**Content angle đặc thù:**
+**Tuyến nội dung đặc thù (format):**
 - Lookbook / phối đồ theo dịp (đi làm, dự tiệc, dạo phố)
 - Styling tip theo dáng người / màu da
 - Hậu trường photoshoot, BST mới
 - Khách mặc thật (UGC) + review chất vải/form
+**→ Angle tương ứng:** lookbook/phối đồ→Aspiration · styling tip→Mechanism/Objection · hậu trường/BST→Aspiration/Authority · khách mặc thật→Social proof
 
 **Tránh:** Ảnh sản phẩm phẳng thiếu styling. Thời trang bán bằng cảm hứng phong cách, không bằng thông số.""",
 
@@ -224,11 +237,12 @@ SOCIAL_INDUSTRY_PROFILES: dict[str, str] = {
 
 **CTA mạnh:** "Inbox 'đặt lịch' khám" · "Để lại SĐT nhận tư vấn từ bác sĩ" · "Comment triệu chứng để được hướng dẫn"
 
-**Content angle đặc thù:**
+**Tuyến nội dung đặc thù (format):**
 - Bác sĩ giải thích bệnh lý / quy trình điều trị
 - Case điều trị thật (có đồng ý, che thông tin)
 - Hướng dẫn phòng ngừa, chăm sóc tại nhà
 - Giới thiệu thiết bị/công nghệ + đội ngũ
+**→ Angle tương ứng:** bác sĩ giải thích→Authority/Pain · case điều trị→Social proof/Outcome · phòng ngừa→Authority/Pain · thiết bị/đội ngũ→Authority/Mechanism
 
 **Tránh:** Claim chữa khỏi tuyệt đối, so sánh hạ thấp nơi khác. Tuân thủ quảng cáo y tế — không phóng đại.""",
 
@@ -246,11 +260,12 @@ SOCIAL_INDUSTRY_PROFILES: dict[str, str] = {
 
 **CTA mạnh:** "Inbox 'đặt lịch spa cho boss'" · "Comment tên bé để được tư vấn" · "Tag hội sen nuôi [loài]"
 
-**Content angle đặc thù:**
+**Tuyến nội dung đặc thù (format):**
 - Before/after grooming, khoảnh khắc dễ thương
 - Tip chăm sóc (ăn uống, lông, sức khỏe)
 - Case khám/điều trị (thú y)
 - Khách + boss thật (UGC)
+**→ Angle tương ứng:** before/after grooming→Outcome/Aspiration · tip chăm sóc→Authority/Pain · case khám→Social proof/Authority · khách+boss→Social proof
 
 **Tránh:** Quá khô khan về dịch vụ. Ngành này sống bằng cảm xúc yêu thú cưng — content phải "cưng".""",
 
@@ -268,11 +283,12 @@ SOCIAL_INDUSTRY_PROFILES: dict[str, str] = {
 
 **CTA mạnh:** "Inbox 'tư vấn gói cưới'" · "Để lại ngày cưới nhận báo giá" · "Comment 'concept' xem portfolio"
 
-**Content angle đặc thù:**
+**Tuyến nội dung đặc thù (format):**
 - Real wedding / event đã thực hiện (album, video)
 - Concept/decor theo phong cách (vintage, hiện đại...)
 - Checklist/timeline chuẩn bị (giá trị free)
 - Hậu trường ekip + lời cảm ơn từ cặp đôi
+**→ Angle tương ứng:** real wedding→Social proof/Aspiration · concept/decor→Aspiration · checklist/timeline→Authority/Objection · hậu trường ekip→Authority/Mechanism
 
 **Tránh:** Chỉ báo giá khô khan. Ngành cảm xúc cao — phải cho khách "thấy" giấc mơ của họ thành hiện thực.""",
 
@@ -290,11 +306,12 @@ SOCIAL_INDUSTRY_PROFILES: dict[str, str] = {
 
 **CTA mạnh:** "Inbox 'tư vấn thiết kế'" · "Để lại diện tích nhận báo giá" · "Comment 'concept' xem portfolio"
 
-**Content angle đặc thù:**
+**Tuyến nội dung đặc thù (format):**
 - Before/after công trình thực tế
 - Tip bố trí không gian / chọn vật liệu / phối màu
 - Tour công trình hoàn thiện (video)
 - Xu hướng nội thất theo phong cách
+**→ Angle tương ứng:** before/after công trình→Outcome/Aspiration · tip bố trí/vật liệu→Authority/Mechanism · tour công trình→Aspiration/Social proof · xu hướng→Aspiration/Authority
 
 **Tránh:** Chỉ khoe render đẹp không kèm câu chuyện/công năng. Khách cần thấy giải pháp cho nhà CỦA HỌ.""",
 
@@ -312,11 +329,12 @@ SOCIAL_INDUSTRY_PROFILES: dict[str, str] = {
 
 **CTA mạnh:** "Inbox 'đặt phòng/tour'" · "Tag đứa bạn muốn đi cùng" · "Comment 'lịch trình' nhận guide free"
 
-**Content angle đặc thù:**
+**Tuyến nội dung đặc thù (format):**
 - Cảnh đẹp / góc check-in / không gian lưu trú
 - Trải nghiệm khách thật (UGC, review)
 - Guide/lịch trình + tip du lịch (giá trị free)
 - Combo/ưu đãi theo mùa, dịp lễ
+**→ Angle tương ứng:** cảnh đẹp/check-in→Aspiration · trải nghiệm khách→Social proof · guide/lịch trình→Authority/Objection · combo/ưu đãi mùa→Urgency
 
 **Tránh:** Ảnh thiếu cảm xúc/quá chỉnh sửa giả tạo. Du lịch bán bằng cảm giác "muốn đi ngay".""",
 }
@@ -324,7 +342,8 @@ SOCIAL_INDUSTRY_PROFILES: dict[str, str] = {
 # Fallback khi industry chưa map (hoặc rỗng).
 SOCIAL_GENERIC_PROFILE = """**🎯 BỘ NÃO NGÀNH: Chung (chưa xác định ngành cụ thể)**
 
-**Hook pattern:** Linh hoạt theo 5 nhóm tâm lý (tò mò / trái ngược / cảm xúc / thẩm quyền / đồng cảm).
+**Hook pattern:** Linh hoạt theo 5 nhóm tâm lý (tò mò / trái ngược / cảm xúc / thẩm quyền / đồng cảm) — đây là Hook STYLE (cách mở), KHÔNG phải Content angle.
+**Content angle (lăng kính chiến lược):** lấy từ Funnel Map của bài (Pain/Outcome/Social proof/Aspiration/Objection/Mechanism/Urgency/Authority) — KHÔNG tự bịa.
 **Tone:** Bám sát profile business + pillar của Calendar. Match cảm xúc với sản phẩm/khách hàng cụ thể.
 **Kênh + giờ vàng:** Theo kênh trong Calendar. Facebook 8-9h/11-12h/20-21h · Zalo OA 8h/12h/19h · Instagram/TikTok 12h/20-22h.
 **CTA:** Keyword cụ thể (Inbox/Comment/Link) — KHÔNG generic.
