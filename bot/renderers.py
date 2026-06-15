@@ -845,6 +845,13 @@ def render_excel_file(
         # Freeze header row
         ws.freeze_panes = ws.cell(row=header_row + 1, column=1)
 
+        # Autofilter trên bảng có dữ liệu → user lọc native trong Excel (vd cột Track
+        # 🟢 Always-on / 🔴 Campaign cho calendar 2-track). Chỉ bật khi có data rows.
+        if rows:
+            from openpyxl.utils import get_column_letter as _gcl
+            last_col = _gcl(len(clean_headers))
+            ws.auto_filter.ref = f"A{header_row}:{last_col}{header_row + len(rows)}"
+
     buf = io.BytesIO()
     wb.save(buf)
     return buf.getvalue()
