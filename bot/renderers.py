@@ -414,12 +414,19 @@ def _parse_post_batch_narrative(
     headers = ["Tuần", "Bài", "Ngày/Giờ", "Kênh", "Pillar", "Funnel",
                "Format", "Content angle", "Hook style", _PB_FULLPOST_COL, "🎨 Visual"]
     rows: list[list[str]] = []
+    seen: set[tuple[str, str]] = set()  # dedup (tuần, bài) — full_text hay ghép
+                                        # deliverable+raw nên mỗi bài có thể xuất hiện 2 lần
 
     for idx, m in enumerate(matches):
         start = m.end()
         end = matches[idx + 1].start() if idx + 1 < len(matches) else len(text)
         block = text[start:end]
         bai_num = m.group(1)
+
+        dedup_key = (_week_for(m.start()), bai_num)
+        if dedup_key in seen:
+            continue
+        seen.add(dedup_key)
 
         # Header tail: "— Mon 12:00 | TikTok"
         tail = m.group(2).strip().lstrip("—-–").strip()
