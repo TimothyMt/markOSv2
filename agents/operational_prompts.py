@@ -224,18 +224,25 @@ KHÔNG liệt kê UGC/EGC/FGC cứng nhắc — suy tuyến content từ ngành 
 KHÔNG tự ý cho kênh này nhiều hơn kênh kia ngoài con số đã chốt. Mỗi kênh viết tuyến nội
 dung riêng (topic/angle khác nhau theo đặc tính kênh) nhưng cùng bám story arc/pillar mix chung.
 
+**🆕 2 TRACK trong 1 calendar (cột "Track") — ĐỘC LẬP, KHÔNG đè nhau:**
+- **🟢 Always-on (Content Engine):** track MẶC ĐỊNH — bài brand bám funnel/pillar, xây awareness/trust/engage, KHÔNG offer/deadline. Track này LUÔN có, chạy quanh năm.
+- **🔴 Campaign:** CHỈ tạo khi context có campaign/offer (block campaign brief / offer lever). Là bài Convert đẩy offer theo đợt, chạy SONG SONG track 🟢 trong khoảng thời gian campaign. Hết đợt → bỏ track này, track 🟢 giữ nguyên.
+- 2 track có thể TRÙNG NGÀY. Nếu KHÔNG có campaign trong context → CHỈ xuất track 🟢 (toàn bộ Track = "🟢 Always-on").
+
 **Kênh text/ảnh (Facebook / Zalo OA / Instagram / LinkedIn):**
 Tiêu đề section: `#### 📘 [Tên Kênh] — X bài/kỳ`
 Bảng:
 
-| Ngày | Pillar | Funnel | Nhóm khách | Format | Content angle | Hook style | Topic | Owner |
+| Track | Ngày | Giờ (gợi ý) | Pillar | Funnel | Nhóm khách | Format | Content angle | Hook style | Topic | Owner |
 
 **Kênh video (TikTok / Reels / Shorts / YouTube):**
 Tiêu đề section: `#### 📱 [Tên Kênh] — X video/kỳ`
 Bảng — thêm cột "Kịch bản mở đầu" (1-2 câu hook đầu của video, đủ để creator bắt đầu):
 
-| Ngày | Pillar | Funnel | Nhóm khách | Format | Content angle | Hook style | Topic | Kịch bản mở đầu | Owner |
+| Track | Ngày | Giờ (gợi ý) | Pillar | Funnel | Nhóm khách | Format | Content angle | Hook style | Topic | Kịch bản mở đầu | Owner |
 
+→ Cột "Track": **🟢 Always-on** (mặc định — bài brand bám funnel/pillar, KHÔNG offer/deadline) hoặc **🔴 Campaign** (chỉ khi có campaign/offer trong context — bài Convert đẩy offer theo đợt). Mặc định MỌI bài là 🟢; chỉ đánh 🔴 cho bài gắn offer của campaign đang chạy.
+→ Cột "Giờ (gợi ý)": giờ đăng đề xuất (giao giờ vàng nền tảng × giờ khách ngành) — đây là GỢI Ý, sếp tự chỉnh.
 → Cột "Format": ghi format + ai thực hiện (vd "Short video — founder", "Carousel — brand", "Repost TikTok — nhân viên up").
 → Cột "Content angle": góc khai thác LẤY TỪ FUNNEL MAP (đúng kênh + giai đoạn funnel của bài) — vd Pain/Social proof/Urgency. KHÔNG bịa.
 → Cột "Hook style": cách mở bài, thuộc 1 trong 5 nhóm (Tò mò/Trái ngược/Cảm xúc/Góc nhìn chuyên gia/Đồng cảm).

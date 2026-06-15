@@ -656,6 +656,18 @@ def render_excel_file(
     def _pillar_fill(value: str):
         return _PILLAR_FILLS.get(value.strip().lower()) if value else None
 
+    # Track coloring (2-track calendar): 🟢 always-on / 🔴 campaign — ưu tiên hơn pillar
+    _TRACK_GREEN = PatternFill(start_color="E6F4EA", end_color="E6F4EA", fill_type="solid")
+    _TRACK_RED   = PatternFill(start_color="FDECEC", end_color="FDECEC", fill_type="solid")
+
+    def _track_fill(value: str):
+        v = (value or "").lower()
+        if "🔴" in value or "campaign" in v:
+            return _TRACK_RED
+        if "🟢" in value or "always" in v:
+            return _TRACK_GREEN
+        return None
+
     if output_format == OutputFormat.OPERATIONAL_DELIVERABLE:
         # Include raw để cover case LLM output table ngoài section "Deliverable"
         full_text = "\n\n".join(filter(None, [
@@ -792,10 +804,14 @@ def render_excel_file(
             cell.fill = header_fill
             cell.alignment = header_align
 
-        # Detect pillar column index (0-based) for row coloring
+        # Detect pillar + track column index (0-based) for row coloring
         pillar_col_idx = next(
             (i for i, h in enumerate(clean_headers)
              if h.strip().lower() in ("pillar", "content pillar")),
+            None,
+        )
+        track_col_idx = next(
+            (i for i, h in enumerate(clean_headers) if h.strip().lower() == "track"),
             None,
         )
 
@@ -804,11 +820,12 @@ def render_excel_file(
             cleaned_row = [_split_beats_to_lines(_clean_cell(c)) for c in row]
             ws.append(cleaned_row)
             r_idx = ws.max_row
-            row_fill = (
-                _pillar_fill(cleaned_row[pillar_col_idx])
-                if pillar_col_idx is not None and pillar_col_idx < len(cleaned_row)
-                else None
-            )
+            # Track color ưu tiên hơn pillar (calendar 2-track)
+            row_fill = None
+            if track_col_idx is not None and track_col_idx < len(cleaned_row):
+                row_fill = _track_fill(cleaned_row[track_col_idx])
+            if row_fill is None and pillar_col_idx is not None and pillar_col_idx < len(cleaned_row):
+                row_fill = _pillar_fill(cleaned_row[pillar_col_idx])
             for c_idx in range(1, len(cleaned_row) + 1):
                 cell = ws.cell(row=r_idx, column=c_idx)
                 cell.font = body_font
