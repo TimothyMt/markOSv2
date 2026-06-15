@@ -5854,6 +5854,11 @@ async def _run_pipeline_sequentially(message: Message, session):
             parsed_stages.append((stage_key, parse_agent_output(result)))
             continue
 
+        # #9 quota hết giữa job → hiển thị cảnh báo + dừng (giữ phần đã xong)
+        if stage_key == "quota_stop":
+            await _safe_reply(message, result, parse_mode=ParseMode.MARKDOWN)
+            break
+
         stage_count += 1
 
         parsed = parse_agent_output(result)

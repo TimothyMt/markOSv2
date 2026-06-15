@@ -859,6 +859,17 @@ async def run_full_pipeline(  # kept for backwards compatibility — use run_tar
     progress_callback: async fn(message: str) called before each stage.
     """
     for stage_enum, stage_fn, stage_key in PIPELINE_SEQUENCE:
+        # #9 quota hard-stop giữa job (xem run_targeted_pipeline)
+        try:
+            from tools.token_tracker import is_exhausted as _is_exhausted
+            if _is_exhausted(session):
+                yield "quota_stop", (
+                    "⚠️ *Hết quota token giữa chừng.* Em dừng ở đây — các bước đã xong "
+                    "vẫn được giữ. Sếp nạp thêm token rồi chạy tiếp phần còn lại nhé."
+                )
+                return
+        except Exception:
+            pass
         session.stage = stage_enum
 
         # Notify progress
@@ -911,6 +922,18 @@ async def run_targeted_pipeline(
     sequence = TASK_PIPELINE_MAP.get(task, PIPELINE_SEQUENCE)
 
     for stage_enum, stage_fn, stage_key in sequence:
+        # #9 quota hard-stop giữa job: dừng TRƯỚC khi chạy stage tiếp nếu hết quota
+        # (pre-check ở handler chỉ chặn lúc vào; đây chặn lố giữa pipeline dài).
+        try:
+            from tools.token_tracker import is_exhausted as _is_exhausted
+            if _is_exhausted(session):
+                yield "quota_stop", (
+                    "⚠️ *Hết quota token giữa chừng.* Em dừng ở đây — các bước đã xong "
+                    "vẫn được giữ. Sếp nạp thêm token rồi chạy tiếp phần còn lại nhé."
+                )
+                return
+        except Exception:
+            pass
         session.stage = stage_enum
 
         if progress_callback and stage_key in PROGRESS_MESSAGES:
