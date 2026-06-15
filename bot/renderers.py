@@ -244,6 +244,22 @@ def _clean_cell(value) -> str:
     return s.strip()
 
 
+# Nhãn beat trong cell kịch bản video: "Hook 3s:", "Problem 10s:", "Beat 1 —", "Beat 2:"...
+_BEAT_LABEL = r"(?:[A-ZÀ-Ỹ][A-Za-zÀ-ỹ ]{0,20}\d{1,3}\s*s\s*[:.]|[Bb]eat\s*\d+\s*[:.—–-])"
+
+
+def _split_beats_to_lines(text: str) -> str:
+    """Xuống dòng cell kịch bản: mỗi beat (Hook 3s:/Problem 10s:/Beat 1 —...) 1 dòng.
+
+    Chỉ tách ' / ', ' // ' hoặc '; ' khi NGAY SAU là 1 nhãn beat → KHÔNG đụng
+    slash/chấm phẩy hợp lệ (vd 'Facebook Reels / TikTok', 'Shopee / Lazada')."""
+    if not text:
+        return text
+    t = text.replace(" // ", "\n")
+    t = re.sub(rf"\s*[/;]\s*(?={_BEAT_LABEL})", "\n", t)
+    return t
+
+
 def _safe_sheet_name(raw: str, idx: int, used: set) -> str:
     """Sheet name an toàn (≤31 chars, không có : \\ / ? * [ ], unique)."""
     cleaned = re.sub(r"[:\\/?*\[\]]", " ", raw or "")
@@ -778,7 +794,7 @@ def render_excel_file(
 
         # Data rows — strip markdown
         for row in rows:
-            cleaned_row = [_clean_cell(c) for c in row]
+            cleaned_row = [_split_beats_to_lines(_clean_cell(c)) for c in row]
             ws.append(cleaned_row)
             r_idx = ws.max_row
             row_fill = (

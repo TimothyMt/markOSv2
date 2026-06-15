@@ -1436,15 +1436,16 @@ Bảng PHẢI có đúng 8 cột theo thứ tự (copy y nguyên tên cột):
 
 | Version | Creator Type | Platform | Framework | Beat Breakdown (kèm timing) | Visual Direction | Caption Hook + Hashtags | Ghi chú |
 |---|---|---|---|---|---|---|---|
-| V1 | UGC nữ 25-30 | TikTok | Storytime | "Hook 5s: [lời thoại]" / "Diễn biến 25s: [lời thoại]" / "Insight 10s: [lời thoại]" / "CTA 5s: [lời thoại]" | Beat1 cận mặt / Beat2 cận sản phẩm / ánh sáng tự nhiên; nhạc nền + SFX gợi ý | "Caption hook ≤125 ký tự" #tag1 #tag2 ... | TOFU |
+| V1 | UGC nữ 25-30 | TikTok | Storytime | Hook 5s: [lời thoại] // Diễn biến 25s: [lời thoại] // Insight 10s: [lời thoại] // CTA 5s: [lời thoại] | Beat 1: cận mặt // Beat 2: cận sản phẩm // Beat 3: ánh sáng tự nhiên; nhạc nền + SFX gợi ý | "Caption hook ≤125 ký tự" #tag1 #tag2 ... | TOFU |
 
 Quy tắc bảng:
-- Cột "Beat Breakdown (kèm timing)": viết LỜI THOẠI THẬT đầy đủ cho TỪNG beat của framework đã chọn (số beat tùy framework, KHÔNG cố định 5), mỗi beat ghi "Tên beat Xs: lời thoại" — nối các beat bằng " / "
+- Cột "Beat Breakdown (kèm timing)": viết LỜI THOẠI THẬT đầy đủ cho TỪNG beat của framework đã chọn (số beat tùy framework, KHÔNG cố định 5), mỗi beat ghi "Tên beat Xs: lời thoại" — nối các beat bằng " // " (renderer sẽ tự XUỐNG DÒNG mỗi beat 1 dòng cho dễ đọc)
 - Cột "Framework": ghi tên framework đã chọn (PAS/BAB/AIDA/FAB/Star-Story/Storytime/Listicle...)
 - Hook + Caption đặt trong dấu ngoặc kép "..."
 - Creator Type: ghi rõ persona (UGC nữ 25-30 / KOL / founder tự quay...)
 - Ghi chú: ghi funnel tier (TOFU/MOFU/BOFU)
-- KHÔNG dùng ký tự | trong cell content (xuống dòng trong cell thay bằng " / " hoặc " ; ")
+- Cột "Visual Direction": mỗi beat 1 mục, nối bằng " // " (vd "Beat 1: ... // Beat 2: ...") để renderer xuống dòng.
+- KHÔNG dùng ký tự | trong cell content (xuống dòng trong cell thay bằng " // ")
 - PHẢI có đủ N rows = N video user request
 
 🔴 **CHỈ ĐƯỢC có DUY NHẤT 1 bảng** (bảng 8 cột ở trên). KHÔNG tạo bảng phụ — nếu có table thứ 2, bot sẽ extract nhầm → BUG Excel.
