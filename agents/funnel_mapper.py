@@ -75,20 +75,24 @@ async def generate_funnel_map(session: Session, campaign: dict) -> list:
         archetype_block=archetype_block,
     )
 
-    try:
-        result = await router_call(
-            task_type  = TaskType.GENERIC_CREATIVE,
-            system     = FUNNEL_MAPPER_SYSTEM,
-            user       = user_msg,
-            max_tokens = 5000,
-        )
-        raw        = result.get("output", "")
-        funnel_map = parse_funnel_map(raw)
-        if funnel_map:
-            return funnel_map
-        logger.warning("funnel_map parse failed, raw[:300]: %s", raw[:300])
-    except AllProvidersFailedError as e:
-        logger.error("generate_funnel_map failed: %s", e)
+    # Retry 1 lần trước khi rớt fallback. Nguyên nhân fallback #1 là JSON bị cắt
+    # (max_tokens thấp) → parse fail; bump 5000→10000 cho 4-6 kênh + thử lại.
+    for attempt in range(2):
+        try:
+            result = await router_call(
+                task_type  = TaskType.GENERIC_CREATIVE,
+                system     = FUNNEL_MAPPER_SYSTEM,
+                user       = user_msg,
+                max_tokens = 10000,
+            )
+            raw        = result.get("output", "")
+            funnel_map = parse_funnel_map(raw)
+            if funnel_map:
+                return funnel_map
+            logger.warning("funnel_map parse failed (lần %d/2), raw[:300]: %s", attempt + 1, raw[:300])
+        except AllProvidersFailedError as e:
+            logger.error("generate_funnel_map failed (lần %d/2): %s", attempt + 1, e)
+    logger.warning("[FunnelMap] DÙNG FALLBACK template generic — LLM gen fail sau 2 lần")
 
     # channels có thể là list (channels_list) hoặc chuỗi "A + B" → chuẩn hoá về list
     _ch = campaign.get("channels_list")
