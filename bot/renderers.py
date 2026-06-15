@@ -626,6 +626,7 @@ def render_excel_file(
     business_name: str = "",
     post_ids: Optional[list[str]] = None,
     force_dynamic: bool = False,
+    track_filter: Optional[str] = None,
 ) -> Optional[bytes]:
     """Render skill output as .xlsx.
     Skills in SKILL_TEMPLATE_SHEET are routed to render_template_excel() which
@@ -783,6 +784,16 @@ def render_excel_file(
 
     used_names = set()
     for idx, (table_title, headers, rows) in enumerate(sheets_to_render):
+        # #7 export theo track: lọc rows theo cột Track nếu track_filter set
+        # ("campaign" hoặc "always"). Bảng không có cột Track → giữ nguyên.
+        if track_filter:
+            _ti = next((i for i, h in enumerate(headers)
+                        if _clean_cell(h).strip().lower() == "track"), None)
+            if _ti is not None:
+                rows = [r for r in rows
+                        if _ti < len(r) and track_filter.lower() in _clean_cell(r[_ti]).lower()]
+                if not rows:
+                    continue  # bỏ sheet rỗng sau khi lọc
         raw_name = table_title or f"Bảng {idx+1}"
         sheet_name = _safe_sheet_name(raw_name, idx, used_names)
         ws = wb.create_sheet(title=sheet_name)
