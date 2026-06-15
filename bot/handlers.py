@@ -4858,6 +4858,11 @@ async def _send_ops_result(message: Message, session, task_name: str, result: st
             )
         except Exception as e:
             logger.warning("HTML render failed for %s: %s", task_name, e)
+            # #8: báo user thay vì im lặng mất file HTML
+            await message.reply_text(
+                f"⚠️ Không tạo được file HTML ({str(e)[:120]}). Em gửi tiếp các bản còn lại nhé.",
+                parse_mode=ParseMode.MARKDOWN,
+            )
 
     # Content Suite v2: skills luôn output MD primary + Excel secondary (Haiku convert)
     CONTENT_SUITE_V2 = {"post_write", "post_adapt", "post_voice_check", "post_hooks", "post_batch"}
