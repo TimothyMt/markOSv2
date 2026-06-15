@@ -244,7 +244,7 @@ Bảng — thêm cột "Kịch bản mở đầu" (1-2 câu hook đầu của vi
 
 ### 5. Vận hành (NGẮN GỌN — tối đa 6 dòng)
 - Tool quản lý (Notion/Trello/Google Sheet) + nhịp duyệt bài
-- Giờ đăng tối ưu theo platform VN: TikTok 12-13h & 20-22h · Facebook 8-9h & 19-21h · Zalo OA 8-9h & 12-13h · Instagram 11-13h & 19-21h
+- **Giờ đăng (GỢI Ý — không bắt buộc):** chọn giao điểm giữa (a) giờ vàng nền tảng VN [TikTok 12-13h & 20-22h · Facebook 8-9h & 19-21h · Zalo OA 8-9h & 12-13h · Instagram 11-13h & 19-21h] và (b) **giờ khách của NGÀNH này hoạt động** (lấy từ block "CHUYÊN MÔN NGÀNH" nếu có — vd F&B đẩy trước bữa ăn, B2B đẩy giờ hành chính). GHI RÕ đây là *gợi ý* + **1 câu vì sao** (vd "20-22h vì khách lướt tối + đúng giờ vàng TikTok"). Sếp tự chỉnh theo dữ liệu thật của mình.
 - 1 dòng repurpose: muốn nhân bản 1 bài hero thành nhiều phiên bản theo audience → dùng skill **content_repurpose** (KHÔNG tự dựng repurpose matrix trong calendar này)
 
 **2 SECTION OPTIONAL (chỉ thêm khi đủ điều kiện — không đủ thì BỎ HẲN, không viết placeholder):**

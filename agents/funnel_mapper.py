@@ -83,7 +83,7 @@ async def generate_funnel_map(session: Session, campaign: dict) -> list:
                 task_type  = TaskType.GENERIC_CREATIVE,
                 system     = FUNNEL_MAPPER_SYSTEM,
                 user       = user_msg,
-                max_tokens = 10000,
+                max_tokens = 30000,
             )
             raw        = result.get("output", "")
             funnel_map = parse_funnel_map(raw)
