@@ -106,7 +106,7 @@ class AgentSkill(ABC):
 class MarketResearchSkill(AgentSkill):
     name = "market_research"
     system_prompt = MARKET_RESEARCH_SYSTEM
-    max_tokens = 8000
+    max_tokens = 16000  # bumped từ 8000 — TAM/SAM/SOM + citations dài, từng bị cắt
     output_format = OutputFormat.STRATEGIC_4_SECTION
     intake_pattern = IntakePattern.SINGLE_SHOT_FORM  # Phase 3: dùng template paste
     context_strategy = ContextStrategy.PROFILE_PLUS_KPI
@@ -129,7 +129,7 @@ Target customer: {session.profile.target_customer}"""
 class CompetitorSkill(AgentSkill):
     name = "competitor"
     system_prompt = COMPETITOR_SYSTEM
-    max_tokens = 8000
+    max_tokens = 16000  # bumped từ 8000 — landscape nhiều đối thủ + matrix dài
     intake_pattern = IntakePattern.SINGLE_SHOT_FORM  # Phase 3
     context_strategy = ContextStrategy.FULL_PIPELINE
 
@@ -152,7 +152,7 @@ Hãy:
 class CustomerInsightSkill(AgentSkill):
     name = "customer_insight"
     system_prompt = CUSTOMER_INSIGHT_SYSTEM
-    max_tokens = 8000
+    max_tokens = 16000  # bumped từ 8000 — demo bị cắt giữa câu (stop_reason=max_tokens)
     enable_critic = False
     intake_pattern = IntakePattern.SINGLE_SHOT_FORM  # Phase 3
     context_strategy = ContextStrategy.FULL_PIPELINE
@@ -173,7 +173,7 @@ Hãy đào sâu vào psychographics, JTBD, và Vietnamese cultural context của
 class PsychologyPricingSkill(AgentSkill):
     """Combines Marketing Psychology + Pricing Strategy in 1 call to save latency."""
     name = "psychology_pricing"
-    max_tokens = 8000  # was 10000 — reduced to stay well within provider timeouts
+    max_tokens = 16000  # bumped từ 8000 — psychology+pricing gộp 1 call, demo bị cắt
     enable_critic = False
     intake_pattern = IntakePattern.SINGLE_SHOT_FORM  # Phase 3
     context_strategy = ContextStrategy.FULL_PIPELINE

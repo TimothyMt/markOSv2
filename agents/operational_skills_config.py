@@ -190,7 +190,7 @@ def make_email_zalo_sequence_skill() -> OperationalSkill:
     return OperationalSkill(_config_for(
         "email_zalo_sequence",
         EMAIL_ZALO_SEQUENCE_SYSTEM,
-        max_tokens=8000,  # bumped — multi-day sequence with email + zalo for each
+        max_tokens=16000,  # bumped 8000→16000 — demo bị cắt; sequence email+zalo dài
         context_strategy=ContextStrategy.PROFILE_PLUS_CAMPAIGN,
         primary_deliverable=PrimaryDeliverable.EXCEL,  # Template: 📧 Email & Zalo sheet
     ))
