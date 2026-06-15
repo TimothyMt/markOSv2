@@ -4868,15 +4868,23 @@ async def _send_ops_result(message: Message, session, task_name: str, result: st
     if task_name not in NO_FILE_SKILLS and skill.primary_deliverable == PrimaryDeliverable.MARKDOWN:
         # post_batch: chỉ gửi Excel (như các skill EXCEL khác), bỏ file MD song song
         if task_name != "post_batch":
-            md_bytes = render_markdown_file(task_name, task.label, parsed, skill.output_format, business_name)
-            buf = io.BytesIO(md_bytes)
-            buf.name = f"{file_stem}.md"
-            await message.reply_document(
-                document=buf,
-                filename=buf.name,
-                caption=f"📝 *{task.label}* — bản Markdown (gửi designer/dev/creator)",
-                parse_mode=ParseMode.MARKDOWN,
-            )
+            # #8: bọc try/except — 1 file MD lỗi KHÔNG được chặn các file sau (Excel)
+            try:
+                md_bytes = render_markdown_file(task_name, task.label, parsed, skill.output_format, business_name)
+                buf = io.BytesIO(md_bytes)
+                buf.name = f"{file_stem}.md"
+                await message.reply_document(
+                    document=buf,
+                    filename=buf.name,
+                    caption=f"📝 *{task.label}* — bản Markdown (gửi designer/dev/creator)",
+                    parse_mode=ParseMode.MARKDOWN,
+                )
+            except Exception as e:
+                logger.warning("MD deliverable failed for %s (non-blocking): %s", task_name, e)
+                await message.reply_text(
+                    f"⚠️ Không gửi được file Markdown ({str(e)[:120]}). Em gửi tiếp các bản còn lại nhé.",
+                    parse_mode=ParseMode.MARKDOWN,
+                )
 
         # Content Suite v2: TRY gen Excel secondary qua Haiku auto-convert
         if task_name in CONTENT_SUITE_V2:
