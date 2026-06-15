@@ -208,11 +208,12 @@ ACTION_AFTER_STRATEGIC = ACTION_AFTER_SKILL
 ACTION_AFTER_OPS       = ACTION_AFTER_SKILL
 ACTION_AFTER_ANALYSIS  = ACTION_AFTER_SKILL
 
-# Post-strategy next steps (after rating): lead into execution rather than dead-end
+# Post-strategy next steps (after rating): lead into execution rather than dead-end.
+# Mô hình 2-track: 🟢 Content Engine (always-on, không offer) vs 🔴 Campaign (offer theo đợt).
 ACTION_AFTER_STRATEGY = InlineKeyboardMarkup([
-    [InlineKeyboardButton("✅ Ổn rồi — chạy Lịch Nội Dung",  callback_data="strategy_ok_run_calendar")],
-    [InlineKeyboardButton("📋 Hoặc sang Campaign Brief →",     callback_data="strategy_confirm")],
-    [InlineKeyboardButton("🏠 Về menu chính",                  callback_data="menu_main")],
+    [InlineKeyboardButton("🟢 Content Engine — lịch brand (always-on)", callback_data="strategy_ok_run_calendar")],
+    [InlineKeyboardButton("🔴 Tạo Campaign — đẩy offer theo đợt",        callback_data="strategy_confirm")],
+    [InlineKeyboardButton("🏠 Về menu chính",                            callback_data="menu_main")],
 ])
 
 # Q&A follow-up — sau khi user hỏi thêm 1 lần, có thể hỏi tiếp hoặc thoát
@@ -299,18 +300,19 @@ XLSX_EDIT_KEYBOARD = InlineKeyboardMarkup([
 
 # Sau khi strategy xong — hỏi ổn chưa hay cần điều chỉnh
 CONFIRM_STRATEGY_KEYBOARD = InlineKeyboardMarkup([
-    [InlineKeyboardButton("✅ Ổn rồi — chạy Lịch Nội Dung",  callback_data="strategy_ok_run_calendar")],
-    [InlineKeyboardButton("📋 Hoặc sang Campaign Brief →",     callback_data="strategy_confirm")],
-    [InlineKeyboardButton("✏️ Cần điều chỉnh kế hoạch",       callback_data="strategy_edit")],
-    [InlineKeyboardButton("🏠 Về menu chính",                  callback_data="menu_main")],
+    [InlineKeyboardButton("🟢 Content Engine — lịch brand (always-on)", callback_data="strategy_ok_run_calendar")],
+    [InlineKeyboardButton("🔴 Tạo Campaign — đẩy offer theo đợt",        callback_data="strategy_confirm")],
+    [InlineKeyboardButton("✏️ Cần điều chỉnh kế hoạch",                  callback_data="strategy_edit")],
+    [InlineKeyboardButton("🏠 Về menu chính",                            callback_data="menu_main")],
 ])
 
-# Sau khi T4-T5 (Synthesis + Tactical Playbook) xong — đi tiếp tuần tự sang Campaign,
-# KHÔNG cho lựa chọn nhảy thẳng Content Calendar (Calendar phải dựa trên Campaign Brief).
+# Sau khi T4-T5 (Synthesis + Tactical Playbook) xong — mô hình 2-track:
+# 🟢 Content Engine (always-on, không cần campaign) HOẶC 🔴 Tạo Campaign (offer theo đợt).
 CONFIRM_STRATEGY_TO_CAMPAIGN_KEYBOARD = InlineKeyboardMarkup([
-    [InlineKeyboardButton("✅ Ổn rồi — chọn Campaign",        callback_data="strategy_confirm")],
-    [InlineKeyboardButton("✏️ Cần điều chỉnh kế hoạch",       callback_data="strategy_edit")],
-    [InlineKeyboardButton("🏠 Về menu chính",                  callback_data="menu_main")],
+    [InlineKeyboardButton("🟢 Content Engine — lịch brand (always-on)", callback_data="strategy_ok_run_calendar")],
+    [InlineKeyboardButton("🔴 Tạo Campaign — đẩy offer theo đợt",        callback_data="strategy_confirm")],
+    [InlineKeyboardButton("✏️ Cần điều chỉnh kế hoạch",                  callback_data="strategy_edit")],
+    [InlineKeyboardButton("🏠 Về menu chính",                            callback_data="menu_main")],
 ])
 
 # Sau khi Campaign Brief xong — XÁC NHẬN brief trước khi gen calendar
