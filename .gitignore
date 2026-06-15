@@ -43,3 +43,6 @@ logs/
 .coverage
 htmlcov/
 .claude/
+
+# Demo harness scratch output (not source)
+demo_out/
