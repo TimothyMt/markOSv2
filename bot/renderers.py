@@ -545,6 +545,19 @@ def render_template_excel(
         if norm in llm_norm_to_idx
     ]
 
+    # #10 GUARD chống "file rỗng do lệch cột": nếu template chỉ khớp được quá ít
+    # cột so với bảng LLM xuất ra → ép vào template sẽ rớt phần lớn nội dung.
+    # Fallback sang dynamic renderer để dựng workbook đúng theo bảng thật.
+    llm_cols = sum(1 for h in headers if h)
+    if len(col_pairs) < max(2, (llm_cols * 3 + 4) // 5):  # < ~60% cột LLM được map
+        logger.warning(
+            "render_template_excel [%s]: chỉ khớp %d/%d cột LLM với template → fallback dynamic",
+            skill_name, len(col_pairs), llm_cols,
+        )
+        return render_excel_file(
+            skill_name, skill_label, parsed, output_format, business_name, force_dynamic=True,
+        )
+
     body_font = Font(name="Arial", size=10)
     body_align = Alignment(vertical="top", wrap_text=True)
 
@@ -589,6 +602,7 @@ def render_excel_file(
     output_format: OutputFormat,
     business_name: str = "",
     post_ids: Optional[list[str]] = None,
+    force_dynamic: bool = False,
 ) -> Optional[bytes]:
     """Render skill output as .xlsx.
     Skills in SKILL_TEMPLATE_SHEET are routed to render_template_excel() which
@@ -599,7 +613,7 @@ def render_excel_file(
     đúng thứ tự parse_calendar_to_posts() đã gán, dùng để chèn cột "ID" đầu
     mỗi bảng dữ liệu (không áp cho overview/key-value sheet).
     """
-    if skill_name in SKILL_TEMPLATE_SHEET:
+    if skill_name in SKILL_TEMPLATE_SHEET and not force_dynamic:
         return render_template_excel(skill_name, skill_label, parsed, output_format, business_name)
 
     try:
