@@ -127,8 +127,9 @@ CONTENT_TYPE_SCOPE_KEYBOARD = InlineKeyboardMarkup([
 # Sau khi gửi Funnel Map + Execution Plan (HTML) → chờ user duyệt mới dựng calendar
 FUNNEL_APPROVE_KEYBOARD = InlineKeyboardMarkup([
     [InlineKeyboardButton("✅ Duyệt kế hoạch — dựng Lịch Nội Dung", callback_data="funnel_approve")],
-    [InlineKeyboardButton("🎯 Vớt khách chưa convert", callback_data="rescue_nonconvert")],
-    [InlineKeyboardButton("🧪 Chạy lại Funnel Map (debug)", callback_data="dbg_funnel")],
+    # Đã gỡ nút test: "🎯 Vớt khách chưa convert" (rescue_nonconvert) + "🧪 Chạy lại
+    # Funnel Map (debug)" (dbg_funnel). Handler 2 callback vẫn còn để không vỡ nếu
+    # có message cũ, nhưng không hiển thị nút nữa.
 ])
 
 # Sprint 5: Ads Generator — sau tier chooser, hỏi format (Video hay Ảnh)
