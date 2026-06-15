@@ -4955,6 +4955,25 @@ async def _send_ops_result(message: Message, session, task_name: str, result: st
                 "⚠️ Em không gen được Excel — output AI không có pipe table chuẩn. Sếp chạy lại nhé.",
             )
 
+        # #7: calendar có track 🔴 Campaign → gửi thêm bản campaign-only (cho agency bàn giao)
+        if task_name == "content_calendar" and xlsx_bytes and "🔴" in (result or ""):
+            try:
+                camp_bytes = render_excel_file(
+                    task_name, task.label, parsed, skill.output_format,
+                    business_name, track_filter="campaign",
+                )
+                if camp_bytes:
+                    buf3 = io.BytesIO(camp_bytes)
+                    buf3.name = f"{file_stem}_campaign.xlsx"
+                    await message.reply_document(
+                        document=buf3,
+                        filename=buf3.name,
+                        caption="🔴 *Campaign-only* — chỉ track campaign (lọc sẵn, để bàn giao/agency)",
+                        parse_mode=ParseMode.MARKDOWN,
+                    )
+            except Exception as e:
+                logger.warning("campaign-only export failed (non-blocking): %s", e)
+
     if task_name == "competitor":
         session.pending_intake["_awaiting_rating_for"] = "competitor"
         await save_session(session)

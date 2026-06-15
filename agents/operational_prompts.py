@@ -228,6 +228,7 @@ dung riêng (topic/angle khác nhau theo đặc tính kênh) nhưng cùng bám s
 - **🟢 Always-on (Content Engine):** track MẶC ĐỊNH — bài brand bám funnel/pillar, xây awareness/trust/engage, KHÔNG offer/deadline. Track này LUÔN có, chạy quanh năm.
 - **🔴 Campaign:** CHỈ tạo khi context có campaign/offer (block campaign brief / offer lever). Là bài Convert đẩy offer theo đợt, chạy SONG SONG track 🟢 trong khoảng thời gian campaign. Hết đợt → bỏ track này, track 🟢 giữ nguyên.
 - 2 track có thể TRÙNG NGÀY. Nếu KHÔNG có campaign trong context → CHỈ xuất track 🟢 (toàn bộ Track = "🟢 Always-on").
+- **LIFECYCLE (window):** 🔴 Campaign CHỈ xuất hiện trong các TUẦN thuộc đợt campaign (theo `duration`/số tuần đợt — vd đợt 2 tuần → chỉ Tuần 1-2 có 🔴). 🟢 Always-on phủ TOÀN BỘ kỳ, kể cả các tuần NGOÀI đợt campaign (sau khi campaign hết, các tuần đó chỉ còn 🟢).
 
 **Kênh text/ảnh (Facebook / Zalo OA / Instagram / LinkedIn):**
 Tiêu đề section: `#### 📘 [Tên Kênh] — X bài/kỳ`
