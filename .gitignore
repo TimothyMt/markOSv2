@@ -46,3 +46,6 @@ htmlcov/
 
 # Demo harness scratch output (not source)
 demo_out/
+
+# Demo harness output (throwaway artifacts)
+demo_out/
