@@ -138,6 +138,14 @@ class CompetitorSkill(AgentSkill):
 
     def build_user_msg(self, session: Session) -> str:
         competitors_known = session.profile.competitors or "chưa xác định"
+        grounded = (session.pending_intake or {}).get("_competitor_grounded", "")
+        grounded_block = ""
+        if grounded:
+            grounded_block = (
+                "\n\n---\n\n**📡 DỮ LIỆU GROUNDED (đã search web thật — DÙNG LÀM NGUỒN "
+                "CHÍNH, GIỮ NGUYÊN link nguồn, KHÔNG bịa số ngoài data này):**\n\n"
+                + grounded[:5000]
+            )
         return f"""Phân tích landscape cạnh tranh cho business này.
 
 Đối thủ founder đề cập: {competitors_known}
@@ -146,7 +154,7 @@ Hãy:
 1. Phân tích các đối thủ đã biết (nếu có)
 2. Identify thêm các đối thủ điển hình trong ngành {session.profile.industry} tại {session.profile.location or 'VN'}
 3. Tìm market gaps rõ ràng nhất
-4. Đề xuất positioning opportunity"""
+4. Đề xuất positioning opportunity{grounded_block}"""
 
 
 class CustomerInsightSkill(AgentSkill):

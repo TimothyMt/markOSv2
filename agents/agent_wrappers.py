@@ -152,10 +152,17 @@ async def competitor_agent(session: Session) -> str:
     GPT-5 (structured matrix) → Sonnet → GPT-5 mini (fallback)
     """
     from tools.llm_router import TaskType
+    from agents.pipeline import _competitor_grounded_pass
+    # Pass A — grounded gather (web thật + citations)
+    grounded = await _competitor_grounded_pass(session)
+    if grounded:
+        session.pending_intake["_competitor_grounded"] = grounded
+    # Pass B — structured matrix bám grounded
     result = await _run_skill_via_router(
         CompetitorSkill(), session, TaskType.COMPETITOR_MATRIX,
     )
     session.add_result("competitor", result)
+    session.pending_intake.pop("_competitor_grounded", None)
     return result
 
 

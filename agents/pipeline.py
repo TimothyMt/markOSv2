@@ -591,9 +591,46 @@ async def run_market_research(session: Session) -> str:
     return result
 
 
+async def _competitor_grounded_pass(session: Session) -> str:
+    """Pass A — gather thông tin đối thủ CÔNG KHAI thật qua grounded search (Gemini
+    + Google Search). Trả về nguyên liệu thô + link nguồn; "" nếu fail (non-fatal)."""
+    try:
+        from tools.llm_router import call as router_call, TaskType
+        from agents.prompts import COMPETITOR_GROUNDED_SYSTEM
+        p = session.profile
+        known = (p.competitors or "").strip()
+        user = (
+            f"Ngành: {p.industry}\n"
+            f"Sản phẩm/Dịch vụ: {p.product_service}\n"
+            f"Địa bàn: {p.location or 'Việt Nam'}\n"
+            f"Khách mục tiêu: {p.target_customer}\n"
+            + (f"Đối thủ founder đã nêu (research từng cái): {known}"
+               if known else
+               "Founder CHƯA nêu đối thủ — hãy TỰ TÌM 3-5 đối thủ điển hình qua search.")
+        )
+        res = await router_call(
+            task_type=TaskType.COMPETITOR_RESEARCH,
+            system=COMPETITOR_GROUNDED_SYSTEM,
+            user=user,
+            max_tokens=6000,
+        )
+        out = (res or {}).get("output", "") or ""
+        logger.info("[Competitor] grounded pass A → %d chars", len(out))
+        return out
+    except Exception as e:
+        logger.warning("[Competitor] grounded pass A failed (non-fatal): %s", e)
+        return ""
+
+
 async def run_competitor_analysis(session: Session) -> str:
+    # Pass A — grounded gather (web thật + citations) → nạp vào context cho Pass B
+    grounded = await _competitor_grounded_pass(session)
+    if grounded:
+        session.pending_intake["_competitor_grounded"] = grounded
+    # Pass B — dựng matrix có cấu trúc, bám data grounded thay vì model tự nhớ
     result = await _run_skill(CompetitorSkill(), session)
     session.add_result("competitor", result)
+    session.pending_intake.pop("_competitor_grounded", None)  # cleanup, không leak sang skill khác
     return result
 
 
