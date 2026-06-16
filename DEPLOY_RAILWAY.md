@@ -27,6 +27,18 @@ không phải bot Telegram. Server tự đọc biến `PORT` của Railway.
   `store=supabase` và dữ liệu được lưu vĩnh viễn trên Supabase.
 - Hoặc gắn **Railway Volume** mount vào `/app/webapp` để giữ file SQLite.
 
+## Thông báo qua Telegram (Web → Telegram)
+
+Để nhận thông báo trên Telegram khi có thao tác web (tạo chiến dịch, áp dụng
+tối ưu, kết nối tài khoản…), thêm vào **Variables**:
+```
+TELEGRAM_BOT_TOKEN = <token bot của bạn>
+TELEGRAM_CHAT_ID   = <user id / group id nhận thông báo>
+```
+Lấy `TELEGRAM_CHAT_ID`: nhắn cho bot rồi mở
+`https://api.telegram.org/bot<token>/getUpdates` xem `chat.id`, hoặc dùng
+@userinfobot. Sau đó vào trang **Cài đặt** trên web bấm **“Gửi thông báo test”**.
+
 ## Ghi chú
 
 - Repo này vốn dùng để chạy bot Telegram (`Procfile` → `bot/main.py`).

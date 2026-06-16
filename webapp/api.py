@@ -7,6 +7,7 @@ from starlette.responses import JSONResponse
 from starlette.routing import Route
 
 from webapp import store
+from webapp import notify as tg
 
 
 def _ok(state):
@@ -14,7 +15,14 @@ def _ok(state):
 
 
 async def bootstrap(request):
-    return _ok(await store.get_state())
+    state = await store.get_state()
+    state["telegramEnabled"] = tg.enabled()
+    return JSONResponse(state)
+
+
+async def notify_test(request):
+    ok = await tg.notify("✅ <b>Marketing OS</b> — kết nối thông báo Telegram thành công!")
+    return JSONResponse({"ok": ok, "enabled": tg.enabled()})
 
 
 # ── Tracked competitors ─────────────────────────────────────────────
@@ -34,7 +42,9 @@ async def toggle_job(request):
     return _ok(await store.toggle_job(request.path_params["name"]))
 
 async def apply_optimization(request):
-    return _ok(await store.remove_optimization(int(request.path_params["id"])))
+    state = await store.remove_optimization(int(request.path_params["id"]))
+    await tg.notify("⚡ Đã áp dụng một đề xuất tối ưu quảng cáo.")
+    return _ok(state)
 
 async def dismiss_alert(request):
     return _ok(await store.dismiss_alert(int(request.path_params["id"])))
@@ -53,7 +63,9 @@ async def add_campaign(request):
     name = (data.get("name") or "").strip()
     if not name:
         return JSONResponse({"error": "name required"}, status_code=400)
-    return _ok(await store.add_campaign(name))
+    state = await store.add_campaign(name)
+    await tg.notify(f"🚀 Chiến dịch mới: <b>{name}</b>")
+    return _ok(state)
 
 async def del_campaign(request):
     return _ok(await store.del_campaign(int(request.path_params["id"])))
@@ -97,7 +109,9 @@ async def connect_account(request):
     name = (data.get("name") or "").strip()
     if not name:
         return JSONResponse({"error": "name required"}, status_code=400)
-    return _ok(await store.connect_account(name))
+    state = await store.connect_account(name)
+    await tg.notify(f"🔗 Đã kết nối tài khoản quảng cáo: <b>{name}</b>")
+    return _ok(state)
 
 async def toggle_account(request):
     return _ok(await store.toggle_account(int(request.path_params["id"])))
@@ -122,6 +136,7 @@ async def reset_usage(request):
 def api_routes() -> list:
     return [
         Route("/api/bootstrap",                    bootstrap,          methods=["GET"]),
+        Route("/api/notify/test",                  notify_test,        methods=["POST"]),
         Route("/api/tracked",                      add_tracked,        methods=["POST"]),
         Route("/api/tracked/{id:int}",             del_tracked,        methods=["DELETE"]),
         Route("/api/jobs/{name:str}/toggle",       toggle_job,         methods=["POST"]),

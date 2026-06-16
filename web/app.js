@@ -619,6 +619,10 @@
           <div class="form">${field('Anthropic API Key','sk-ant-••••••••••••')}${field('Facebook App ID','••••••••')}
           ${field('Telegram Bot Token','••••••:••••••')}</div>
           <button class="primary-btn" style="margin-top:6px">Lưu thay đổi</button>`, {cls:'span-6'})}
+        ${card('Điều khiển & thông báo qua Telegram', `
+          <div class="kv"><span>Trạng thái</span><b>${M.telegramEnabled?badge('Đã bật','green'):badge('Chưa cấu hình','amber')}</b></div>
+          <p class="muted" style="margin:10px 0">Đặt biến môi trường <code>TELEGRAM_BOT_TOKEN</code> + <code>TELEGRAM_CHAT_ID</code> để nhận thông báo các thao tác (tạo chiến dịch, áp dụng tối ưu, kết nối tài khoản…) ngay trên Telegram — không cần ngồi máy.</p>
+          <button class="primary-btn" data-act="notify-test">📨 Gửi thông báo test</button>`, {cls:'span-12'})}
         ${card('Thông báo', (() => { const s = M.settings || {}; return `
           ${toggleRow('Daily digest qua Telegram','daily_digest',s.daily_digest)}
           ${toggleRow('Cảnh báo ngưỡng (CPM/ROAS/Frequency)','alert_threshold',s.alert_threshold)}
@@ -809,6 +813,10 @@
         res = await API.post('api/users/' + el.dataset.id + '/addquota', { value: parseInt(v) || 0 }); toast('Đã cộng quota');
       } else if (act === 'reset-usage') {
         res = await API.post('api/users/' + el.dataset.id + '/reset'); toast('Đã reset usage');
+      } else if (act === 'notify-test') {
+        const r = await API.post('api/notify/test');
+        toast(r.ok ? 'Đã gửi! Kiểm tra Telegram' : (r.enabled ? 'Gửi lỗi — kiểm tra token/chat_id' : 'Chưa cấu hình Telegram (token + chat_id)'));
+        return;
       }
       if (res) { Object.assign(window.MOCK, res); renderRail(); route(); }
     } catch (e) { toast('Lỗi kết nối backend'); }
