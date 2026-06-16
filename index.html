@@ -173,7 +173,8 @@ body {
 .kpi-label { color: var(--txt-2); font-size: 13px; margin-top: 14px; }
 .kpi-value { font-size: 24px; font-weight: 800; letter-spacing: -.02em; margin-top: 2px; }
 .kpi-unit { font-size: 15px; color: var(--txt-2); margin-left: 2px; }
-.spark { width: 100%; height: 36px; max-height: 36px; margin-top: 8px; display: block; }
+.spark-wrap { position: relative; height: 40px; margin-top: 10px; }
+.spark { display: block; }
 
 /* ── Grid / cards ───────────────────────────────────── */
 .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; }
@@ -1312,7 +1313,7 @@ window.MOCK = {
     return `<article class="kpi">
       <div class="kpi-top"><span class="kpi-icon ${spark}">${icon}</span><span class="kpi-trend ${dir}">${trend}</span></div>
       <p class="kpi-label">${label}</p><p class="kpi-value">${val}</p>
-      <canvas class="spark" data-spark="${spark}" height="36"></canvas></article>`;
+      <div class="spark-wrap"><canvas class="spark" data-spark="${spark}"></canvas></div></article>`;
   }
   function miniStat(label, val, sub) {
     return `<article class="kpi"><p class="kpi-label">${label}</p><p class="kpi-value">${val}</p><span class="muted">${sub}</span></article>`;

@@ -613,7 +613,7 @@
     return `<article class="kpi">
       <div class="kpi-top"><span class="kpi-icon ${spark}">${icon}</span><span class="kpi-trend ${dir}">${trend}</span></div>
       <p class="kpi-label">${label}</p><p class="kpi-value">${val}</p>
-      <canvas class="spark" data-spark="${spark}" height="36"></canvas></article>`;
+      <div class="spark-wrap"><canvas class="spark" data-spark="${spark}"></canvas></div></article>`;
   }
   function miniStat(label, val, sub) {
     return `<article class="kpi"><p class="kpi-label">${label}</p><p class="kpi-value">${val}</p><span class="muted">${sub}</span></article>`;
