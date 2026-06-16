@@ -111,9 +111,30 @@ lưu kết quả vào Supabase, đẩy tiến độ realtime qua SSE và bắn t
 | GET    | `/api/biz?user_id=` | Dữ liệu thật của 1 user |
 | GET    | `/api/biz/skillrun/{id}` | Full nội dung 1 skill_run |
 | POST   | `/api/biz/agent` | Chạy agent `{task, user_id}` — task: full/market/competitor/customer/pricing/swot/strategy |
+| GET    | `/api/biz/ads?days=7&user_id=` | Ads thật: KPI, winners/losers, biểu đồ theo ngày |
+| GET    | `/api/biz/fb/connect-url?user_id=` | Link FB OAuth để user kết nối Ads từ web |
+
+Output AI thật được **render thẳng trong các trang chiến lược** (Nghiên cứu thị
+trường, Đối thủ, Customer Insight, Định giá, SWOT, Chiến lược tổng hợp) — mỗi
+trang có nút *⚡ Chạy bằng AI* và hiển thị kết quả ngay khi xong.
 
 > Chọn user mặc định: query `?user_id=` → env `WEB_DEFAULT_USER_ID` → user active
-> gần nhất. Phần Ads (Facebook Marketing API) sẽ nối sau.
+> gần nhất.
+
+## Kết nối Facebook Ads (per-user)
+
+Mỗi user tự kết nối FB Ads của họ để xem số liệu: nút **🔗 Kết nối Facebook Ads**
+(trang *Ads Analytics*) gọi `/api/biz/fb/connect-url` → mở OAuth → user đồng ý →
+callback `/oauth/fb/callback` lưu token (mã hoá Fernet) vào `user_fb_connections`.
+Scheduler của bot pull số liệu hằng ngày vào `ads_snapshots`; web đọc snapshot đó.
+
+Cần server cấu hình `FB_APP_ID` + `FB_APP_SECRET` + `WEBHOOK_BASE_URL` (redirect URI
+đã đăng ký với Facebook App). Khi web mount chung server với bot, callback dùng
+luôn bot để báo Telegram; web standalone vẫn lưu token nhưng bỏ qua notify.
+
+> **Token Anthropic vs token FB:** AI agent dùng 1 `ANTHROPIC_API_KEY` của chủ
+> hệ thống, tính usage theo quota từng user (`users.token_quota/used`). Còn token
+> **Facebook** là OAuth riêng của từng user — user phải tự kết nối để xem ads của họ.
 
 ## Tự cập nhật realtime (SSE)
 

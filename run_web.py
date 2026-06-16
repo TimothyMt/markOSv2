@@ -15,7 +15,8 @@ from pathlib import Path
 
 import uvicorn
 from starlette.applications import Starlette
-from starlette.routing import Mount
+from starlette.routing import Mount, Route
+from starlette.responses import HTMLResponse
 from starlette.staticfiles import StaticFiles
 
 from webapp.api import api_routes, full_state
@@ -36,8 +37,19 @@ async def lifespan(app: Starlette):
     yield
 
 
+async def oauth_fb_callback(request):
+    """FB OAuth callback cho web standalone (không có bot → notify bị bỏ qua)."""
+    try:
+        from services.fb_oauth import handle_callback
+        return await handle_callback(request, None)
+    except Exception as e:
+        logging.warning("oauth_fb_callback failed: %s", e)
+        return HTMLResponse(f"<h2>Lỗi kết nối</h2><p>{e}</p>", status_code=500)
+
+
 app = Starlette(
     routes=api_routes() + [
+        Route("/oauth/fb/callback", oauth_fb_callback, methods=["GET"]),
         Mount("/", app=StaticFiles(directory=str(WEB_DIR), html=True), name="web"),
     ],
     lifespan=lifespan,

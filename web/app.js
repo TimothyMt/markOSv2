@@ -115,6 +115,43 @@
     return card('AI Agent (dữ liệu thật)', body, {cls:'span-12'});
   }
 
+  // Thanh AI + (nếu đã có output thật) render luôn nội dung AI sinh ra ngay trong trang
+  function agentSection(task, skillKey) {
+    if (!M.bizEnabled) return '';
+    const bar = agentBar(task, skillKey);
+    const latest = (M.bizLatest || {})[skillKey];
+    if (!latest) return bar;
+    const out = card('Kết quả AI thật',
+      `<div class="ai-output" data-skill-run="${latest.id}">Đang tải nội dung AI…</div>`,
+      {cls:'span-12', action: `<span class="muted">v${latest.version} · ${(latest.created_at||'').slice(0,10)}</span>`});
+    return bar + out;
+  }
+
+  // Đổ full content của skill_run vào các slot .ai-output (gọi sau mỗi route)
+  function renderAIContent(txt) {
+    const t = (txt || '').trim();
+    if (t.startsWith('<')) return t;             // skill xuất HTML → render trực tiếp
+    const esc = t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return '<p>' + esc
+      .replace(/^#### (.*)$/gm,'</p><h5>$1</h5><p>')
+      .replace(/^### (.*)$/gm,'</p><h4>$1</h4><p>')
+      .replace(/^## (.*)$/gm,'</p><h3>$1</h3><p>')
+      .replace(/^# (.*)$/gm,'</p><h2>$1</h2><p>')
+      .replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')
+      .replace(/^[-*] (.*)$/gm,'• $1')
+      .replace(/\n{2,}/g,'</p><p>')
+      .replace(/\n/g,'<br>') + '</p>';
+  }
+  async function fillAgentOutputs() {
+    const slots = document.querySelectorAll('.ai-output[data-skill-run]');
+    for (const el of slots) {
+      try {
+        const r = await API.get('api/biz/skillrun/' + el.dataset.skillRun);
+        el.innerHTML = renderAIContent(r.content || '(trống)');
+      } catch (e) { el.textContent = 'Không tải được nội dung AI.'; }
+    }
+  }
+
   P.agents = {
     title: 'AI Agent & Dữ liệu thật',
     sub: 'Chạy pipeline phân tích thật + xem dữ liệu nghiệp vụ từ Supabase của bot',
@@ -286,7 +323,7 @@
         ${miniStat('SOM','24 tỷ','Khả năng chiếm 90 ngày')}
       </section>
       <section class="grid">
-        ${agentBar('market','market_research')}
+        ${agentSection('market','market_research')}
         ${card('Quy mô thị trường (TAM/SAM/SOM)', cv('tamChart',230), {cls:'span-7'})}
         ${card('Động lực tăng trưởng', `
           <ul class="bullet">
@@ -318,7 +355,7 @@
     actions: `<button class="primary-btn" data-act="add-tracked">＋ Thêm đối thủ theo dõi</button>`,
     render: () => `
       <section class="grid">
-        ${agentBar('competitor','competitor')}
+        ${agentSection('competitor','competitor')}
         ${card('Ma trận cạnh tranh', table(
           ['Đối thủ','Định vị','Giá','USP','Thị phần','Mức đe dọa'],
           M.competitors.map(c=>[c.name,c.pos,c.price,c.usp,c.share+'%',
@@ -351,7 +388,7 @@
     title: 'Customer Insight', sub: 'ICP · Jobs-to-be-Done · Pain / Gain / Motivation',
     render: () => `
       <section class="grid">
-        ${agentBar('customer','customer_insight')}
+        ${agentSection('customer','customer_insight')}
         ${M.personas.map(p=>`
           ${card('', `
             <div class="persona">
@@ -375,7 +412,7 @@
     title: 'Định giá & Tâm lý', sub: 'Mô hình giá theo phân khúc + chiến thuật tâm lý',
     render: () => `
       <section class="grid">
-        ${agentBar('pricing','psychology_pricing')}
+        ${agentSection('pricing','psychology_pricing')}
         ${M.pricingTiers.map(t=>`
           ${card('', `
             <div class="tier ${t.hot?'hot':''}">
@@ -414,7 +451,7 @@
         ${swotCell('T','Thách thức','amber',['Chuỗi lớn cạnh tranh giá','Chi phí ads tăng','Trung thành thấp'])}
       </section>
       <section class="grid">
-        ${agentBar('swot','swot')}
+        ${agentSection('swot','swot')}
         ${card('Tactical plays (SO/WO/ST/WT)', table(
           ['Nhóm','Chiến thuật','KPI'],
           [['SO','Đẩy specialty qua UGC + KOL local','Reach, Repeat'],
@@ -431,7 +468,7 @@
     actions: `<button class="ghost-line">⤓ Xuất báo cáo</button><button class="primary-btn">→ Tạo Campaign Brief</button>`,
     render: () => `
       <section class="grid">
-        ${agentBar('strategy','synthesis')}
+        ${agentSection('strategy','synthesis')}
         ${card('SAVE Framework', `
           <div class="save">${M.saveFramework.map(s=>`
             <div class="save-item"><div class="save-k">${s.k}</div>
@@ -678,7 +715,11 @@
         ${profRow('Kết nối lúc', (conn.connected_at||'').slice(0,16).replace('T',' '))}
         ${profRow('Pull gần nhất', (conn.last_pull_at||'').slice(0,16).replace('T',' '))}
         ${profRow('Thông báo', conn.notification_enabled ? badge('Bật','green') : badge('Tắt','amber'))}
-      `, {cls:'span-4'}) : (!real ? '' : card('Kết nối FB', `<p class="muted">User chưa kết nối Facebook Ads. Dùng bot /connect để OAuth.</p>`, {cls:'span-4'}));
+        <button class="ghost-line full" data-act="fb-connect" style="margin-top:12px">🔄 Kết nối lại / đổi tài khoản</button>
+      `, {cls:'span-4'}) : (!real ? '' : card('Kết nối Facebook Ads', `
+        <p class="muted" style="margin-bottom:12px">User này chưa kết nối Facebook Ads. Bấm để mở OAuth — sau khi đồng ý,
+        bot sẽ tự pull số liệu và hiển thị tại đây.</p>
+        <button class="primary-btn full" data-act="fb-connect">🔗 Kết nối Facebook Ads</button>`, {cls:'span-4'}));
 
       const winnersTable = winners.length ? table(
         ['Chiến dịch','ROAS','Chi tiêu','Leads'],
@@ -1014,6 +1055,7 @@
     document.getElementById('view').innerHTML =
       pageHead(page.title, page.sub, actions) + page.render();
     if (page.mount) page.mount();
+    if (apiAvailable && M.bizEnabled) fillAgentOutputs();   // đổ output AI thật vào trang
     document.querySelector('.main').scrollTo(0,0);
     document.body.classList.remove('nav-open');
   }
@@ -1101,6 +1143,15 @@
     if (act === 'ads-days') {
       _adsDays = parseInt(el.dataset.days) || 7;
       await refreshAds(); route();
+      return;
+    }
+    if (act === 'fb-connect') {
+      try {
+        const r = await API.get('api/biz/fb/connect-url' + bizQuery());
+        if (r.error) { toast(r.error); return; }
+        window.open(r.url, '_blank');
+        toast('Mở cửa sổ Facebook — đồng ý quyền rồi quay lại, bấm "7/30 ngày" để tải số liệu');
+      } catch (e) { toast('Không tạo được link kết nối Facebook'); }
       return;
     }
 

@@ -201,6 +201,13 @@ async def handle_callback(request: Request, bot) -> HTMLResponse:
         await save_connection(user_id, encrypted, account_id, account_name, expires_at,
                               available_accounts=accounts)
         await _notify_connected(bot, user_id, account_name, account_id, accounts)
+    elif bot is None:
+        # Web standalone (không có bot để hỏi) — lưu luôn account đầu, user đổi sau
+        chosen = accounts[0]
+        account_id = _norm_id(chosen)
+        account_name = chosen.get("name") or account_id
+        await save_connection(user_id, encrypted, account_id, account_name, expires_at,
+                              available_accounts=accounts)
     else:
         # Multiple accounts — ask user to pick
         _pending_connections[user_id] = {
@@ -215,6 +222,8 @@ async def handle_callback(request: Request, bot) -> HTMLResponse:
 
 async def _ask_account_selection(bot, user_id: int, accounts: list) -> None:
     """Gửi Telegram inline keyboard để user chọn Ad Account."""
+    if bot is None:
+        return  # web standalone — sẽ tự dùng account đầu nếu cần (xem handle_callback)
     from telegram import InlineKeyboardButton, InlineKeyboardMarkup
     from telegram.constants import ParseMode
 
@@ -240,6 +249,8 @@ async def _ask_account_selection(bot, user_id: int, accounts: list) -> None:
 
 async def _notify_connected(bot, user_id: int, account_name: str, account_id: str, all_accounts: list) -> None:
     """Gửi Telegram xác nhận kết nối + hỏi thiết lập metrics."""
+    if bot is None:
+        return  # web standalone (không có bot) — token đã lưu, bỏ qua notify
     from telegram.constants import ParseMode
     from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 

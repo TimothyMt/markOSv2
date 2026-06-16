@@ -511,3 +511,14 @@ code { background: var(--panel); border: 1px solid var(--stroke); border-radius:
 .modal-head h3 { margin:0; font-size:15px; }
 .modal-body { margin:0; padding:18px; overflow:auto; white-space:pre-wrap; word-break:break-word;
   font-size:13px; line-height:1.6; color:var(--txt); font-family:'Inter',sans-serif; }
+
+/* ── Output AI render inline trong trang phân tích ────── */
+.ai-output { font-size:13.5px; line-height:1.7; color:var(--txt); max-height:560px; overflow:auto; }
+.ai-output h2 { font-size:17px; margin:16px 0 8px; color:var(--txt); }
+.ai-output h3 { font-size:15px; margin:14px 0 6px; color:var(--txt); }
+.ai-output h4, .ai-output h5 { font-size:13.5px; margin:12px 0 4px; color:var(--primary-2); }
+.ai-output p { margin:8px 0; }
+.ai-output b { color:var(--txt); }
+.ai-output table { width:100%; border-collapse:collapse; margin:10px 0; }
+.ai-output th, .ai-output td { border:1px solid var(--stroke); padding:6px 10px; text-align:left; font-size:12.5px; }
+.ai-output ul, .ai-output ol { margin:8px 0; padding-left:20px; }

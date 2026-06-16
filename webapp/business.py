@@ -348,6 +348,35 @@ async def ads_data(user_id=None, days: int = 7) -> dict:
     }
 
 
+# ── Facebook OAuth (kết nối Ads từ web) ─────────────────────────────
+async def fb_connect_url(user_id=None) -> dict:
+    """Tạo link FB OAuth cho user. User bấm → approve → /oauth/fb/callback lưu token.
+
+    Cần server đã cấu hình FB_APP_ID + WEBHOOK_BASE_URL (redirect URI đã đăng ký
+    với Facebook App). Khi web mount chung server với bot, callback có sẵn; web
+    standalone cần mount /oauth/fb/callback (run_web.py đã làm).
+    """
+    if not available():
+        return {"error": "Supabase chưa cấu hình."}
+    try:
+        from config import FB_APP_ID, WEBHOOK_BASE_URL
+    except Exception:
+        FB_APP_ID = WEBHOOK_BASE_URL = ""
+    if not FB_APP_ID or not WEBHOOK_BASE_URL:
+        return {"error": "Server chưa cấu hình Facebook App (FB_APP_ID + WEBHOOK_BASE_URL)."}
+    uid = await pick_user_id(user_id)
+    if uid is None:
+        return {"error": "Chưa có user nào để kết nối."}
+    try:
+        await ensure_client()
+        from services.fb_oauth import build_oauth_url
+        url = await build_oauth_url(uid)
+        return {"url": url, "userId": uid}
+    except Exception as e:
+        logger.warning("fb_connect_url failed: %s", e)
+        return {"error": f"Không tạo được link kết nối: {e}"}
+
+
 # ── Agent trigger ───────────────────────────────────────────────────
 async def run_agent(user_id=None, task: str = "full") -> dict:
     """Khởi chạy pipeline/skill THẬT cho 1 user trong background. Trả jobId ngay."""
