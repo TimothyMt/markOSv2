@@ -21,6 +21,7 @@
 | D-014 | Auth **hoãn** ở các milestone tới (Q-D); v1 demo/nội bộ. ⚠️ Chặn cứng public dữ liệu thật đa user | ✅ (2026-06) |
 | D-015 | Web chạy agent **non-interactive** = `run_targeted_pipeline` (đủ 8 bước, gồm synthesis). Multi-agent + 8 câu hỏi chỉ dùng trong chat bot | ✅ (2026-06) |
 | D-016 | M0: Starter **luôn chạy full** chất lượng cao; trang Chiến lược **tóm tắt gọn trước** + nút "Xem đầy đủ" | ✅ (2026-06) |
+| D-017 | Lịch nội dung theo mô hình bot: **🟢 Always-on (nền, quanh năm)** + **🔴 Campaign theo dịp (lớp phủ có window)**. Web phải phản ánh 2 track + lifecycle. Thuộc **M1** | ✅ (2026-06) |
 
 ## Đã chốt các câu hỏi mở (2026-06)
 Q-A→D-011 · Q-B→D-012 · Q-C→D-013 · Q-D→D-014.
