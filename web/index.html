@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Auto Ads Facebook — Tổng quan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/web/styles.css" />
+</head>
+<body>
+  <div class="app">
+    <!-- ── Sidebar ───────────────────────────────────────────── -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo">A</div>
+        <div class="brand-text">
+          <span class="brand-name">Auto Ads</span>
+          <span class="brand-sub">Facebook</span>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <p class="nav-label">Tổng quát</p>
+        <a class="nav-item active" href="#"><span class="ic">📊</span> Tổng quan</a>
+        <a class="nav-item" href="#"><span class="ic">🚀</span> Chiến dịch</a>
+        <a class="nav-item" href="#"><span class="ic">🎯</span> Nhóm quảng cáo</a>
+        <a class="nav-item" href="#"><span class="ic">🖼️</span> Mẫu quảng cáo</a>
+        <a class="nav-item" href="#"><span class="ic">👥</span> Đối tượng</a>
+
+        <p class="nav-label">Tự động hóa</p>
+        <a class="nav-item" href="#"><span class="ic">⚡</span> Tối ưu hóa</a>
+        <a class="nav-item" href="#"><span class="ic">⏰</span> Lịch trình</a>
+        <a class="nav-item" href="#"><span class="ic">📈</span> Báo cáo</a>
+        <a class="nav-item" href="#"><span class="ic">⚙️</span> Cài đặt</a>
+      </nav>
+
+      <div class="sidebar-foot">
+        <div class="acct">
+          <span class="acct-dot online"></span>
+          <div>
+            <p class="acct-name">TK Quảng cáo 01</p>
+            <p class="acct-meta">act_8842 · Đang chạy</p>
+          </div>
+        </div>
+        <div class="acct">
+          <span class="acct-dot"></span>
+          <div>
+            <p class="acct-name">TK Quảng cáo 02</p>
+            <p class="acct-meta">act_5510 · Tạm dừng</p>
+          </div>
+        </div>
+        <p class="version">v2.4.0</p>
+      </div>
+    </aside>
+
+    <!-- ── Main ──────────────────────────────────────────────── -->
+    <main class="main">
+      <!-- Topbar -->
+      <header class="topbar">
+        <div class="search">
+          <span class="ic">🔍</span>
+          <input type="text" placeholder="Tìm chiến dịch, quảng cáo, đối tượng…" />
+        </div>
+        <div class="topbar-right">
+          <button class="ghost-btn">🌙</button>
+          <button class="ghost-btn badge" data-count="3">🔔</button>
+          <div class="user">
+            <div class="avatar">NV</div>
+            <div class="user-text">
+              <span class="user-name">Nguyễn Văn A</span>
+              <span class="user-role">Quản trị viên</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page head -->
+      <div class="page-head">
+        <div>
+          <h1>Tổng quan</h1>
+          <p class="muted">Cập nhật lần cuối: hôm nay, 09:42</p>
+        </div>
+        <div class="page-actions">
+          <div class="segmented">
+            <button>Hôm nay</button>
+            <button class="on">7 ngày</button>
+            <button>30 ngày</button>
+          </div>
+          <button class="primary-btn">＋ Tạo chiến dịch</button>
+        </div>
+      </div>
+
+      <!-- KPI cards -->
+      <section class="kpis">
+        <article class="kpi">
+          <div class="kpi-top">
+            <span class="kpi-icon spend">💸</span>
+            <span class="kpi-trend up">▲ 8,2%</span>
+          </div>
+          <p class="kpi-label">Tổng chi tiêu</p>
+          <p class="kpi-value">12.540.000 ₫</p>
+          <canvas class="spark" data-spark="spend" height="36"></canvas>
+        </article>
+
+        <article class="kpi">
+          <div class="kpi-top">
+            <span class="kpi-icon rev">💰</span>
+            <span class="kpi-trend up">▲ 12,4%</span>
+          </div>
+          <p class="kpi-label">Doanh thu</p>
+          <p class="kpi-value">36.750.000 ₫</p>
+          <canvas class="spark" data-spark="rev" height="36"></canvas>
+        </article>
+
+        <article class="kpi">
+          <div class="kpi-top">
+            <span class="kpi-icon roas">🎯</span>
+            <span class="kpi-trend up">▲ 0,21</span>
+          </div>
+          <p class="kpi-label">ROAS</p>
+          <p class="kpi-value">3,09<span class="kpi-unit">x</span></p>
+          <canvas class="spark" data-spark="roas" height="36"></canvas>
+        </article>
+
+        <article class="kpi">
+          <div class="kpi-top">
+            <span class="kpi-icon click">👆</span>
+            <span class="kpi-trend down">▼ 1,8%</span>
+          </div>
+          <p class="kpi-label">Lượt click</p>
+          <p class="kpi-value">42.350</p>
+          <canvas class="spark" data-spark="click" height="36"></canvas>
+        </article>
+      </section>
+
+      <!-- Charts grid -->
+      <section class="grid">
+        <article class="card span-8">
+          <div class="card-head">
+            <div>
+              <h3>Chiến dịch đang chạy</h3>
+              <p class="muted">Chi tiêu vs Doanh thu theo ngày</p>
+            </div>
+            <div class="legend">
+              <span><i class="dot a"></i>Chi tiêu</span>
+              <span><i class="dot b"></i>Doanh thu</span>
+            </div>
+          </div>
+          <canvas id="lineChart" height="240"></canvas>
+        </article>
+
+        <article class="card span-4">
+          <div class="card-head"><h3>Phễu chuyển đổi</h3></div>
+          <div class="donut-wrap">
+            <canvas id="donutChart" height="200"></canvas>
+            <div class="donut-center">
+              <p class="donut-num">3,8%</p>
+              <p class="muted">Tỷ lệ CR</p>
+            </div>
+          </div>
+          <ul class="legend-list">
+            <li><i class="dot c1"></i>Hiển thị<span>1,2M</span></li>
+            <li><i class="dot c2"></i>Click<span>42.350</span></li>
+            <li><i class="dot c3"></i>Chuyển đổi<span>1.610</span></li>
+          </ul>
+        </article>
+
+        <article class="card span-8">
+          <div class="card-head">
+            <div>
+              <h3>Hiệu suất theo thời gian</h3>
+              <p class="muted">Số chuyển đổi mỗi ngày</p>
+            </div>
+          </div>
+          <canvas id="barChart" height="220"></canvas>
+        </article>
+
+        <article class="card span-4">
+          <div class="card-head"><h3>Phân bổ ngân sách</h3></div>
+          <div class="donut-wrap">
+            <canvas id="budgetChart" height="200"></canvas>
+            <div class="donut-center">
+              <p class="donut-num">6.500.000 ₫</p>
+              <p class="muted">Ngân sách/ngày</p>
+            </div>
+          </div>
+          <ul class="legend-list">
+            <li><i class="dot c1"></i>Khách hàng mới<span>45%</span></li>
+            <li><i class="dot c2"></i>Re-targeting<span>30%</span></li>
+            <li><i class="dot c3"></i>Lookalike<span>25%</span></li>
+          </ul>
+        </article>
+      </section>
+    </main>
+
+    <!-- ── Right rail ────────────────────────────────────────── -->
+    <aside class="rail">
+      <section class="card">
+        <div class="card-head"><h3>Lịch trình tối ưu</h3><a class="link" href="#">Tất cả</a></div>
+        <ul class="timeline">
+          <li><span class="t-time">08:00</span><div><p>Tăng ngân sách CD “Mùa hè”</p><span class="muted">+15% · tự động</span></div></li>
+          <li><span class="t-time">12:30</span><div><p>Tạm dừng quảng cáo CTR thấp</p><span class="muted">3 mẫu · tự động</span></div></li>
+          <li><span class="t-time">18:00</span><div><p>Nhân bản nhóm hiệu quả</p><span class="muted">Lookalike 2% · chờ</span></div></li>
+          <li><span class="t-time">21:00</span><div><p>Báo cáo ngày qua Telegram</p><span class="muted">Tự động gửi</span></div></li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><h3>Cảnh báo</h3><span class="pill warn">3 mới</span></div>
+        <ul class="alerts">
+          <li class="alert danger">
+            <span class="a-ic">⚠️</span>
+            <div><p>CPA vượt ngưỡng</p><span class="muted">CD “Khuyến mãi” · 95.000₫/đơn</span></div>
+          </li>
+          <li class="alert warn">
+            <span class="a-ic">🔔</span>
+            <div><p>Tần suất hiển thị cao</p><span class="muted">Nhóm Re-targeting · 4,2</span></div>
+          </li>
+          <li class="alert ok">
+            <span class="a-ic">✅</span>
+            <div><p>ROAS đạt mục tiêu</p><span class="muted">CD “Mùa hè” · 4,1x</span></div>
+          </li>
+        </ul>
+      </section>
+
+      <section class="card mini">
+        <div class="card-head"><h3>Trạng thái hệ thống</h3></div>
+        <ul class="status">
+          <li><span class="s-dot online"></span>Kết nối Facebook API<span class="muted">Ổn định</span></li>
+          <li><span class="s-dot online"></span>Bộ tối ưu tự động<span class="muted">Đang chạy</span></li>
+          <li><span class="s-dot online"></span>Đồng bộ dữ liệu<span class="muted">2 phút trước</span></li>
+        </ul>
+      </section>
+    </aside>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="/web/app.js"></script>
+</body>
+</html>
