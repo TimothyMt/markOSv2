@@ -45,47 +45,45 @@
   /* ════════════ PAGES ════════════ */
   const P = {};
 
-  /* ---- Max — cố vấn CMO (trung tâm) ---- */
+  /* ---- Max — cố vấn CMO (trung tâm, conversation-first) ---- */
   const STAGE_INDEX = { discovery:0, diagnosis:1, strategy:2, execution:3, run:4 };
   let _chatMsgs = [];        // [{role, content}]
   let _chatStage = 'discovery';
   let _chatSuggest = [];
   let _chatBusy = false;
 
-  function journeyStrip(activeStage) {
+  const CHAT_EXAMPLES = [
+    { icon:'☕', text:'Shop mình bán cà phê specialty ở Q.1 TP.HCM, muốn tăng đơn online trong 3 tháng.' },
+    { icon:'🛍️', text:'Mình mở shop thời trang nữ online, ngân sách ads 10tr/tháng — nên bắt đầu từ đâu?' },
+    { icon:'📊', text:'Phân tích giúp mình đối thủ trong ngành trà sữa khu vực Hà Nội.' },
+    { icon:'🎯', text:'Mình cần một chiến lược marketing 90 ngày cho phòng gym mới mở.' },
+  ];
+
+  // Thanh tiến trình hành trình — gọn như breadcrumb, không phải 5 hộp lớn
+  function journeyMini(activeStage) {
     const J = M.journey || [];
     const ai = STAGE_INDEX[activeStage] ?? 0;
-    return `<div class="journey">${J.map((s,i)=>`
-      <a class="jstep ${i<ai?'done':i===ai?'active':''}" href="#${s.page}">
-        <span class="jicon">${i<ai?'✓':s.icon}</span>
-        <span class="jbody"><b>${s.label}</b><i>${s.desc}</i></span>
-      </a>${i<J.length-1?'<span class="jline"></span>':''}`).join('')}</div>`;
+    return `<div class="jmini">${J.map((s,i)=>`
+      <a class="jm ${i<ai?'done':i===ai?'on':''}" href="#${s.page}" title="${s.desc}">
+        <span class="jm-dot">${i<ai?'✓':s.icon}</span><span class="jm-label">${s.label}</span>
+      </a>${i<J.length-1?'<span class="jm-sep">›</span>':''}`).join('')}</div>`;
   }
 
   P.home = {
-    title: 'Max — Cố vấn marketing của bạn',
-    get sub() {
-      return M.bizEnabled === false
-        ? 'Đang dùng dữ liệu demo — cấu hình Supabase + API key để Max hoạt động thật'
-        : 'Trò chuyện để Max chẩn đoán, lập chiến lược và sản xuất cho doanh nghiệp của bạn';
-    },
+    title: 'Max', sub: '',
     render: () => `
-      ${journeyStrip(_chatStage)}
-      <section class="copilot">
-        <div class="chat-wrap card">
-          <div class="chat-stream" id="chatStream"></div>
+      <div class="maxchat">
+        <div class="maxchat-top">${journeyMini(_chatStage)}</div>
+        <div class="maxchat-stream" id="chatStream"></div>
+        <div class="maxchat-foot">
           <div class="chat-suggest" id="chatSuggest"></div>
-          <div class="chat-input">
-            <input id="chatBox" type="text" placeholder="Nhắn cho Max… (vd: shop mình bán cà phê specialty ở Q.1, muốn tăng đơn online)"
-              autocomplete="off">
-            <button class="primary-btn" data-act="chat-send">Gửi</button>
+          <div class="composer">
+            <textarea id="chatBox" rows="1" placeholder="Nhắn cho Max…"></textarea>
+            <button class="composer-send" data-act="chat-send" title="Gửi" aria-label="Gửi">↑</button>
           </div>
+          <p class="composer-hint">Max là CMO ảo · có thể sai sót — hãy kiểm chứng thông tin quan trọng</p>
         </div>
-        <aside class="copilot-side">
-          ${card('Max là ai?', `<p class="muted">Max là CMO ảo — dẫn bạn đi qua 5 chặng: Khám phá → Chẩn đoán → Chiến lược → Sản xuất → Vận hành. Cứ kể chuyện kinh doanh, Max lo phần còn lại.</p>`, {cls:''})}
-          ${card('Bước tiếp theo', `<div id="chatSideSuggest" class="side-suggest"><p class="muted">Bắt đầu trò chuyện để Max gợi ý.</p></div>`, {cls:''})}
-        </aside>
-      </section>`,
+      </div>`,
     mount: () => { initChat(); },
   };
 
@@ -1093,11 +1091,13 @@
   function route() {
     const id = (location.hash.replace('#','') || 'home');
     const page = P[id] || P.home;
+    const isHome = (P[id] ? id : 'home') === 'home';
     killCharts();
     renderSidebar(id);
+    document.body.classList.toggle('chat-mode', isHome);   // ẩn rail, bố cục hội thoại
     const actions = page.actions || '';
     document.getElementById('view').innerHTML =
-      pageHead(page.title, page.sub, actions) + page.render();
+      (isHome ? '' : pageHead(page.title, page.sub, actions)) + page.render();
     if (page.mount) page.mount();
     if (apiAvailable && M.bizEnabled) fillAgentOutputs();   // đổ output AI thật vào trang
     document.querySelector('.main').scrollTo(0,0);
@@ -1160,53 +1160,66 @@
     return `<div class="cmsg ${who}"><span class="cav">${avatar}</span>
       <div class="cbub">${renderAIContent(m.content)}</div></div>`;
   }
-  function renderChat() {
+  function heroHTML(disabled) {
+    const cards = CHAT_EXAMPLES.map(e =>
+      `<button class="eg-card" ${disabled?'disabled':''} data-act="chat-eg" data-text="${e.text.replace(/"/g,'&quot;')}">
+        <span class="eg-ic">${e.icon}</span><span>${e.text}</span></button>`).join('');
+    const note = disabled
+      ? `<p class="hero-note">⚠️ Max cần backend thật (Supabase + API key LLM) để trò chuyện. Trên bản demo tĩnh, Max tạm nghỉ — các trang khác vẫn xem được bằng dữ liệu mẫu.</p>`
+      : '';
+    return `<div class="hero">
+      <div class="hero-logo">🤖</div>
+      <h1 class="hero-title">Xin chào! Tôi là Max</h1>
+      <p class="hero-sub">CMO ảo của bạn. Kể tôi nghe về doanh nghiệp — tôi sẽ chẩn đoán thị trường,
+        đối thủ, khách hàng rồi vạch chiến lược và nội dung.</p>
+      <div class="eg-grid">${cards}</div>
+      ${note}
+    </div>`;
+  }
+  function renderChat(disabled) {
     const stream = document.getElementById('chatStream');
     if (!stream) return;
     if (!_chatMsgs.length) {
-      stream.innerHTML = `<div class="chat-empty">
-        <div class="chat-hi">🤖</div>
-        <h3>Chào Sếp! Em là Max.</h3>
-        <p class="muted">Sếp kể em nghe về doanh nghiệp của mình nhé — bán gì, cho ai, mục tiêu sắp tới?
-        Em sẽ chẩn đoán và đề xuất chiến lược.</p>
-      </div>`;
+      stream.classList.add('is-empty');
+      stream.innerHTML = heroHTML(disabled);
     } else {
-      stream.innerHTML = _chatMsgs.map(chatBubble).join('') +
-        (_chatBusy ? `<div class="cmsg max"><span class="cav">🤖</span><div class="cbub typing"><i></i><i></i><i></i></div></div>` : '');
+      stream.classList.remove('is-empty');
+      stream.innerHTML = `<div class="cthread">` + _chatMsgs.map(chatBubble).join('') +
+        (_chatBusy ? `<div class="cmsg max"><span class="cav">🤖</span><div class="cbub typing"><i></i><i></i><i></i></div></div>` : '') +
+        `</div>`;
+      stream.scrollTop = stream.scrollHeight;
     }
-    stream.scrollTop = stream.scrollHeight;
     const sug = document.getElementById('chatSuggest');
-    const chips = _chatSuggest.map(s => s.task
+    if (sug) sug.innerHTML = _chatMsgs.length ? _chatSuggest.map(s => s.task
       ? `<button class="chip-btn" data-act="chat-suggest" data-task="${s.task}">${s.label}</button>`
-      : `<button class="chip-btn" data-act="chat-suggest" data-goto="${s.goto}">${s.label}</button>`).join('');
-    if (sug) sug.innerHTML = chips;
-    const side = document.getElementById('chatSideSuggest');
-    if (side) side.innerHTML = chips || '<p class="muted">Tiếp tục trò chuyện để Max gợi ý bước tiếp theo.</p>';
+      : `<button class="chip-btn" data-act="chat-suggest" data-goto="${s.goto}">${s.label}</button>`).join('') : '';
+  }
+  function growBox(box) {
+    if (!box) return;
+    box.style.height = 'auto';
+    box.style.height = Math.min(box.scrollHeight, 180) + 'px';
   }
   async function initChat() {
-    if (!apiAvailable || M.bizEnabled === false) {
-      _chatMsgs = []; _chatSuggest = []; renderChat();
-      const stream = document.getElementById('chatStream');
-      if (stream) stream.innerHTML =
-        `<div class="chat-empty"><div class="chat-hi">🤖</div><h3>Max cần backend thật</h3>
-         <p class="muted">Để trò chuyện với Max, chạy server có Supabase + API key LLM (ANTHROPIC/OpenAI/Gemini).
-         Trên bản demo tĩnh, Max tạm nghỉ — các trang khác vẫn xem được bằng dữ liệu mẫu.</p></div>`;
-      return;
-    }
+    const disabled = !apiAvailable || M.bizEnabled === false;
+    if (disabled) { _chatMsgs = []; _chatSuggest = []; renderChat(true); return; }
     try {
       const r = await API.get('api/chat/history' + bizQuery());
       _chatMsgs = r.history || [];
     } catch (e) { _chatMsgs = []; }
     renderChat();
     const box = document.getElementById('chatBox');
-    if (box) { box.focus(); box.onkeydown = (e) => { if (e.key === 'Enter') sendChat(); }; }
+    if (box) {
+      box.focus();
+      box.oninput = () => growBox(box);
+      box.onkeydown = (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); } };
+    }
   }
   async function sendChat(preset) {
     const box = document.getElementById('chatBox');
-    const text = preset || (box ? box.value.trim() : '');
-    if ((!text && !preset) || _chatBusy) return;
-    if (box) box.value = '';
-    if (text) _chatMsgs.push({ role: 'user', content: text });
+    const text = (preset || (box ? box.value.trim() : '')).trim();
+    if (!text || _chatBusy) return;
+    if (box) { box.value = ''; growBox(box); }
+    _chatMsgs.push({ role: 'user', content: text });
     _chatBusy = true; renderChat();
     try {
       const r = await API.post('api/chat', { message: text, user_id: _bizUserId });
@@ -1219,9 +1232,8 @@
         if (r.profileComplete) refreshBiz();   // hồ sơ vừa đủ → nạp dữ liệu thật
       }
     } catch (e) { _chatBusy = false; _chatMsgs.push({ role: 'assistant', content: '⚠️ Lỗi kết nối tới Max.' }); }
-    // cập nhật journey strip + chat
-    const strip = document.querySelector('.journey');
-    if (strip) strip.outerHTML = journeyStrip(_chatStage);
+    const mini = document.querySelector('.jmini');
+    if (mini) mini.outerHTML = journeyMini(_chatStage);
     renderChat();
     const box2 = document.getElementById('chatBox'); if (box2) box2.focus();
   }
@@ -1229,6 +1241,7 @@
   async function handleAction(el) {
     const act = el.dataset.act;
     if (act === 'chat-send') { sendChat(); return; }
+    if (act === 'chat-eg') { sendChat(el.dataset.text); return; }
     if (act === 'chat-suggest') {
       if (el.dataset.goto) { location.hash = el.dataset.goto; return; }
       if (el.dataset.task) {
