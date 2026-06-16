@@ -1,13 +1,15 @@
 """
-Standalone web dashboard server — KHÔNG cần Telegram token / credentials.
+Standalone web dashboard server — KHÔNG cần Telegram token.
 
 Chạy:  python run_web.py
 Mở:    http://localhost:8000
 
-Phục vụ giao diện trong web/ + JSON API trong webapp/ (SQLite mock-first).
-Dữ liệu lưu ở webapp/markos_web.db (tự tạo lần đầu).
+Mặc định lưu vào SQLite (webapp/markos_web.db). Nếu set SUPABASE_URL +
+SUPABASE_SERVICE_KEY (chạy webapp/supabase_schema.sql trước) thì tự dùng Supabase.
 """
+import logging
 import os
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 import uvicorn
@@ -18,18 +20,24 @@ from starlette.staticfiles import StaticFiles
 from webapp.api import api_routes
 from webapp import store
 
+logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(message)s")
 WEB_DIR = Path(__file__).resolve().parent / "web"
 
 
-def build_app() -> Starlette:
-    store.init_db()
-    routes = api_routes() + [
+@asynccontextmanager
+async def lifespan(app: Starlette):
+    backend = store.configure()
+    await store.init()
+    logging.info("Web dashboard ready (store=%s).", backend)
+    yield
+
+
+app = Starlette(
+    routes=api_routes() + [
         Mount("/", app=StaticFiles(directory=str(WEB_DIR), html=True), name="web"),
-    ]
-    return Starlette(routes=routes)
-
-
-app = build_app()
+    ],
+    lifespan=lifespan,
+)
 
 
 def main():

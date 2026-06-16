@@ -1,9 +1,7 @@
 """
 JSON API cho web dashboard. Mount vào Starlette (run_web.py hoặc bot/main.py).
 
-Hợp đồng: GET /api/bootstrap trả về phần dữ liệu "động" mà frontend dùng để
-override lên dữ liệu mock tĩnh. Các endpoint còn lại thực hiện thao tác ghi và
-trả về toàn bộ state mới để frontend render lại.
+GET /api/bootstrap trả về state động; các endpoint còn lại ghi và trả state mới.
 """
 from starlette.responses import JSONResponse
 from starlette.routing import Route
@@ -11,50 +9,136 @@ from starlette.routing import Route
 from webapp import store
 
 
+def _ok(state):
+    return JSONResponse(state)
+
+
 async def bootstrap(request):
-    return JSONResponse(store.get_state())
+    return _ok(await store.get_state())
 
 
+# ── Tracked competitors ─────────────────────────────────────────────
 async def add_tracked(request):
     data = await request.json()
     name = (data.get("name") or "").strip()
     if not name:
         return JSONResponse({"error": "name required"}, status_code=400)
-    return JSONResponse(store.add_tracked(name))
-
+    return _ok(await store.add_tracked(name))
 
 async def del_tracked(request):
-    return JSONResponse(store.del_tracked(int(request.path_params["id"])))
+    return _ok(await store.del_tracked(int(request.path_params["id"])))
 
 
+# ── Jobs / optimizations / alerts / settings ────────────────────────
 async def toggle_job(request):
-    return JSONResponse(store.toggle_job(request.path_params["name"]))
-
+    return _ok(await store.toggle_job(request.path_params["name"]))
 
 async def apply_optimization(request):
-    return JSONResponse(store.remove_optimization(int(request.path_params["id"])))
-
+    return _ok(await store.remove_optimization(int(request.path_params["id"])))
 
 async def dismiss_alert(request):
-    return JSONResponse(store.dismiss_alert(int(request.path_params["id"])))
-
+    return _ok(await store.dismiss_alert(int(request.path_params["id"])))
 
 async def set_setting(request):
     data = await request.json()
     key = data.get("key")
-    value = int(data.get("value", 0))
     if not key:
         return JSONResponse({"error": "key required"}, status_code=400)
-    return JSONResponse(store.set_setting(key, value))
+    return _ok(await store.set_setting(key, int(data.get("value", 0))))
+
+
+# ── Campaigns ───────────────────────────────────────────────────────
+async def add_campaign(request):
+    data = await request.json()
+    name = (data.get("name") or "").strip()
+    if not name:
+        return JSONResponse({"error": "name required"}, status_code=400)
+    return _ok(await store.add_campaign(name))
+
+async def del_campaign(request):
+    return _ok(await store.del_campaign(int(request.path_params["id"])))
+
+
+# ── Calendar posts ──────────────────────────────────────────────────
+async def add_calendar_post(request):
+    data = await request.json()
+    title = (data.get("title") or "").strip()
+    if not title:
+        return JSONResponse({"error": "title required"}, status_code=400)
+    return _ok(await store.add_calendar_post(
+        int(data.get("day", 0)), data.get("pillar", "Educate"), title))
+
+async def del_calendar_post(request):
+    return _ok(await store.del_calendar_post(int(request.path_params["id"])))
+
+
+# ── Content generation ──────────────────────────────────────────────
+async def generate_content(request):
+    data = await request.json()
+    topic = (data.get("topic") or "Khuyến mãi").strip()
+    return _ok(await store.generate_content(topic))
+
+
+# ── Reports ─────────────────────────────────────────────────────────
+async def add_report(request):
+    data = await request.json()
+    name = (data.get("name") or "").strip()
+    if not name:
+        return JSONResponse({"error": "name required"}, status_code=400)
+    return _ok(await store.add_report(name, data.get("type", "Tuần")))
+
+async def del_report(request):
+    return _ok(await store.del_report(int(request.path_params["id"])))
+
+
+# ── Ad accounts ─────────────────────────────────────────────────────
+async def connect_account(request):
+    data = await request.json()
+    name = (data.get("name") or "").strip()
+    if not name:
+        return JSONResponse({"error": "name required"}, status_code=400)
+    return _ok(await store.connect_account(name))
+
+async def toggle_account(request):
+    return _ok(await store.toggle_account(int(request.path_params["id"])))
+
+async def disconnect_account(request):
+    return _ok(await store.disconnect_account(int(request.path_params["id"])))
+
+
+# ── Admin: user quota ───────────────────────────────────────────────
+async def set_quota(request):
+    data = await request.json()
+    return _ok(await store.set_quota(int(request.path_params["id"]), int(data.get("value", 0))))
+
+async def add_quota(request):
+    data = await request.json()
+    return _ok(await store.add_quota(int(request.path_params["id"]), int(data.get("value", 0))))
+
+async def reset_usage(request):
+    return _ok(await store.reset_usage(int(request.path_params["id"])))
 
 
 def api_routes() -> list:
     return [
-        Route("/api/bootstrap",                    bootstrap,           methods=["GET"]),
-        Route("/api/tracked",                      add_tracked,         methods=["POST"]),
-        Route("/api/tracked/{id:int}",             del_tracked,         methods=["DELETE"]),
-        Route("/api/jobs/{name:str}/toggle",       toggle_job,          methods=["POST"]),
-        Route("/api/optimizations/{id:int}/apply", apply_optimization,  methods=["POST"]),
-        Route("/api/alerts/{id:int}/dismiss",      dismiss_alert,       methods=["POST"]),
-        Route("/api/settings",                     set_setting,         methods=["POST"]),
+        Route("/api/bootstrap",                    bootstrap,          methods=["GET"]),
+        Route("/api/tracked",                      add_tracked,        methods=["POST"]),
+        Route("/api/tracked/{id:int}",             del_tracked,        methods=["DELETE"]),
+        Route("/api/jobs/{name:str}/toggle",       toggle_job,         methods=["POST"]),
+        Route("/api/optimizations/{id:int}/apply", apply_optimization, methods=["POST"]),
+        Route("/api/alerts/{id:int}/dismiss",      dismiss_alert,      methods=["POST"]),
+        Route("/api/settings",                     set_setting,        methods=["POST"]),
+        Route("/api/campaigns",                    add_campaign,       methods=["POST"]),
+        Route("/api/campaigns/{id:int}",           del_campaign,       methods=["DELETE"]),
+        Route("/api/calendar",                     add_calendar_post,  methods=["POST"]),
+        Route("/api/calendar/{id:int}",            del_calendar_post,  methods=["DELETE"]),
+        Route("/api/content/generate",             generate_content,   methods=["POST"]),
+        Route("/api/reports",                      add_report,         methods=["POST"]),
+        Route("/api/reports/{id:int}",             del_report,         methods=["DELETE"]),
+        Route("/api/accounts",                     connect_account,    methods=["POST"]),
+        Route("/api/accounts/{id:int}/toggle",     toggle_account,     methods=["POST"]),
+        Route("/api/accounts/{id:int}",            disconnect_account, methods=["DELETE"]),
+        Route("/api/users/{id:int}/quota",         set_quota,          methods=["POST"]),
+        Route("/api/users/{id:int}/addquota",      add_quota,          methods=["POST"]),
+        Route("/api/users/{id:int}/reset",         reset_usage,        methods=["POST"]),
     ]

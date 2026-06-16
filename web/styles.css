@@ -342,10 +342,18 @@ body { overflow-x: hidden; }
 .cal-day { background: var(--panel); border: 1px solid var(--stroke); border-radius: 13px; padding: 10px; min-height: 150px; }
 .cal-head { font-size: 12px; font-weight: 700; color: var(--txt-2); margin-bottom: 10px; text-align: center; }
 .cal-post { font-size: 11.5px; padding: 7px 8px; border-radius: 9px; margin-bottom: 7px; line-height: 1.3;
+  position: relative;
   background: var(--panel-2); border-left: 3px solid var(--primary); }
 .cal-post span { display: block; font-size: 10px; font-weight: 700; opacity: .8; }
 .cal-post.c1 { border-color: var(--primary); } .cal-post.c2 { border-color: var(--primary-2); }
 .cal-post.c3 { border-color: var(--cyan); } .cal-post.c4 { border-color: var(--green); }
+.cal-del { position: absolute; top: 4px; right: 4px; background: none; border: none; color: var(--muted);
+  cursor: pointer; font-size: 10px; opacity: 0; transition: .15s; }
+.cal-post:hover .cal-del { opacity: 1; } .cal-del:hover { color: var(--red); }
+.tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+.tab { background: var(--panel); border: 1px solid var(--stroke); color: var(--txt-2);
+  padding: 7px 14px; border-radius: 9px; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+.tab.on { background: var(--primary); color: #fff; border-color: var(--primary); }
 .cal-add { width: 100%; background: none; border: 1px dashed var(--stroke-2); color: var(--muted);
   border-radius: 9px; padding: 5px; cursor: pointer; font-size: 12px; }
 

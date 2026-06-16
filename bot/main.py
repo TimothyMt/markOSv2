@@ -130,11 +130,9 @@ async def dashboard(request: Request) -> RedirectResponse:
     return RedirectResponse(url="/web/")
 
 
-# JSON API cho web dashboard (SQLite mock-first, không cần credentials).
+# JSON API cho web dashboard (SQLite mock-first; tự dùng Supabase nếu có env).
 from webapp.api import api_routes  # noqa: E402
 from webapp import store as web_store  # noqa: E402
-
-web_store.init_db()
 
 
 # ── Startup / shutdown lifecycle ─────────────────────────────────
@@ -145,6 +143,10 @@ async def lifespan(app: Starlette):
     await init_pool()
     await init_db()
     logger.info("DB pool ready.")
+
+    web_store.configure()
+    await web_store.init()
+    logger.info("Web dashboard store ready (%s).", web_store.backend_name())
 
     await ptb_app.initialize()
     await ptb_app.bot.set_webhook(

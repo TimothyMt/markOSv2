@@ -49,7 +49,7 @@
   P.overview = {
     title: 'Tổng quan', sub: 'Cập nhật lần cuối: hôm nay, 09:42',
     actions: `<div class="segmented"><button>Hôm nay</button><button class="on">7 ngày</button><button>30 ngày</button></div>
-              <button class="primary-btn">＋ Tạo chiến dịch</button>`,
+              <button class="primary-btn" data-act="add-campaign">＋ Tạo chiến dịch</button>`,
     render: () => `
       <section class="kpis">
         ${kpi('💸','spend','Tổng chi tiêu','12.540.000 ₫','▲ 8,2%','up')}
@@ -65,6 +65,11 @@
         ${card('Hiệu suất theo thời gian', cv('barChart',220), {cls:'span-8'})}
         ${card('Phân bổ ngân sách', donut('budgetChart','6.500.000 ₫','Ngân sách/ngày',
           [['Khách mới','45%'],['Re-targeting','30%'],['Lookalike','25%']]), {cls:'span-4'})}
+        ${card('Chiến dịch gần đây', table(['Chiến dịch','Mục tiêu','Ngân sách','Trạng thái',''],
+          (M.campaigns||[]).map(c=>[c.name, c.objective, c.budget,
+            c.status==='running'?badge('Đang chạy','green'):badge('Nháp','amber'),
+            c.id?`<button class="icon-btn" data-act="del-campaign" data-id="${c.id}" title="Xoá">✕</button>`:''])),
+          {cls:'span-12', action:`<button class="ghost-line sm" data-act="add-campaign">＋ Thêm</button>`})}
       </section>`,
     mount: () => {
       line('lineChart', [
@@ -298,13 +303,16 @@
   P.calendar = {
     title: 'Lịch nội dung', sub: 'Tuần này · Pillar: Educate / Trust / Engage / Convert',
     actions: `<div class="segmented"><button class="on">Tuần</button><button>Tháng</button></div>
-              <button class="primary-btn">＋ Thêm bài</button>`,
+              <button class="primary-btn" data-act="add-post" data-day="0">＋ Thêm bài</button>`,
     render: () => `
       <section class="cal">
         ${M.calendar.days.map((d,i)=>`
           <div class="cal-day"><div class="cal-head">${d}</div>
-            ${M.calendar.posts[i].map(p=>`<div class="cal-post ${pillarCls(p.p)}"><span>${p.p}</span>${p.t}</div>`).join('')}
-            <button class="cal-add">＋</button></div>`).join('')}
+            ${calPosts(i).map(p=>`<div class="cal-post ${pillarCls(p.pillar)}">
+                <span>${p.pillar}</span>${p.title}
+                ${p.id?`<button class="cal-del" data-act="del-calendar" data-id="${p.id}" title="Xoá">✕</button>`:''}
+              </div>`).join('')}
+            <button class="cal-add" data-act="add-post" data-day="${i}">＋</button></div>`).join('')}
       </section>
       <section class="grid">
         ${card('Tỉ lệ pillar tuần', cv('calPillar',160), {cls:'span-12'})}
@@ -322,7 +330,7 @@
   /* ---- Content generator ---- */
   P.content = {
     title: 'Trình tạo nội dung', sub: 'Sản xuất hàng loạt: bài viết + video + UGC + ads',
-    actions: `<button class="ghost-line">⤓ Xuất Excel</button><button class="primary-btn">⚡ Tạo gói nội dung</button>`,
+    actions: `<button class="ghost-line">⤓ Xuất Excel</button><button class="primary-btn" data-act="gen-content">⚡ Tạo gói nội dung</button>`,
     render: () => `
       <section class="grid">
         ${card('Cấu hình', `
@@ -331,14 +339,13 @@
             ${field('Số bài/tuần','7 bài')}
             ${selectField('Kênh','Facebook + TikTok + Zalo')}
             ${selectField('Tông giọng','Thân thiện, trẻ trung')}
-          </div>`, {cls:'span-4'})}
-        ${card('Kết quả tạo (24 mục)', `
+          </div>
+          <button class="primary-btn full" data-act="gen-content" style="margin-top:14px">⚡ Tạo gói nội dung</button>`, {cls:'span-4'})}
+        ${card(`Kết quả tạo (${(M.contentItems||[]).length} mục)`, `
           <div class="tabs"><button class="tab on">Bài viết</button><button class="tab">Video</button><button class="tab">UGC</button><button class="tab">Ads</button></div>
           ${table(['#','Hook','Định dạng','Trạng thái'],
-            [['01','“Buổi sáng cần một lý do…”','FB Post', badge('Sẵn sàng','green')],
-             ['02','“3 lý do khách quay lại”','Carousel', badge('Sẵn sàng','green')],
-             ['03','“Hậu trường pha chế”','Reel 9:16', badge('Đang tạo','amber')],
-             ['04','“Mua 1 tặng 1 hôm nay”','Ad BOFU', badge('Sẵn sàng','green')]])}
+            (M.contentItems||[]).map(it=>[String(it.idx).padStart(2,'0'), it.hook, it.format,
+              it.status==='ready'?badge('Sẵn sàng','green'):badge('Đang tạo','amber')]))}
         `, {cls:'span-8'})}
       </section>`,
     mount: () => {},
@@ -535,18 +542,21 @@
   /* ---- Accounts ---- */
   P.accounts = {
     title: 'Kết nối tài khoản', sub: 'Facebook Ads — OAuth, token, đa tài khoản',
-    actions: `<button class="primary-btn">🔗 Kết nối tài khoản mới</button>`,
+    actions: `<button class="primary-btn" data-act="connect-account">🔗 Kết nối tài khoản mới</button>`,
     render: () => `
       <section class="grid">
-        ${M.accounts.map(a=>`
+        ${(M.accounts||[]).map(a=>`
           ${card('', `
             <div class="acctcard">
               <div class="acctcard-top"><div class="fb">f</div>
-                <span class="s-dot ${a.status==='online'?'online':''}"></span></div>
-              <p class="acctcard-name">${a.name}</p><p class="muted">${a.id}</p>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <span class="s-dot ${a.status==='online'?'online':''}"></span>
+                  ${a.id&&typeof a.id==='number'?`<button class="icon-btn" data-act="disconnect-account" data-id="${a.id}" title="Ngắt kết nối">✕</button>`:''}
+                </div></div>
+              <p class="acctcard-name">${a.name}</p><p class="muted">${a.acc_id||a.id}</p>
               <div class="kv"><span>Chi tiêu</span><b>${a.spend}</b></div>
               <div class="kv"><span>Trạng thái</span><b>${a.status==='online'?'Đang chạy':'Tạm dừng'}</b></div>
-              <button class="ghost-line full" style="margin-top:10px">${a.status==='online'?'Quản lý':'Kích hoạt'}</button>
+              <button class="ghost-line full" data-act="toggle-account" data-id="${a.id}" style="margin-top:10px">${a.status==='online'?'Tạm dừng':'Kích hoạt'}</button>
             </div>`, {cls:'span-4'})}`).join('')}
         ${card('Quyền & bảo mật', `
           <ul class="bullet"><li>🔐 Token mã hóa Fernet (at rest)</li><li>🔄 Tự refresh trước hạn (Job 02:00)</li>
@@ -558,12 +568,12 @@
   /* ---- Reports ---- */
   P.reports = {
     title: 'Báo cáo', sub: 'Lịch sử phân tích & báo cáo đã tạo',
-    actions: `<button class="primary-btn">⤓ Xuất báo cáo mới</button>`,
+    actions: `<button class="primary-btn" data-act="add-report">⤓ Xuất báo cáo mới</button>`,
     render: () => `
       <section class="grid">
         ${card('Báo cáo gần đây', table(['Tên','Loại','Ngày',''],
-          M.reports.map(r=>[r.name, badge(r.type), r.date,
-            `<a class="link" href="#">Mở</a> · <a class="link" href="#">Tải</a>`])), {cls:'span-12'})}
+          (M.reports||[]).map(r=>[r.name, badge(r.type), r.date,
+            `<a class="link" href="#">Tải</a>${r.id?` · <button class="icon-btn" data-act="del-report" data-id="${r.id}" title="Xoá">✕</button>`:''}`])), {cls:'span-12'})}
       </section>`,
     mount: () => {},
   };
@@ -578,10 +588,13 @@
         ${miniStat('Skill chạy','8.420','30 ngày qua')}
       </section>
       <section class="grid">
-        ${card('Quota người dùng', table(['User ID','Gói','Đã dùng / Quota','Tỉ lệ'],
-          M.users.map(u=>[u.id, badge(u.plan, u.plan==='Free'?'':'green'),
+        ${card('Quota người dùng', table(['User','Gói','Đã dùng / Quota','Tỉ lệ',''],
+          (M.users||[]).map(u=>[u.uid||u.id, badge(u.plan, u.plan==='Free'?'':'green'),
             `${num(u.used)} / ${num(u.quota)}`,
-            quotaBar(Math.round(u.used/u.quota*100))])), {cls:'span-8'})}
+            quotaBar(Math.round(u.used/u.quota*100)),
+            (typeof u.id==='number')
+              ? `<button class="ghost-line sm" data-act="add-quota" data-id="${u.id}">+Quota</button> <button class="ghost-line sm" data-act="reset-usage" data-id="${u.id}">Reset</button>`
+              : ''])), {cls:'span-8'})}
         ${card('Trạng thái hệ thống', `
           <ul class="status">
             ${statusRow('Facebook API','Ổn định')}
@@ -638,6 +651,9 @@
     <ul class="bullet">${items.map(i=>`<li>${i}</li>`).join('')}</ul></div>`;
   const briefRow = (k,v) => `<div class="brief-row"><span>${k}</span><b>${v}</b></div>`;
   const pillarCls = (p) => ({Educate:'c1',Trust:'c2',Engage:'c3',Convert:'c4'}[p]||'c1');
+  const calPosts = (i) => M.calendarPosts
+    ? M.calendarPosts.filter(p => p.day === i)
+    : (M.calendar.posts[i] || []).map(p => ({ pillar: p.p, title: p.t }));
   const scene = (t,tag,txt) => `<div class="scene"><span class="scene-t">${t}</span><span class="tag">${tag}</span><p>${txt}</p></div>`;
   const ugcCard = (lvl,n,brief,price) => card('', `<div class="ugc"><p class="ugc-lvl">${lvl}</p><span class="tag">${n}</span>
     <p class="muted" style="margin:8px 0">${brief}</p><p class="ugc-price">${price}</p></div>`, {cls:'span-4'});
@@ -763,6 +779,36 @@
         res = await API.post('api/alerts/' + el.dataset.id + '/dismiss');
       } else if (act === 'set-setting') {
         res = await API.post('api/settings', { key: el.dataset.key, value: el.checked ? 1 : 0 }); toast('Đã lưu cài đặt');
+      } else if (act === 'add-campaign') {
+        const name = prompt('Tên chiến dịch:'); if (!name || !name.trim()) return;
+        res = await API.post('api/campaigns', { name: name.trim() }); toast('Đã tạo chiến dịch');
+      } else if (act === 'del-campaign') {
+        res = await API.del('api/campaigns/' + el.dataset.id); toast('Đã xoá chiến dịch');
+      } else if (act === 'add-post') {
+        const title = prompt('Tiêu đề bài đăng:'); if (!title || !title.trim()) return;
+        res = await API.post('api/calendar', { day: +el.dataset.day, pillar: 'Educate', title: title.trim() }); toast('Đã thêm bài');
+      } else if (act === 'del-calendar') {
+        res = await API.del('api/calendar/' + el.dataset.id);
+      } else if (act === 'gen-content') {
+        const topic = prompt('Chủ đề nội dung:', 'Khuyến mãi mùa hè'); if (topic === null) return;
+        res = await API.post('api/content/generate', { topic: topic.trim() || 'Khuyến mãi' }); toast('Đã tạo gói nội dung');
+      } else if (act === 'add-report') {
+        const name = prompt('Tên báo cáo:'); if (!name || !name.trim()) return;
+        res = await API.post('api/reports', { name: name.trim(), type: 'Tuần' }); toast('Đã tạo báo cáo');
+      } else if (act === 'del-report') {
+        res = await API.del('api/reports/' + el.dataset.id);
+      } else if (act === 'connect-account') {
+        const name = prompt('Tên tài khoản quảng cáo:'); if (!name || !name.trim()) return;
+        res = await API.post('api/accounts', { name: name.trim() }); toast('Đã kết nối tài khoản');
+      } else if (act === 'toggle-account') {
+        res = await API.post('api/accounts/' + el.dataset.id + '/toggle');
+      } else if (act === 'disconnect-account') {
+        res = await API.del('api/accounts/' + el.dataset.id); toast('Đã ngắt kết nối');
+      } else if (act === 'add-quota') {
+        const v = prompt('Cộng thêm quota (token):', '50000'); if (v === null) return;
+        res = await API.post('api/users/' + el.dataset.id + '/addquota', { value: parseInt(v) || 0 }); toast('Đã cộng quota');
+      } else if (act === 'reset-usage') {
+        res = await API.post('api/users/' + el.dataset.id + '/reset'); toast('Đã reset usage');
       }
       if (res) { Object.assign(window.MOCK, res); renderRail(); route(); }
     } catch (e) { toast('Lỗi kết nối backend'); }

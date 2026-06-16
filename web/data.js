@@ -199,4 +199,16 @@ window.MOCK = {
   ],
 
   settings: { daily_digest: 1, alert_threshold: 1, weekly_report: 1, competitor_new: 0 },
+
+  campaigns: [
+    { name: 'Mùa hè rực rỡ', status: 'running', budget: '6.5tr/ngày', objective: 'Chuyển đổi' },
+    { name: 'Re-targeting Q2', status: 'running', budget: '3tr/ngày', objective: 'Doanh số' },
+  ],
+  contentItems: [
+    { idx: 1, hook: '“Buổi sáng cần một lý do…”', format: 'FB Post', status: 'ready' },
+    { idx: 2, hook: '“3 lý do khách quay lại”', format: 'Carousel', status: 'ready' },
+    { idx: 3, hook: '“Hậu trường pha chế”', format: 'Reel 9:16', status: 'generating' },
+    { idx: 4, hook: '“Mua 1 tặng 1 hôm nay”', format: 'Ad BOFU', status: 'ready' },
+  ],
+  calendarPosts: null,
 };
