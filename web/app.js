@@ -45,6 +45,50 @@
   /* ════════════ PAGES ════════════ */
   const P = {};
 
+  /* ---- Max — cố vấn CMO (trung tâm) ---- */
+  const STAGE_INDEX = { discovery:0, diagnosis:1, strategy:2, execution:3, run:4 };
+  let _chatMsgs = [];        // [{role, content}]
+  let _chatStage = 'discovery';
+  let _chatSuggest = [];
+  let _chatBusy = false;
+
+  function journeyStrip(activeStage) {
+    const J = M.journey || [];
+    const ai = STAGE_INDEX[activeStage] ?? 0;
+    return `<div class="journey">${J.map((s,i)=>`
+      <a class="jstep ${i<ai?'done':i===ai?'active':''}" href="#${s.page}">
+        <span class="jicon">${i<ai?'✓':s.icon}</span>
+        <span class="jbody"><b>${s.label}</b><i>${s.desc}</i></span>
+      </a>${i<J.length-1?'<span class="jline"></span>':''}`).join('')}</div>`;
+  }
+
+  P.home = {
+    title: 'Max — Cố vấn marketing của bạn',
+    get sub() {
+      return M.bizEnabled === false
+        ? 'Đang dùng dữ liệu demo — cấu hình Supabase + API key để Max hoạt động thật'
+        : 'Trò chuyện để Max chẩn đoán, lập chiến lược và sản xuất cho doanh nghiệp của bạn';
+    },
+    render: () => `
+      ${journeyStrip(_chatStage)}
+      <section class="copilot">
+        <div class="chat-wrap card">
+          <div class="chat-stream" id="chatStream"></div>
+          <div class="chat-suggest" id="chatSuggest"></div>
+          <div class="chat-input">
+            <input id="chatBox" type="text" placeholder="Nhắn cho Max… (vd: shop mình bán cà phê specialty ở Q.1, muốn tăng đơn online)"
+              autocomplete="off">
+            <button class="primary-btn" data-act="chat-send">Gửi</button>
+          </div>
+        </div>
+        <aside class="copilot-side">
+          ${card('Max là ai?', `<p class="muted">Max là CMO ảo — dẫn bạn đi qua 5 chặng: Khám phá → Chẩn đoán → Chiến lược → Sản xuất → Vận hành. Cứ kể chuyện kinh doanh, Max lo phần còn lại.</p>`, {cls:''})}
+          ${card('Bước tiếp theo', `<div id="chatSideSuggest" class="side-suggest"><p class="muted">Bắt đầu trò chuyện để Max gợi ý.</p></div>`, {cls:''})}
+        </aside>
+      </section>`,
+    mount: () => { initChat(); },
+  };
+
   /* ---- Overview ---- */
   P.overview = {
     title: 'Tổng quan', sub: 'Cập nhật lần cuối: hôm nay, 09:42',
@@ -1025,7 +1069,7 @@
       <div class="brand"><div class="brand-logo">M</div>
         <div class="brand-text"><span class="brand-name">Marketing OS</span><span class="brand-sub">Auto Ads Facebook</span></div></div>
       <nav class="nav">${M.nav.map(g=>`
-        <p class="nav-label">${g.group}</p>
+        ${g.group?`<p class="nav-label">${g.group}</p>`:''}
         ${g.items.map(it=>`<a class="nav-item ${it.id===active?'active':''}" href="#${it.id}"><span class="ic">${it.icon}</span> ${it.label}</a>`).join('')}
       `).join('')}</nav>
       <div class="sidebar-foot"><p class="version">v2.4.0 · demo dữ liệu mock</p></div>`;
@@ -1047,8 +1091,8 @@
         </ul></section>`;
   }
   function route() {
-    const id = (location.hash.replace('#','') || 'overview');
-    const page = P[id] || P.overview;
+    const id = (location.hash.replace('#','') || 'home');
+    const page = P[id] || P.home;
     killCharts();
     renderSidebar(id);
     const actions = page.actions || '';
@@ -1109,8 +1153,94 @@
     ov.classList.add('show');
   }
 
+  /* ── Max chat ── */
+  function chatBubble(m) {
+    const who = m.role === 'user' ? 'me' : 'max';
+    const avatar = m.role === 'user' ? '🧑' : '🤖';
+    return `<div class="cmsg ${who}"><span class="cav">${avatar}</span>
+      <div class="cbub">${renderAIContent(m.content)}</div></div>`;
+  }
+  function renderChat() {
+    const stream = document.getElementById('chatStream');
+    if (!stream) return;
+    if (!_chatMsgs.length) {
+      stream.innerHTML = `<div class="chat-empty">
+        <div class="chat-hi">🤖</div>
+        <h3>Chào Sếp! Em là Max.</h3>
+        <p class="muted">Sếp kể em nghe về doanh nghiệp của mình nhé — bán gì, cho ai, mục tiêu sắp tới?
+        Em sẽ chẩn đoán và đề xuất chiến lược.</p>
+      </div>`;
+    } else {
+      stream.innerHTML = _chatMsgs.map(chatBubble).join('') +
+        (_chatBusy ? `<div class="cmsg max"><span class="cav">🤖</span><div class="cbub typing"><i></i><i></i><i></i></div></div>` : '');
+    }
+    stream.scrollTop = stream.scrollHeight;
+    const sug = document.getElementById('chatSuggest');
+    const chips = _chatSuggest.map(s => s.task
+      ? `<button class="chip-btn" data-act="chat-suggest" data-task="${s.task}">${s.label}</button>`
+      : `<button class="chip-btn" data-act="chat-suggest" data-goto="${s.goto}">${s.label}</button>`).join('');
+    if (sug) sug.innerHTML = chips;
+    const side = document.getElementById('chatSideSuggest');
+    if (side) side.innerHTML = chips || '<p class="muted">Tiếp tục trò chuyện để Max gợi ý bước tiếp theo.</p>';
+  }
+  async function initChat() {
+    if (!apiAvailable || M.bizEnabled === false) {
+      _chatMsgs = []; _chatSuggest = []; renderChat();
+      const stream = document.getElementById('chatStream');
+      if (stream) stream.innerHTML =
+        `<div class="chat-empty"><div class="chat-hi">🤖</div><h3>Max cần backend thật</h3>
+         <p class="muted">Để trò chuyện với Max, chạy server có Supabase + API key LLM (ANTHROPIC/OpenAI/Gemini).
+         Trên bản demo tĩnh, Max tạm nghỉ — các trang khác vẫn xem được bằng dữ liệu mẫu.</p></div>`;
+      return;
+    }
+    try {
+      const r = await API.get('api/chat/history' + bizQuery());
+      _chatMsgs = r.history || [];
+    } catch (e) { _chatMsgs = []; }
+    renderChat();
+    const box = document.getElementById('chatBox');
+    if (box) { box.focus(); box.onkeydown = (e) => { if (e.key === 'Enter') sendChat(); }; }
+  }
+  async function sendChat(preset) {
+    const box = document.getElementById('chatBox');
+    const text = preset || (box ? box.value.trim() : '');
+    if ((!text && !preset) || _chatBusy) return;
+    if (box) box.value = '';
+    if (text) _chatMsgs.push({ role: 'user', content: text });
+    _chatBusy = true; renderChat();
+    try {
+      const r = await API.post('api/chat', { message: text, user_id: _bizUserId });
+      _chatBusy = false;
+      if (r.error) { _chatMsgs.push({ role: 'assistant', content: '⚠️ ' + r.error }); }
+      else {
+        _chatMsgs = r.history || _chatMsgs.concat({ role: 'assistant', content: r.reply });
+        _chatStage = r.stage || _chatStage;
+        _chatSuggest = r.suggestions || [];
+        if (r.profileComplete) refreshBiz();   // hồ sơ vừa đủ → nạp dữ liệu thật
+      }
+    } catch (e) { _chatBusy = false; _chatMsgs.push({ role: 'assistant', content: '⚠️ Lỗi kết nối tới Max.' }); }
+    // cập nhật journey strip + chat
+    const strip = document.querySelector('.journey');
+    if (strip) strip.outerHTML = journeyStrip(_chatStage);
+    renderChat();
+    const box2 = document.getElementById('chatBox'); if (box2) box2.focus();
+  }
+
   async function handleAction(el) {
     const act = el.dataset.act;
+    if (act === 'chat-send') { sendChat(); return; }
+    if (act === 'chat-suggest') {
+      if (el.dataset.goto) { location.hash = el.dataset.goto; return; }
+      if (el.dataset.task) {
+        try {
+          const r = await API.post('api/biz/agent', { task: el.dataset.task, user_id: _bizUserId });
+          if (r.error) { toast(r.error); return; }
+          _chatMsgs.push({ role: 'assistant', content: `Em bắt đầu chạy phân tích **${el.dataset.task}** rồi — Sếp xem tiến trình ở mục Dữ liệu thật & Agent, xong em báo nhé.` });
+          renderChat(); toast('Max đang chạy phân tích…'); refreshBiz();
+        } catch (e) { toast('Không khởi chạy được'); }
+      }
+      return;
+    }
     if (!apiAvailable) { toast('Tính năng này cần backend — chạy: python run_web.py'); if (el.type === 'checkbox') el.checked = !el.checked; return; }
 
     // ── AI agent + dữ liệu thật (không theo luồng state web_*) ──

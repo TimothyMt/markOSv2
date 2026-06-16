@@ -1,44 +1,56 @@
 /* Marketing OS — mock data + navigation config (data thật nối sau) */
 window.MOCK = {
   nav: [
-    { group: 'Tổng quát', items: [
-      { id: 'overview', label: 'Tổng quan', icon: '📊' },
-      { id: 'agents',   label: 'AI Agent & Dữ liệu thật', icon: '🤖' },
+    { group: '', items: [
+      { id: 'home',  label: 'Max — Cố vấn CMO', icon: '🤖' },
     ]},
-    { group: 'Chiến lược', items: [
-      { id: 'pipeline',   label: 'Phân tích thị trường', icon: '🧭' },
+    { group: '① Khám phá', items: [
+      { id: 'pipeline', label: 'Hồ sơ & chẩn đoán', icon: '🔍' },
+      { id: 'agents',   label: 'Dữ liệu thật & Agent', icon: '🗄️' },
+    ]},
+    { group: '② Chẩn đoán', items: [
       { id: 'market',     label: 'Nghiên cứu thị trường', icon: '🌐' },
       { id: 'competitor', label: 'Phân tích đối thủ',     icon: '🥊' },
       { id: 'customer',   label: 'Customer Insight',      icon: '👤' },
       { id: 'pricing',    label: 'Định giá & Tâm lý',     icon: '💲' },
       { id: 'swot',       label: 'SWOT',                  icon: '⚖️' },
-      { id: 'strategy',   label: 'Chiến lược tổng hợp',   icon: '🎯' },
     ]},
-    { group: 'Nội dung', items: [
-      { id: 'brief',    label: 'Campaign Brief',     icon: '📋' },
+    { group: '③ Chiến lược', items: [
+      { id: 'strategy',   label: 'Chiến lược tổng hợp',   icon: '🎯' },
+      { id: 'brief',      label: 'Campaign Brief',        icon: '📋' },
+    ]},
+    { group: '④ Sản xuất', items: [
       { id: 'calendar', label: 'Lịch nội dung',      icon: '🗓️' },
       { id: 'content',  label: 'Trình tạo nội dung', icon: '✍️' },
       { id: 'video',    label: 'Kịch bản video',     icon: '🎬' },
       { id: 'ugc',      label: 'UGC Brief',          icon: '📸' },
       { id: 'adscopy',  label: 'Quảng cáo (copy)',   icon: '🧲' },
-    ]},
-    { group: 'Tương tác', items: [
       { id: 'inbox',    label: 'Sales Inbox Script', icon: '💬' },
       { id: 'sequence', label: 'Email / Zalo chuỗi', icon: '✉️' },
       { id: 'voice',    label: 'Brand Voice',        icon: '🗣️' },
     ]},
-    { group: 'Quảng cáo Facebook', items: [
+    { group: '⑤ Vận hành & Tối ưu', items: [
+      { id: 'overview',     label: 'Tổng quan số liệu', icon: '📊' },
       { id: 'adsanalytics', label: 'Ads Analytics',  icon: '📈' },
       { id: 'optimizer',    label: 'Tối ưu tự động',  icon: '⚡' },
       { id: 'spy',          label: 'Theo dõi đối thủ', icon: '🕵️' },
       { id: 'schedule',     label: 'Lịch trình & cảnh báo', icon: '⏰' },
       { id: 'accounts',     label: 'Kết nối tài khoản', icon: '🔗' },
     ]},
-    { group: 'Hệ thống', items: [
+    { group: '⑥ Học hỏi & Hệ thống', items: [
       { id: 'reports', label: 'Báo cáo',  icon: '📑' },
       { id: 'admin',   label: 'Quản trị', icon: '🛠️' },
       { id: 'settings',label: 'Cài đặt',  icon: '⚙️' },
     ]},
+  ],
+
+  // Hành trình khách hàng — context cho Max + thanh tiến trình
+  journey: [
+    { id: 'discovery', label: 'Khám phá',  icon: '🔍', page: 'pipeline',  desc: 'Hiểu doanh nghiệp' },
+    { id: 'diagnosis', label: 'Chẩn đoán', icon: '🩺', page: 'competitor', desc: 'Thị trường · đối thủ · khách hàng' },
+    { id: 'strategy',  label: 'Chiến lược', icon: '🎯', page: 'strategy',  desc: 'Định vị · roadmap · KPI' },
+    { id: 'execution', label: 'Sản xuất',  icon: '✍️', page: 'content',   desc: 'Nội dung · chiến dịch' },
+    { id: 'run',       label: 'Vận hành',  icon: '📡', page: 'adsanalytics', desc: 'Chạy ads · tối ưu' },
   ],
 
   industries: ['F&B','Tech SaaS','E-commerce','Giáo dục','Health & Beauty','Bán lẻ','B2B Services','Bất động sản'],

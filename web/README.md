@@ -1,6 +1,24 @@
 # Marketing OS — Web Dashboard
 
-Giao diện web app (demo) cho nền tảng Marketing OS / Auto Ads Facebook.
+Giao diện web đặt **Max (CMO ảo)** làm trung tâm — không phải bảng số liệu
+kiểu Ads Manager. Người dùng trò chuyện với Max, Max dẫn qua **5 chặng hành
+trình**: 🔍 Khám phá → 🩺 Chẩn đoán → 🎯 Chiến lược → ✍️ Sản xuất → 📡 Vận hành.
+
+- Trang chủ `#home` = khung chat với Max + thanh tiến trình hành trình + gợi ý
+  "bước tiếp theo" (next-best-action) theo trạng thái doanh nghiệp.
+- Sidebar được tổ chức theo 5 chặng (không còn là danh sách phẳng 22 mục).
+- Max tái dùng đúng lõi của bot: `agents.discovery.run_discovery_turn` (phỏng vấn
+  dựng hồ sơ) + `tools.llm_router` (trả lời cố vấn) + `webapp.business.run_agent`
+  (chạy phân tích/skill thật khi Sếp bấm gợi ý).
+
+| Method | Path | Mô tả |
+|--------|------|-------|
+| POST | `/api/chat` | Một lượt hội thoại với Max `{user_id, message}` |
+| GET  | `/api/chat/history?user_id=` | Transcript hội thoại web hiện tại |
+
+> Max chỉ hoạt động khi server có Supabase + 1 API key LLM (ANTHROPIC/OpenAI/
+> Gemini). Trên bản demo tĩnh (GitHub Pages), Max tạm nghỉ; các trang khác vẫn
+> xem được bằng dữ liệu mẫu.
 
 ## Chạy với backend (đầy đủ — có lưu dữ liệu)
 

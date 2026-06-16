@@ -532,6 +532,54 @@ code { background: var(--panel); border: 1px solid var(--stroke); border-radius:
 .ai-output th, .ai-output td { border:1px solid var(--stroke); padding:6px 10px; text-align:left; font-size:12.5px; }
 .ai-output ul, .ai-output ol { margin:8px 0; padding-left:20px; }
 
+/* ── Max co-pilot: journey strip + chat ──────────────── */
+.journey { display:flex; align-items:stretch; gap:0; margin-bottom:18px; flex-wrap:wrap; }
+.jstep { display:flex; align-items:center; gap:10px; padding:10px 14px; border:1px solid var(--stroke);
+  border-radius:12px; background:var(--panel); text-decoration:none; color:var(--txt-2); min-width:0; flex:1; }
+.jstep .jicon { width:30px; height:30px; flex:0 0 30px; border-radius:50%; display:grid; place-items:center;
+  background:var(--panel-2); border:1px solid var(--stroke); font-size:14px; }
+.jstep .jbody { display:flex; flex-direction:column; min-width:0; }
+.jstep .jbody b { font-size:13px; color:var(--txt); white-space:nowrap; }
+.jstep .jbody i { font-size:11px; color:var(--muted); font-style:normal; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.jstep.active { border-color:var(--primary); box-shadow:0 0 0 1px var(--primary) inset; }
+.jstep.active .jicon { background:var(--primary); color:#fff; border-color:var(--primary); }
+.jstep.done .jicon { background:var(--green); color:#fff; border-color:var(--green); }
+.jline { flex:0 0 18px; align-self:center; height:2px; background:var(--stroke); }
+
+.copilot { display:grid; grid-template-columns:1fr 320px; gap:16px; align-items:start; }
+.chat-wrap { display:flex; flex-direction:column; height:calc(100vh - 250px); min-height:420px; padding:0; overflow:hidden; }
+.chat-stream { flex:1; overflow-y:auto; padding:18px; display:flex; flex-direction:column; gap:14px; }
+.chat-empty { margin:auto; text-align:center; max-width:420px; }
+.chat-empty .chat-hi { font-size:46px; }
+.chat-empty h3 { margin:8px 0 6px; }
+.cmsg { display:flex; gap:10px; max-width:84%; }
+.cmsg.me { align-self:flex-end; flex-direction:row-reverse; }
+.cav { width:30px; height:30px; flex:0 0 30px; border-radius:50%; display:grid; place-items:center;
+  background:var(--panel-2); border:1px solid var(--stroke); font-size:15px; }
+.cbub { background:var(--panel-2); border:1px solid var(--stroke); border-radius:14px; padding:10px 14px;
+  font-size:13.5px; line-height:1.6; color:var(--txt); }
+.cmsg.me .cbub { background:var(--primary); border-color:var(--primary); color:#fff; }
+.cbub.typing { display:flex; gap:4px; align-items:center; }
+.cbub.typing i { width:6px; height:6px; border-radius:50%; background:var(--muted); animation:blink 1.2s infinite; }
+.cbub.typing i:nth-child(2){ animation-delay:.2s } .cbub.typing i:nth-child(3){ animation-delay:.4s }
+@keyframes blink { 0%,60%,100%{opacity:.3} 30%{opacity:1} }
+.chat-suggest { display:flex; flex-wrap:wrap; gap:8px; padding:0 18px; }
+.chip-btn { background:var(--panel-2); border:1px solid var(--stroke); color:var(--txt); border-radius:20px;
+  padding:7px 13px; font-size:12.5px; cursor:pointer; transition:.15s; }
+.chip-btn:hover { border-color:var(--primary); color:var(--primary); }
+.chat-input { display:flex; gap:10px; padding:14px 18px; border-top:1px solid var(--stroke); }
+.chat-input input { flex:1; background:var(--panel-2); border:1px solid var(--stroke); border-radius:10px;
+  padding:11px 14px; color:var(--txt); font-size:13.5px; font-family:inherit; }
+.chat-input input:focus { outline:none; border-color:var(--primary); }
+.copilot-side { display:flex; flex-direction:column; gap:14px; }
+.side-suggest { display:flex; flex-direction:column; gap:8px; }
+.side-suggest .chip-btn { text-align:left; }
+@media (max-width: 920px) {
+  .copilot { grid-template-columns:1fr; }
+  .copilot-side { order:-1; }
+  .chat-wrap { height:auto; min-height:60vh; }
+}
+
 </style>
 </head>
 <body>
@@ -573,44 +621,56 @@ code { background: var(--panel); border: 1px solid var(--stroke); border-radius:
 /* Marketing OS — mock data + navigation config (data thật nối sau) */
 window.MOCK = {
   nav: [
-    { group: 'Tổng quát', items: [
-      { id: 'overview', label: 'Tổng quan', icon: '📊' },
-      { id: 'agents',   label: 'AI Agent & Dữ liệu thật', icon: '🤖' },
+    { group: '', items: [
+      { id: 'home',  label: 'Max — Cố vấn CMO', icon: '🤖' },
     ]},
-    { group: 'Chiến lược', items: [
-      { id: 'pipeline',   label: 'Phân tích thị trường', icon: '🧭' },
+    { group: '① Khám phá', items: [
+      { id: 'pipeline', label: 'Hồ sơ & chẩn đoán', icon: '🔍' },
+      { id: 'agents',   label: 'Dữ liệu thật & Agent', icon: '🗄️' },
+    ]},
+    { group: '② Chẩn đoán', items: [
       { id: 'market',     label: 'Nghiên cứu thị trường', icon: '🌐' },
       { id: 'competitor', label: 'Phân tích đối thủ',     icon: '🥊' },
       { id: 'customer',   label: 'Customer Insight',      icon: '👤' },
       { id: 'pricing',    label: 'Định giá & Tâm lý',     icon: '💲' },
       { id: 'swot',       label: 'SWOT',                  icon: '⚖️' },
-      { id: 'strategy',   label: 'Chiến lược tổng hợp',   icon: '🎯' },
     ]},
-    { group: 'Nội dung', items: [
-      { id: 'brief',    label: 'Campaign Brief',     icon: '📋' },
+    { group: '③ Chiến lược', items: [
+      { id: 'strategy',   label: 'Chiến lược tổng hợp',   icon: '🎯' },
+      { id: 'brief',      label: 'Campaign Brief',        icon: '📋' },
+    ]},
+    { group: '④ Sản xuất', items: [
       { id: 'calendar', label: 'Lịch nội dung',      icon: '🗓️' },
       { id: 'content',  label: 'Trình tạo nội dung', icon: '✍️' },
       { id: 'video',    label: 'Kịch bản video',     icon: '🎬' },
       { id: 'ugc',      label: 'UGC Brief',          icon: '📸' },
       { id: 'adscopy',  label: 'Quảng cáo (copy)',   icon: '🧲' },
-    ]},
-    { group: 'Tương tác', items: [
       { id: 'inbox',    label: 'Sales Inbox Script', icon: '💬' },
       { id: 'sequence', label: 'Email / Zalo chuỗi', icon: '✉️' },
       { id: 'voice',    label: 'Brand Voice',        icon: '🗣️' },
     ]},
-    { group: 'Quảng cáo Facebook', items: [
+    { group: '⑤ Vận hành & Tối ưu', items: [
+      { id: 'overview',     label: 'Tổng quan số liệu', icon: '📊' },
       { id: 'adsanalytics', label: 'Ads Analytics',  icon: '📈' },
       { id: 'optimizer',    label: 'Tối ưu tự động',  icon: '⚡' },
       { id: 'spy',          label: 'Theo dõi đối thủ', icon: '🕵️' },
       { id: 'schedule',     label: 'Lịch trình & cảnh báo', icon: '⏰' },
       { id: 'accounts',     label: 'Kết nối tài khoản', icon: '🔗' },
     ]},
-    { group: 'Hệ thống', items: [
+    { group: '⑥ Học hỏi & Hệ thống', items: [
       { id: 'reports', label: 'Báo cáo',  icon: '📑' },
       { id: 'admin',   label: 'Quản trị', icon: '🛠️' },
       { id: 'settings',label: 'Cài đặt',  icon: '⚙️' },
     ]},
+  ],
+
+  // Hành trình khách hàng — context cho Max + thanh tiến trình
+  journey: [
+    { id: 'discovery', label: 'Khám phá',  icon: '🔍', page: 'pipeline',  desc: 'Hiểu doanh nghiệp' },
+    { id: 'diagnosis', label: 'Chẩn đoán', icon: '🩺', page: 'competitor', desc: 'Thị trường · đối thủ · khách hàng' },
+    { id: 'strategy',  label: 'Chiến lược', icon: '🎯', page: 'strategy',  desc: 'Định vị · roadmap · KPI' },
+    { id: 'execution', label: 'Sản xuất',  icon: '✍️', page: 'content',   desc: 'Nội dung · chiến dịch' },
+    { id: 'run',       label: 'Vận hành',  icon: '📡', page: 'adsanalytics', desc: 'Chạy ads · tối ưu' },
   ],
 
   industries: ['F&B','Tech SaaS','E-commerce','Giáo dục','Health & Beauty','Bán lẻ','B2B Services','Bất động sản'],
@@ -834,6 +894,50 @@ window.MOCK = {
 
   /* ════════════ PAGES ════════════ */
   const P = {};
+
+  /* ---- Max — cố vấn CMO (trung tâm) ---- */
+  const STAGE_INDEX = { discovery:0, diagnosis:1, strategy:2, execution:3, run:4 };
+  let _chatMsgs = [];        // [{role, content}]
+  let _chatStage = 'discovery';
+  let _chatSuggest = [];
+  let _chatBusy = false;
+
+  function journeyStrip(activeStage) {
+    const J = M.journey || [];
+    const ai = STAGE_INDEX[activeStage] ?? 0;
+    return `<div class="journey">${J.map((s,i)=>`
+      <a class="jstep ${i<ai?'done':i===ai?'active':''}" href="#${s.page}">
+        <span class="jicon">${i<ai?'✓':s.icon}</span>
+        <span class="jbody"><b>${s.label}</b><i>${s.desc}</i></span>
+      </a>${i<J.length-1?'<span class="jline"></span>':''}`).join('')}</div>`;
+  }
+
+  P.home = {
+    title: 'Max — Cố vấn marketing của bạn',
+    get sub() {
+      return M.bizEnabled === false
+        ? 'Đang dùng dữ liệu demo — cấu hình Supabase + API key để Max hoạt động thật'
+        : 'Trò chuyện để Max chẩn đoán, lập chiến lược và sản xuất cho doanh nghiệp của bạn';
+    },
+    render: () => `
+      ${journeyStrip(_chatStage)}
+      <section class="copilot">
+        <div class="chat-wrap card">
+          <div class="chat-stream" id="chatStream"></div>
+          <div class="chat-suggest" id="chatSuggest"></div>
+          <div class="chat-input">
+            <input id="chatBox" type="text" placeholder="Nhắn cho Max… (vd: shop mình bán cà phê specialty ở Q.1, muốn tăng đơn online)"
+              autocomplete="off">
+            <button class="primary-btn" data-act="chat-send">Gửi</button>
+          </div>
+        </div>
+        <aside class="copilot-side">
+          ${card('Max là ai?', `<p class="muted">Max là CMO ảo — dẫn bạn đi qua 5 chặng: Khám phá → Chẩn đoán → Chiến lược → Sản xuất → Vận hành. Cứ kể chuyện kinh doanh, Max lo phần còn lại.</p>`, {cls:''})}
+          ${card('Bước tiếp theo', `<div id="chatSideSuggest" class="side-suggest"><p class="muted">Bắt đầu trò chuyện để Max gợi ý.</p></div>`, {cls:''})}
+        </aside>
+      </section>`,
+    mount: () => { initChat(); },
+  };
 
   /* ---- Overview ---- */
   P.overview = {
@@ -1815,7 +1919,7 @@ window.MOCK = {
       <div class="brand"><div class="brand-logo">M</div>
         <div class="brand-text"><span class="brand-name">Marketing OS</span><span class="brand-sub">Auto Ads Facebook</span></div></div>
       <nav class="nav">${M.nav.map(g=>`
-        <p class="nav-label">${g.group}</p>
+        ${g.group?`<p class="nav-label">${g.group}</p>`:''}
         ${g.items.map(it=>`<a class="nav-item ${it.id===active?'active':''}" href="#${it.id}"><span class="ic">${it.icon}</span> ${it.label}</a>`).join('')}
       `).join('')}</nav>
       <div class="sidebar-foot"><p class="version">v2.4.0 · demo dữ liệu mock</p></div>`;
@@ -1837,8 +1941,8 @@ window.MOCK = {
         </ul></section>`;
   }
   function route() {
-    const id = (location.hash.replace('#','') || 'overview');
-    const page = P[id] || P.overview;
+    const id = (location.hash.replace('#','') || 'home');
+    const page = P[id] || P.home;
     killCharts();
     renderSidebar(id);
     const actions = page.actions || '';
@@ -1899,8 +2003,94 @@ window.MOCK = {
     ov.classList.add('show');
   }
 
+  /* ── Max chat ── */
+  function chatBubble(m) {
+    const who = m.role === 'user' ? 'me' : 'max';
+    const avatar = m.role === 'user' ? '🧑' : '🤖';
+    return `<div class="cmsg ${who}"><span class="cav">${avatar}</span>
+      <div class="cbub">${renderAIContent(m.content)}</div></div>`;
+  }
+  function renderChat() {
+    const stream = document.getElementById('chatStream');
+    if (!stream) return;
+    if (!_chatMsgs.length) {
+      stream.innerHTML = `<div class="chat-empty">
+        <div class="chat-hi">🤖</div>
+        <h3>Chào Sếp! Em là Max.</h3>
+        <p class="muted">Sếp kể em nghe về doanh nghiệp của mình nhé — bán gì, cho ai, mục tiêu sắp tới?
+        Em sẽ chẩn đoán và đề xuất chiến lược.</p>
+      </div>`;
+    } else {
+      stream.innerHTML = _chatMsgs.map(chatBubble).join('') +
+        (_chatBusy ? `<div class="cmsg max"><span class="cav">🤖</span><div class="cbub typing"><i></i><i></i><i></i></div></div>` : '');
+    }
+    stream.scrollTop = stream.scrollHeight;
+    const sug = document.getElementById('chatSuggest');
+    const chips = _chatSuggest.map(s => s.task
+      ? `<button class="chip-btn" data-act="chat-suggest" data-task="${s.task}">${s.label}</button>`
+      : `<button class="chip-btn" data-act="chat-suggest" data-goto="${s.goto}">${s.label}</button>`).join('');
+    if (sug) sug.innerHTML = chips;
+    const side = document.getElementById('chatSideSuggest');
+    if (side) side.innerHTML = chips || '<p class="muted">Tiếp tục trò chuyện để Max gợi ý bước tiếp theo.</p>';
+  }
+  async function initChat() {
+    if (!apiAvailable || M.bizEnabled === false) {
+      _chatMsgs = []; _chatSuggest = []; renderChat();
+      const stream = document.getElementById('chatStream');
+      if (stream) stream.innerHTML =
+        `<div class="chat-empty"><div class="chat-hi">🤖</div><h3>Max cần backend thật</h3>
+         <p class="muted">Để trò chuyện với Max, chạy server có Supabase + API key LLM (ANTHROPIC/OpenAI/Gemini).
+         Trên bản demo tĩnh, Max tạm nghỉ — các trang khác vẫn xem được bằng dữ liệu mẫu.</p></div>`;
+      return;
+    }
+    try {
+      const r = await API.get('api/chat/history' + bizQuery());
+      _chatMsgs = r.history || [];
+    } catch (e) { _chatMsgs = []; }
+    renderChat();
+    const box = document.getElementById('chatBox');
+    if (box) { box.focus(); box.onkeydown = (e) => { if (e.key === 'Enter') sendChat(); }; }
+  }
+  async function sendChat(preset) {
+    const box = document.getElementById('chatBox');
+    const text = preset || (box ? box.value.trim() : '');
+    if ((!text && !preset) || _chatBusy) return;
+    if (box) box.value = '';
+    if (text) _chatMsgs.push({ role: 'user', content: text });
+    _chatBusy = true; renderChat();
+    try {
+      const r = await API.post('api/chat', { message: text, user_id: _bizUserId });
+      _chatBusy = false;
+      if (r.error) { _chatMsgs.push({ role: 'assistant', content: '⚠️ ' + r.error }); }
+      else {
+        _chatMsgs = r.history || _chatMsgs.concat({ role: 'assistant', content: r.reply });
+        _chatStage = r.stage || _chatStage;
+        _chatSuggest = r.suggestions || [];
+        if (r.profileComplete) refreshBiz();   // hồ sơ vừa đủ → nạp dữ liệu thật
+      }
+    } catch (e) { _chatBusy = false; _chatMsgs.push({ role: 'assistant', content: '⚠️ Lỗi kết nối tới Max.' }); }
+    // cập nhật journey strip + chat
+    const strip = document.querySelector('.journey');
+    if (strip) strip.outerHTML = journeyStrip(_chatStage);
+    renderChat();
+    const box2 = document.getElementById('chatBox'); if (box2) box2.focus();
+  }
+
   async function handleAction(el) {
     const act = el.dataset.act;
+    if (act === 'chat-send') { sendChat(); return; }
+    if (act === 'chat-suggest') {
+      if (el.dataset.goto) { location.hash = el.dataset.goto; return; }
+      if (el.dataset.task) {
+        try {
+          const r = await API.post('api/biz/agent', { task: el.dataset.task, user_id: _bizUserId });
+          if (r.error) { toast(r.error); return; }
+          _chatMsgs.push({ role: 'assistant', content: `Em bắt đầu chạy phân tích **${el.dataset.task}** rồi — Sếp xem tiến trình ở mục Dữ liệu thật & Agent, xong em báo nhé.` });
+          renderChat(); toast('Max đang chạy phân tích…'); refreshBiz();
+        } catch (e) { toast('Không khởi chạy được'); }
+      }
+      return;
+    }
     if (!apiAvailable) { toast('Tính năng này cần backend — chạy: python run_web.py'); if (el.type === 'checkbox') el.checked = !el.checked; return; }
 
     // ── AI agent + dữ liệu thật (không theo luồng state web_*) ──

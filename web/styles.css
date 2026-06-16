@@ -522,3 +522,51 @@ code { background: var(--panel); border: 1px solid var(--stroke); border-radius:
 .ai-output table { width:100%; border-collapse:collapse; margin:10px 0; }
 .ai-output th, .ai-output td { border:1px solid var(--stroke); padding:6px 10px; text-align:left; font-size:12.5px; }
 .ai-output ul, .ai-output ol { margin:8px 0; padding-left:20px; }
+
+/* ── Max co-pilot: journey strip + chat ──────────────── */
+.journey { display:flex; align-items:stretch; gap:0; margin-bottom:18px; flex-wrap:wrap; }
+.jstep { display:flex; align-items:center; gap:10px; padding:10px 14px; border:1px solid var(--stroke);
+  border-radius:12px; background:var(--panel); text-decoration:none; color:var(--txt-2); min-width:0; flex:1; }
+.jstep .jicon { width:30px; height:30px; flex:0 0 30px; border-radius:50%; display:grid; place-items:center;
+  background:var(--panel-2); border:1px solid var(--stroke); font-size:14px; }
+.jstep .jbody { display:flex; flex-direction:column; min-width:0; }
+.jstep .jbody b { font-size:13px; color:var(--txt); white-space:nowrap; }
+.jstep .jbody i { font-size:11px; color:var(--muted); font-style:normal; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.jstep.active { border-color:var(--primary); box-shadow:0 0 0 1px var(--primary) inset; }
+.jstep.active .jicon { background:var(--primary); color:#fff; border-color:var(--primary); }
+.jstep.done .jicon { background:var(--green); color:#fff; border-color:var(--green); }
+.jline { flex:0 0 18px; align-self:center; height:2px; background:var(--stroke); }
+
+.copilot { display:grid; grid-template-columns:1fr 320px; gap:16px; align-items:start; }
+.chat-wrap { display:flex; flex-direction:column; height:calc(100vh - 250px); min-height:420px; padding:0; overflow:hidden; }
+.chat-stream { flex:1; overflow-y:auto; padding:18px; display:flex; flex-direction:column; gap:14px; }
+.chat-empty { margin:auto; text-align:center; max-width:420px; }
+.chat-empty .chat-hi { font-size:46px; }
+.chat-empty h3 { margin:8px 0 6px; }
+.cmsg { display:flex; gap:10px; max-width:84%; }
+.cmsg.me { align-self:flex-end; flex-direction:row-reverse; }
+.cav { width:30px; height:30px; flex:0 0 30px; border-radius:50%; display:grid; place-items:center;
+  background:var(--panel-2); border:1px solid var(--stroke); font-size:15px; }
+.cbub { background:var(--panel-2); border:1px solid var(--stroke); border-radius:14px; padding:10px 14px;
+  font-size:13.5px; line-height:1.6; color:var(--txt); }
+.cmsg.me .cbub { background:var(--primary); border-color:var(--primary); color:#fff; }
+.cbub.typing { display:flex; gap:4px; align-items:center; }
+.cbub.typing i { width:6px; height:6px; border-radius:50%; background:var(--muted); animation:blink 1.2s infinite; }
+.cbub.typing i:nth-child(2){ animation-delay:.2s } .cbub.typing i:nth-child(3){ animation-delay:.4s }
+@keyframes blink { 0%,60%,100%{opacity:.3} 30%{opacity:1} }
+.chat-suggest { display:flex; flex-wrap:wrap; gap:8px; padding:0 18px; }
+.chip-btn { background:var(--panel-2); border:1px solid var(--stroke); color:var(--txt); border-radius:20px;
+  padding:7px 13px; font-size:12.5px; cursor:pointer; transition:.15s; }
+.chip-btn:hover { border-color:var(--primary); color:var(--primary); }
+.chat-input { display:flex; gap:10px; padding:14px 18px; border-top:1px solid var(--stroke); }
+.chat-input input { flex:1; background:var(--panel-2); border:1px solid var(--stroke); border-radius:10px;
+  padding:11px 14px; color:var(--txt); font-size:13.5px; font-family:inherit; }
+.chat-input input:focus { outline:none; border-color:var(--primary); }
+.copilot-side { display:flex; flex-direction:column; gap:14px; }
+.side-suggest { display:flex; flex-direction:column; gap:8px; }
+.side-suggest .chip-btn { text-align:left; }
+@media (max-width: 920px) {
+  .copilot { grid-template-columns:1fr; }
+  .copilot-side { order:-1; }
+  .chat-wrap { height:auto; min-height:60vh; }
+}

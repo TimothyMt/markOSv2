@@ -104,6 +104,21 @@ async def biz_fb_connect_url(request):
     return JSONResponse(res, status_code=400 if "error" in res else 200)
 
 
+# ── Max (đối thoại cố vấn) ──────────────────────────────────────────
+async def chat(request):
+    """Một lượt hội thoại với Max. Body: {user_id, message}."""
+    from webapp import chat as chat_mod
+    data = await request.json()
+    res = await chat_mod.chat_turn(data.get("user_id"), data.get("message", ""))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def chat_history(request):
+    """Lịch sử hội thoại web hiện tại (ephemeral)."""
+    from webapp import chat as chat_mod
+    return JSONResponse({"history": chat_mod.history(request.query_params.get("user_id"))})
+
+
 # ── Tracked competitors ─────────────────────────────────────────────
 async def add_tracked(request):
     data = await request.json()
@@ -222,6 +237,8 @@ def api_routes() -> list:
         Route("/api/biz/agent",                    biz_agent_run,      methods=["POST"]),
         Route("/api/biz/ads",                      biz_ads,            methods=["GET"]),
         Route("/api/biz/fb/connect-url",           biz_fb_connect_url, methods=["GET"]),
+        Route("/api/chat",                         chat,               methods=["POST"]),
+        Route("/api/chat/history",                 chat_history,       methods=["GET"]),
         Route("/api/tracked",                      add_tracked,        methods=["POST"]),
         Route("/api/tracked/{id:int}",             del_tracked,        methods=["DELETE"]),
         Route("/api/jobs/{name:str}/toggle",       toggle_job,         methods=["POST"]),
