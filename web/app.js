@@ -82,34 +82,197 @@
     },
   };
 
+  /* ---- AI Agent & dữ liệu thật ---- */
+  const fmtNum = (n) => (n == null ? '—' : Number(n).toLocaleString('vi-VN'));
+  const profRow = (k, v) => v ? `<div class="kv"><span>${k}</span><b>${v}</b></div>` : '';
+  const runBtn = (task, label, cls = 'primary-btn sm') =>
+    `<button class="${cls}" data-act="run-agent" data-task="${task}">${label}</button>`;
+
+  function jobStatusTag(s) {
+    return s === 'done' ? badge('Hoàn tất', 'green')
+      : s === 'error' ? badge('Lỗi', 'red')
+      : badge('Đang chạy', 'amber');
+  }
+
+  // Thanh AI agent gắn vào đầu các trang phân tích: chạy thật + xem output thật
+  function agentBar(task, skillKey) {
+    if (!M.bizEnabled) return '';
+    const latest = (M.bizLatest || {})[skillKey];
+    const running = (M.agentJobs || []).some(j => j.status === 'running' && (j.task === task || j.task === 'full'));
+    const body = `
+      <div class="agent-bar">
+        <div class="agent-bar-info">
+          ${running ? `<span class="tag amber">⏳ AI đang chạy…</span>`
+            : latest ? `<span class="tag green">✓ Đã có output thật</span>
+                <span class="muted">v${latest.version} · ${fmtNum(latest.length)} ký tự · ${(latest.created_at||'').slice(0,10)}</span>`
+            : `<span class="muted">Chưa có output thật cho mục này</span>`}
+        </div>
+        <div class="agent-bar-act">
+          ${latest ? `<button class="ghost-line sm" data-act="view-skillrun" data-id="${latest.id}">Xem output</button>` : ''}
+          ${runBtn(task, running ? '↻ Đang chạy' : '⚡ Chạy bằng AI')}
+        </div>
+      </div>`;
+    return card('AI Agent (dữ liệu thật)', body, {cls:'span-12'});
+  }
+
+  P.agents = {
+    title: 'AI Agent & Dữ liệu thật',
+    sub: 'Chạy pipeline phân tích thật + xem dữ liệu nghiệp vụ từ Supabase của bot',
+    get actions() {
+      const users = M.bizUsers || [];
+      const sel = users.length
+        ? `<div class="sel" data-act="switch-user" title="Đổi người dùng đang xem">${
+            (M.bizUser && (M.bizUser.name || M.bizUser.user_id)) || M.bizUserId || 'Chọn user'} ▾</div>`
+        : '';
+      return sel + runBtn('full', '▶ Chạy phân tích toàn diện', 'primary-btn');
+    },
+    render: () => {
+      if (M.bizEnabled === false) {
+        return card('Chưa nối Supabase', `
+          <p class="muted">Phần dữ liệu thật + AI agent cần cấu hình Supabase (cùng project với bot):
+          đặt <code>SUPABASE_URL</code> + <code>SUPABASE_SERVICE_KEY</code> rồi chạy lại server.</p>
+          <p class="muted" style="margin-top:8px">Hiện đang dùng dữ liệu mock để xem giao diện.</p>`,
+          {cls:'span-12'});
+      }
+      const p = M.bizProfile || {};
+      const jobs = M.agentJobs || [];
+      const runs = M.bizSkillRuns || [];
+      const camps = M.bizCampaigns || [];
+      const comps = M.bizCompetitors || [];
+      const bv = M.bizBrandVoice;
+      const u = M.bizUser || {};
+      const hasProfile = Object.keys(p).length > 0;
+      return `
+      <section class="grid">
+        ${card('Hồ sơ doanh nghiệp (thật)', hasProfile ? `
+          ${profRow('Doanh nghiệp', p.business_name)}
+          ${profRow('Ngành', p.industry)}
+          ${profRow('Giai đoạn', p.stage)}
+          ${profRow('Sản phẩm/Dịch vụ', p.product_service)}
+          ${profRow('Khách hàng mục tiêu', p.target_customer)}
+          ${profRow('Doanh thu/tháng', p.monthly_revenue)}
+          ${profRow('Ngân sách marketing', p.monthly_marketing_budget)}
+          ${profRow('Mục tiêu chính', p.primary_goal)}
+          ${profRow('Thách thức', p.main_challenge)}
+          ${profRow('USP', p.usp)}
+          ${profRow('Khu vực', p.location)}
+        ` : `<p class="muted">User này chưa có hồ sơ doanh nghiệp. Chạy phân tích để bot thu thập intake.</p>`,
+          {cls:'span-5', action: u.user_id ? badge('user ' + u.user_id) : ''})}
+
+        ${card('Chạy AI Agent', `
+          <p class="muted" style="margin-bottom:10px">Mỗi nút gọi pipeline/skill THẬT trong <code>agents/</code>,
+          lưu kết quả vào Supabase. Tiến độ cập nhật realtime bên dưới.</p>
+          <div class="agent-run">
+            ${runBtn('full','▶ Toàn diện')}
+            ${runBtn('market','🌐 Thị trường')}
+            ${runBtn('competitor','🥊 Đối thủ')}
+            ${runBtn('customer','👤 Khách hàng')}
+            ${runBtn('pricing','💲 Định giá')}
+            ${runBtn('swot','⚖️ SWOT')}
+            ${runBtn('strategy','🎯 Chiến lược')}
+          </div>`, {cls:'span-7'})}
+
+        ${card('Tiến trình Agent', jobs.length ? `
+          <ul class="rows">${jobs.map(j=>`
+            <li class="row">
+              <div class="row-main"><p>${j.label} <span class="muted">· user ${j.userId}</span></p>
+                <span class="muted">${j.status==='running'? (j.progress||'…') : (j.error || j.summary || '')}</span></div>
+              ${jobStatusTag(j.status)}
+            </li>`).join('')}</ul>` :
+          `<p class="muted">Chưa có lần chạy nào. Bấm một nút phía trên để bắt đầu.</p>`,
+          {cls:'span-12'})}
+
+        ${card(`Kết quả AI đã tạo (${runs.length})`, runs.length ? table(
+          ['Skill','Phiên bản','Độ dài','Model','Thời điểm',''],
+          runs.map(r=>[
+            r.skill_name, 'v'+(r.version||1), fmtNum(r.length)+' ký tự',
+            r.model_used||'—', (r.created_at||'').replace('T',' ').slice(0,16),
+            `<button class="ghost-line sm" data-act="view-skillrun" data-id="${r.id}">Xem</button>`])) :
+          `<p class="muted">Chưa có output nào. Chạy agent để sinh kết quả.</p>`,
+          {cls:'span-8'})}
+
+        ${card('Tài khoản & quota (thật)', `
+          ${profRow('User', u.name || u.user_id)}
+          ${profRow('Gói', u.plan)}
+          ${profRow('Token đã dùng', u.token_used!=null ? fmtNum(u.token_used) : null)}
+          ${profRow('Quota token', u.token_quota!=null ? fmtNum(u.token_quota) : null)}
+          ${bv ? `<div class="kv"><span>Brand Voice</span><b>${badge('v'+bv.version,'green')}</b></div>
+            <p class="muted" style="margin-top:6px">${(bv.tone_descriptors||[]).slice(0,5).join(' · ')||'—'}</p>` :
+            `<div class="kv"><span>Brand Voice</span><b>${badge('Chưa setup','amber')}</b></div>`}
+        `, {cls:'span-4'})}
+
+        ${card(`Chiến dịch thật (${camps.length})`, camps.length ? table(
+          ['Tên','Mục tiêu','Trạng thái','Tạo lúc'],
+          camps.map(c=>[c.name||'(chưa đặt tên)', c.primary_goal||'—',
+            badge(c.status||'draft', c.status==='active'?'green':c.status==='archived'?'':'amber'),
+            (c.created_at||'').slice(0,10)])) :
+          `<p class="muted">Chưa có chiến dịch nào trong bảng campaigns.</p>`, {cls:'span-6'})}
+
+        ${card(`Đối thủ đang theo dõi (${comps.length})`, comps.length ? table(
+          ['Fanpage','Page ID','Chu kỳ (h)','Ads gần nhất'],
+          comps.map(c=>[c.page_name||'—', c.page_id||'—', c.interval_hours||24,
+            (c.last_ad_ids||[]).length])) :
+          `<p class="muted">User chưa theo dõi đối thủ nào (bảng tracked_competitors).</p>`, {cls:'span-6'})}
+      </section>`;
+    },
+    mount: () => {},
+  };
+
   /* ---- Pipeline (6 steps) ---- */
   P.pipeline = {
-    title: 'Phân tích thị trường', sub: 'Pipeline 6 bước · ngành: Quán cà phê (F&B)',
-    actions: `<button class="ghost-line">⤓ Xuất HTML</button><button class="primary-btn">▶ Chạy lại</button>`,
-    render: () => `
-      <section class="grid">
-        ${card('Tiến trình phân tích', `
-          <div class="stepper">
-            ${M.pipeline.map((s,i)=>`
-              <div class="step ${s.status}">
-                <div class="step-dot">${s.status==='done'?'✓':i+1}</div>
-                <div class="step-body"><p>${s.name}</p><span class="muted">${s.desc}</span></div>
-                ${stepBadge(s.status)}
-              </div>`).join('')}
-          </div>`, {cls:'span-8'})}
-        ${card('Business Intake', `
+    title: 'Phân tích thị trường',
+    get sub() {
+      const p = M.bizProfile;
+      return p && p.industry ? `Pipeline 6 bước · ngành: ${p.industry}` : 'Pipeline 6 bước · dữ liệu mock';
+    },
+    actions: `<button class="ghost-line">⤓ Xuất HTML</button><button class="primary-btn" data-act="run-agent" data-task="full">▶ Chạy lại bằng AI</button>`,
+    render: () => {
+      const p = M.bizProfile;
+      const latest = M.bizLatest || {};
+      // ưu tiên trạng thái thật từ skill_runs nếu đã nối Supabase
+      const realSteps = M.bizEnabled ? [
+        ['market_research','Nghiên cứu thị trường','TAM/SAM/SOM + động lực thị trường'],
+        ['competitor','Phân tích đối thủ','8 đối thủ × 8 chiều'],
+        ['customer_insight','Customer Insight','ICP + JTBD + tâm lý'],
+        ['psychology_pricing','Định giá & Tâm lý','Mô hình giá + chiến thuật tâm lý'],
+        ['swot','SWOT','Ma trận chiến lược'],
+        ['synthesis','Chiến lược tổng hợp','SAVE + SMART + roadmap 90 ngày'],
+      ].map(([k,name,desc]) => ({name, desc, status: latest[k] ? 'done' : 'pending'})) : M.pipeline;
+      const intakeBody = (p && Object.keys(p).length) ? `
+          ${profRow('Ngành', p.industry)}
+          ${profRow('Sản phẩm', p.product_service)}
+          ${profRow('Khu vực', p.location)}
+          ${profRow('Doanh thu', p.monthly_revenue)}
+          ${profRow('Mục tiêu', p.primary_goal)}
+          ${profRow('Thách thức', p.main_challenge)}
+          <a class="ghost-line full" href="#agents" style="margin-top:12px;display:block;text-align:center">→ Quản lý ở AI Agent</a>
+        ` : `
           <div class="kv"><span>Ngành</span><b>F&B — Quán cà phê</b></div>
           <div class="kv"><span>Sản phẩm</span><b>Cà phê specialty</b></div>
           <div class="kv"><span>Khu vực</span><b>TP.HCM, Q.1</b></div>
           <div class="kv"><span>Doanh thu</span><b>120tr/tháng</b></div>
           <div class="kv"><span>Mục tiêu</span><b>+50% trong 90 ngày</b></div>
           <div class="kv"><span>Thách thức</span><b>Cạnh tranh cao</b></div>
-          <button class="ghost-line full" style="margin-top:12px">✎ Chỉnh sửa intake</button>
-        `, {cls:'span-4'})}
+          ${M.bizEnabled ? '<p class="muted" style="margin-top:12px">User chưa có hồ sơ — đây là dữ liệu mẫu.</p>'
+            : '<button class="ghost-line full" style="margin-top:12px">✎ Chỉnh sửa intake</button>'}`;
+      return `
+      <section class="grid">
+        ${agentBar('full','synthesis')}
+        ${card('Tiến trình phân tích', `
+          <div class="stepper">
+            ${realSteps.map((s,i)=>`
+              <div class="step ${s.status}">
+                <div class="step-dot">${s.status==='done'?'✓':i+1}</div>
+                <div class="step-body"><p>${s.name}</p><span class="muted">${s.desc}</span></div>
+                ${stepBadge(s.status)}
+              </div>`).join('')}
+          </div>`, {cls:'span-8'})}
+        ${card(M.bizEnabled ? 'Business Intake (thật)' : 'Business Intake', intakeBody, {cls:'span-4'})}
         ${card('8 ngành được calibrate', `
           <div class="chips">${M.industries.map((x,i)=>`<span class="chip ${i===0?'on':''}">${x}</span>`).join('')}</div>
         `, {cls:'span-12'})}
-      </section>`,
+      </section>`;
+    },
     mount: () => {},
   };
 
@@ -123,6 +286,7 @@
         ${miniStat('SOM','24 tỷ','Khả năng chiếm 90 ngày')}
       </section>
       <section class="grid">
+        ${agentBar('market','market_research')}
         ${card('Quy mô thị trường (TAM/SAM/SOM)', cv('tamChart',230), {cls:'span-7'})}
         ${card('Động lực tăng trưởng', `
           <ul class="bullet">
@@ -154,6 +318,7 @@
     actions: `<button class="primary-btn" data-act="add-tracked">＋ Thêm đối thủ theo dõi</button>`,
     render: () => `
       <section class="grid">
+        ${agentBar('competitor','competitor')}
         ${card('Ma trận cạnh tranh', table(
           ['Đối thủ','Định vị','Giá','USP','Thị phần','Mức đe dọa'],
           M.competitors.map(c=>[c.name,c.pos,c.price,c.usp,c.share+'%',
@@ -186,6 +351,7 @@
     title: 'Customer Insight', sub: 'ICP · Jobs-to-be-Done · Pain / Gain / Motivation',
     render: () => `
       <section class="grid">
+        ${agentBar('customer','customer_insight')}
         ${M.personas.map(p=>`
           ${card('', `
             <div class="persona">
@@ -209,6 +375,7 @@
     title: 'Định giá & Tâm lý', sub: 'Mô hình giá theo phân khúc + chiến thuật tâm lý',
     render: () => `
       <section class="grid">
+        ${agentBar('pricing','psychology_pricing')}
         ${M.pricingTiers.map(t=>`
           ${card('', `
             <div class="tier ${t.hot?'hot':''}">
@@ -247,6 +414,7 @@
         ${swotCell('T','Thách thức','amber',['Chuỗi lớn cạnh tranh giá','Chi phí ads tăng','Trung thành thấp'])}
       </section>
       <section class="grid">
+        ${agentBar('swot','swot')}
         ${card('Tactical plays (SO/WO/ST/WT)', table(
           ['Nhóm','Chiến thuật','KPI'],
           [['SO','Đẩy specialty qua UGC + KOL local','Reach, Repeat'],
@@ -263,6 +431,7 @@
     actions: `<button class="ghost-line">⤓ Xuất báo cáo</button><button class="primary-btn">→ Tạo Campaign Brief</button>`,
     render: () => `
       <section class="grid">
+        ${agentBar('strategy','synthesis')}
         ${card('SAVE Framework', `
           <div class="save">${M.saveFramework.map(s=>`
             <div class="save-item"><div class="save-k">${s.k}</div>
@@ -762,9 +931,65 @@
     setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 2600);
   }
 
+  /* ── dữ liệu nghiệp vụ thật + AI agent ── */
+  let _bizUserId = null;
+  function bizQuery() { return _bizUserId != null ? ('?user_id=' + _bizUserId) : ''; }
+  async function refreshBiz() {
+    if (!apiAvailable) return;
+    try {
+      const biz = await API.get('api/biz' + bizQuery());
+      Object.assign(window.MOCK, biz);
+      if (biz.bizUserId != null) _bizUserId = biz.bizUserId;
+    } catch (e) { /* chưa nối Supabase → bỏ qua */ }
+  }
+  function showModal(title, text) {
+    let ov = document.getElementById('bizModal');
+    if (!ov) {
+      ov = document.createElement('div');
+      ov.id = 'bizModal'; ov.className = 'modal-ov';
+      ov.innerHTML = `<div class="modal"><div class="modal-head"><h3></h3>
+        <button class="icon-btn" id="bizModalX">✕</button></div><pre class="modal-body"></pre></div>`;
+      document.body.appendChild(ov);
+      ov.addEventListener('click', (e) => { if (e.target === ov) ov.classList.remove('show'); });
+      ov.querySelector('#bizModalX').addEventListener('click', () => ov.classList.remove('show'));
+    }
+    ov.querySelector('h3').textContent = title;
+    ov.querySelector('.modal-body').textContent = text;
+    ov.classList.add('show');
+  }
+
   async function handleAction(el) {
     const act = el.dataset.act;
     if (!apiAvailable) { toast('Tính năng này cần backend — chạy: python run_web.py'); if (el.type === 'checkbox') el.checked = !el.checked; return; }
+
+    // ── AI agent + dữ liệu thật (không theo luồng state web_*) ──
+    if (act === 'run-agent') {
+      try {
+        const r = await API.post('api/biz/agent', { task: el.dataset.task, user_id: _bizUserId });
+        if (r.error) { toast(r.error); return; }
+        toast('Đã khởi chạy AI agent — theo dõi tiến trình realtime');
+        await refreshBiz(); renderRail(); route();
+      } catch (e) { toast('Không khởi chạy được agent'); }
+      return;
+    }
+    if (act === 'view-skillrun') {
+      try {
+        const r = await API.get('api/biz/skillrun/' + el.dataset.id);
+        showModal((r.skill_name || 'Output') + ' · v' + (r.version || 1), r.content || '(trống)');
+      } catch (e) { toast('Không tải được nội dung'); }
+      return;
+    }
+    if (act === 'switch-user') {
+      const users = M.bizUsers || [];
+      if (!users.length) { toast('Chưa có user nào'); return; }
+      const list = users.map((u, i) => `${i + 1}. ${u.name || u.user_id} (${u.user_id})`).join('\n');
+      const pick = prompt('Chọn user để xem (nhập số thứ tự):\n' + list);
+      if (pick === null) return;
+      const idx = parseInt(pick) - 1;
+      if (users[idx]) { _bizUserId = users[idx].user_id; await refreshBiz(); renderRail(); route(); toast('Đã chuyển user'); }
+      return;
+    }
+
     try {
       let res;
       if (act === 'add-tracked') {
@@ -847,11 +1072,18 @@
     }
     dot.classList.toggle('off', !on);
   }
+  let _jobSig = '';
   function applyStream(data) {
     if (data === _lastStream) return;          // dedupe các bản trùng
     _lastStream = data;
     let state; try { state = JSON.parse(data); } catch (e) { return; }
     Object.assign(window.MOCK, state);
+    // khi 1 job AI đổi trạng thái (running→done/error) → nạp lại dữ liệu thật
+    const sig = JSON.stringify((state.agentJobs || []).map(j => [j.id, j.status, j.progress]));
+    if (sig !== _jobSig) {
+      _jobSig = sig;
+      if ((state.agentJobs || []).some(j => j.status === 'done')) refreshBiz();
+    }
     const editing = document.activeElement &&
       /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName);
     renderRail();
@@ -876,6 +1108,7 @@
       Object.assign(window.MOCK, state);
       _lastStream = JSON.stringify(state);
       apiAvailable = true;
+      await refreshBiz();                        // nạp dữ liệu nghiệp vụ thật (nếu có Supabase)
     } catch (e) { /* không có backend → dùng dữ liệu mock nhúng sẵn */ }
     renderRail();
     route();

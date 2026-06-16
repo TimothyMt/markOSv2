@@ -83,6 +83,38 @@ cùng store với web (`bot/web_control.py`):
 > (`SUPABASE_URL` + `SUPABASE_SERVICE_KEY`). Nếu mỗi bên dùng SQLite riêng
 > (2 service tách biệt) thì dữ liệu không chia sẻ.
 
+## AI Agent & dữ liệu nghiệp vụ thật
+
+Khi web dùng **cùng Supabase với bot** (`SUPABASE_URL` + `SUPABASE_SERVICE_KEY`),
+trang **🤖 AI Agent & Dữ liệu thật** đọc trực tiếp dữ liệu thật của bot và chạy
+được pipeline/skill thật (`agents/`). Module: `webapp/business.py`.
+
+**Dữ liệu thật hiển thị** (đọc các bảng của bot, không phải `web_*`):
+
+| Nguồn (bảng thật) | Hiển thị |
+|--------|------|
+| `users` | Danh sách user + quota token; chọn user để xem |
+| `user_business_profile` | Hồ sơ doanh nghiệp (ngành, USP, mục tiêu, ngân sách…) |
+| `campaigns` | Chiến dịch thật |
+| `tracked_competitors` | Đối thủ đang theo dõi |
+| `skill_runs` | Lịch sử output AI đã tạo (xem full nội dung) |
+| `user_brand_voice` | Brand Voice đang active |
+
+Output thật còn được map vào đúng trang phân tích (Nghiên cứu thị trường, Đối thủ,
+Customer Insight, Định giá, SWOT, Chiến lược) qua thanh **AI Agent (dữ liệu thật)**.
+
+**Chạy AI agent thật** — mỗi nút gọi pipeline/skill trong `agents/`, chạy nền,
+lưu kết quả vào Supabase, đẩy tiến độ realtime qua SSE và bắn thông báo Telegram:
+
+| Method | Path | Mô tả |
+|--------|------|-------|
+| GET    | `/api/biz?user_id=` | Dữ liệu thật của 1 user |
+| GET    | `/api/biz/skillrun/{id}` | Full nội dung 1 skill_run |
+| POST   | `/api/biz/agent` | Chạy agent `{task, user_id}` — task: full/market/competitor/customer/pricing/swot/strategy |
+
+> Chọn user mặc định: query `?user_id=` → env `WEB_DEFAULT_USER_ID` → user active
+> gần nhất. Phần Ads (Facebook Marketing API) sẽ nối sau.
+
 ## Tự cập nhật realtime (SSE)
 
 Web mở 1 kết nối `EventSource('/api/stream')` và tự cập nhật khi dữ liệu đổi —

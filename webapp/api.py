@@ -11,6 +11,7 @@ from starlette.routing import Route
 
 from webapp import store
 from webapp import notify as tg
+from webapp import business as biz
 from webapp.events import hub
 
 
@@ -19,9 +20,16 @@ def _ok(state):
 
 
 async def full_state() -> dict:
-    """State đầy đủ dùng cho bootstrap, SSE snapshot và watcher."""
+    """State đầy đủ dùng cho bootstrap, SSE snapshot và watcher.
+
+    Chỉ chứa phần NHẸ (web_* + cờ + danh sách job in-memory). Dữ liệu nghiệp vụ
+    THẬT (nhiều query Supabase) lấy on-demand qua /api/biz để watcher 4s không
+    nện DB liên tục — nhưng tiến độ AI agent (in-memory) vẫn đẩy live qua SSE.
+    """
     state = await store.get_state()
     state["telegramEnabled"] = tg.enabled()
+    state["bizEnabled"] = biz.available()
+    state["agentJobs"] = biz.jobs_public()
     return state
 
 
@@ -56,6 +64,31 @@ async def stream(request):
 async def notify_test(request):
     ok = await tg.notify("✅ <b>Marketing OS</b> — kết nối thông báo Telegram thành công!")
     return JSONResponse({"ok": ok, "enabled": tg.enabled()})
+
+
+# ── Dữ liệu nghiệp vụ thật + AI agent ───────────────────────────────
+async def biz_data(request):
+    """Dữ liệu thật của 1 user (profile, campaigns, đối thủ, skill runs, brand voice)."""
+    return JSONResponse(await biz.biz_data(request.query_params.get("user_id")))
+
+
+async def biz_skillrun(request):
+    """Full content 1 skill_run (để xem chi tiết output AI đã tạo)."""
+    return JSONResponse(await biz.skill_run_content(request.path_params["id"]))
+
+
+async def biz_agent_run(request):
+    """Khởi chạy pipeline/skill THẬT cho user. Trả jobId; theo dõi qua SSE agentJobs."""
+    data = await request.json()
+    task = (data.get("task") or "full").strip()
+    res = await biz.run_agent(data.get("user_id"), task)
+    if "error" in res:
+        return JSONResponse(res, status_code=400)
+    await tg.notify(
+        f"🤖 <b>AI Agent</b> bắt đầu: {biz.TASK_LABELS.get(task, task)} "
+        f"(user <code>{res['job']['userId']}</code>)."
+    )
+    return JSONResponse(res)
 
 
 # ── Tracked competitors ─────────────────────────────────────────────
@@ -171,6 +204,9 @@ def api_routes() -> list:
         Route("/api/bootstrap",                    bootstrap,          methods=["GET"]),
         Route("/api/stream",                       stream,             methods=["GET"]),
         Route("/api/notify/test",                  notify_test,        methods=["POST"]),
+        Route("/api/biz",                          biz_data,           methods=["GET"]),
+        Route("/api/biz/skillrun/{id:str}",        biz_skillrun,       methods=["GET"]),
+        Route("/api/biz/agent",                    biz_agent_run,      methods=["POST"]),
         Route("/api/tracked",                      add_tracked,        methods=["POST"]),
         Route("/api/tracked/{id:int}",             del_tracked,        methods=["DELETE"]),
         Route("/api/jobs/{name:str}/toggle",       toggle_job,         methods=["POST"]),

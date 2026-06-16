@@ -3,6 +3,7 @@ window.MOCK = {
   nav: [
     { group: 'Tổng quát', items: [
       { id: 'overview', label: 'Tổng quan', icon: '📊' },
+      { id: 'agents',   label: 'AI Agent & Dữ liệu thật', icon: '🤖' },
     ]},
     { group: 'Chiến lược', items: [
       { id: 'pipeline',   label: 'Phân tích thị trường', icon: '🧭' },
