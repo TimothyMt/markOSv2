@@ -608,41 +608,143 @@
 
   /* ---- Brand voice ---- */
   P.voice = {
-    title: 'Brand Voice', sub: 'Quy tắc giọng nói thương hiệu + hiệu chỉnh tông',
-    render: () => `
-      <section class="grid">
-        ${card('Nên (Do)', `<ul class="bullet">${M.voice.do.map(d=>`<li>✅ ${d}</li>`).join('')}</ul>`, {cls:'span-4'})}
-        ${card('Không nên (Don\'t)', `<ul class="bullet">${M.voice.dont.map(d=>`<li>🚫 ${d}</li>`).join('')}</ul>`, {cls:'span-4'})}
+    title: 'Brand Voice',
+    get sub() { return M.bizBrandVoice ? `Brand Voice thật · v${M.bizBrandVoice.version}` : 'Quy tắc giọng nói thương hiệu + hiệu chỉnh tông'; },
+    render: () => {
+      const bv = M.bizBrandVoice;
+      if (bv) {
+        const doList = (bv.do_rules || []).concat(bv.preferred_words?.map(w=>'Ưu tiên từ: '+w)||[]);
+        const dontList = (bv.dont_rules || []).concat(bv.banned_words?.map(w=>'Tránh từ: '+w)||[]);
+        const toneList = bv.tone_descriptors || [];
+        return `
+        <section class=”grid”>
+          <div class=”card span-12” style=”display:flex;align-items:center;gap:10px;padding:10px 14px”>
+            ${badge('Brand Voice thật · v'+bv.version,'green')}
+            ${bv.industry_context ? `<span class=”muted”>${bv.industry_context}</span>` : ''}
+          </div>
+          ${card('Nên (Do)', `<ul class=”bullet”>${doList.length ? doList.map(d=>`<li>✅ ${d}</li>`).join('') : '<li class=”muted”>Chưa có quy tắc</li>'}</ul>`, {cls:'span-4'})}
+          ${card('Không nên (Don\'t)', `<ul class=”bullet”>${dontList.length ? dontList.map(d=>`<li>🚫 ${d}</li>`).join('') : '<li class=”muted”>Chưa có quy tắc</li>'}</ul>`, {cls:'span-4'})}
+          ${card('Tông giọng', `<div class=”chips”>${toneList.map(t=>`<span class=”chip on”>${t}</span>`).join('')||'<span class=”muted”>Chưa cấu hình</span>'}</div>`, {cls:'span-4'})}
+          ${bv.sample_content ? card('Nội dung mẫu', `<blockquote class=”muted” style=”border-left:3px solid var(--primary);padding-left:12px;margin:0”>${bv.sample_content.slice(0,400)}</blockquote>`, {cls:'span-12'}) : ''}
+        </section>`;
+      }
+      return `
+      <section class=”grid”>
+        ${M.bizEnabled ? card('Brand Voice', `<p class=”muted”>User chưa setup Brand Voice. Dùng bot để cấu hình (Sprint 5).</p>`, {cls:'span-12'}) : ''}
+        ${card('Nên (Do)', `<ul class=”bullet”>${M.voice.do.map(d=>`<li>✅ ${d}</li>`).join('')}</ul>`, {cls:'span-4'})}
+        ${card('Không nên (Don\'t)', `<ul class=”bullet”>${M.voice.dont.map(d=>`<li>🚫 ${d}</li>`).join('')}</ul>`, {cls:'span-4'})}
         ${card('Hiệu chỉnh tông', M.voice.tone.map(t=>`
-          <div class="slider"><div class="slider-top"><span>${t.k}</span><b>${t.v}</b></div>
-            <div class="track"><div class="fillbar" style="width:${t.v}%"></div></div></div>`).join(''), {cls:'span-4'})}
+          <div class=”slider”><div class=”slider-top”><span>${t.k}</span><b>${t.v}</b></div>
+            <div class=”track”><div class=”fillbar” style=”width:${t.v}%”></div></div></div>`).join(''), {cls:'span-4'})}
         ${card('Kiểm tra tuân thủ giọng', `
-          <div class="voicecheck"><span class="tag green">Đạt 92%</span>
-          <p class="muted" style="margin-top:8px">Mẫu “Buổi sáng cần một lý do…” — phù hợp giọng thân thiện, câu ngắn. Gợi ý: giảm 1 emoji ở cuối.</p></div>`, {cls:'span-12'})}
-      </section>`,
+          <div class=”voicecheck”><span class=”tag green”>Đạt 92%</span>
+          <p class=”muted” style=”margin-top:8px”>Mẫu “Buổi sáng cần một lý do…” — phù hợp giọng thân thiện, câu ngắn. Gợi ý: giảm 1 emoji ở cuối.</p></div>`, {cls:'span-12'})}
+      </section>`;
+    },
     mount: () => {},
   };
 
   /* ---- Ads analytics ---- */
+  let _adsDays = 7;
   P.adsanalytics = {
-    title: 'Ads Analytics', sub: 'Phễu 6 tầng + Winners / Losers (FB Marketing API)',
-    actions: `<div class="segmented"><button>7 ngày</button><button class="on">30 ngày</button></div>`,
-    render: () => `
-      <section class="grid">
-        ${card('Phễu chuyển đổi 6 tầng', `
-          <div class="vfunnel">${M.funnel.map((f,i)=>`
-            <div class="vf-row" style="--w:${100-i*13}%">
-              <div class="vf-bar"><span class="vf-tier">${f.tier}</span><span class="vf-val">${num(f.value)}</span></div>
-              <div class="vf-meta"><span>${f.cost}</span><span class="tag">${f.rate}</span></div>
-            </div>`).join('')}</div>`, {cls:'span-7'})}
-        ${card('Phân bổ chi tiêu', cv('spendDonut',200), {cls:'span-5',})}
-        ${card('🏆 Winners', table(['Quảng cáo','ROAS','Chi tiêu','CPA'],
-          M.winners.map(w=>[w.name, badge(w.roas+'x','green'), w.spend, w.cpa])), {cls:'span-6'})}
-        ${card('⚠️ Losers', table(['Quảng cáo','ROAS','Chi tiêu','CPA'],
-          M.losers.map(w=>[w.name, badge(w.roas+'x','red'), w.spend, w.cpa])), {cls:'span-6'})}
-      </section>`,
-    mount: () => { doughnut('spendDonut',[40,28,18,14],[PRIMARY,PRIMARY2,CYAN,AMBER]); },
+    title: 'Ads Analytics',
+    get sub() {
+      return M.adsEnabled && M.adsFbConn
+        ? `Tài khoản: ${M.adsFbConn.account_name || M.adsFbConn.ad_account_id} · ${_adsDays} ngày gần nhất`
+        : 'Phễu 6 tầng + Winners / Losers (FB Marketing API)';
+    },
+    actions: `<div class="segmented">
+      <button class="${_adsDays===7?'on':''}" data-act="ads-days" data-days="7">7 ngày</button>
+      <button class="${_adsDays===30?'on':''}" data-act="ads-days" data-days="30">30 ngày</button>
+    </div>`,
+    render: () => {
+      const real = M.adsEnabled && (M.adsKpi || M.adsWinners);
+      const kpi = M.adsKpi || {};
+      const conn = M.adsFbConn;
+      const winners = real ? (M.adsWinners || []) : M.winners;
+      const losers  = real ? (M.adsLosers  || []) : M.losers;
+      const daily   = M.adsDaily || [];
+      const fmt_vnd = (n) => n >= 1e6 ? (n/1e6).toFixed(1)+'M₫' : n >= 1e3 ? (n/1e3).toFixed(0)+'K₫' : (n||0)+'₫';
+      const adsKpiHtml = real ? `
+        <section class="kpis">
+          ${kpi_num('💸','ads_spend','Tổng chi tiêu',fmt_vnd(kpi.spend||0),'('+_adsDays+'ng)','',true)}
+          ${kpi_num('📈','ads_roas','ROAS',(kpi.roas||0)+'x','','',true)}
+          ${kpi_num('🎯','ads_cpl','CPL',fmt_vnd(kpi.cpl||0),'','',true)}
+          ${kpi_num('👆','ads_ctr','CTR',(kpi.ctr||0)+'%','','',true)}
+        </section>` : '';
+      const connCard = conn ? card('Tài khoản FB đã kết nối', `
+        ${profRow('Tài khoản', conn.account_name)}
+        ${profRow('Ad Account ID', conn.ad_account_id)}
+        ${profRow('Kết nối lúc', (conn.connected_at||'').slice(0,16).replace('T',' '))}
+        ${profRow('Pull gần nhất', (conn.last_pull_at||'').slice(0,16).replace('T',' '))}
+        ${profRow('Thông báo', conn.notification_enabled ? badge('Bật','green') : badge('Tắt','amber'))}
+      `, {cls:'span-4'}) : (!real ? '' : card('Kết nối FB', `<p class="muted">User chưa kết nối Facebook Ads. Dùng bot /connect để OAuth.</p>`, {cls:'span-4'}));
+
+      const winnersTable = winners.length ? table(
+        ['Chiến dịch','ROAS','Chi tiêu','Leads'],
+        winners.map(w=>[
+          w.campaign_name || w.name || '—',
+          badge(((w.roas||w.roas_x||0)+'x').replace('xx','x'), (w.roas||0)>=2?'green':'amber'),
+          fmt_vnd(w.spend||0), fmtNum(w.leads||0)])) :
+        `<p class="muted">Không có dữ liệu trong ${_adsDays} ngày qua.</p>`;
+
+      const losersTable = losers.length ? table(
+        ['Chiến dịch','ROAS','Chi tiêu','Leads'],
+        losers.map(w=>[
+          w.campaign_name || w.name || '—',
+          badge(((w.roas||w.roas_x||0)+'x').replace('xx','x'), (w.roas||0)<1?'red':'amber'),
+          fmt_vnd(w.spend||0), fmtNum(w.leads||0)])) :
+        `<p class="muted">Không có dữ liệu.</p>`;
+
+      return `
+        ${adsKpiHtml}
+        <section class="grid">
+          ${real && daily.length ? card('Chi tiêu theo ngày (thật)', cv('adsLineChart',220), {cls:'span-8'}) : ''}
+          ${connCard}
+          ${!real ? card('Phễu chuyển đổi 6 tầng', `
+            <div class="vfunnel">${M.funnel.map((f,i)=>`
+              <div class="vf-row" style="--w:${100-i*13}%">
+                <div class="vf-bar"><span class="vf-tier">${f.tier}</span><span class="vf-val">${num(f.value)}</span></div>
+                <div class="vf-meta"><span>${f.cost}</span><span class="tag">${f.rate}</span></div>
+              </div>`).join('')}</div>`, {cls:'span-7'}) : ''}
+          ${!real ? card('Phân bổ chi tiêu', cv('spendDonut',200), {cls:'span-5'}) : ''}
+          ${card('🏆 Winners', winnersTable, {cls:'span-6'})}
+          ${card('⚠️ Losers',  losersTable,  {cls:'span-6'})}
+          ${real && (M.adsCampaigns||[]).length ? card('Tất cả chiến dịch', table(
+            ['Tên','Spend','ROAS','CPL','Impressions','Freq'],
+            (M.adsCampaigns||[]).map(c=>[
+              c.campaign_name||'—', fmt_vnd(c.spend||0),
+              badge((c.roas||0)+'x',(c.roas||0)>=2?'green':'amber'),
+              fmt_vnd(c.cpl||0), fmtNum(c.impressions||0), (c.frequency||0).toFixed(1)
+            ])), {cls:'span-12'}) : ''}
+        </section>`;
+    },
+    mount: () => {
+      if (!hasChart) return;
+      const real = M.adsEnabled && M.adsKpi;
+      const daily = M.adsDaily || [];
+      if (real && daily.length && byId('adsLineChart')) {
+        reg(new Chart(byId('adsLineChart'), { type:'line',
+          data:{ labels: daily.map(d=>d.date.slice(5)), datasets:[
+            {label:'Chi tiêu', data: daily.map(d=>Math.round((d.spend||0)/1000)),
+              borderColor:PRIMARY, backgroundColor:fill(PRIMARY), fill:true, tension:.4, borderWidth:2.5, pointRadius:2, yAxisID:'y'},
+            {label:'ROAS', data: daily.map(d=>d.roas||0),
+              borderColor:GREEN, backgroundColor:'transparent', fill:false, tension:.4, borderWidth:2, pointRadius:2, yAxisID:'y1'},
+          ]},
+          options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:true, position:'top'}},
+            scales:{ x:{grid:noGrid}, y:{grid, ticks:{callback:v=>v+'K₫'}},
+              y1:{position:'right', grid:{display:false}, ticks:{callback:v=>v+'x'}}} }}));
+      } else if (!real && byId('spendDonut')) {
+        doughnut('spendDonut',[40,28,18,14],[PRIMARY,PRIMARY2,CYAN,AMBER]);
+      }
+    },
   };
+
+  function kpi_num(icon, id, label, val, trend, dir, noSpark) {
+    return `<article class="kpi">
+      <div class="kpi-top"><span class="kpi-icon">${icon}</span><span class="kpi-trend">${trend}</span></div>
+      <p class="kpi-label">${label}</p><p class="kpi-value">${val}</p></article>`;
+  }
 
   /* ---- Optimizer ---- */
   P.optimizer = {
@@ -942,6 +1044,13 @@
       if (biz.bizUserId != null) _bizUserId = biz.bizUserId;
     } catch (e) { /* chưa nối Supabase → bỏ qua */ }
   }
+  async function refreshAds() {
+    if (!apiAvailable) return;
+    try {
+      const ads = await API.get('api/biz/ads?days=' + _adsDays + bizQuery().replace('?','&'));
+      Object.assign(window.MOCK, ads);
+    } catch (e) { /* chưa có dữ liệu Ads → bỏ qua */ }
+  }
   function showModal(title, text) {
     let ov = document.getElementById('bizModal');
     if (!ov) {
@@ -986,7 +1095,12 @@
       const pick = prompt('Chọn user để xem (nhập số thứ tự):\n' + list);
       if (pick === null) return;
       const idx = parseInt(pick) - 1;
-      if (users[idx]) { _bizUserId = users[idx].user_id; await refreshBiz(); renderRail(); route(); toast('Đã chuyển user'); }
+      if (users[idx]) { _bizUserId = users[idx].user_id; await refreshBiz(); await refreshAds(); renderRail(); route(); toast('Đã chuyển user'); }
+      return;
+    }
+    if (act === 'ads-days') {
+      _adsDays = parseInt(el.dataset.days) || 7;
+      await refreshAds(); route();
       return;
     }
 
@@ -1109,6 +1223,7 @@
       _lastStream = JSON.stringify(state);
       apiAvailable = true;
       await refreshBiz();                        // nạp dữ liệu nghiệp vụ thật (nếu có Supabase)
+      await refreshAds();                        // nạp ads snapshots thật
     } catch (e) { /* không có backend → dùng dữ liệu mock nhúng sẵn */ }
     renderRail();
     route();

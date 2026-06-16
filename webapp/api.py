@@ -91,6 +91,13 @@ async def biz_agent_run(request):
     return JSONResponse(res)
 
 
+async def biz_ads(request):
+    """Ads analytics thật: snapshots, KPI, winners/losers, biểu đồ theo ngày."""
+    days = int(request.query_params.get("days", 7))
+    user_id = request.query_params.get("user_id")
+    return JSONResponse(await biz.ads_data(user_id=user_id, days=days))
+
+
 # ── Tracked competitors ─────────────────────────────────────────────
 async def add_tracked(request):
     data = await request.json()
@@ -207,6 +214,7 @@ def api_routes() -> list:
         Route("/api/biz",                          biz_data,           methods=["GET"]),
         Route("/api/biz/skillrun/{id:str}",        biz_skillrun,       methods=["GET"]),
         Route("/api/biz/agent",                    biz_agent_run,      methods=["POST"]),
+        Route("/api/biz/ads",                      biz_ads,            methods=["GET"]),
         Route("/api/tracked",                      add_tracked,        methods=["POST"]),
         Route("/api/tracked/{id:int}",             del_tracked,        methods=["DELETE"]),
         Route("/api/jobs/{name:str}/toggle",       toggle_job,         methods=["POST"]),

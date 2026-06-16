@@ -199,6 +199,155 @@ async def skill_run_content(run_id: str) -> dict:
     return {}
 
 
+# ── Ads data (đọc ads_snapshots + user_fb_connections) ──────────
+async def ads_data(user_id=None, days: int = 7) -> dict:
+    """Dữ liệu Ads thật: snapshots gần nhất + thông tin kết nối FB account.
+
+    - Đọc ads_snapshots trong `days` ngày gần đây.
+    - KHÔNG giải mã token / gọi FB API (chỉ đọc snapshot đã lưu).
+    """
+    if not available():
+        return {"adsEnabled": False}
+    try:
+        c = await ensure_client()
+    except Exception as e:
+        return {"adsEnabled": False, "adsError": str(e)}
+
+    uid = await pick_user_id(user_id)
+    if uid is None:
+        return {"adsEnabled": True, "adsUserId": None, "adsSnapshots": [], "adsFbConn": None}
+
+    from datetime import datetime, timezone, timedelta
+
+    async def _safe(coro, default, label):
+        try:
+            return await coro
+        except Exception as e:
+            logger.warning("biz.ads.%s failed: %s", label, e)
+            return default
+
+    # Kết nối FB (sanitize: bỏ token mã hóa, chỉ giữ meta)
+    conn_raw = await _safe(
+        c.table("user_fb_connections")
+         .select("user_id,ad_account_id,account_name,expires_at,connected_at,notification_enabled,available_accounts,last_pull_at")
+         .eq("user_id", uid).limit(1).execute(),
+        None, "fb_conn"
+    )
+    fb_conn = conn_raw.data[0] if (conn_raw and conn_raw.data) else None
+
+    # Snapshots trong `days` ngày gần đây
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).strftime("%Y-%m-%d")
+    snap_raw = await _safe(
+        c.table("ads_snapshots")
+         .select("*")
+         .eq("user_id", uid)
+         .gte("snapshot_date", cutoff)
+         .order("snapshot_date", desc=True)
+         .limit(200)
+         .execute(),
+        None, "snapshots"
+    )
+    snaps = snap_raw.data if (snap_raw and snap_raw.data) else []
+
+    # Tổng hợp KPI: gộp tất cả snapshot trong khoảng
+    total_spend  = sum(s.get("spend",  0) or 0 for s in snaps)
+    total_clicks = sum(s.get("clicks", 0) or 0 for s in snaps)
+    total_impr   = sum(s.get("impressions", 0) or 0 for s in snaps)
+    total_leads  = sum(s.get("leads",  0) or 0 for s in snaps)
+    total_purch_val = sum(s.get("purchase_value", 0) or 0 for s in snaps)
+    agg_roas = round(total_purch_val / total_spend, 2) if total_spend > 0 else 0
+    agg_cpl  = round(total_spend / total_leads, 0) if total_leads > 0 else 0
+    agg_cpm  = round(total_spend / total_impr * 1000, 0) if total_impr > 0 else 0
+    agg_ctr  = round(total_clicks / total_impr * 100, 2) if total_impr > 0 else 0
+
+    # Per-campaign summary (gộp theo campaign_id)
+    camp_map: dict[str, dict] = {}
+    for s in snaps:
+        cid = s.get("campaign_id") or "unknown"
+        if cid not in camp_map:
+            camp_map[cid] = {
+                "campaign_id":   cid,
+                "campaign_name": s.get("campaign_name", cid),
+                "spend": 0, "roas_sum": 0, "roas_count": 0,
+                "impressions": 0, "clicks": 0, "leads": 0, "purchase_value": 0,
+                "frequency": 0, "freq_count": 0,
+            }
+        m = camp_map[cid]
+        m["spend"]         += s.get("spend", 0) or 0
+        m["impressions"]   += s.get("impressions", 0) or 0
+        m["clicks"]        += s.get("clicks", 0) or 0
+        m["leads"]         += s.get("leads", 0) or 0
+        m["purchase_value"] += s.get("purchase_value", 0) or 0
+        if s.get("roas"):
+            m["roas_sum"]   += s["roas"]; m["roas_count"] += 1
+        if s.get("frequency"):
+            m["frequency"]  += s["frequency"]; m["freq_count"] += 1
+
+    campaigns_agg = []
+    for m in camp_map.values():
+        sp = m["spend"]
+        pv = m["purchase_value"]
+        roas = round(pv / sp, 2) if sp > 0 else (round(m["roas_sum"] / m["roas_count"], 2) if m["roas_count"] else 0)
+        cpl  = round(sp / m["leads"], 0) if m["leads"] > 0 else 0
+        freq = round(m["frequency"] / m["freq_count"], 1) if m["freq_count"] else 0
+        campaigns_agg.append({
+            "campaign_id":   m["campaign_id"],
+            "campaign_name": m["campaign_name"],
+            "spend":  sp,
+            "roas":   roas,
+            "cpl":    cpl,
+            "impressions": m["impressions"],
+            "clicks": m["clicks"],
+            "leads":  m["leads"],
+            "frequency": freq,
+        })
+
+    # Sort: winners (ROAS ≥ median) + losers (ROAS < median, có spend)
+    spenders = [c for c in campaigns_agg if c["spend"] > 0]
+    spenders.sort(key=lambda c: c["roas"], reverse=True)
+    half = max(1, len(spenders) // 2)
+    winners = spenders[:half]
+    losers  = sorted(spenders[half:], key=lambda c: c["roas"])
+
+    # Tổng hợp theo ngày cho biểu đồ (date → spend)
+    daily: dict[str, dict] = {}
+    for s in snaps:
+        d = s.get("snapshot_date") or ""
+        if d not in daily:
+            daily[d] = {"date": d, "spend": 0, "roas": 0, "roas_count": 0}
+        daily[d]["spend"] += s.get("spend", 0) or 0
+        if s.get("roas"):
+            daily[d]["roas"] += s["roas"]; daily[d]["roas_count"] += 1
+    daily_chart = []
+    for dd in sorted(daily.values(), key=lambda x: x["date"]):
+        daily_chart.append({
+            "date":  dd["date"],
+            "spend": round(dd["spend"], 0),
+            "roas":  round(dd["roas"] / dd["roas_count"], 2) if dd["roas_count"] else 0,
+        })
+
+    return {
+        "adsEnabled":   True,
+        "adsUserId":    uid,
+        "adsDays":      days,
+        "adsFbConn":    fb_conn,
+        "adsKpi": {
+            "spend":  round(total_spend,  0),
+            "roas":   agg_roas,
+            "cpl":    agg_cpl,
+            "cpm":    agg_cpm,
+            "ctr":    agg_ctr,
+            "clicks": int(total_clicks),
+            "leads":  int(total_leads),
+        },
+        "adsWinners":    winners[:5],
+        "adsLosers":     losers[:5],
+        "adsCampaigns":  spenders,
+        "adsDaily":      daily_chart,
+        "adsSnapshots":  snaps[:50],
+    }
+
+
 # ── Agent trigger ───────────────────────────────────────────────────
 async def run_agent(user_id=None, task: str = "full") -> dict:
     """Khởi chạy pipeline/skill THẬT cho 1 user trong background. Trả jobId ngay."""
