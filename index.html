@@ -40,10 +40,12 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+body { overflow-x: hidden; }
 .app {
   display: grid;
   grid-template-columns: 248px 1fr 320px;
   min-height: 100vh;
+  max-width: 100%;
 }
 
 /* ── Sidebar ─────────────────────────────────────────── */
@@ -102,7 +104,8 @@ body {
 .version { font-size: 11px; color: var(--muted); text-align: center; }
 
 /* ── Main ────────────────────────────────────────────── */
-.main { padding: 20px 24px; display: flex; flex-direction: column; gap: 20px; }
+.main { padding: 20px 24px; display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.main #view { min-width: 0; display: flex; flex-direction: column; gap: 20px; }
 
 .topbar { display: flex; align-items: center; gap: 16px; }
 .search {
@@ -153,7 +156,7 @@ body {
 }
 
 /* ── KPI cards ──────────────────────────────────────── */
-.kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; min-width: 0; }
 .kpi {
   background: linear-gradient(180deg, var(--panel-2), var(--panel));
   border: 1px solid var(--stroke); border-radius: var(--radius);
@@ -175,16 +178,20 @@ body {
 .kpi-unit { font-size: 15px; color: var(--txt-2); margin-left: 2px; }
 .spark-wrap { position: relative; height: 40px; margin-top: 10px; }
 .spark { display: block; }
+.chart-box { position: relative; width: 100%; }
+.chart-box canvas { display: block; }
 
 /* ── Grid / cards ───────────────────────────────────── */
-.grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; }
+.grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; min-width: 0; }
 .card {
   background: linear-gradient(180deg, var(--panel-2), var(--panel));
   border: 1px solid var(--stroke); border-radius: var(--radius);
   padding: 18px; box-shadow: var(--shadow);
 }
+.card { min-width: 0; }
 .span-8 { grid-column: span 8; }
 .span-4 { grid-column: span 4; }
+.kpi { min-width: 0; }
 .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
 .card-head h3 { font-size: 15px; font-weight: 700; }
 .legend { display: flex; gap: 16px; font-size: 12px; color: var(--txt-2); }
@@ -740,7 +747,7 @@ window.MOCK = {
       <div><h1>${title}</h1><p class="muted">${sub}</p></div>
       <div class="page-actions">${actions}</div>
     </div>`;
-  const cv = (id, h = 220) => `<canvas id="${id}" height="${h}"></canvas>`;
+  const cv = (id, h = 220) => `<div class="chart-box" style="height:${h}px"><canvas id="${id}"></canvas></div>`;
 
   /* ════════════ PAGES ════════════ */
   const P = {};

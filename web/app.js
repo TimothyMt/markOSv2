@@ -40,7 +40,7 @@
       <div><h1>${title}</h1><p class="muted">${sub}</p></div>
       <div class="page-actions">${actions}</div>
     </div>`;
-  const cv = (id, h = 220) => `<canvas id="${id}" height="${h}"></canvas>`;
+  const cv = (id, h = 220) => `<div class="chart-box" style="height:${h}px"><canvas id="${id}"></canvas></div>`;
 
   /* ════════════ PAGES ════════════ */
   const P = {};
