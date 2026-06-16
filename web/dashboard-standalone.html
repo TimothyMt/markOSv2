@@ -189,8 +189,13 @@ body { overflow-x: hidden; }
   padding: 18px; box-shadow: var(--shadow);
 }
 .card { min-width: 0; }
+.span-12 { grid-column: span 12; }
 .span-8 { grid-column: span 8; }
+.span-7 { grid-column: span 7; }
+.span-6 { grid-column: span 6; }
+.span-5 { grid-column: span 5; }
 .span-4 { grid-column: span 4; }
+.span-3 { grid-column: span 3; }
 .kpi { min-width: 0; }
 .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
 .card-head h3 { font-size: 15px; font-weight: 700; }
@@ -455,7 +460,7 @@ body { overflow-x: hidden; }
   .sidebar { position: fixed; z-index: 50; width: 264px; height: 100vh;
     transform: translateX(-100%); transition: transform .25s; }
   body.nav-open .sidebar { transform: translateX(0); box-shadow: 0 0 60px rgba(0,0,0,.6); }
-  .span-8, .span-4 { grid-column: span 12; }
+  .span-12, .span-8, .span-7, .span-6, .span-5, .span-4, .span-3 { grid-column: span 12; }
   .swot { grid-template-columns: 1fr; }
 }
 @media (max-width: 560px) {
