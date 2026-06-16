@@ -49,3 +49,6 @@ demo_out/
 
 # Demo harness output (throwaway artifacts)
 demo_out/
+
+# web dashboard SQLite
+webapp/*.db

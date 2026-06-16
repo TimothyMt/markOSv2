@@ -146,7 +146,7 @@
   /* ---- Competitor ---- */
   P.competitor = {
     title: 'Phân tích đối thủ', sub: '8 chiều cạnh tranh + theo dõi Ads Library',
-    actions: `<button class="primary-btn">＋ Thêm đối thủ theo dõi</button>`,
+    actions: `<button class="primary-btn" data-act="add-tracked">＋ Thêm đối thủ theo dõi</button>`,
     render: () => `
       <section class="grid">
         ${card('Ma trận cạnh tranh', table(
@@ -161,6 +161,7 @@
                 <span class="s-dot ${t.status==='online'?'online':''}"></span>
                 <div class="row-main"><p>${t.name}</p><span class="muted">${t.last}</span></div>
                 <span class="tag">${t.ads} ads</span>
+                ${t.id?`<button class="icon-btn" data-act="del-tracked" data-id="${t.id}" title="Bỏ theo dõi">✕</button>`:''}
               </li>`).join('')}
           </ul>`, {cls:'span-12'})}
       </section>`,
@@ -479,7 +480,9 @@
             <li class="row opt">
               <span class="opt-ic ${o.action}">${optIcon(o.action)}</span>
               <div class="row-main"><p>${o.text}</p><span class="muted">${o.why}</span></div>
-              <div class="opt-act"><button class="ghost-line sm">Bỏ qua</button><button class="primary-btn sm">Áp dụng</button></div>
+              <div class="opt-act">
+                <button class="ghost-line sm" data-act="opt-dismiss" data-id="${o.id||''}">Bỏ qua</button>
+                <button class="primary-btn sm" data-act="opt-apply" data-id="${o.id||''}">Áp dụng</button></div>
             </li>`).join('')}</ul>`, {cls:'span-8'})}
         ${card('Tác động dự kiến', `
           ${miniRow('ROAS','3,09x','→ 3,6x','up')}
@@ -515,8 +518,12 @@
     title: 'Lịch trình & cảnh báo', sub: 'Tác vụ nền tự động + ngưỡng cảnh báo',
     render: () => `
       <section class="grid">
-        ${card('Tác vụ nền', table(['Tác vụ','Thời điểm','Trạng thái'],
-          M.jobs.map(j=>[j.name, j.when, badge('Đang chạy','green')])), {cls:'span-7'})}
+        ${card('Tác vụ nền', M.jobs.map(j=>`
+          <div class="toggle-row">
+            <div><b>${j.name}</b> <span class="muted">· ${j.when}</span></div>
+            <label class="switch"><input type="checkbox" ${j.status==='on'?'checked':''}
+              data-act="toggle-job" data-name="${encodeURIComponent(j.name)}"><span class="track-sw"></span></label>
+          </div>`).join(''), {cls:'span-7'})}
         ${card('Ngưỡng cảnh báo', M.thresholds.map(t=>`
           <div class="kv"><span>${t.name}</span><b>${t.value}</b></div>`).join('') +
           `<button class="ghost-line full" style="margin-top:12px">✎ Điều chỉnh ngưỡng</button>`, {cls:'span-5'})}
@@ -599,11 +606,11 @@
           <div class="form">${field('Anthropic API Key','sk-ant-••••••••••••')}${field('Facebook App ID','••••••••')}
           ${field('Telegram Bot Token','••••••:••••••')}</div>
           <button class="primary-btn" style="margin-top:6px">Lưu thay đổi</button>`, {cls:'span-6'})}
-        ${card('Thông báo', `
-          ${toggleRow('Daily digest qua Telegram',true)}
-          ${toggleRow('Cảnh báo ngưỡng (CPM/ROAS/Frequency)',true)}
-          ${toggleRow('Báo cáo tuần',true)}
-          ${toggleRow('Thông báo đối thủ có ad mới',false)}`, {cls:'span-12'})}
+        ${card('Thông báo', (() => { const s = M.settings || {}; return `
+          ${toggleRow('Daily digest qua Telegram','daily_digest',s.daily_digest)}
+          ${toggleRow('Cảnh báo ngưỡng (CPM/ROAS/Frequency)','alert_threshold',s.alert_threshold)}
+          ${toggleRow('Báo cáo tuần','weekly_report',s.weekly_report)}
+          ${toggleRow('Thông báo đối thủ có ad mới','competitor_new',s.competitor_new)}`; })(), {cls:'span-12'})}
       </section>`,
     mount: () => {},
   };
@@ -639,10 +646,10 @@
   const selectField = (l,v) => `<label class="fld"><span>${l}</span><div class="sel">${v} ▾</div></label>`;
   const optIcon = (a) => ({scale:'⬆️',pause:'⏸️',dup:'⧉',activate:'▶️'}[a]||'•');
   const miniRow = (l,a,b,dir) => `<div class="minirow"><span>${l}</span><b>${a} <span class="${dir}">${b}</span></b></div>`;
-  const alertItem = (a) => `<li class="alert ${a.sev}"><span class="a-ic">${a.icon}</span><div><p>${a.title}</p><span class="muted">${a.meta}</span></div></li>`;
+  const alertItem = (a) => `<li class="alert ${a.sev}"><span class="a-ic">${a.icon}</span><div class="row-main"><p>${a.title}</p><span class="muted">${a.meta}</span></div>${a.id?`<button class="icon-btn" data-act="dismiss-alert" data-id="${a.id}" title="Đóng">✕</button>`:''}</li>`;
   const statusRow = (l,v) => `<li><span class="s-dot online"></span>${l}<span class="muted">${v}</span></li>`;
   const quotaBar = (pct) => `<div class="track sm"><div class="fillbar ${pct>90?'hot':''}" style="width:${pct}%"></div></div>`;
-  const toggleRow = (l,on) => `<div class="toggle-row"><span>${l}</span><label class="switch"><input type="checkbox" ${on?'checked':''}><span class="track-sw"></span></label></div>`;
+  const toggleRow = (l,key,on) => `<div class="toggle-row"><span>${l}</span><label class="switch"><input type="checkbox" ${on?'checked':''} data-act="set-setting" data-key="${key}"><span class="track-sw"></span></label></div>`;
 
   /* ════════════ chart shortcuts ════════════ */
   const byId = (id) => document.getElementById(id);
@@ -698,8 +705,8 @@
         <p class="kpi-value" style="font-size:22px">84.200</p>
         <div class="track" style="margin:8px 0"><div class="fillbar" style="width:58%"></div></div>
         <span class="muted">58% quota tháng · gói Pro</span></section>
-      <section class="card"><div class="card-head"><h3>Cảnh báo</h3><span class="pill warn">3 mới</span></div>
-        <ul class="alerts">${M.alerts.map(a=>`<li class="alert ${a.sev}"><span class="a-ic">${a.icon}</span><div><p>${a.title}</p><span class="muted">${a.meta}</span></div></li>`).join('')}</ul></section>
+      <section class="card"><div class="card-head"><h3>Cảnh báo</h3><span class="pill warn">${M.alerts.length} mới</span></div>
+        <ul class="alerts">${M.alerts.map(a=>alertItem(a)).join('')}</ul></section>
       <section class="card mini"><div class="card-head"><h3>Trạng thái hệ thống</h3></div>
         <ul class="status">
           <li><span class="s-dot online"></span>Facebook API<span class="muted">Ổn định</span></li>
@@ -719,8 +726,68 @@
     document.querySelector('.main').scrollTo(0,0);
     document.body.classList.remove('nav-open');
   }
+  /* ════════════ backend API + actions ════════════ */
+  let apiAvailable = false;
+  const API = {
+    async get(p)        { const r = await fetch(p); if (!r.ok) throw 0; return r.json(); },
+    async post(p, body) { const r = await fetch(p, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body||{}) }); if (!r.ok) throw 0; return r.json(); },
+    async del(p)        { const r = await fetch(p, { method:'DELETE' }); if (!r.ok) throw 0; return r.json(); },
+  };
+
+  function toast(msg) {
+    const t = document.createElement('div');
+    t.className = 'toast'; t.textContent = msg;
+    document.body.appendChild(t);
+    requestAnimationFrame(() => t.classList.add('show'));
+    setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 2600);
+  }
+
+  async function handleAction(el) {
+    const act = el.dataset.act;
+    if (!apiAvailable) { toast('Tính năng này cần backend — chạy: python run_web.py'); if (el.type === 'checkbox') el.checked = !el.checked; return; }
+    try {
+      let res;
+      if (act === 'add-tracked') {
+        const name = prompt('Tên fanpage / đối thủ cần theo dõi:');
+        if (!name || !name.trim()) return;
+        res = await API.post('api/tracked', { name: name.trim() }); toast('Đã thêm đối thủ theo dõi');
+      } else if (act === 'del-tracked') {
+        res = await API.del('api/tracked/' + el.dataset.id); toast('Đã bỏ theo dõi');
+      } else if (act === 'toggle-job') {
+        res = await API.post('api/jobs/' + el.dataset.name + '/toggle'); toast('Đã cập nhật tác vụ');
+      } else if (act === 'opt-apply') {
+        res = await API.post('api/optimizations/' + el.dataset.id + '/apply'); toast('Đã áp dụng tối ưu');
+      } else if (act === 'opt-dismiss') {
+        res = await API.post('api/optimizations/' + el.dataset.id + '/apply'); toast('Đã bỏ qua đề xuất');
+      } else if (act === 'dismiss-alert') {
+        res = await API.post('api/alerts/' + el.dataset.id + '/dismiss');
+      } else if (act === 'set-setting') {
+        res = await API.post('api/settings', { key: el.dataset.key, value: el.checked ? 1 : 0 }); toast('Đã lưu cài đặt');
+      }
+      if (res) { Object.assign(window.MOCK, res); renderRail(); route(); }
+    } catch (e) { toast('Lỗi kết nối backend'); }
+  }
+
+  document.addEventListener('click', (e) => {
+    const el = e.target.closest('[data-act]');
+    if (el && el.tagName !== 'INPUT') { e.preventDefault(); handleAction(el); }
+  });
+  document.addEventListener('change', (e) => {
+    const el = e.target.closest('input[data-act]');
+    if (el) handleAction(el);
+  });
+
   window.addEventListener('hashchange', route);
-  document.getElementById('navToggle').addEventListener('click', ()=>document.body.classList.toggle('nav-open'));
-  renderRail();
-  route();
+  document.getElementById('navToggle').addEventListener('click', () => document.body.classList.toggle('nav-open'));
+
+  /* ════════════ boot: nạp dữ liệu từ API, fallback mock ════════════ */
+  (async function boot() {
+    try {
+      const state = await API.get('api/bootstrap');
+      Object.assign(window.MOCK, state);
+      apiAvailable = true;
+    } catch (e) { /* không có backend → dùng dữ liệu mock nhúng sẵn */ }
+    renderRail();
+    route();
+  })();
 })();

@@ -197,4 +197,6 @@ window.MOCK = {
     { sev: 'warn',   icon: '🔔', title: 'Tần suất hiển thị cao', meta: 'Nhóm Re-targeting · 4,2' },
     { sev: 'ok',     icon: '✅', title: 'ROAS đạt mục tiêu', meta: 'CD “Mùa hè” · 4,1x' },
   ],
+
+  settings: { daily_digest: 1, alert_threshold: 1, weekly_report: 1, competitor_new: 0 },
 };

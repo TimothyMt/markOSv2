@@ -130,6 +130,13 @@ async def dashboard(request: Request) -> RedirectResponse:
     return RedirectResponse(url="/web/")
 
 
+# JSON API cho web dashboard (SQLite mock-first, không cần credentials).
+from webapp.api import api_routes  # noqa: E402
+from webapp import store as web_store  # noqa: E402
+
+web_store.init_db()
+
+
 # ── Startup / shutdown lifecycle ─────────────────────────────────
 
 @asynccontextmanager
@@ -168,6 +175,7 @@ starlette_app = Starlette(
         Route(f"/{TELEGRAM_BOT_TOKEN}", telegram_webhook, methods=["POST"]),
         Route("/oauth/fb/callback",     oauth_fb_callback, methods=["GET"]),
         Route("/dashboard",             dashboard,         methods=["GET"]),
+        *api_routes(),
         Mount("/web", app=StaticFiles(directory=WEB_DIR, html=True), name="web"),
     ],
     lifespan=lifespan,

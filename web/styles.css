@@ -425,6 +425,17 @@ body { overflow-x: hidden; }
 .minirow { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--stroke); font-size: 13.5px; }
 .minirow .up { color: var(--green); } .minirow .down { color: var(--red); }
 
+/* action buttons + toast */
+.icon-btn { background: var(--panel); border: 1px solid var(--stroke); color: var(--txt-2);
+  width: 26px; height: 26px; border-radius: 8px; cursor: pointer; font-size: 12px; flex: none; line-height: 1; }
+.icon-btn:hover { color: var(--red); border-color: var(--red); }
+.alert .row-main { flex: 1; }
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translate(-50%, 20px);
+  background: var(--panel-2); border: 1px solid var(--stroke-2); color: var(--txt);
+  padding: 12px 18px; border-radius: 12px; font-size: 13.5px; box-shadow: var(--shadow);
+  opacity: 0; transition: .3s; z-index: 100; pointer-events: none; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
 /* ad cards / account cards */
 .adcard-top { display: flex; justify-content: space-between; margin-bottom: 10px; }
 .adcard-img { height: 120px; border-radius: 12px; background: var(--panel); display: grid; place-items: center;
