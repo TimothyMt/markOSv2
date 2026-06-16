@@ -625,6 +625,55 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 .empty-cta h3 { margin:10px 0 6px; }
 .empty-actions { display:flex; gap:10px; justify-content:center; margin-top:16px; flex-wrap:wrap; }
 
+/* ════════ Lịch nội dung — Gantt 2 lớp (Always-on + Campaign theo dịp) ════════ */
+.cal-note { margin-bottom:12px; }
+.cal-legend { display:flex; gap:20px; flex-wrap:wrap; margin-bottom:12px; font-size:12.5px; color:var(--txt-2); }
+.cal-legend i.lg { display:inline-block; width:12px; height:12px; border-radius:3px; vertical-align:-1px; margin-right:4px; }
+.cal-legend i.lg.on { background:var(--green); }
+.cal-legend i.lg.camp { background:#f59e0b; }
+
+.calboard { background:var(--panel); border:1px solid var(--stroke); border-radius:14px; padding:14px; margin-bottom:16px; overflow-x:auto; }
+
+/* dải băng campaign (Gantt) — căn thẳng cột ngày bên dưới */
+.cal-bands { display:grid; gap:6px 8px; margin-bottom:10px; }
+.band-base { grid-row:1; background:linear-gradient(90deg, color-mix(in srgb, var(--green) 22%, transparent), color-mix(in srgb, var(--green) 10%, transparent));
+  border:1px dashed color-mix(in srgb, var(--green) 55%, transparent); border-radius:8px; padding:7px 12px;
+  font-size:12px; color:var(--txt); }
+.band-base span { opacity:.9; }
+.band-camp { background:color-mix(in srgb, var(--c) 20%, transparent); border:1px solid var(--c); border-left:4px solid var(--c);
+  border-radius:8px; padding:7px 12px; font-size:12px; color:var(--txt); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.band-camp b { color:var(--c); }
+
+/* lưới ngày */
+.cal-grid { display:grid; gap:10px; }
+.cal-col { background:var(--bg-2); border:1px solid var(--stroke); border-radius:10px; padding:8px; min-height:150px;
+  display:flex; flex-direction:column; gap:8px; min-width:120px; }
+.cal-col.in-camp { background:color-mix(in srgb, var(--c) 7%, var(--bg-2)); border-color:color-mix(in srgb, var(--c) 40%, var(--stroke)); }
+.cal-colhead { display:flex; align-items:center; justify-content:space-between; font-size:12px; font-weight:600; color:var(--txt-2); }
+.col-dot { width:8px; height:8px; border-radius:50%; }
+
+/* thẻ bài — accent trái theo track */
+.cal-post { position:relative; background:var(--panel); border:1px solid var(--stroke);
+  border-left:3px solid var(--accent, var(--green)); border-radius:8px; padding:8px 9px; }
+.cal-post-top { display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:4px; }
+.cal-post-title { font-size:12.5px; line-height:1.4; color:var(--txt); margin:0; padding-right:14px; }
+.trk { font-size:10px; font-weight:700; padding:2px 7px; border-radius:999px; }
+.trk.on { background:color-mix(in srgb, var(--green) 18%, transparent); color:var(--green); }
+.trk.camp { background:color-mix(in srgb, var(--c) 20%, transparent); color:var(--c); border:1px solid var(--c); }
+.pill-tag { font-size:10px; padding:1px 6px; border-radius:4px; opacity:.85; }
+.pill-tag.c1{background:#5b8cff33;color:#5b8cff} .pill-tag.c2{background:#7c4dff33;color:#a98bff}
+.pill-tag.c3{background:#38d9f033;color:#38d9f0} .pill-tag.c4{background:#2dd4a733;color:#2dd4a7}
+.cal-offer { display:inline-block; margin-top:5px; font-size:11px; color:var(--amber); }
+.cal-add { background:transparent; border:1px dashed var(--stroke-2); color:var(--muted); border-radius:8px;
+  padding:5px; cursor:pointer; font-size:13px; margin-top:auto; }
+.cal-add:hover { border-color:var(--primary); color:var(--primary); }
+.cal-del { position:absolute; top:5px; right:5px; background:transparent; border:none; color:var(--muted); cursor:pointer; font-size:11px; }
+.cal-del:hover { color:var(--red); }
+
+@media (max-width: 920px) {
+  .cal-grid, .cal-bands { grid-template-columns:repeat(7, minmax(120px,1fr)) !important; }
+}
+
 </style>
 </head>
 <body>
@@ -816,13 +865,17 @@ window.MOCK = {
     posts: [
       [{p:'Educate',t:'Mẹo pha cà phê'}],
       [{p:'Engage',t:'Mini-game'}],
-      [{p:'Trust',t:'Review KH'},{p:'Convert',t:'Flash sale'}],
+      [{p:'Trust',t:'Review KH'},{p:'Convert',t:'Flash sale combo đôi'}],
       [{p:'Educate',t:'Hậu trường'}],
-      [{p:'Convert',t:'Combo cuối tuần'}],
+      [{p:'Convert',t:'Mua 1 tặng 1 cuối tuần'}],
       [{p:'Engage',t:'UGC repost'}],
       [{p:'Trust',t:'Câu chuyện thương hiệu'}],
     ],
   },
+  // Campaign theo dịp — lớp phủ có khung thời gian (window = từ..đến theo ngày 0-6)
+  calendarCampaigns: [
+    { name: 'Sale Hè', occasion: 'Mùa hè', offer: 'Mua 1 tặng 1', from: 2, to: 4, color: '#f59e0b' },
+  ],
 
   adsCopy: {
     TOFU: { title:'Nhận biết', items:['“Buổi sáng cần một lý do để dậy sớm…”','“Cà phê thật, giá thật.”'] },
@@ -1453,23 +1506,59 @@ window.MOCK = {
     mount: () => { doughnut('pillarChart', M.pillars.map(p=>p.pct), M.pillars.map(p=>p.color)); },
   };
 
-  /* ---- Content calendar ---- */
+  /* ---- Content calendar — Gantt 2 lớp: Always-on (nền) + Campaign theo dịp (window) ---- */
+  // Một bài là 🔴 Campaign nếu nằm trong window 1 đợt và là bài Convert; còn lại 🟢 Always-on.
+  const campOfDay = (i) => (M.calendarCampaigns || []).find(c => i >= c.from && i <= c.to);
+  const trackOf = (p, i) => {
+    const c = campOfDay(i);
+    return (c && p.pillar === 'Convert') ? { track: 'campaign', camp: c } : { track: 'always_on', camp: null };
+  };
+  const postCard = (p, i) => {
+    const { track, camp } = trackOf(p, i);
+    const accent = track === 'campaign' ? camp.color : 'var(--green)';
+    const tag = track === 'campaign'
+      ? `<span class="trk camp" style="--c:${camp.color}">${camp.name}</span>`
+      : `<span class="trk on">Always-on</span>`;
+    return `<div class="cal-post ${pillarCls(p.pillar)}" style="--accent:${accent}">
+        <div class="cal-post-top">${tag}<span class="pill-tag ${pillarCls(p.pillar)}">${p.pillar}</span></div>
+        <p class="cal-post-title">${p.title}</p>
+        ${track === 'campaign' ? `<span class="cal-offer">🎁 ${camp.offer}</span>` : ''}
+        ${p.id ? `<button class="cal-del" data-act="del-calendar" data-id="${p.id}" title="Xoá">✕</button>` : ''}
+      </div>`;
+  };
   P.calendar = {
-    title: 'Lịch nội dung', sub: 'Tuần này · Pillar: Educate / Trust / Engage / Convert',
-    actions: `<button class="primary-btn" data-act="add-post" data-day="0">＋ Thêm bài</button>`,
-    render: () => `
-      <section class="cal">
-        ${M.calendar.days.map((d,i)=>`
-          <div class="cal-day"><div class="cal-head">${d}</div>
-            ${calPosts(i).map(p=>`<div class="cal-post ${pillarCls(p.pillar)}">
-                <span>${p.pillar}</span>${p.title}
-                ${p.id?`<button class="cal-del" data-act="del-calendar" data-id="${p.id}" title="Xoá">✕</button>`:''}
-              </div>`).join('')}
-            <button class="cal-add" data-act="add-post" data-day="${i}">＋</button></div>`).join('')}
+    title: 'Lịch nội dung', sub: 'Always-on (nền quanh năm) + Campaign theo dịp (đợt có khung thời gian)',
+    actions: `<button class="ghost-line" data-act="add-campaign-occasion">🎯 Tạo campaign theo dịp</button>
+              <button class="primary-btn" data-act="add-post" data-day="0">＋ Thêm bài</button>`,
+    render: () => {
+      const days = M.calendar.days;
+      const camps = M.calendarCampaigns || [];
+      return `
+      ${M.bizEnabled ? '' : `<div class="cal-note">${badge('Bản thiết kế UX','amber')} <span class="muted"> Lịch 2 lớp — dữ liệu mẫu, nối thật ở M1.</span></div>`}
+      <div class="cal-legend">
+        <span><i class="lg on"></i> 🟢 Always-on — bài brand quanh năm, không offer/deadline</span>
+        <span><i class="lg camp"></i> 🔴 Campaign theo dịp — bài Convert đẩy offer, chỉ trong đợt</span>
+      </div>
+      <section class="calboard">
+        <div class="cal-bands" style="grid-template-columns:repeat(${days.length},1fr)">
+          <div class="band-base" style="grid-column:1 / -1"><span>🟢 Always-on · chạy liên tục cả kỳ</span></div>
+          ${camps.map(c => `<div class="band-camp" style="grid-column:${c.from + 1} / ${c.to + 2}; --c:${c.color}">
+              <b>🔴 ${c.name}</b> · ${c.occasion} · 🎁 ${c.offer}</div>`).join('')}
+        </div>
+        <div class="cal-grid" style="grid-template-columns:repeat(${days.length},1fr)">
+          ${days.map((d, i) => {
+            const c = campOfDay(i);
+            return `<div class="cal-col ${c ? 'in-camp' : ''}" ${c ? `style="--c:${c.color}"` : ''}>
+              <div class="cal-colhead">${d}${c ? `<span class="col-dot" style="background:${c.color}" title="${c.name}"></span>` : ''}</div>
+              ${calPosts(i).map(p => postCard(p, i)).join('')}
+              <button class="cal-add" data-act="add-post" data-day="${i}">＋</button></div>`;
+          }).join('')}
+        </div>
       </section>
       <section class="grid">
-        ${card('Tỉ lệ pillar tuần', cv('calPillar',160), {cls:'span-12'})}
-      </section>`,
+        ${card('Tỉ lệ pillar tuần (Always-on)', cv('calPillar',160), {cls:'span-12'})}
+      </section>`;
+    },
     mount: () => {
       if (!hasChart) return;
       reg(new Chart(byId('calPillar'), { type:'bar',
@@ -2177,6 +2266,19 @@ window.MOCK = {
     if (act === 'toggle-collapse') {
       const card = el.closest('.card'); const out = card && card.querySelector('.ai-output');
       if (out) { const open = out.classList.toggle('expanded'); el.textContent = open ? 'Thu gọn ▴' : 'Xem đầy đủ ▾'; }
+      return;
+    }
+    if (act === 'add-campaign-occasion') {
+      // Prototype client-side: tạo lớp campaign theo dịp (M1 sẽ nối backend + posts thật)
+      const name = prompt('Tên campaign (vd: Sale Tết):'); if (!name) return;
+      const occasion = prompt('Dịp / mùa vụ (vd: Tết Nguyên Đán):', 'Dịp đặc biệt') || '';
+      const offer = prompt('Offer (vd: Giảm 30%):', 'Ưu đãi đặc biệt') || '';
+      const from = Math.max(0, Math.min(6, (parseInt(prompt('Bắt đầu từ ngày nào? (T2=1 … CN=7):', '3')) || 3) - 1));
+      const to = Math.max(from, Math.min(6, (parseInt(prompt('Kết thúc ngày nào? (T2=1 … CN=7):', '5')) || 5) - 1));
+      const colors = ['#f59e0b', '#ef4444', '#ec4899', '#8b5cf6'];
+      (M.calendarCampaigns = M.calendarCampaigns || []).push({
+        name, occasion, offer, from, to, color: colors[M.calendarCampaigns.length % colors.length] });
+      route(); toast('Đã thêm campaign theo dịp (mẫu)');
       return;
     }
     if (act === 'chat-suggest') {

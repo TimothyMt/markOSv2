@@ -615,3 +615,52 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 .empty-cta .empty-ic { font-size:44px; }
 .empty-cta h3 { margin:10px 0 6px; }
 .empty-actions { display:flex; gap:10px; justify-content:center; margin-top:16px; flex-wrap:wrap; }
+
+/* ════════ Lịch nội dung — Gantt 2 lớp (Always-on + Campaign theo dịp) ════════ */
+.cal-note { margin-bottom:12px; }
+.cal-legend { display:flex; gap:20px; flex-wrap:wrap; margin-bottom:12px; font-size:12.5px; color:var(--txt-2); }
+.cal-legend i.lg { display:inline-block; width:12px; height:12px; border-radius:3px; vertical-align:-1px; margin-right:4px; }
+.cal-legend i.lg.on { background:var(--green); }
+.cal-legend i.lg.camp { background:#f59e0b; }
+
+.calboard { background:var(--panel); border:1px solid var(--stroke); border-radius:14px; padding:14px; margin-bottom:16px; overflow-x:auto; }
+
+/* dải băng campaign (Gantt) — căn thẳng cột ngày bên dưới */
+.cal-bands { display:grid; gap:6px 8px; margin-bottom:10px; }
+.band-base { grid-row:1; background:linear-gradient(90deg, color-mix(in srgb, var(--green) 22%, transparent), color-mix(in srgb, var(--green) 10%, transparent));
+  border:1px dashed color-mix(in srgb, var(--green) 55%, transparent); border-radius:8px; padding:7px 12px;
+  font-size:12px; color:var(--txt); }
+.band-base span { opacity:.9; }
+.band-camp { background:color-mix(in srgb, var(--c) 20%, transparent); border:1px solid var(--c); border-left:4px solid var(--c);
+  border-radius:8px; padding:7px 12px; font-size:12px; color:var(--txt); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.band-camp b { color:var(--c); }
+
+/* lưới ngày */
+.cal-grid { display:grid; gap:10px; }
+.cal-col { background:var(--bg-2); border:1px solid var(--stroke); border-radius:10px; padding:8px; min-height:150px;
+  display:flex; flex-direction:column; gap:8px; min-width:120px; }
+.cal-col.in-camp { background:color-mix(in srgb, var(--c) 7%, var(--bg-2)); border-color:color-mix(in srgb, var(--c) 40%, var(--stroke)); }
+.cal-colhead { display:flex; align-items:center; justify-content:space-between; font-size:12px; font-weight:600; color:var(--txt-2); }
+.col-dot { width:8px; height:8px; border-radius:50%; }
+
+/* thẻ bài — accent trái theo track */
+.cal-post { position:relative; background:var(--panel); border:1px solid var(--stroke);
+  border-left:3px solid var(--accent, var(--green)); border-radius:8px; padding:8px 9px; }
+.cal-post-top { display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:4px; }
+.cal-post-title { font-size:12.5px; line-height:1.4; color:var(--txt); margin:0; padding-right:14px; }
+.trk { font-size:10px; font-weight:700; padding:2px 7px; border-radius:999px; }
+.trk.on { background:color-mix(in srgb, var(--green) 18%, transparent); color:var(--green); }
+.trk.camp { background:color-mix(in srgb, var(--c) 20%, transparent); color:var(--c); border:1px solid var(--c); }
+.pill-tag { font-size:10px; padding:1px 6px; border-radius:4px; opacity:.85; }
+.pill-tag.c1{background:#5b8cff33;color:#5b8cff} .pill-tag.c2{background:#7c4dff33;color:#a98bff}
+.pill-tag.c3{background:#38d9f033;color:#38d9f0} .pill-tag.c4{background:#2dd4a733;color:#2dd4a7}
+.cal-offer { display:inline-block; margin-top:5px; font-size:11px; color:var(--amber); }
+.cal-add { background:transparent; border:1px dashed var(--stroke-2); color:var(--muted); border-radius:8px;
+  padding:5px; cursor:pointer; font-size:13px; margin-top:auto; }
+.cal-add:hover { border-color:var(--primary); color:var(--primary); }
+.cal-del { position:absolute; top:5px; right:5px; background:transparent; border:none; color:var(--muted); cursor:pointer; font-size:11px; }
+.cal-del:hover { color:var(--red); }
+
+@media (max-width: 920px) {
+  .cal-grid, .cal-bands { grid-template-columns:repeat(7, minmax(120px,1fr)) !important; }
+}

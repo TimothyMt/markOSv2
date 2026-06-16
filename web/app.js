@@ -572,23 +572,59 @@
     mount: () => { doughnut('pillarChart', M.pillars.map(p=>p.pct), M.pillars.map(p=>p.color)); },
   };
 
-  /* ---- Content calendar ---- */
+  /* ---- Content calendar — Gantt 2 lớp: Always-on (nền) + Campaign theo dịp (window) ---- */
+  // Một bài là 🔴 Campaign nếu nằm trong window 1 đợt và là bài Convert; còn lại 🟢 Always-on.
+  const campOfDay = (i) => (M.calendarCampaigns || []).find(c => i >= c.from && i <= c.to);
+  const trackOf = (p, i) => {
+    const c = campOfDay(i);
+    return (c && p.pillar === 'Convert') ? { track: 'campaign', camp: c } : { track: 'always_on', camp: null };
+  };
+  const postCard = (p, i) => {
+    const { track, camp } = trackOf(p, i);
+    const accent = track === 'campaign' ? camp.color : 'var(--green)';
+    const tag = track === 'campaign'
+      ? `<span class="trk camp" style="--c:${camp.color}">${camp.name}</span>`
+      : `<span class="trk on">Always-on</span>`;
+    return `<div class="cal-post ${pillarCls(p.pillar)}" style="--accent:${accent}">
+        <div class="cal-post-top">${tag}<span class="pill-tag ${pillarCls(p.pillar)}">${p.pillar}</span></div>
+        <p class="cal-post-title">${p.title}</p>
+        ${track === 'campaign' ? `<span class="cal-offer">🎁 ${camp.offer}</span>` : ''}
+        ${p.id ? `<button class="cal-del" data-act="del-calendar" data-id="${p.id}" title="Xoá">✕</button>` : ''}
+      </div>`;
+  };
   P.calendar = {
-    title: 'Lịch nội dung', sub: 'Tuần này · Pillar: Educate / Trust / Engage / Convert',
-    actions: `<button class="primary-btn" data-act="add-post" data-day="0">＋ Thêm bài</button>`,
-    render: () => `
-      <section class="cal">
-        ${M.calendar.days.map((d,i)=>`
-          <div class="cal-day"><div class="cal-head">${d}</div>
-            ${calPosts(i).map(p=>`<div class="cal-post ${pillarCls(p.pillar)}">
-                <span>${p.pillar}</span>${p.title}
-                ${p.id?`<button class="cal-del" data-act="del-calendar" data-id="${p.id}" title="Xoá">✕</button>`:''}
-              </div>`).join('')}
-            <button class="cal-add" data-act="add-post" data-day="${i}">＋</button></div>`).join('')}
+    title: 'Lịch nội dung', sub: 'Always-on (nền quanh năm) + Campaign theo dịp (đợt có khung thời gian)',
+    actions: `<button class="ghost-line" data-act="add-campaign-occasion">🎯 Tạo campaign theo dịp</button>
+              <button class="primary-btn" data-act="add-post" data-day="0">＋ Thêm bài</button>`,
+    render: () => {
+      const days = M.calendar.days;
+      const camps = M.calendarCampaigns || [];
+      return `
+      ${M.bizEnabled ? '' : `<div class="cal-note">${badge('Bản thiết kế UX','amber')} <span class="muted"> Lịch 2 lớp — dữ liệu mẫu, nối thật ở M1.</span></div>`}
+      <div class="cal-legend">
+        <span><i class="lg on"></i> 🟢 Always-on — bài brand quanh năm, không offer/deadline</span>
+        <span><i class="lg camp"></i> 🔴 Campaign theo dịp — bài Convert đẩy offer, chỉ trong đợt</span>
+      </div>
+      <section class="calboard">
+        <div class="cal-bands" style="grid-template-columns:repeat(${days.length},1fr)">
+          <div class="band-base" style="grid-column:1 / -1"><span>🟢 Always-on · chạy liên tục cả kỳ</span></div>
+          ${camps.map(c => `<div class="band-camp" style="grid-column:${c.from + 1} / ${c.to + 2}; --c:${c.color}">
+              <b>🔴 ${c.name}</b> · ${c.occasion} · 🎁 ${c.offer}</div>`).join('')}
+        </div>
+        <div class="cal-grid" style="grid-template-columns:repeat(${days.length},1fr)">
+          ${days.map((d, i) => {
+            const c = campOfDay(i);
+            return `<div class="cal-col ${c ? 'in-camp' : ''}" ${c ? `style="--c:${c.color}"` : ''}>
+              <div class="cal-colhead">${d}${c ? `<span class="col-dot" style="background:${c.color}" title="${c.name}"></span>` : ''}</div>
+              ${calPosts(i).map(p => postCard(p, i)).join('')}
+              <button class="cal-add" data-act="add-post" data-day="${i}">＋</button></div>`;
+          }).join('')}
+        </div>
       </section>
       <section class="grid">
-        ${card('Tỉ lệ pillar tuần', cv('calPillar',160), {cls:'span-12'})}
-      </section>`,
+        ${card('Tỉ lệ pillar tuần (Always-on)', cv('calPillar',160), {cls:'span-12'})}
+      </section>`;
+    },
     mount: () => {
       if (!hasChart) return;
       reg(new Chart(byId('calPillar'), { type:'bar',
@@ -1296,6 +1332,19 @@
     if (act === 'toggle-collapse') {
       const card = el.closest('.card'); const out = card && card.querySelector('.ai-output');
       if (out) { const open = out.classList.toggle('expanded'); el.textContent = open ? 'Thu gọn ▴' : 'Xem đầy đủ ▾'; }
+      return;
+    }
+    if (act === 'add-campaign-occasion') {
+      // Prototype client-side: tạo lớp campaign theo dịp (M1 sẽ nối backend + posts thật)
+      const name = prompt('Tên campaign (vd: Sale Tết):'); if (!name) return;
+      const occasion = prompt('Dịp / mùa vụ (vd: Tết Nguyên Đán):', 'Dịp đặc biệt') || '';
+      const offer = prompt('Offer (vd: Giảm 30%):', 'Ưu đãi đặc biệt') || '';
+      const from = Math.max(0, Math.min(6, (parseInt(prompt('Bắt đầu từ ngày nào? (T2=1 … CN=7):', '3')) || 3) - 1));
+      const to = Math.max(from, Math.min(6, (parseInt(prompt('Kết thúc ngày nào? (T2=1 … CN=7):', '5')) || 5) - 1));
+      const colors = ['#f59e0b', '#ef4444', '#ec4899', '#8b5cf6'];
+      (M.calendarCampaigns = M.calendarCampaigns || []).push({
+        name, occasion, offer, from, to, color: colors[M.calendarCampaigns.length % colors.length] });
+      route(); toast('Đã thêm campaign theo dịp (mẫu)');
       return;
     }
     if (act === 'chat-suggest') {

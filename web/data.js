@@ -165,13 +165,17 @@ window.MOCK = {
     posts: [
       [{p:'Educate',t:'Mẹo pha cà phê'}],
       [{p:'Engage',t:'Mini-game'}],
-      [{p:'Trust',t:'Review KH'},{p:'Convert',t:'Flash sale'}],
+      [{p:'Trust',t:'Review KH'},{p:'Convert',t:'Flash sale combo đôi'}],
       [{p:'Educate',t:'Hậu trường'}],
-      [{p:'Convert',t:'Combo cuối tuần'}],
+      [{p:'Convert',t:'Mua 1 tặng 1 cuối tuần'}],
       [{p:'Engage',t:'UGC repost'}],
       [{p:'Trust',t:'Câu chuyện thương hiệu'}],
     ],
   },
+  // Campaign theo dịp — lớp phủ có khung thời gian (window = từ..đến theo ngày 0-6)
+  calendarCampaigns: [
+    { name: 'Sale Hè', occasion: 'Mùa hè', offer: 'Mua 1 tặng 1', from: 2, to: 4, color: '#f59e0b' },
+  ],
 
   adsCopy: {
     TOFU: { title:'Nhận biết', items:['“Buổi sáng cần một lý do để dậy sớm…”','“Cà phê thật, giá thật.”'] },

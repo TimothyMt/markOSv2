@@ -40,3 +40,15 @@ Nguồn: `agents/operational_prompts.py`, `agents/campaign_ideation.py`,
 ## Rủi ro
 - Mapping window theo TUẦN (không phải ngày lẻ) — phải khớp cách bot tính `duration`.
 - Output skill là bảng markdown 2 track → web parse/hiển thị phải chịu biến thể.
+
+## UX đã thiết kế (prototype, dữ liệu mẫu — 2026-06)
+Bỏ cách Telegram (emoji 🟢/🔴 trong bảng text). Web dùng **Gantt 2 lớp**:
+- **Dải băng campaign** căn thẳng cột ngày: Always-on = băng nền liền mạch cả kỳ;
+  mỗi Campaign = thanh màu spanning đúng window (từ..đến).
+- **Cột ngày**: ngày trong đợt được **nhuộm nhẹ màu campaign**; thẻ bài có
+  **accent trái theo track** (xanh = always-on, màu campaign = campaign) + nhãn
+  track + offer hiển thị cho bài campaign.
+- Nút **"Tạo campaign theo dịp"** (prototype client-side) hỏi dịp + window + offer.
+Vị trí: `web/app.js` P.calendar + CSS `.calboard/.cal-bands/.band-camp/...`.
+**Còn lại (M1 thật):** nối `campaigns`(occasion,start,end) + `posts`(track),
+sinh nội dung 2 track từ operational skill.
