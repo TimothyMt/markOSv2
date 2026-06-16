@@ -15,9 +15,10 @@
 | D-008 | **Không UI giả** — nút không có tác dụng phải gỡ (audit 2026-06-16) | ✅ |
 | D-009 | Deploy: **Railway** (server đầy đủ) + **GitHub Pages** (bản tĩnh demo) | ✅ |
 | D-010 | Realtime qua **SSE** + Supabase Realtime; watcher poll 4s làm fallback | ✅ |
+| D-011 | Phục vụ **cả 3 nhóm user, phân theo GÓI** (Starter/Pro/Agency); core dùng chung, gating theo gói | ✅ (2026-06) |
+| D-012 | Luồng vàng ưu tiên: **M0 = Chẩn đoán→Chiến lược**, **M1 = Sản xuất nội dung**; Ads để sau | ✅ (2026-06) |
+| D-013 | Kinh doanh: **thuê bao tháng** 3 gói; billing + auth gom vào M4 | ✅ (2026-06) |
+| D-014 | Auth **hoãn** ở các milestone tới (Q-D); v1 demo/nội bộ. ⚠️ Chặn cứng public dữ liệu thật đa user | ✅ (2026-06) |
 
-## Đang chờ Founder quyết (mở)
-- **Q-A** Người dùng chính của v1? (SME tự làm MKT / Agency / Freelancer)
-- **Q-B** Outcome CỐT LÕI v1 (1 luồng vàng đào sâu trước)?
-- **Q-C** Mô hình kinh doanh v1?
-- **Q-D** Có làm auth ngay ở milestone tới không (chặn public)?
+## Đã chốt các câu hỏi mở (2026-06)
+Q-A→D-011 · Q-B→D-012 · Q-C→D-013 · Q-D→D-014.

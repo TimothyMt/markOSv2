@@ -9,8 +9,13 @@ markOS Web là nơi chủ doanh nghiệp **trò chuyện với Max (CMO ảo)** 
 không cần thuê agency.
 
 ## 2. Người dùng mục tiêu (v1)
-❓ *Founder chọn (xem Q-A trong DECISIONS):* SME chủ DN tự làm MKT / Agency /
-Freelancer. → Quyết định này định hình ngôn ngữ, độ sâu, tính năng.
+**Phục vụ cả 3 nhóm, phân theo GÓI thuê bao** (chốt 2026-06):
+- **Starter** — Chủ DN nhỏ tự làm MKT: đơn giản, Max cầm tay chỉ việc.
+- **Pro** — Freelancer/Marketer: tốc độ + output chất lượng để giao khách.
+- **Agency** — Quản nhiều client (multi-client để sau, có thể khoá ở v1).
+
+Lõi sản phẩm (hội thoại Max + 5 chặng) **dùng chung**; gói chỉ khác ở quota,
+tính năng nâng cao và số client. Build core trước, gating theo gói sau.
 
 ## 3. Việc-cần-làm (Jobs To Be Done)
 - "Tôi mở/đang chạy DN, không rành marketing — cho tôi biết nên làm gì."
@@ -19,10 +24,10 @@ Freelancer. → Quyết định này định hình ngôn ngữ, độ sâu, tín
 - "Theo dõi & tối ưu quảng cáo của tôi."
 
 ## 4. Outcome cốt lõi v1 (luồng vàng)
-❓ *Founder chọn (Q-B):* 1 trong các luồng — đào sâu trước:
-- (a) Khám phá → Chẩn đoán → **Chiến lược 90 ngày**
-- (b) **Sản xuất nội dung** hàng loạt theo brand voice
-- (c) **Tối ưu Ads** từ số liệu thật
+**Hai luồng ưu tiên (chốt 2026-06), đào sâu theo thứ tự:**
+- **M0 = (a) Khám phá → Chẩn đoán → Chiến lược 90 ngày** (lõi cố vấn của markOS)
+- **M1 = (b) Sản xuất nội dung** hàng loạt theo brand voice
+- (c) Tối ưu Ads → milestone sau.
 
 ## 5. Nguyên tắc trải nghiệm
 - Max là nhân vật chính (hội thoại-first, như ChatGPT/Claude).
@@ -30,10 +35,14 @@ Freelancer. → Quyết định này định hình ngôn ngữ, độ sâu, tín
 - Trung thực: dữ liệu thật hoặc dán nhãn mẫu; không nút giả.
 
 ## 6. Mô hình kinh doanh
-❓ *Founder chọn (Q-C):* Freemium theo quota token / Thuê bao / Chưa thu, validate trước.
+**Thuê bao tháng** (chốt 2026-06), 3 gói Starter/Pro/Agency. Mỗi gói = quota token
++ bộ tính năng. Billing/cổng thanh toán làm ở M4 (cùng auth). v1 hiện chưa thu tiền
+thật — vẫn demo/nội bộ.
 
 ## 7. Ngoài phạm vi v1
-- ❓ (mặc định) Multi-tenant team, phân quyền chi tiết, marketplace.
+- **Auth/đăng nhập** — hoãn (chốt Q-D: vẫn demo/nội bộ). ⚠️ Chặn cứng việc public.
+- Agency multi-client, phân quyền team chi tiết, marketplace.
+- Tối ưu Ads chuyên sâu (luồng c).
 - Tự host model LLM.
 
 ## 8. Thước đo thành công (đề xuất, Founder chỉnh)
