@@ -13,7 +13,7 @@ from contextlib import asynccontextmanager
 import uvicorn
 from starlette.applications import Starlette
 from starlette.requests import Request
-from starlette.responses import PlainTextResponse, FileResponse
+from starlette.responses import PlainTextResponse, RedirectResponse
 from starlette.routing import Route, Mount
 from starlette.staticfiles import StaticFiles
 from telegram import Update
@@ -125,9 +125,9 @@ async def oauth_fb_callback(request: Request):
 WEB_DIR = Path(__file__).resolve().parent.parent / "web"
 
 
-async def dashboard(request: Request) -> FileResponse:
-    """Phục vụ giao diện web app dashboard tại /dashboard."""
-    return FileResponse(WEB_DIR / "index.html")
+async def dashboard(request: Request) -> RedirectResponse:
+    """Chuyển hướng /dashboard → /web/ (StaticFiles phục vụ index + assets)."""
+    return RedirectResponse(url="/web/")
 
 
 # ── Startup / shutdown lifecycle ─────────────────────────────────
@@ -168,7 +168,7 @@ starlette_app = Starlette(
         Route(f"/{TELEGRAM_BOT_TOKEN}", telegram_webhook, methods=["POST"]),
         Route("/oauth/fb/callback",     oauth_fb_callback, methods=["GET"]),
         Route("/dashboard",             dashboard,         methods=["GET"]),
-        Mount("/web", app=StaticFiles(directory=WEB_DIR), name="web"),
+        Mount("/web", app=StaticFiles(directory=WEB_DIR, html=True), name="web"),
     ],
     lifespan=lifespan,
 )
