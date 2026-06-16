@@ -834,14 +834,51 @@
   window.addEventListener('hashchange', route);
   document.getElementById('navToggle').addEventListener('click', () => document.body.classList.toggle('nav-open'));
 
-  /* ════════════ boot: nạp dữ liệu từ API, fallback mock ════════════ */
+  /* ════════════ realtime (SSE) ════════════ */
+  let _lastStream = '';
+  function setLive(on) {
+    let dot = document.getElementById('liveDot');
+    if (!dot) {
+      dot = document.createElement('span');
+      dot.id = 'liveDot'; dot.className = 'live-dot'; dot.title = 'Cập nhật realtime';
+      dot.innerHTML = '<i></i> Live';
+      const tr = document.querySelector('.topbar-right');
+      tr.insertBefore(dot, tr.firstChild);
+    }
+    dot.classList.toggle('off', !on);
+  }
+  function applyStream(data) {
+    if (data === _lastStream) return;          // dedupe các bản trùng
+    _lastStream = data;
+    let state; try { state = JSON.parse(data); } catch (e) { return; }
+    Object.assign(window.MOCK, state);
+    const editing = document.activeElement &&
+      /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName);
+    renderRail();
+    if (!editing) route();                     // không phá thao tác đang gõ
+    const dot = document.getElementById('liveDot');
+    if (dot) { dot.classList.add('pulse'); setTimeout(() => dot.classList.remove('pulse'), 1200); }
+  }
+  function startStream() {
+    if (typeof EventSource === 'undefined') return;
+    try {
+      const es = new EventSource('api/stream');
+      es.onopen = () => setLive(true);
+      es.onerror = () => setLive(false);       // EventSource tự reconnect
+      es.onmessage = (ev) => applyStream(ev.data);
+    } catch (e) { /* bỏ qua */ }
+  }
+
+  /* ════════════ boot: nạp dữ liệu, mở SSE, fallback mock ════════════ */
   (async function boot() {
     try {
       const state = await API.get('api/bootstrap');
       Object.assign(window.MOCK, state);
+      _lastStream = JSON.stringify(state);
       apiAvailable = true;
     } catch (e) { /* không có backend → dùng dữ liệu mock nhúng sẵn */ }
     renderRail();
     route();
+    if (apiAvailable) startStream();
   })();
 })();

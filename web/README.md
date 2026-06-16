@@ -81,5 +81,18 @@ cùng store với web (`bot/web_control.py`):
 
 > Để bot và web **thấy chung dữ liệu**, cả hai phải cùng cấu hình Supabase
 > (`SUPABASE_URL` + `SUPABASE_SERVICE_KEY`). Nếu mỗi bên dùng SQLite riêng
-> (2 service tách biệt) thì dữ liệu không chia sẻ. Sau khi gõ lệnh, tải lại
-> web để thấy cập nhật.
+> (2 service tách biệt) thì dữ liệu không chia sẻ.
+
+## Tự cập nhật realtime (SSE)
+
+Web mở 1 kết nối `EventSource('/api/stream')` và tự cập nhật khi dữ liệu đổi —
+không cần F5. Chỉ báo **● Live** ở góc trên phải.
+
+- **Watcher** (luôn chạy): server đọc store mỗi ~4s, đẩy khi đổi. Hoạt động với
+  cả SQLite lẫn Supabase, kể cả thay đổi đến từ bot (process khác).
+- **Supabase Realtime** (gần như tức thì): chạy phần cuối `supabase_schema.sql`
+  để bật realtime cho bảng `web_*`. Khi có Supabase, server lắng nghe
+  `postgres_changes` và đẩy ngay. Nếu realtime lỗi, watcher vẫn đảm bảo cập nhật.
+
+> Realtime/SSE chỉ chạy khi có backend (`run_web.py`/cloud). Trên GitHub Pages
+> tĩnh, web tự bỏ qua SSE và dùng dữ liệu mock.

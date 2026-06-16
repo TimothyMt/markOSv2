@@ -3,21 +3,54 @@ JSON API cho web dashboard. Mount vào Starlette (run_web.py hoặc bot/main.py)
 
 GET /api/bootstrap trả về state động; các endpoint còn lại ghi và trả state mới.
 """
-from starlette.responses import JSONResponse
+import asyncio
+import json
+
+from starlette.responses import JSONResponse, StreamingResponse
 from starlette.routing import Route
 
 from webapp import store
 from webapp import notify as tg
+from webapp.events import hub
 
 
 def _ok(state):
     return JSONResponse(state)
 
 
-async def bootstrap(request):
+async def full_state() -> dict:
+    """State đầy đủ dùng cho bootstrap, SSE snapshot và watcher."""
     state = await store.get_state()
     state["telegramEnabled"] = tg.enabled()
-    return JSONResponse(state)
+    return state
+
+
+async def bootstrap(request):
+    return JSONResponse(await full_state())
+
+
+async def stream(request):
+    """SSE: gửi snapshot ngay, sau đó đẩy state mới khi có thay đổi."""
+    async def gen():
+        q = hub.subscribe()
+        try:
+            yield f"data: {json.dumps(await full_state(), ensure_ascii=False)}\n\n"
+            while True:
+                try:
+                    data = await asyncio.wait_for(q.get(), timeout=15)
+                    yield f"data: {data}\n\n"
+                except asyncio.TimeoutError:
+                    yield ": heartbeat\n\n"  # giữ kết nối qua proxy Railway
+                if await request.is_disconnected():
+                    break
+        finally:
+            hub.unsubscribe(q)
+
+    return StreamingResponse(gen(), media_type="text/event-stream", headers={
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+        "X-Accel-Buffering": "no",
+    })
 
 
 async def notify_test(request):
@@ -136,6 +169,7 @@ async def reset_usage(request):
 def api_routes() -> list:
     return [
         Route("/api/bootstrap",                    bootstrap,          methods=["GET"]),
+        Route("/api/stream",                       stream,             methods=["GET"]),
         Route("/api/notify/test",                  notify_test,        methods=["POST"]),
         Route("/api/tracked",                      add_tracked,        methods=["POST"]),
         Route("/api/tracked/{id:int}",             del_tracked,        methods=["DELETE"]),

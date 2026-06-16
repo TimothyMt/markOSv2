@@ -7,6 +7,7 @@ Mở:    http://localhost:8000
 Mặc định lưu vào SQLite (webapp/markos_web.db). Nếu set SUPABASE_URL +
 SUPABASE_SERVICE_KEY (chạy webapp/supabase_schema.sql trước) thì tự dùng Supabase.
 """
+import asyncio
 import logging
 import os
 from contextlib import asynccontextmanager
@@ -17,8 +18,8 @@ from starlette.applications import Starlette
 from starlette.routing import Mount
 from starlette.staticfiles import StaticFiles
 
-from webapp.api import api_routes
-from webapp import store
+from webapp.api import api_routes, full_state
+from webapp import store, events
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(message)s")
 WEB_DIR = Path(__file__).resolve().parent / "web"
@@ -29,6 +30,9 @@ async def lifespan(app: Starlette):
     backend = store.configure()
     await store.init()
     logging.info("Web dashboard ready (store=%s).", backend)
+    # SSE: watcher (luôn chạy) + Supabase Realtime (nếu có)
+    asyncio.create_task(events.watcher(full_state))
+    asyncio.create_task(events.realtime_listener(full_state))
     yield
 
 
