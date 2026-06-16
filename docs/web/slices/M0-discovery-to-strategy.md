@@ -50,6 +50,13 @@ Starter (chủ DN nhỏ tự làm MKT). Vào lần đầu, chưa có hồ sơ. D
 `agents/strategy.py` (run_advisor/persist), `storage/v2/strategies.py`,
 `webapp/business.py` (run_agent), `webapp/chat.py`.
 
-## Câu hỏi cần Founder chốt khi duyệt
-1. Starter có nên mặc định chạy **bản chẩn đoán nhanh** (rẻ token) thay vì full?
-2. Strategy hiển thị: ưu tiên **bản tóm tắt gọn** hay **đầy đủ chi tiết** ngay từ đầu?
+## Founder đã chốt (2026-06)
+1. **Luôn chạy full** chất lượng cao (D-016).
+2. Trang Chiến lược **tóm tắt gọn trước**, có nút "Xem đầy đủ" (D-016).
+
+## Tiến độ build
+- [x] Backend: `business._execute` chạy `run_targeted_pipeline` full (D-015) → ra synthesis.
+- [x] Chat: nhãn gợi ý "Chạy chẩn đoán & lập chiến lược".
+- [x] Trang Chiến lược: render synthesis thật, collapsible tóm-tắt-trước, empty state.
+- [ ] Smoke test luồng thật với 1 user trên Supabase (cần env prod).
+- [ ] Founder nghiệm thu trên Railway.

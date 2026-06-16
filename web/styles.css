@@ -603,3 +603,15 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 
 /* topbar gọn sau khi bỏ search/theme/bell giả */
 .topbar-title { flex:1; }
+
+/* ── M0: chiến lược thật — tóm tắt trước (collapsible) + empty CTA ── */
+.ai-output.collapsible { max-height:460px; overflow:hidden; position:relative; }
+.ai-output.collapsible::after { content:''; position:absolute; left:0; right:0; bottom:0; height:90px;
+  background:linear-gradient(transparent, var(--panel)); pointer-events:none; }
+.ai-output.collapsible.expanded { max-height:none; }
+.ai-output.collapsible.expanded::after { display:none; }
+.collapse-toggle { cursor:pointer; }
+.empty-cta { text-align:center; padding:36px 20px; max-width:560px; margin:0 auto; }
+.empty-cta .empty-ic { font-size:44px; }
+.empty-cta h3 { margin:10px 0 6px; }
+.empty-actions { display:flex; gap:10px; justify-content:center; margin-top:16px; flex-wrap:wrap; }

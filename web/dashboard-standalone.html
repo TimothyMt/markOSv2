@@ -613,6 +613,18 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 /* topbar gọn sau khi bỏ search/theme/bell giả */
 .topbar-title { flex:1; }
 
+/* ── M0: chiến lược thật — tóm tắt trước (collapsible) + empty CTA ── */
+.ai-output.collapsible { max-height:460px; overflow:hidden; position:relative; }
+.ai-output.collapsible::after { content:''; position:absolute; left:0; right:0; bottom:0; height:90px;
+  background:linear-gradient(transparent, var(--panel)); pointer-events:none; }
+.ai-output.collapsible.expanded { max-height:none; }
+.ai-output.collapsible.expanded::after { display:none; }
+.collapse-toggle { cursor:pointer; }
+.empty-cta { text-align:center; padding:36px 20px; max-width:560px; margin:0 auto; }
+.empty-cta .empty-ic { font-size:44px; }
+.empty-cta h3 { margin:10px 0 6px; }
+.empty-actions { display:flex; gap:10px; justify-content:center; margin-top:16px; flex-wrap:wrap; }
+
 </style>
 </head>
 <body>
@@ -1372,13 +1384,8 @@ window.MOCK = {
     mount: () => {},
   };
 
-  /* ---- Strategy ---- */
-  P.strategy = {
-    title: 'Chiến lược tổng hợp', sub: 'SAVE Framework · SMART Goals · Roadmap 90 ngày',
-    actions: `<a class="primary-btn" href="#brief">→ Campaign Brief</a>`,
-    render: () => `
-      <section class="grid">
-        ${agentSection('strategy','synthesis')}
+  /* ---- Strategy (M0: chiến lược thật, tóm-tắt-trước) ---- */
+  const strategyMock = () => `
         ${card('SAVE Framework', `
           <div class="save">${M.saveFramework.map(s=>`
             <div class="save-item"><div class="save-k">${s.k}</div>
@@ -1387,8 +1394,39 @@ window.MOCK = {
         ${card('Roadmap 90 ngày', `
           <div class="roadmap">${M.roadmap.map(r=>`
             <div class="rm-phase"><span class="rm-tag">${r.phase}</span><p class="rm-title">${r.title}</p>
-              <ul class="bullet">${r.items.map(i=>`<li>${i}</li>`).join('')}</ul></div>`).join('')}</div>`, {cls:'span-12'})}
-      </section>`,
+              <ul class="bullet">${r.items.map(i=>`<li>${i}</li>`).join('')}</ul></div>`).join('')}</div>`, {cls:'span-12'})}`;
+  P.strategy = {
+    title: 'Chiến lược tổng hợp', sub: 'Định vị · SAVE/SMART · Roadmap 90 ngày · KPI',
+    actions: `<a class="primary-btn" href="#brief">→ Campaign Brief</a>`,
+    render: () => {
+      const latest = (M.bizLatest || {}).synthesis;
+      if (M.bizEnabled && latest) {
+        return `<section class="grid">
+          ${agentBar('strategy','synthesis')}
+          ${card('Chiến lược 90 ngày — do Max lập', `
+            <div class="ai-output collapsible" data-skill-run="${latest.id}">Đang tải chiến lược…</div>
+            <button class="ghost-line full collapse-toggle" data-act="toggle-collapse" style="margin-top:12px">Xem đầy đủ ▾</button>`,
+            {cls:'span-12', action:`<span class="muted">v${latest.version} · ${(latest.created_at||'').slice(0,10)}</span>`})}
+        </section>`;
+      }
+      if (M.bizEnabled) {
+        return `<section class="grid">
+          ${card('', `<div class="empty-cta">
+            <div class="empty-ic">🎯</div>
+            <h3>Chưa có chiến lược cho doanh nghiệp này</h3>
+            <p class="muted">Trò chuyện với Max để khai báo doanh nghiệp, rồi chạy chẩn đoán — Max sẽ tổng hợp chiến lược 90 ngày (định vị, mục tiêu, roadmap, KPI).</p>
+            <div class="empty-actions">
+              <a class="primary-btn" href="#home">💬 Trò chuyện với Max</a>
+              <button class="ghost-line" data-act="run-agent" data-task="full">🚀 Chạy chẩn đoán ngay</button>
+            </div></div>`, {cls:'span-12'})}
+        </section>`;
+      }
+      return `<section class="grid">
+        <div class="card span-12" style="padding:10px 14px">${badge('Dữ liệu mẫu','amber')}
+          <span class="muted"> Bản minh hoạ — chạy server thật (Supabase + LLM) để Max lập chiến lược cho bạn.</span></div>
+        ${strategyMock()}
+      </section>`;
+    },
     mount: () => {},
   };
 
@@ -2136,6 +2174,11 @@ window.MOCK = {
     const act = el.dataset.act;
     if (act === 'chat-send') { sendChat(); return; }
     if (act === 'chat-eg') { sendChat(el.dataset.text); return; }
+    if (act === 'toggle-collapse') {
+      const card = el.closest('.card'); const out = card && card.querySelector('.ai-output');
+      if (out) { const open = out.classList.toggle('expanded'); el.textContent = open ? 'Thu gọn ▴' : 'Xem đầy đủ ▾'; }
+      return;
+    }
     if (act === 'chat-suggest') {
       if (el.dataset.goto) { location.hash = el.dataset.goto; return; }
       if (el.dataset.task) {

@@ -19,6 +19,8 @@
 | D-012 | Luồng vàng ưu tiên: **M0 = Chẩn đoán→Chiến lược**, **M1 = Sản xuất nội dung**; Ads để sau | ✅ (2026-06) |
 | D-013 | Kinh doanh: **thuê bao tháng** 3 gói; billing + auth gom vào M4 | ✅ (2026-06) |
 | D-014 | Auth **hoãn** ở các milestone tới (Q-D); v1 demo/nội bộ. ⚠️ Chặn cứng public dữ liệu thật đa user | ✅ (2026-06) |
+| D-015 | Web chạy agent **non-interactive** = `run_targeted_pipeline` (đủ 8 bước, gồm synthesis). Multi-agent + 8 câu hỏi chỉ dùng trong chat bot | ✅ (2026-06) |
+| D-016 | M0: Starter **luôn chạy full** chất lượng cao; trang Chiến lược **tóm tắt gọn trước** + nút "Xem đầy đủ" | ✅ (2026-06) |
 
 ## Đã chốt các câu hỏi mở (2026-06)
 Q-A→D-011 · Q-B→D-012 · Q-C→D-013 · Q-D→D-014.

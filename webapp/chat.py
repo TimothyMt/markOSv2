@@ -64,9 +64,9 @@ def _suggestions(stage: str, skill_keys: set) -> list:
         return []
     if stage == "diagnosis":
         return [
-            {"label": "▶ Chạy phân tích toàn diện", "task": "full"},
-            {"label": "🥊 Phân tích đối thủ", "task": "competitor"},
-            {"label": "👤 Customer Insight", "task": "customer"},
+            {"label": "🚀 Chạy chẩn đoán & lập chiến lược", "task": "full"},
+            {"label": "🥊 Chỉ phân tích đối thủ", "task": "competitor"},
+            {"label": "👤 Chỉ Customer Insight", "task": "customer"},
         ]
     if stage == "strategy":
         return [

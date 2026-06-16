@@ -427,19 +427,16 @@ async def _execute(job: dict):
         except Exception:
             pass
 
-        from agents.pipeline import run_targeted_pipeline, run_multi_agent_targeted
-        try:
-            from config import USE_MULTI_AGENT_PIPELINE
-        except ImportError:
-            USE_MULTI_AGENT_PIPELINE = False
+        from agents.pipeline import run_targeted_pipeline
 
         async def progress(msg):
             job["progress"] = str(msg)[:160]
 
-        if task == "full" and USE_MULTI_AGENT_PIPELINE:
-            agen = run_multi_agent_targeted(session, progress_callback=progress, phase="research")
-        else:
-            agen = run_targeted_pipeline(session, progress_callback=progress)
+        # Web chạy NON-INTERACTIVE: dùng run_targeted_pipeline cho mọi task.
+        # task="full" → cả 8 bước (gồm SYNTHESIS) → ra chiến lược, lưu skill_runs.
+        # Multi-agent (research-only + 8 câu hỏi) chỉ hợp luồng chat của bot,
+        # không hợp 1 cú bấm trên web. (DECISIONS D-015)
+        agen = run_targeted_pipeline(session, progress_callback=progress)
 
         done: list[str] = []
         async for stage_key, _result in agen:
