@@ -600,3 +600,6 @@ body.chat-mode #view { height: calc(100vh - 64px); }
   .eg-grid { grid-template-columns:1fr; }
   .maxchat, body.chat-mode #view { height:calc(100vh - 56px); }
 }
+
+/* topbar gọn sau khi bỏ search/theme/bell giả */
+.topbar-title { flex:1; }

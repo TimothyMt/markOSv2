@@ -17,22 +17,8 @@
     <main class="main">
       <header class="topbar">
         <button class="ghost-btn only-mobile" id="navToggle">☰</button>
-        <div class="search">
-          <span class="ic">🔍</span>
-          <input type="text" placeholder="Tìm chiến dịch, nội dung, đối thủ, kỹ năng…" />
-        </div>
-        <div class="topbar-right">
-          <div class="token-chip" title="Token còn lại">⚡ 84.200 token</div>
-          <button class="ghost-btn">🌙</button>
-          <button class="ghost-btn badge" data-count="3">🔔</button>
-          <div class="user">
-            <div class="avatar">NV</div>
-            <div class="user-text">
-              <span class="user-name">Nguyễn Văn A</span>
-              <span class="user-role">Quản trị viên</span>
-            </div>
-          </div>
-        </div>
+        <div class="topbar-title" id="topbarTitle"></div>
+        <div class="topbar-right" id="topbarRight"></div>
       </header>
 
       <div id="view"><!-- page renders here --></div>
