@@ -93,6 +93,10 @@ def _build_app() -> Application:
     app.add_handler(CommandHandler("video_script_gen", cmd_video_script_gen))
     app.add_handler(CommandHandler("content_generator", cmd_content_generator))
 
+    # Lệnh điều khiển Web Dashboard (Telegram → Web)
+    from bot.web_control import register as register_web_control
+    register_web_control(app)
+
     app.add_handler(CallbackQueryHandler(handle_callback))
     app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
     app.add_handler(MessageHandler(filters.Document.ALL, handle_document))

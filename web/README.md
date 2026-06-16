@@ -60,3 +60,26 @@ nên dashboard chạy chung cùng bot khi deploy.
 > Dữ liệu hiện là **mock-first**. Khi nối nguồn thật (Supabase, Facebook
 > Marketing API, AI agents), chỉ cần thay phần đọc/ghi trong `webapp/store.py` —
 > hợp đồng JSON với frontend giữ nguyên.
+
+## Điều khiển 2 chiều với Telegram
+
+**Web → Telegram (thông báo):** đặt `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID`
+→ các thao tác (tạo chiến dịch, áp dụng tối ưu, kết nối tài khoản) gửi thông
+báo về Telegram. Thử ở trang *Cài đặt* → *Gửi thông báo test*.
+
+**Telegram → Web (điều khiển từ điện thoại):** bot có các lệnh `/web_*` ghi vào
+cùng store với web (`bot/web_control.py`):
+
+| Lệnh | Tác dụng |
+|------|----------|
+| `/web_status` | Tổng quan: số chiến dịch, đối thủ, cảnh báo, tài khoản |
+| `/web_campaign <tên>` | Tạo chiến dịch mới |
+| `/web_track <tên>` | Thêm đối thủ theo dõi |
+| `/web_optimize` | Áp dụng đề xuất tối ưu đầu tiên |
+| `/web_alerts` | Xem cảnh báo hiện tại |
+| `/web_help` | Danh sách lệnh |
+
+> Để bot và web **thấy chung dữ liệu**, cả hai phải cùng cấu hình Supabase
+> (`SUPABASE_URL` + `SUPABASE_SERVICE_KEY`). Nếu mỗi bên dùng SQLite riêng
+> (2 service tách biệt) thì dữ liệu không chia sẻ. Sau khi gõ lệnh, tải lại
+> web để thấy cập nhật.
