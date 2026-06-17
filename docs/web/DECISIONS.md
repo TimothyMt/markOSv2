@@ -25,6 +25,9 @@
 | D-018 | **Always-on chạy SONG SONG, KHÔNG tắt** trong tuần có campaign; campaign là lớp CỘNG THÊM (không thay thế). Sai marketing nếu always-on trống khi đang có đợt | ✅ (2026-06) |
 | D-019 | **Sinh nội dung inline trong lịch, theo tuần/slot** (nhẹ, đúng ngữ cảnh) thay vì batch cả tháng 1 lần. Trang "Trình tạo nội dung" tách riêng = chế độ batch nâng cao | ✅ (2026-06) |
 | D-020 | Lịch có **2 view**: Kế hoạch tháng (Gantt theo tuần) + Chi tiết tuần (ngày) | ✅ (2026-06) |
+| D-021 | **Chat ≠ nơi lưu trữ.** Max chat = buồng lái (tạm thời); output Max tạo (skill_runs/strategies) lưu bền ở Supabase, xem lại ở trang chặng + **Hồ sơ doanh nghiệp** | ✅ (2026-06) |
+| D-022 | Gộp 2 trang trùng (pipeline + agents) → **1 trang `dossier` "Hồ sơ doanh nghiệp"** (tủ hồ sơ bền vững). `#pipeline`/`#agents` redirect về `#dossier` | ✅ (2026-06) |
+| D-023 | ⏳ Nợ: **transcript chat đang in-memory** (mất khi restart). Cần persist hội thoại (gắn D-002) | ⏳ nợ |
 
 ## Đã chốt các câu hỏi mở (2026-06)
 Q-A→D-011 · Q-B→D-012 · Q-C→D-013 · Q-D→D-014.

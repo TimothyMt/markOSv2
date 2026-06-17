@@ -5,8 +5,7 @@ window.MOCK = {
       { id: 'home',  label: 'Max — Cố vấn CMO', icon: '🤖' },
     ]},
     { group: '① Khám phá', items: [
-      { id: 'pipeline', label: 'Hồ sơ & chẩn đoán', icon: '🔍' },
-      { id: 'agents',   label: 'Dữ liệu thật & Agent', icon: '🗄️' },
+      { id: 'dossier', label: 'Hồ sơ doanh nghiệp', icon: '🗂️' },
     ]},
     { group: '② Chẩn đoán', items: [
       { id: 'market',     label: 'Nghiên cứu thị trường', icon: '🌐' },
@@ -46,7 +45,7 @@ window.MOCK = {
 
   // Hành trình khách hàng — context cho Max + thanh tiến trình
   journey: [
-    { id: 'discovery', label: 'Khám phá',  icon: '🔍', page: 'pipeline',  desc: 'Hiểu doanh nghiệp' },
+    { id: 'discovery', label: 'Khám phá',  icon: '🔍', page: 'dossier',  desc: 'Hiểu doanh nghiệp' },
     { id: 'diagnosis', label: 'Chẩn đoán', icon: '🩺', page: 'competitor', desc: 'Thị trường · đối thủ · khách hàng' },
     { id: 'strategy',  label: 'Chiến lược', icon: '🎯', page: 'strategy',  desc: 'Định vị · roadmap · KPI' },
     { id: 'execution', label: 'Sản xuất',  icon: '✍️', page: 'content',   desc: 'Nội dung · chiến dịch' },
