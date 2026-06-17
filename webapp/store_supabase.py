@@ -32,6 +32,8 @@ async def _empty(table):
 
 
 async def init():
+    if not seed.seed_demo_enabled():
+        return   # user mới: không bơm dữ liệu demo giả (bảng web_* để trống)
     c = await _c()
     # Seed các bảng còn rỗng (idempotent).
     async def seed_if_empty(table, rows):

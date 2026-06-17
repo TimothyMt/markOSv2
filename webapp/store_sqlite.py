@@ -4,12 +4,18 @@ SQLite backend cho web dashboard (mặc định, không cần credentials).
 Interface async để đồng nhất với backend Supabase (REST). Mọi hàm trả về
 toàn bộ state mới (dict) để frontend render lại.
 """
+import os
 import sqlite3
 import threading
 from pathlib import Path
 
 DB_PATH = Path(__file__).resolve().parent / "markos_web.db"
 _lock = threading.Lock()
+
+
+def seed_demo_enabled() -> bool:
+    """Chỉ seed dữ liệu demo khi WEB_SEED_DEMO bật. Mặc định TẮT → user mới thấy trạng thái sạch."""
+    return os.getenv("WEB_SEED_DEMO", "").lower() in ("1", "true", "yes", "on")
 
 # ── Seed (khớp web/data.js) ─────────────────────────────────────────
 SEED_TRACKED = [
@@ -99,6 +105,8 @@ async def init():
             CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY AUTOINCREMENT, uid TEXT, plan TEXT, quota INTEGER, used INTEGER);
             """
         )
+        if not seed_demo_enabled():
+            return   # user mới: bảng trống, không bơm dữ liệu demo giả
         _seed(c, "tracked", ["name", "ads", "status", "last"], SEED_TRACKED)
         _seed(c, "jobs", ["name", "when_text", "status"], SEED_JOBS)
         _seed(c, "optimizations", ["action", "text", "why"], SEED_OPT)
