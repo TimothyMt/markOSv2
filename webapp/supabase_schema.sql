@@ -43,6 +43,13 @@ create table if not exists web_users (
   id bigint generated always as identity primary key,
   uid text, plan text, quota int, used int);
 
+-- Transcript hội thoại Max trên web (bền qua restart). user_id = id user của bot.
+create table if not exists web_chat (
+  id bigint generated always as identity primary key,
+  user_id bigint, role text, content text,
+  created_at timestamptz default now());
+create index if not exists web_chat_user_idx on web_chat (user_id, id);
+
 -- Dùng service_role key (server-side) → bỏ qua RLS. Nếu bật RLS, thêm policy phù hợp.
 
 -- ── Realtime (Bước 2): đẩy thay đổi DB tức thì xuống web qua SSE ──

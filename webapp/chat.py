@@ -13,9 +13,10 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# Transcript hội thoại web (ephemeral, theo user). Intake dùng session.intake_history.
+# Transcript hội thoại web — cache in-memory, lưu bền ở Supabase (bảng web_chat).
 _chat_log: dict[int, list] = {}
 _LOG_CAP = 24
+_CHAT_TABLE = "web_chat"
 
 MAX_SYSTEM = """Bạn là Max — Giám đốc Marketing (CMO) ảo của Marketing OS, cố vấn cho doanh nghiệp Việt.
 
@@ -34,10 +35,69 @@ def _log(uid: int) -> list:
 
 
 def history(user_id) -> list:
+    """Lịch sử in-memory (fallback nhanh, đồng bộ)."""
     try:
         return _chat_log.get(int(user_id), [])
     except (TypeError, ValueError):
         return []
+
+
+# ── Persist hội thoại (Supabase, bền qua restart) ──────────────────
+async def _load_history(uid: int) -> list:
+    """Đọc transcript đã lưu từ web_chat. Lỗi/chưa có bảng → [] (degrade)."""
+    try:
+        from webapp import business as biz
+        c = await biz.ensure_client()
+        resp = (
+            await c.table(_CHAT_TABLE)
+            .select("role,content")
+            .eq("user_id", uid)
+            .order("id")
+            .limit(200)
+            .execute()
+        )
+        rows = resp.data or []
+        return [{"role": r["role"], "content": r["content"]} for r in rows][-_LOG_CAP:]
+    except Exception as e:
+        logger.warning("chat._load_history(%s) failed (bảng web_chat chưa có?): %s", uid, e)
+        return _chat_log.get(uid, [])
+
+
+async def _ensure_log(uid: int) -> list:
+    """Nạp transcript từ DB vào cache nếu cache rỗng (giữ ngữ cảnh qua restart)."""
+    if not _chat_log.get(uid):
+        _chat_log[uid] = await _load_history(uid)
+    return _chat_log[uid]
+
+
+async def _persist(uid: int, msgs: list) -> None:
+    """Ghi các tin nhắn mới vào web_chat (best-effort)."""
+    if not msgs:
+        return
+    try:
+        from webapp import business as biz
+        c = await biz.ensure_client()
+        await c.table(_CHAT_TABLE).insert(
+            [{"user_id": uid, "role": m["role"], "content": m["content"]} for m in msgs]
+        ).execute()
+    except Exception as e:
+        logger.warning("chat._persist(%s) failed (bảng web_chat chưa có?): %s", uid, e)
+
+
+async def load_history(user_id) -> list:
+    """Cho endpoint /api/chat/history — ưu tiên đọc bền từ Supabase."""
+    try:
+        from webapp import business as biz
+        if not biz.available():
+            return history(user_id)
+        await biz.ensure_client()
+        uid = await biz.pick_user_id(user_id)
+        if uid is None:
+            return []
+        return await _ensure_log(uid)
+    except Exception as e:
+        logger.warning("chat.load_history failed: %s", e)
+        return history(user_id)
 
 
 def _profile_complete(session) -> bool:
@@ -141,7 +201,7 @@ async def chat_turn(user_id, message: str) -> dict:
     from storage.session import get_session, save_session
     session = await get_session(uid)
     msg = (message or "").strip()
-    log = _log(uid)
+    log = await _ensure_log(uid)   # nạp transcript đã lưu (bền qua restart)
     if msg:
         log.append({"role": "user", "content": msg})
 
@@ -165,6 +225,9 @@ async def chat_turn(user_id, message: str) -> dict:
         reply = await _advisor_reply(session, uid)
 
     log.append({"role": "assistant", "content": reply})
+    # Lưu bền tin nhắn mới (user + Max) vào Supabase
+    to_persist = ([{"role": "user", "content": msg}] if msg else []) + [{"role": "assistant", "content": reply}]
+    await _persist(uid, to_persist)
     if len(log) > _LOG_CAP:
         del log[: len(log) - _LOG_CAP]
 

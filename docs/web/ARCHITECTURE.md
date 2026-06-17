@@ -60,5 +60,6 @@ tiến độ agent đẩy live mà không nện DB.
 ## Nợ kỹ thuật đã biết (cần trả)
 - Chưa có **auth** → chưa được public với dữ liệu thật đa user (D-002).
 - Nhiều trang vẫn render **biểu đồ/bảng mock** làm minh hoạ (chưa nối số thật).
-- Chat transcript của Max lưu **in-memory** (mất khi restart) — cần persist nếu cần lịch sử.
+- Chat transcript của Max **persist vào `web_chat`** (Supabase), bền qua restart;
+  cache in-memory để nhanh. Cần chạy DDL `web_chat` trong `supabase_schema.sql`.
 - Chưa có test tự động cho frontend; backend mới chỉ smoke test thủ công.

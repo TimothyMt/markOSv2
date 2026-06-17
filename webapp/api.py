@@ -114,9 +114,9 @@ async def chat(request):
 
 
 async def chat_history(request):
-    """Lịch sử hội thoại web hiện tại (ephemeral)."""
+    """Lịch sử hội thoại web (đọc bền từ Supabase, fallback in-memory)."""
     from webapp import chat as chat_mod
-    return JSONResponse({"history": chat_mod.history(request.query_params.get("user_id"))})
+    return JSONResponse({"history": await chat_mod.load_history(request.query_params.get("user_id"))})
 
 
 # ── Tracked competitors ─────────────────────────────────────────────
