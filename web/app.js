@@ -255,7 +255,7 @@
           : `<button class="ghost-line sm" data-act="run-agent" data-task="${task}">▶ Chạy</button>`;
         return `<div class="diag-row ${st}">
           <span class="diag-ic">${st === 'done' ? '✓' : ic}</span>
-          <div class="diag-main"><p>${name}</p><span class="muted">${desc}</span></div>
+          <div class="diag-main"><p><a class="diag-link" href="#${task}" title="Mở trang phân tích chi tiết">${name}</a></p><span class="muted">${desc}</span></div>
           <div class="diag-state muted">${run ? 'v' + run.version + rate : ''}</div>
           <div class="diag-act">${act}</div>
         </div>`;

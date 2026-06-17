@@ -4,21 +4,14 @@ window.MOCK = {
     { group: '', items: [
       { id: 'home',  label: 'Max — Cố vấn CMO', icon: '🤖' },
     ]},
-    { group: '① Khám phá', items: [
+    { group: '① Khám phá & Chẩn đoán', items: [
       { id: 'dossier', label: 'Hồ sơ doanh nghiệp', icon: '🗂️' },
     ]},
-    { group: '② Chẩn đoán', items: [
-      { id: 'market',     label: 'Nghiên cứu thị trường', icon: '🌐' },
-      { id: 'competitor', label: 'Phân tích đối thủ',     icon: '🥊' },
-      { id: 'customer',   label: 'Customer Insight',      icon: '👤' },
-      { id: 'pricing',    label: 'Định giá & Tâm lý',     icon: '💲' },
-      { id: 'swot',       label: 'SWOT',                  icon: '⚖️' },
-    ]},
-    { group: '③ Chiến lược', items: [
+    { group: '② Chiến lược', items: [
       { id: 'strategy',   label: 'Chiến lược tổng hợp',   icon: '🎯' },
       { id: 'brief',      label: 'Campaign Brief',        icon: '📋' },
     ]},
-    { group: '④ Sản xuất', items: [
+    { group: '③ Sản xuất', items: [
       { id: 'calendar', label: 'Lịch nội dung',      icon: '🗓️' },
       { id: 'content',  label: 'Trình tạo nội dung', icon: '✍️' },
       { id: 'video',    label: 'Kịch bản video',     icon: '🎬' },
@@ -28,7 +21,7 @@ window.MOCK = {
       { id: 'sequence', label: 'Email / Zalo chuỗi', icon: '✉️' },
       { id: 'voice',    label: 'Brand Voice',        icon: '🗣️' },
     ]},
-    { group: '⑤ Vận hành & Tối ưu', items: [
+    { group: '④ Vận hành & Tối ưu', items: [
       { id: 'overview',     label: 'Tổng quan số liệu', icon: '📊' },
       { id: 'adsanalytics', label: 'Ads Analytics',  icon: '📈' },
       { id: 'optimizer',    label: 'Tối ưu tự động',  icon: '⚡' },
@@ -36,7 +29,7 @@ window.MOCK = {
       { id: 'schedule',     label: 'Lịch trình & cảnh báo', icon: '⏰' },
       { id: 'accounts',     label: 'Kết nối tài khoản', icon: '🔗' },
     ]},
-    { group: '⑥ Học hỏi & Hệ thống', items: [
+    { group: '⑤ Học hỏi & Hệ thống', items: [
       { id: 'reports', label: 'Báo cáo',  icon: '📑' },
       { id: 'admin',   label: 'Quản trị', icon: '🛠️' },
       { id: 'settings',label: 'Cài đặt',  icon: '⚙️' },

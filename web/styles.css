@@ -746,3 +746,6 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 .diag-main span { font-size:11.5px; }
 .diag-state { flex:0 0 auto; font-size:12px; white-space:nowrap; }
 .diag-act { flex:0 0 auto; display:flex; align-items:center; gap:6px; }
+
+.diag-link { color:var(--txt); text-decoration:none; }
+.diag-link:hover { color:var(--primary); text-decoration:underline; }

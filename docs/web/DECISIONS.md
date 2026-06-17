@@ -32,3 +32,4 @@
 
 ## Đã chốt các câu hỏi mở (2026-06)
 Q-A→D-011 · Q-B→D-012 · Q-C→D-013 · Q-D→D-014.
+| D-025 | Bỏ nhóm sidebar **② Chẩn đoán** (5 mục trùng); diagnosis truy cập qua **Hồ sơ doanh nghiệp**. Giữ **function A**: tên phân tích trong khối Chẩn đoán link sang trang chi tiết (biểu đồ + output inline) | ✅ (2026-06) |
