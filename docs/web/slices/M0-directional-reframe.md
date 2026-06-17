@@ -42,6 +42,17 @@ Nhưng M0 hiện tại đang nói ngược với chính nó (3 chỗ lệch — 
   - **AC:** Hoàn tất static wizard → `POST /api/biz/profile` lưu đủ 7 trường
     discovery + business_name; mở lại Hồ sơ thấy đủ, không trường nào rỗng do
     wizard không hỏi.
+- **A1b — `monthly_revenue` = chọn khoảng, optional, có thể bỏ qua.** Đổi từ ô
+  nhập số tự do → chọn 1 trong các khoảng: "Mới mở, chưa có doanh thu" /
+  "Dưới 50 triệu" / "50–200 triệu" / "200 triệu–1 tỷ" / "Trên 1 tỷ" /
+  **"Không tiện chia sẻ"**. Đánh dấu `optional: true` như `monthly_marketing_budget`.
+  Khi user chọn "Không tiện chia sẻ" hoặc bỏ qua → lưu giá trị `"chưa rõ"` (khớp
+  cách AI-adaptive mode đã xử lý sẵn trong `discovery_prompts.py`). KHÔNG thêm câu
+  hỏi "giai đoạn DN" riêng — `stage` vẫn để AI tự suy từ doanh thu+ngành
+  (`frameworks/kpi_library.py` đã có band theo ngành, hỏi thêm là trùng việc).
+  - **AC:** Bước doanh thu hiện dạng chọn khoảng (không phải input số); có lựa
+    chọn bỏ qua rõ ràng; chọn/bỏ qua xong vẫn hoàn tất wizard được; giá trị lưu
+    là 1 trong các khoảng hoặc "chưa rõ", không bao giờ rỗng/undefined.
 - **A2 — Câu hỏi mục tiêu = ĐỊNH HƯỚNG, không ép số (web static wizard).** Đổi
   `primary_goal` từ "vd +50% đơn online" → hỏi ưu tiên định hướng (gợi ý: tăng
   nhận diện / ra đơn / giữ chân khách / ra mắt sản phẩm). KHÔNG bắt nhập con số.
