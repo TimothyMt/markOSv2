@@ -22,6 +22,9 @@
 | D-015 | Web chạy agent **non-interactive** = `run_targeted_pipeline` (đủ 8 bước, gồm synthesis). Multi-agent + 8 câu hỏi chỉ dùng trong chat bot | ✅ (2026-06) |
 | D-016 | M0: Starter **luôn chạy full** chất lượng cao; trang Chiến lược **tóm tắt gọn trước** + nút "Xem đầy đủ" | ✅ (2026-06) |
 | D-017 | Lịch nội dung theo mô hình bot: **🟢 Always-on (nền, quanh năm)** + **🔴 Campaign theo dịp (lớp phủ có window)**. Web phải phản ánh 2 track + lifecycle. Thuộc **M1** | ✅ (2026-06) |
+| D-018 | **Always-on chạy SONG SONG, KHÔNG tắt** trong tuần có campaign; campaign là lớp CỘNG THÊM (không thay thế). Sai marketing nếu always-on trống khi đang có đợt | ✅ (2026-06) |
+| D-019 | **Sinh nội dung inline trong lịch, theo tuần/slot** (nhẹ, đúng ngữ cảnh) thay vì batch cả tháng 1 lần. Trang "Trình tạo nội dung" tách riêng = chế độ batch nâng cao | ✅ (2026-06) |
+| D-020 | Lịch có **2 view**: Kế hoạch tháng (Gantt theo tuần) + Chi tiết tuần (ngày) | ✅ (2026-06) |
 
 ## Đã chốt các câu hỏi mở (2026-06)
 Q-A→D-011 · Q-B→D-012 · Q-C→D-013 · Q-D→D-014.

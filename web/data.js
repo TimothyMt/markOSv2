@@ -172,10 +172,31 @@ window.MOCK = {
       [{p:'Trust',t:'Câu chuyện thương hiệu'}],
     ],
   },
-  // Campaign theo dịp — lớp phủ có khung thời gian (window = từ..đến theo ngày 0-6)
-  calendarCampaigns: [
-    { name: 'Sale Hè', occasion: 'Mùa hè', offer: 'Mua 1 tặng 1', from: 2, to: 4, color: '#f59e0b' },
-  ],
+  // Kế hoạch nội dung — mô hình ĐÚNG marketing:
+  //  • alwaysOn = nền brand LẶP MỖI TUẦN, luôn chạy (không tắt khi có campaign)
+  //  • campaigns = lớp CỘNG THÊM theo dịp, có window theo TUẦN, posts đẩy lên trên
+  calendarPlan: {
+    days: ['T2','T3','T4','T5','T6','T7','CN'],
+    weeks: 4,
+    alwaysOn: [
+      { pillar:'Educate', title:'Mẹo pha cà phê tại nhà' },
+      { pillar:'Engage',  title:'Mini-game đoán vị' },
+      { pillar:'Trust',   title:'Review khách quen' },
+      { pillar:'Educate', title:'Hậu trường pha chế' },
+      { pillar:'Engage',  title:'UGC khách check-in' },
+      { pillar:'Trust',   title:'Câu chuyện thương hiệu' },
+      { pillar:'Educate', title:'Kiến thức hạt specialty' },
+    ],
+    campaigns: [
+      { name:'Sale Hè', occasion:'Mùa hè', offer:'Mua 1 tặng 1', color:'#f59e0b',
+        fromWeek:2, toWeek:3, posts:[
+          { week:2, day:2, title:'Khởi động Sale Hè — Mua 1 tặng 1' },
+          { week:2, day:5, title:'Flash sale cuối tuần' },
+          { week:3, day:1, title:'Nhắc: Sale Hè sắp kết thúc' },
+          { week:3, day:4, title:'Ngày cuối Mua 1 tặng 1' },
+        ]},
+    ],
+  },
 
   adsCopy: {
     TOFU: { title:'Nhận biết', items:['“Buổi sáng cần một lý do để dậy sớm…”','“Cà phê thật, giá thật.”'] },

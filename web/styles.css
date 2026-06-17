@@ -664,3 +664,21 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 @media (max-width: 920px) {
   .cal-grid, .cal-bands { grid-template-columns:repeat(7, minmax(120px,1fr)) !important; }
 }
+
+/* ── Lịch: view Kế hoạch tháng (Gantt theo tuần + tóm tắt) ── */
+.plan-weekhead { display:grid; gap:8px; margin-top:8px; }
+.plan-weekhead span { text-align:center; font-size:12px; font-weight:600; color:var(--txt-2);
+  background:var(--bg-2); border:1px solid var(--stroke); border-radius:8px; padding:6px; }
+.plan-list { display:flex; flex-direction:column; gap:10px; }
+.planweek { background:var(--panel); border:1px solid var(--stroke); border-radius:12px; padding:12px 14px; }
+.pw-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.pw-head b { font-size:14px; }
+.pw-tracks { display:flex; flex-direction:column; gap:8px; }
+.pw-track { display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:12.5px; color:var(--txt-2);
+  background:var(--bg-2); border:1px solid var(--stroke); border-radius:8px; padding:8px 10px; }
+.pw-track.on { border-left:3px solid var(--green); }
+.pw-track.camp { border-left:3px solid var(--c); }
+.pw-track.muted { color:var(--muted); font-style:italic; }
+.chip-btn.sm, .ghost-line.sm { font-size:11.5px; padding:4px 10px; }
+.chip-btn.sm { margin-left:auto; }
+.trk.sm { font-size:9px; }
