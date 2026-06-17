@@ -1,12 +1,12 @@
 # TODO — Output Reader & Editor
 
 ## T1 — Trang đọc `#doc/<id>` + test đầu tiên
-- [ ] Router parse `#doc/<id>` trong `web/app.js`
-- [ ] `P.doc` render full-width + header + nút quay lại
-- [ ] CSS trang doc (override max-height của `.ai-output`)
-- [ ] Đổi "Xem"/"Xem & tương tác"/"Xem output" → `#doc/<id>` (bỏ modal)
-- [ ] `tests/test_web_api.py` (routes + degrade + build) — test tự động đầu tiên
-- [ ] `node --check` + `pytest` + build standalone + commit
+- [x] Router parse `#doc/<id>` trong `web/app.js`
+- [x] `P.doc` render full-width + header + nút quay lại
+- [x] CSS trang doc (override max-height của `.ai-output`)
+- [x] Đổi "Xem"/"Xem & tương tác"/"Xem output" → `#doc/<id>` (bỏ modal)
+- [x] `tests/test_web_api.py` (routes + degrade + build) — test tự động đầu tiên
+- [x] `node --check` + `pytest` + build standalone + commit
 - [ ] ⛳ Checkpoint 1: duyệt
 
 ## T2 — Sửa tay → version mới

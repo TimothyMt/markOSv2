@@ -318,6 +318,46 @@
     mount: () => {},
   };
 
+  /* ---- Trang đọc output research (#doc/<id>) ---- */
+  let _docId = null, _docRun = null;
+  P.doc = {
+    title: 'Đọc & chỉnh sửa output',
+    sub: '',
+    actions: `<a class="ghost-line" href="#dossier">← Quay lại Hồ sơ</a>`,
+    render: () => `<div id="docView" class="doc-wrap"><p class="muted">Đang tải…</p></div>`,
+    mount: () => { loadDoc(); },
+  };
+  async function loadDoc() {
+    _docRun = null;
+    if (!apiAvailable || !_docId) { renderDoc(); return; }
+    try { _docRun = await API.get('api/biz/skillrun/' + _docId); }
+    catch (e) { _docRun = null; }
+    renderDoc();
+  }
+  function renderDoc() {
+    const el = document.getElementById('docView');
+    if (!el) return;
+    if (!_docRun || !_docRun.id) {
+      el.innerHTML = `<div class="card"><p class="muted">Không tải được nội dung. Cần backend + Supabase, hoặc output chưa tồn tại.</p></div>`;
+      return;
+    }
+    const r = _docRun;
+    const when = (r.created_at || '').replace('T', ' ').slice(0, 16);
+    el.innerHTML = `
+      <div class="doc-head">
+        <div>
+          <h2 class="doc-title">${r.skill_name || 'Output'} <span class="tag">v${r.version || 1}</span></h2>
+          <p class="muted">${when}${r.model_used ? ' · ' + r.model_used : ''}</p>
+        </div>
+        <div class="doc-actions">
+          <button class="rate-btn ${r.rating>=4?'on up':''}" data-act="rate-skillrun" data-rating="5" title="Tốt">👍</button>
+          <button class="rate-btn ${(r.rating&&r.rating<=2)?'on down':''}" data-act="rate-skillrun" data-rating="1" title="Chưa đạt">👎</button>
+          <button class="ghost-line sm" data-act="copy-skillrun">📋 Copy</button>
+        </div>
+      </div>
+      <article class="doc-body">${renderAIContent(r.content || '(trống)')}</article>`;
+  }
+
   /* ---- Market research ---- */
   P.market = {
     title: 'Nghiên cứu thị trường', sub: 'TAM / SAM / SOM + động lực thị trường',
@@ -1172,8 +1212,11 @@
         </ul></section>`;
   }
   function route() {
-    let id = (location.hash.replace('#','') || 'home');
+    const raw = (location.hash.replace('#','') || 'home');
+    const [seg0, seg1] = raw.split('/');
+    let id = seg0;
     if (id === 'pipeline' || id === 'agents') id = 'dossier';   // gộp → Hồ sơ doanh nghiệp
+    if (id === 'doc') _docId = seg1 || null;                    // trang đọc output: #doc/<id>
     const page = P[id] || P.home;
     const isHome = (P[id] ? id : 'home') === 'home';
     killCharts();
@@ -1408,29 +1451,25 @@
       return;
     }
     if (act === 'view-skillrun') {
-      try {
-        const r = await API.get('api/biz/skillrun/' + el.dataset.id);
-        showModal((r.skill_name || 'Output') + ' · v' + (r.version || 1), r.content || '(trống)',
-          { id: r.id, skill_name: r.skill_name, task: SKILL_TO_TASK[r.skill_name], rating: r.rating });
-      } catch (e) { toast('Không tải được nội dung'); }
+      location.hash = '#doc/' + el.dataset.id;   // mở trang đọc riêng (không modal)
       return;
     }
     if (act === 'rate-skillrun') {
-      if (!_modalRun) return;
+      if (!_docRun) return;
       const rating = +el.dataset.rating;
       try {
-        const r = await API.post('api/biz/skillrun/' + _modalRun.id + '/rate', { rating });
+        const r = await API.post('api/biz/skillrun/' + _docRun.id + '/rate', { rating });
         if (r.error) { toast(r.error); return; }
-        _modalRun.rating = rating;
-        showModal(_modalRun.title, _modalRun.content, _modalRun);   // re-render highlight
+        _docRun.rating = rating;
+        renderDoc();
         toast(rating >= 4 ? 'Cảm ơn! 👍 Max ghi nhận' : 'Đã ghi nhận 👎 — Max sẽ cải thiện');
         refreshBiz();
       } catch (e) { toast('Không lưu được đánh giá'); }
       return;
     }
     if (act === 'copy-skillrun') {
-      if (_modalRun && navigator.clipboard) {
-        navigator.clipboard.writeText(_modalRun.content || '').then(() => toast('Đã copy nội dung'));
+      if (_docRun && navigator.clipboard) {
+        navigator.clipboard.writeText(_docRun.content || '').then(() => toast('Đã copy nội dung'));
       }
       return;
     }
@@ -1438,8 +1477,8 @@
       try {
         const r = await API.post('api/biz/agent', { task: el.dataset.task, user_id: _bizUserId });
         if (r.error) { toast(r.error); return; }
-        document.getElementById('bizModal').classList.remove('show');
         toast('Đang tạo lại bản mới — xong sẽ có version mới'); refreshBiz();
+        location.hash = '#dossier';
       } catch (e) { toast('Không khởi chạy được'); }
       return;
     }
