@@ -1237,16 +1237,19 @@ window.MOCK = {
     return card('AI Agent (dữ liệu thật)', body, {cls:'span-12'});
   }
 
-  // Thanh AI + (nếu đã có output thật) render luôn nội dung AI sinh ra ngay trong trang
+  // Nhúng trình đọc/sửa text NGAY trong trang chi tiết → 1 trang có cả "bảng" lẫn text.
   function agentSection(task, skillKey) {
-    if (!M.bizEnabled) return '';
-    const bar = agentBar(task, skillKey);
-    const latest = (M.bizLatest || {})[skillKey];
-    if (!latest) return bar;
-    const out = card('Kết quả AI thật',
-      `<div class="ai-output" data-skill-run="${latest.id}">Đang tải nội dung AI…</div>`,
-      {cls:'span-12', action: `<span class="muted">v${latest.version} · ${(latest.created_at||'').slice(0,10)}</span>`});
-    return bar + out;
+    const hasRun = (M.bizSkillRuns || []).some(r => r.skill_name === skillKey);
+    if (!M.bizEnabled && !hasRun) return agentBar(task, skillKey);   // demo chưa có mẫu → chỉ thanh chạy
+    const running = (M.agentJobs || []).some(j => j.status === 'running' && (j.task === task || j.task === 'full'));
+    return card('Nội dung chi tiết (AI) — đọc & chỉnh sửa', `
+      <div class="agent-bar">
+        <div class="agent-bar-info">${running ? '<span class="tag amber">⏳ AI đang chạy…</span>'
+          : '<span class="muted">Bản text do AI tạo — sửa tay / nhờ Max chỉnh ngay bên dưới</span>'}</div>
+        <div class="agent-bar-act">${runBtn(task, running ? '↻ Đang chạy' : (hasRun ? '↻ Tạo lại bản mới' : '⚡ Chạy bằng AI'))}</div>
+      </div>
+      <div id="docView" class="doc-wrap doc-embed" data-doc-skill="${skillKey}" data-doc-task="${task}"><p class="muted">Đang tải…</p></div>
+    `, {cls:'span-12'});
   }
 
   // Đổ full content của skill_run vào các slot .ai-output (gọi sau mỗi route)
@@ -1264,14 +1267,15 @@ window.MOCK = {
       .replace(/\n{2,}/g,'</p><p>')
       .replace(/\n/g,'<br>') + '</p>';
   }
-  async function fillAgentOutputs() {
-    const slots = document.querySelectorAll('.ai-output[data-skill-run]');
-    for (const el of slots) {
-      try {
-        const r = await API.get('api/biz/skillrun/' + el.dataset.skillRun);
-        el.innerHTML = renderAIContent(r.content || '(trống)');
-      } catch (e) { el.textContent = 'Không tải được nội dung AI.'; }
-    }
+  // Đổ trình đọc/sửa vào ô nhúng #docView.doc-embed trên trang chi tiết (gọi sau route)
+  async function fillDocEmbeds() {
+    const host = document.getElementById('docView');
+    if (!host || !host.classList.contains('doc-embed')) return;
+    const skill = host.dataset.docSkill;
+    const run = (M.bizSkillRuns || []).find(r => r.skill_name === skill);
+    if (!run) { host.innerHTML = '<p class="muted">Chưa có nội dung — bấm “Chạy bằng AI” phía trên để tạo.</p>'; return; }
+    _docEdit = false; _docId = run.id;
+    await loadDoc();   // render vào chính #docView này
   }
 
   P.dossier = {
@@ -1331,7 +1335,7 @@ window.MOCK = {
         const st = run ? 'done' : running ? 'running' : 'pending';
         const rate = (run && run.rating) ? (run.rating >= 4 ? ' 👍' : run.rating <= 2 ? ' 👎' : ' ★' + run.rating) : '';
         const act = running ? badge('Đang chạy', 'amber')
-          : run ? `<button class="primary-btn sm" data-act="view-skillrun" data-id="${run.id}">Xem & sửa</button>
+          : run ? `<a class="primary-btn sm" href="#${task}">Xem & sửa</a>
                    <button class="icon-btn" data-act="run-agent" data-task="${task}" title="Chạy lại bản mới">↻</button>`
           : `<button class="ghost-line sm" data-act="run-agent" data-task="${task}">▶ Chạy</button>`;
         return `<div class="diag-row ${st}">
@@ -1431,7 +1435,7 @@ window.MOCK = {
         <h4>Lịch sử version (${_docVersions.length})</h4>
         <ul class="ver-list">${_docVersions.map(v => `
           <li class="${v.id===r.id?'cur':''}">
-            <a href="#doc/${v.id}">v${v.version}</a>
+            <a href="#" data-act="doc-open" data-id="${v.id}">v${v.version}</a>
             <span class="muted">${(v.created_at||'').slice(0,10)} · ${v.rating?'★'+v.rating:'—'}</span>
             ${v.id!==r.id ? `<button class="ghost-line sm" data-act="doc-set-current" data-content-id="${v.id}">Đặt hiện hành</button>` : '<span class="tag green">hiện hành</span>'}
           </li>`).join('')}</ul>
@@ -2325,7 +2329,7 @@ window.MOCK = {
     document.getElementById('view').innerHTML =
       (isHome ? '' : pageHead(page.title, page.sub, actions)) + page.render();
     if (page.mount) page.mount();
-    if (apiAvailable && M.bizEnabled) fillAgentOutputs();   // đổ output AI thật vào trang
+    fillDocEmbeds();   // nhúng trình đọc/sửa text vào trang chi tiết (demo + thật)
     document.querySelector('.main').scrollTo(0,0);
     document.body.classList.remove('nav-open');
   }
@@ -2539,6 +2543,7 @@ window.MOCK = {
     }
     // ── Điều hướng / đọc (chạy được cả trên demo tĩnh, không cần backend) ──
     if (act === 'view-skillrun') { location.hash = '#doc/' + el.dataset.id; return; }
+    if (act === 'doc-open') { _docId = el.dataset.id; _docEdit = false; loadDoc(); return; }
     if (act === 'doc-edit') { _docEdit = true; renderDoc(); return; }
     if (act === 'doc-edit-cancel') { _docEdit = false; renderDoc(); return; }
     if (act === 'copy-skillrun') {
@@ -2578,7 +2583,7 @@ window.MOCK = {
           { user_id: _bizUserId, skill_name: _docRun.skill_name, content: box.value });
         if (r.error) { toast(r.error); return; }
         _docEdit = false; toast('Đã lưu version mới'); refreshBiz();
-        location.hash = '#doc/' + r.id;          // mở version mới
+        if (r.id) { _docId = r.id; loadDoc(); }   // tải lại tại chỗ (version mới)
       } catch (e) { toast('Lưu thất bại'); }
       return;
     }
@@ -2591,7 +2596,7 @@ window.MOCK = {
           { user_id: _bizUserId, skill_name: old.skill_name, content: old.content });
         if (r.error) { toast(r.error); return; }
         toast('Đã đặt làm hiện hành (version mới)'); refreshBiz();
-        location.hash = '#doc/' + r.id;
+        if (r.id) { _docId = r.id; loadDoc(); }
       } catch (e) { toast('Thất bại'); }
       return;
     }
@@ -2607,7 +2612,7 @@ window.MOCK = {
         if (r.status === 'ask') { _docAsk = r.question || 'Hãy mô tả rõ hơn đoạn cần sửa.'; renderDoc(); return; }
         if (r.status === 'noop') { _docAsk = 'Không tìm thấy đoạn khớp — thử nêu rõ tên phần/đoạn cần sửa.'; renderDoc(); return; }
         _docAsk = ''; toast('Đã sửa: ' + (r.summary || 'xong')); refreshBiz();
-        if (r.run && r.run.id) location.hash = '#doc/' + r.run.id;   // version mới
+        if (r.run && r.run.id) { _docId = r.run.id; loadDoc(); }   // tải lại tại chỗ (version mới)
       } catch (e) { _docPatching = false; renderDoc(); toast('Không sửa được'); }
       return;
     }
