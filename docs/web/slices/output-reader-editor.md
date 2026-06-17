@@ -16,7 +16,11 @@ Người dùng: chủ DN / marketer đang xem kết quả Max tạo, muốn tinh
 ### F1 — Trang đọc riêng `#doc/<run_id>`
 - Layout 1 cột rộng, dễ đọc (không phải modal). Header: tên skill · version · thời điểm · rating (👍/👎).
 - Render markdown/HTML (tái dùng `renderAIContent`).
-- **AC:** Bấm "Xem & tương tác" (Hồ sơ DN) hoặc "Xem" (stepper) → mở **trang** `#doc/<id>`, KHÔNG popup. Bản 2000+ chữ đọc mượt, cuộn trang bình thường.
+- **Độ dài: KHÔNG giới hạn cứng.** Trang đọc cuộn được bản dài bất kỳ; **không** kế thừa
+  `max-height` của `.ai-output` modal (phải override). Cận trên thực tế = độ dài AI sinh
+  ra (~4k–10k token theo skill), không phải reader.
+- **AC:** Bấm "Xem & tương tác" (Hồ sơ DN) hoặc "Xem" (stepper) → mở **trang** `#doc/<id>`,
+  KHÔNG popup. Bản dài (vài nghìn chữ) đọc mượt, cuộn trang bình thường, không bị cắt/đóng khung.
 
 ### F2 — Sửa tay (inline edit)
 - Nút "✎ Sửa" → nội dung thành `<textarea>` chứa nội dung gốc (markdown/text). "Lưu" / "Huỷ".
@@ -27,6 +31,9 @@ Người dùng: chủ DN / marketer đang xem kết quả Max tạo, muốn tinh
 - Ô "Yêu cầu chỉnh sửa" (vd: "viết lại phần định giá ngắn hơn, bỏ phần social listening").
 - Gọi backend → `agents/surgical_edit.patch_document(content, comment)` → trả `(content mới, tóm tắt)`.
 - Lưu thành version mới + hiện dòng **tóm tắt thay đổi**.
+- **Độ dài:** `patch_document` sửa **theo từng đoạn** nên không gửi cả bài cho mỗi lần sửa;
+  bản research bình thường (vài nghìn chữ) ổn. Bản cực dài (>~8k token) → token cao hơn,
+  chấp nhận được vì hiếm; không chặn ở v1.
 - **AC:** Nhập yêu cầu → có bản mới + tóm tắt "đã đổi …"; token tính vào quota user; KHÔNG regenerate cả bài.
 
 ### F4 — Lịch sử version
