@@ -759,6 +759,18 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 .diag-link { color:var(--txt); text-decoration:none; }
 .diag-link:hover { color:var(--primary); text-decoration:underline; }
 
+/* ── Onboarding wizard (intake từng câu) ── */
+.intake { padding:6px 2px; }
+.intake-prog { height:5px; background:var(--panel-2); border-radius:999px; overflow:hidden; margin-bottom:10px; }
+.intake-bar { height:100%; background:linear-gradient(90deg,var(--primary),var(--primary-2)); transition:width .25s; }
+.intake-count { font-size:12px; color:var(--muted); margin:0 0 6px; }
+.intake-q { font-size:18px; margin:0 0 14px; line-height:1.35; color:var(--txt); }
+.intake-input { width:100%; background:var(--panel-2); border:1px solid var(--stroke-2); border-radius:12px;
+  padding:12px 14px; color:var(--txt); font-size:15px; font-family:inherit; }
+.intake-input:focus { outline:none; border-color:var(--primary); }
+.intake-nav { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:16px; }
+.intake-note { font-size:12px; margin-top:12px; }
+
 </style>
 </head>
 <body>
@@ -1228,6 +1240,40 @@ window.MOCK = {
 
   // Form nhập hồ sơ doanh nghiệp — điểm khởi đầu cho user mới (thay ô chat)
   let _editProfile = false;
+  // Onboarding wizard — hỏi từng câu một (kiểu Typeform), thân thiện với user mới
+  let _intakeStep = 0, _intakeData = {};
+  const INTAKE_STEPS = [
+    { key: 'business_name', q: 'Doanh nghiệp của bạn tên là gì?', ph: 'vd: Cà phê An' },
+    { key: 'industry', q: 'Bạn kinh doanh trong ngành nào?', ph: 'vd: F&B — Quán cà phê' },
+    { key: 'product_service', q: 'Sản phẩm / dịch vụ chính là gì?', ph: 'vd: Cà phê specialty' },
+    { key: 'target_customer', q: 'Khách hàng mục tiêu của bạn là ai?', ph: 'vd: Dân văn phòng 25–34, Q.1' },
+    { key: 'location', q: 'Bạn kinh doanh ở khu vực nào?', ph: 'vd: TP.HCM, Quận 1', optional: true },
+    { key: 'monthly_marketing_budget', q: 'Ngân sách marketing mỗi tháng khoảng bao nhiêu?', ph: 'vd: 15 triệu', optional: true },
+    { key: 'primary_goal', q: 'Mục tiêu marketing 90 ngày tới của bạn?', ph: 'vd: +50% đơn online' },
+    { key: 'main_challenge', q: 'Thách thức lớn nhất hiện tại là gì?', ph: 'vd: cạnh tranh chuỗi lớn', optional: true },
+  ];
+  function intakeWizard() {
+    const n = INTAKE_STEPS.length;
+    const i = Math.min(_intakeStep, n - 1);
+    const st = INTAKE_STEPS[i];
+    const val = (_intakeData[st.key] || '').replace(/"/g, '&quot;');
+    const preview = (!apiAvailable || !M.bizEnabled);
+    return `
+      <div class="intake">
+        <div class="intake-prog"><div class="intake-bar" style="width:${Math.round(i / n * 100)}%"></div></div>
+        <p class="intake-count">Câu ${i + 1}/${n}${st.optional ? ' · không bắt buộc' : ''}</p>
+        <h3 class="intake-q">${st.q}</h3>
+        <input id="intakeBox" class="intake-input" value="${val}" placeholder="${st.ph}" autocomplete="off">
+        <div class="intake-nav">
+          ${i > 0 ? '<button class="ghost-line" data-act="intake-back">← Quay lại</button>' : '<span></span>'}
+          <div style="display:flex;gap:8px">
+            ${st.optional ? '<button class="ghost-line" data-act="intake-skip">Bỏ qua</button>' : ''}
+            <button class="primary-btn" data-act="intake-next">${i === n - 1 ? '✓ Hoàn tất' : 'Tiếp →'}</button>
+          </div>
+        </div>
+        ${preview ? '<p class="muted intake-note">⚠️ Xem trước — cần kết nối Supabase để lưu khi hoàn tất.</p>' : ''}
+      </div>`;
+  }
   const PROFILE_FIELDS = [
     ['business_name', 'Tên doanh nghiệp', 'vd: Cà phê An'],
     ['industry', 'Ngành', 'vd: F&B — Quán cà phê'],
@@ -1277,7 +1323,8 @@ window.MOCK = {
       // Form-first: chưa có hồ sơ → hiện form điền (kể cả chưa nối backend). Có rồi → xem + Sửa.
       const showForm = _editProfile || !hasProfile;
 
-      const profileBody = showForm ? profileForm(p)
+      const profileBody = !hasProfile ? intakeWizard()
+        : _editProfile ? profileForm(p)
         : `
           ${profRow('Doanh nghiệp', p.business_name)}
           ${profRow('Ngành', p.industry)}
@@ -1355,8 +1402,30 @@ window.MOCK = {
           `<p class="muted">Chưa theo dõi đối thủ nào.</p>`, {cls:'span-4'})}
       </section>`;
     },
-    mount: () => {},
+    mount: () => {
+      const box = document.getElementById('intakeBox');
+      if (box) { box.focus(); box.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); handleIntake('next'); } }; }
+    },
   };
+
+  // điều khiển wizard intake (giữ giá trị ô đang gõ trước khi chuyển bước)
+  async function handleIntake(action) {
+    const box = document.getElementById('intakeBox');
+    const st = INTAKE_STEPS[Math.min(_intakeStep, INTAKE_STEPS.length - 1)];
+    if (box) _intakeData[st.key] = box.value.trim();
+    if (action === 'back') { _intakeStep = Math.max(0, _intakeStep - 1); route(); return; }
+    if (action === 'skip') { _intakeStep++; route(); return; }
+    if (!st.optional && !(_intakeData[st.key])) { toast('Vui lòng nhập, hoặc chọn câu không bắt buộc'); return; }
+    if (_intakeStep < INTAKE_STEPS.length - 1) { _intakeStep++; route(); return; }
+    if (!apiAvailable) { toast('Đây là bản xem trước — cần backend + Supabase để lưu'); return; }
+    try {
+      const r = await API.post('api/biz/profile', { fields: _intakeData, user_id: _bizUserId });
+      if (r.error) { toast(r.error); return; }
+      _intakeStep = 0; _intakeData = {};
+      toast('Đã tạo hồ sơ — giờ chạy chẩn đoán được rồi');
+      await refreshBiz(); renderRail(); renderTopbar(); route();
+    } catch (e) { toast('Lưu hồ sơ thất bại'); }
+  }
 
   /* ---- Trang đọc & chỉnh sửa output research (#doc/<id>) ---- */
   let _docId = null, _docRun = null, _docVersions = [], _docEdit = false, _docPatching = false, _docAsk = '';
@@ -2515,6 +2584,9 @@ window.MOCK = {
       return;
     }
     // ── Điều hướng / đọc (chạy được cả trên demo tĩnh, không cần backend) ──
+    if (act === 'intake-next') { handleIntake('next'); return; }
+    if (act === 'intake-back') { handleIntake('back'); return; }
+    if (act === 'intake-skip') { handleIntake('skip'); return; }
     if (act === 'edit-profile') { _editProfile = true; route(); return; }
     if (act === 'cancel-profile') { _editProfile = false; route(); return; }
     if (act === 'view-skillrun') { location.hash = '#doc/' + el.dataset.id; return; }

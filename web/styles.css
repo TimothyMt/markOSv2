@@ -749,3 +749,15 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 
 .diag-link { color:var(--txt); text-decoration:none; }
 .diag-link:hover { color:var(--primary); text-decoration:underline; }
+
+/* ── Onboarding wizard (intake từng câu) ── */
+.intake { padding:6px 2px; }
+.intake-prog { height:5px; background:var(--panel-2); border-radius:999px; overflow:hidden; margin-bottom:10px; }
+.intake-bar { height:100%; background:linear-gradient(90deg,var(--primary),var(--primary-2)); transition:width .25s; }
+.intake-count { font-size:12px; color:var(--muted); margin:0 0 6px; }
+.intake-q { font-size:18px; margin:0 0 14px; line-height:1.35; color:var(--txt); }
+.intake-input { width:100%; background:var(--panel-2); border:1px solid var(--stroke-2); border-radius:12px;
+  padding:12px 14px; color:var(--txt); font-size:15px; font-family:inherit; }
+.intake-input:focus { outline:none; border-color:var(--primary); }
+.intake-nav { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:16px; }
+.intake-note { font-size:12px; margin-top:12px; }
