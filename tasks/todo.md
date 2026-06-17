@@ -10,17 +10,17 @@
 - [ ] ⛳ Checkpoint 1: duyệt
 
 ## T2 — Sửa tay → version mới
-- [ ] `business.save_skill_edit` + `POST /api/biz/skillrun/save`
-- [ ] UI "✎ Sửa" → textarea → Lưu (version mới)
-- [ ] test route + degrade; commit
+- [x] `business.save_skill_edit` + `POST /api/biz/skillrun/save`
+- [x] UI "✎ Sửa" → textarea → Lưu (version mới)
+- [x] test route + degrade; commit
 
 ## T3 — Lịch sử version
-- [ ] `business.list_skill_versions` + `GET /api/biz/skillruns`
-- [ ] UI panel version + xem bản cũ + "Đặt làm hiện hành"
+- [x] `business.list_skill_versions` + `GET /api/biz/skillruns`
+- [x] UI panel version + xem bản cũ + "Đặt làm hiện hành"
 - [ ] test route + degrade; commit
 
 ## T4 — Nhờ Max chỉnh đoạn
-- [ ] `business.patch_skill_run` (PATCH_OK/ASK/NOOP) + `POST /api/biz/skillrun/{id}/patch`
-- [ ] UI ô yêu cầu + loading + 3 trạng thái
+- [x] `business.patch_skill_run` (PATCH_OK/ASK/NOOP) + `POST /api/biz/skillrun/{id}/patch`
+- [x] UI ô yêu cầu + loading + 3 trạng thái
 - [ ] test route + degrade; commit
 - [ ] ⛳ Checkpoint 2: nghiệm thu golden path

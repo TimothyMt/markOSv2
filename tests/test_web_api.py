@@ -32,11 +32,24 @@ def test_core_routes_present():
     assert not missing, f"Thiếu route: {missing}"
 
 
+def test_editor_routes_present():
+    # T2-T4: save (sửa tay), skillruns (lịch sử), patch (nhờ Max chỉnh)
+    p = _paths()
+    need = ["/api/biz/skillrun/save", "/api/biz/skillruns", "/api/biz/skillrun/{id:str}/patch"]
+    missing = [x for x in need if x not in p]
+    assert not missing, f"Thiếu route editor: {missing}"
+
+
 def test_business_degrades_without_supabase():
-    # skill_run_content → {} ; rate_skill_run → {"error"} ; KHÔNG raise
+    # Mọi hàm business → {}/{"error"}/[] ; KHÔNG raise khi không có Supabase
     assert asyncio.run(biz.skill_run_content("nope")) == {}
     r = asyncio.run(biz.rate_skill_run("nope", 5))
     assert isinstance(r, dict) and ("error" in r or r.get("ok") is False)
+    s = asyncio.run(biz.save_skill_edit(1, "competitor", "noi dung"))
+    assert isinstance(s, dict) and "error" in s
+    assert asyncio.run(biz.list_skill_versions(1, "competitor")) == []
+    pt = asyncio.run(biz.patch_skill_run("nope", "viết ngắn hơn"))
+    assert isinstance(pt, dict) and ("error" in pt or pt.get("status"))
 
 
 def test_standalone_build_has_doc_reader():

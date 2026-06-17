@@ -318,20 +318,26 @@
     mount: () => {},
   };
 
-  /* ---- Trang đọc output research (#doc/<id>) ---- */
-  let _docId = null, _docRun = null;
+  /* ---- Trang đọc & chỉnh sửa output research (#doc/<id>) ---- */
+  let _docId = null, _docRun = null, _docVersions = [], _docEdit = false, _docPatching = false;
   P.doc = {
     title: 'Đọc & chỉnh sửa output',
     sub: '',
     actions: `<a class="ghost-line" href="#dossier">← Quay lại Hồ sơ</a>`,
     render: () => `<div id="docView" class="doc-wrap"><p class="muted">Đang tải…</p></div>`,
-    mount: () => { loadDoc(); },
+    mount: () => { _docEdit = false; loadDoc(); },
   };
   async function loadDoc() {
-    _docRun = null;
+    _docRun = null; _docVersions = [];
     if (!apiAvailable || !_docId) { renderDoc(); return; }
-    try { _docRun = await API.get('api/biz/skillrun/' + _docId); }
-    catch (e) { _docRun = null; }
+    try { _docRun = await API.get('api/biz/skillrun/' + _docId); } catch (e) { _docRun = null; }
+    if (_docRun && _docRun.skill_name) {
+      try {
+        const v = await API.get('api/biz/skillruns?skill=' + encodeURIComponent(_docRun.skill_name) +
+          (_bizUserId != null ? '&user_id=' + _bizUserId : ''));
+        _docVersions = v.versions || [];
+      } catch (e) { _docVersions = []; }
+    }
     renderDoc();
   }
   function renderDoc() {
@@ -343,6 +349,25 @@
     }
     const r = _docRun;
     const when = (r.created_at || '').replace('T', ' ').slice(0, 16);
+    const bodyOrEditor = _docEdit
+      ? `<div class="doc-editor">
+           <textarea id="docEditBox" class="doc-edit-area">${(r.content || '').replace(/</g,'&lt;')}</textarea>
+           <div class="doc-edit-act">
+             <button class="ghost-line sm" data-act="doc-edit-cancel">Huỷ</button>
+             <button class="primary-btn sm" data-act="doc-edit-save">💾 Lưu thành version mới</button>
+           </div>
+         </div>`
+      : `<article class="doc-body">${renderAIContent(r.content || '(trống)')}</article>`;
+    const versions = _docVersions.length > 1 ? `
+      <aside class="doc-versions">
+        <h4>Lịch sử version (${_docVersions.length})</h4>
+        <ul class="ver-list">${_docVersions.map(v => `
+          <li class="${v.id===r.id?'cur':''}">
+            <a href="#doc/${v.id}">v${v.version}</a>
+            <span class="muted">${(v.created_at||'').slice(0,10)} · ${v.rating?'★'+v.rating:'—'}</span>
+            ${v.id!==r.id ? `<button class="ghost-line sm" data-act="doc-set-current" data-content-id="${v.id}">Đặt hiện hành</button>` : '<span class="tag green">hiện hành</span>'}
+          </li>`).join('')}</ul>
+      </aside>` : '';
     el.innerHTML = `
       <div class="doc-head">
         <div>
@@ -353,9 +378,14 @@
           <button class="rate-btn ${r.rating>=4?'on up':''}" data-act="rate-skillrun" data-rating="5" title="Tốt">👍</button>
           <button class="rate-btn ${(r.rating&&r.rating<=2)?'on down':''}" data-act="rate-skillrun" data-rating="1" title="Chưa đạt">👎</button>
           <button class="ghost-line sm" data-act="copy-skillrun">📋 Copy</button>
+          ${_docEdit ? '' : '<button class="ghost-line sm" data-act="doc-edit">✎ Sửa tay</button>'}
         </div>
       </div>
-      <article class="doc-body">${renderAIContent(r.content || '(trống)')}</article>`;
+      ${_docEdit ? '' : `<div class="doc-patch">
+        <input id="docPatchBox" type="text" placeholder="Nhờ Max chỉnh: vd 'viết lại phần định giá ngắn hơn'…">
+        <button class="primary-btn sm" data-act="doc-patch" ${_docPatching?'disabled':''}>${_docPatching?'Đang sửa…':'🤖 Nhờ Max chỉnh'}</button>
+      </div>`}
+      <div class="doc-grid">${bodyOrEditor}${versions}</div>`;
   }
 
   /* ---- Market research ---- */
@@ -1471,6 +1501,49 @@
       if (_docRun && navigator.clipboard) {
         navigator.clipboard.writeText(_docRun.content || '').then(() => toast('Đã copy nội dung'));
       }
+      return;
+    }
+    if (act === 'doc-edit') { _docEdit = true; renderDoc(); return; }
+    if (act === 'doc-edit-cancel') { _docEdit = false; renderDoc(); return; }
+    if (act === 'doc-edit-save') {
+      const box = document.getElementById('docEditBox');
+      if (!box || !_docRun) return;
+      try {
+        const r = await API.post('api/biz/skillrun/save',
+          { user_id: _bizUserId, skill_name: _docRun.skill_name, content: box.value });
+        if (r.error) { toast(r.error); return; }
+        _docEdit = false; toast('Đã lưu version mới'); refreshBiz();
+        location.hash = '#doc/' + r.id;          // mở version mới
+      } catch (e) { toast('Lưu thất bại'); }
+      return;
+    }
+    if (act === 'doc-set-current') {
+      // copy nội dung bản cũ → tạo version mới trên đầu
+      try {
+        const old = await API.get('api/biz/skillrun/' + el.dataset.contentId);
+        if (!old.id) { toast('Không tải được bản cũ'); return; }
+        const r = await API.post('api/biz/skillrun/save',
+          { user_id: _bizUserId, skill_name: old.skill_name, content: old.content });
+        if (r.error) { toast(r.error); return; }
+        toast('Đã đặt làm hiện hành (version mới)'); refreshBiz();
+        location.hash = '#doc/' + r.id;
+      } catch (e) { toast('Thất bại'); }
+      return;
+    }
+    if (act === 'doc-patch') {
+      const box = document.getElementById('docPatchBox');
+      const comment = box ? box.value.trim() : '';
+      if (!comment || !_docRun || _docPatching) return;
+      _docPatching = true; renderDoc();
+      try {
+        const r = await API.post('api/biz/skillrun/' + _docRun.id + '/patch', { comment });
+        _docPatching = false;
+        if (r.error) { toast(r.error); renderDoc(); return; }
+        if (r.status === 'ask') { _docRun._ask = r.question; renderDoc(); toast('Max cần làm rõ thêm'); alert('Max hỏi lại: ' + r.question); return; }
+        if (r.status === 'noop') { renderDoc(); toast('Không tìm thấy đoạn khớp — thử mô tả rõ hơn'); return; }
+        toast('Đã sửa: ' + (r.summary || 'xong')); refreshBiz();
+        if (r.run && r.run.id) location.hash = '#doc/' + r.run.id;   // version mới
+      } catch (e) { _docPatching = false; renderDoc(); toast('Không sửa được'); }
       return;
     }
     if (act === 'regen-skillrun') {

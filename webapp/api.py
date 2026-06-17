@@ -84,6 +84,26 @@ async def biz_skillrun_rate(request):
     return JSONResponse(res, status_code=400 if "error" in res else 200)
 
 
+async def biz_skillrun_save(request):
+    """Lưu chỉnh sửa output thành version mới (sửa tay / đặt làm hiện hành)."""
+    data = await request.json()
+    res = await biz.save_skill_edit(data.get("user_id"), data.get("skill_name", ""), data.get("content", ""))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_skill_versions(request):
+    """Danh sách version của 1 skill cho user."""
+    return JSONResponse({"versions": await biz.list_skill_versions(
+        request.query_params.get("user_id"), request.query_params.get("skill", ""))})
+
+
+async def biz_skillrun_patch(request):
+    """Nhờ Max chỉnh 1 đoạn → version mới (surgical_edit)."""
+    data = await request.json()
+    res = await biz.patch_skill_run(request.path_params["id"], data.get("comment", ""))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
 async def biz_agent_run(request):
     """Khởi chạy pipeline/skill THẬT cho user. Trả jobId; theo dõi qua SSE agentJobs."""
     data = await request.json()
@@ -242,6 +262,9 @@ def api_routes() -> list:
         Route("/api/biz",                          biz_data,           methods=["GET"]),
         Route("/api/biz/skillrun/{id:str}",        biz_skillrun,       methods=["GET"]),
         Route("/api/biz/skillrun/{id:str}/rate",   biz_skillrun_rate,  methods=["POST"]),
+        Route("/api/biz/skillrun/save",            biz_skillrun_save,  methods=["POST"]),
+        Route("/api/biz/skillruns",                biz_skill_versions, methods=["GET"]),
+        Route("/api/biz/skillrun/{id:str}/patch",  biz_skillrun_patch, methods=["POST"]),
         Route("/api/biz/agent",                    biz_agent_run,      methods=["POST"]),
         Route("/api/biz/ads",                      biz_ads,            methods=["GET"]),
         Route("/api/biz/fb/connect-url",           biz_fb_connect_url, methods=["GET"]),

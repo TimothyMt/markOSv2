@@ -211,6 +211,72 @@ async def rate_skill_run(run_id: str, rating: int, feedback: str = None) -> dict
         return {"error": str(e)}
 
 
+async def save_skill_edit(user_id, skill_name: str, content: str) -> dict:
+    """Lưu chỉnh sửa thành VERSION MỚI (không ghi đè bản cũ). Dùng cho sửa tay +
+    'đặt làm hiện hành'. Tái dùng insert_skill_run (tự tăng version)."""
+    if not (skill_name and content):
+        return {"error": "Thiếu skill_name hoặc content."}
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {"error": "Chưa có user."}
+        from storage.v2 import skill_runs
+        row = await skill_runs.insert_skill_run(uid, skill_name, content, model_used="web-edit")
+        return row or {"error": "Lưu thất bại."}
+    except Exception as e:
+        logger.warning("biz.save_skill_edit failed: %s", e)
+        return {"error": str(e)}
+
+
+async def list_skill_versions(user_id, skill_name: str) -> list:
+    """Danh sách các version của 1 skill (mới→cũ) cho user."""
+    if not skill_name:
+        return []
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return []
+        from storage.v2 import skill_runs
+        runs = await skill_runs.list_skill_runs(uid, skill_name=skill_name, limit=50)
+        return [{
+            "id": r.get("id"), "version": r.get("version"), "rating": r.get("rating"),
+            "model_used": r.get("model_used"), "created_at": r.get("created_at"),
+            "length": len(r.get("content") or ""),
+        } for r in runs]
+    except Exception as e:
+        logger.warning("biz.list_skill_versions failed: %s", e)
+        return []
+
+
+async def patch_skill_run(run_id: str, comment: str) -> dict:
+    """Nhờ Max chỉnh 1 đoạn (surgical_edit.patch_document) → lưu version mới.
+
+    Trả: {status:'ok', summary, run} | {status:'ask', question} | {status:'noop'} | {error}
+    """
+    if not comment:
+        return {"error": "Thiếu yêu cầu chỉnh sửa."}
+    try:
+        await ensure_client()
+        run = await skill_run_content(run_id)
+        if not run:
+            return {"error": "Không tìm thấy output."}
+        from agents.surgical_edit import patch_document, summarize_changes, PATCH_OK, PATCH_ASK
+        status, payload, meta = await patch_document(run.get("content") or "", comment)
+        if status == PATCH_ASK:
+            return {"status": "ask", "question": payload}
+        if status != PATCH_OK:
+            return {"status": "noop"}
+        from storage.v2 import skill_runs
+        row = await skill_runs.insert_skill_run(
+            run["user_id"], run["skill_name"], payload, model_used="web-patch")
+        return {"status": "ok", "summary": summarize_changes(meta), "run": row}
+    except Exception as e:
+        logger.warning("biz.patch_skill_run(%s) failed: %s", run_id, e)
+        return {"error": str(e)}
+
+
 # ── Ads data (đọc ads_snapshots + user_fb_connections) ──────────
 async def ads_data(user_id=None, days: int = 7) -> dict:
     """Dữ liệu Ads thật: snapshots gần nhất + thông tin kết nối FB account.
