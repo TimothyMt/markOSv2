@@ -84,6 +84,13 @@ async def biz_save_profile(request):
     return JSONResponse(res, status_code=400 if "error" in res else 200)
 
 
+async def biz_intake(request):
+    """Một lượt phỏng vấn AI-adaptive của Max (onboarding)."""
+    data = await request.json()
+    res = await biz.intake_turn(data.get("user_id"), data.get("message", ""))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
 async def biz_skillrun_rate(request):
     """Chấm điểm 1 output research (👍/👎 → 5/1)."""
     data = await request.json()
@@ -269,6 +276,7 @@ def api_routes() -> list:
         Route("/api/biz",                          biz_data,           methods=["GET"]),
         Route("/api/biz/skillrun/{id:str}",        biz_skillrun,       methods=["GET"]),
         Route("/api/biz/profile",                  biz_save_profile,   methods=["POST"]),
+        Route("/api/biz/intake",                   biz_intake,         methods=["POST"]),
         Route("/api/biz/skillrun/{id:str}/rate",   biz_skillrun_rate,  methods=["POST"]),
         Route("/api/biz/skillrun/save",            biz_skillrun_save,  methods=["POST"]),
         Route("/api/biz/skillruns",                biz_skill_versions, methods=["GET"]),

@@ -211,7 +211,54 @@
     { key: 'primary_goal', q: 'Mục tiêu marketing 90 ngày tới của bạn?', ph: 'vd: +50% đơn online' },
     { key: 'main_challenge', q: 'Thách thức lớn nhất hiện tại là gì?', ph: 'vd: cạnh tranh chuỗi lớn', optional: true },
   ];
+  // AI-adaptive intake (Max phỏng vấn thông minh) — dùng khi có backend thật
+  let _aiQ = '', _aiBusy = false, _aiStarted = false, _aiFailed = false;
+  function aiIntakeView() {
+    return `
+      <div class="intake">
+        <div class="intake-max"><span class="cav">🤖</span><b>Max phỏng vấn nhanh</b></div>
+        <h3 class="intake-q">${_aiQ || 'Đang kết nối Max…'}</h3>
+        ${_aiBusy ? '<div class="cbub typing" style="margin:6px 0"><i></i><i></i><i></i></div>'
+          : `<input id="intakeBox" class="intake-input" placeholder="Trả lời Max…" autocomplete="off">
+             <div class="intake-nav"><span></span>
+               <button class="primary-btn" data-act="ai-intake-send" ${_aiQ ? '' : 'disabled'}>Trả lời →</button></div>`}
+        <p class="muted intake-note">Max hỏi vài câu rồi tự lập hồ sơ — trả lời tự nhiên.</p>
+      </div>`;
+  }
+  async function aiIntakeStart() {
+    _aiStarted = true; _aiBusy = true;
+    try {
+      const r = await API.post('api/biz/intake', { message: '', user_id: _bizUserId });
+      _aiBusy = false;
+      if (r.error) { _aiFailed = true; route(); return; }
+      _aiQ = r.question || ''; route();
+    } catch (e) { _aiBusy = false; _aiFailed = true; route(); }
+  }
+  async function aiIntakeSend() {
+    const box = document.getElementById('intakeBox');
+    const msg = box ? box.value.trim() : '';
+    if (!msg || _aiBusy) return;
+    _aiBusy = true; route();
+    try {
+      const r = await API.post('api/biz/intake', { message: msg, user_id: _bizUserId });
+      _aiBusy = false;
+      if (r.error) { toast(r.error); route(); return; }
+      if (r.mode === 'complete') {
+        _aiQ = ''; _aiStarted = false;
+        toast('Max đã đủ thông tin — hồ sơ tạo xong, chạy chẩn đoán được rồi');
+        await refreshBiz(); renderRail(); renderTopbar(); route();
+        return;
+      }
+      _aiQ = r.question || ''; route();
+    } catch (e) { _aiBusy = false; toast('Lỗi kết nối Max'); route(); }
+  }
+
   function intakeWizard() {
+    // Có backend thật → Max phỏng vấn AI; chưa có → wizard tĩnh (xem trước)
+    if (apiAvailable && M.bizEnabled && !_aiFailed) return aiIntakeView();
+    return staticWizard();
+  }
+  function staticWizard() {
     const n = INTAKE_STEPS.length;
     const i = Math.min(_intakeStep, n - 1);
     const st = INTAKE_STEPS[i];
@@ -362,8 +409,15 @@
       </section>`;
     },
     mount: () => {
+      const aiMode = apiAvailable && M.bizEnabled && !_aiFailed && !(M.bizProfile && Object.keys(M.bizProfile).length);
+      if (aiMode && !_aiStarted) { aiIntakeStart(); return; }
       const box = document.getElementById('intakeBox');
-      if (box) { box.focus(); box.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); handleIntake('next'); } }; }
+      if (box) {
+        box.focus();
+        box.onkeydown = (e) => {
+          if (e.key === 'Enter') { e.preventDefault(); aiMode ? aiIntakeSend() : handleIntake('next'); }
+        };
+      }
     },
   };
 
@@ -1543,6 +1597,7 @@
       return;
     }
     // ── Điều hướng / đọc (chạy được cả trên demo tĩnh, không cần backend) ──
+    if (act === 'ai-intake-send') { aiIntakeSend(); return; }
     if (act === 'intake-next') { handleIntake('next'); return; }
     if (act === 'intake-back') { handleIntake('back'); return; }
     if (act === 'intake-skip') { handleIntake('skip'); return; }

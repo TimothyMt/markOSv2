@@ -224,6 +224,53 @@ async def save_profile(user_id=None, fields: dict = None) -> dict:
         return {"error": str(e)}
 
 
+async def intake_turn(user_id=None, message: str = "") -> dict:
+    """Một lượt phỏng vấn AI-adaptive (Max hỏi thông minh) → dựng hồ sơ.
+
+    Tái dùng agents.discovery.run_discovery_turn. Trả:
+      {mode:'question', question}  — câu hỏi tiếp theo
+      {mode:'complete'}            — đã đủ, đã lưu profile (v1 session + v2 profiles)
+    """
+    if not available():
+        return {"error": "Chưa cấu hình Supabase — Max chưa phỏng vấn được."}
+    try:
+        await ensure_client()
+    except Exception as e:
+        return {"error": f"Không kết nối được Supabase: {e}"}
+    uid = await pick_user_id(user_id)
+    if uid is None:
+        try:
+            uid = int(os.getenv("WEB_DEFAULT_USER_ID") or 1)
+        except ValueError:
+            uid = 1
+    from storage.session import get_session, save_session
+    from agents.discovery import run_discovery_turn, apply_discovery_to_profile
+    session = await get_session(uid)
+    try:
+        mode, payload = await run_discovery_turn(session, message or "")
+    except Exception as e:
+        logger.exception("intake_turn discovery failed")
+        return {"error": f"Max chưa kết nối được mô hình AI: {e}"}
+
+    if mode == "complete":
+        apply_discovery_to_profile(session, payload or {})
+        await save_session(session)
+        try:
+            from dataclasses import asdict
+            from storage.v2 import users as users_mod, profiles
+            clean = {k: v for k, v in asdict(session.profile).items() if v}
+            await users_mod.upsert_user(user_id=uid, name=clean.get("business_name") or None)
+            await profiles.upsert_profile(uid, **clean)
+        except Exception as e:
+            logger.warning("intake_turn profile upsert failed: %s", e)
+        return {"mode": "complete", "userId": uid}
+
+    await save_session(session)
+    return {"mode": "question",
+            "question": payload or "Kể cho Max nghe về doanh nghiệp của bạn nhé — bán gì, cho ai?",
+            "userId": uid}
+
+
 async def rate_skill_run(run_id: str, rating: int, feedback: str = None) -> dict:
     """Chấm điểm 1 output research (1–5) — feed vòng học của bot (skill_runs.rating)."""
     try:

@@ -35,3 +35,4 @@ Q-A→D-011 · Q-B→D-012 · Q-C→D-013 · Q-D→D-014.
 | D-025 | Bỏ nhóm sidebar **② Chẩn đoán** (5 mục trùng); diagnosis truy cập qua **Hồ sơ doanh nghiệp**. Giữ **function A**: tên phân tích trong khối Chẩn đoán link sang trang chi tiết (biểu đồ + output inline) | ✅ (2026-06) |
 | D-026 | **Đảo D-007: bỏ Max chat làm trung tâm.** Entry point = **Hồ sơ doanh nghiệp (form-first)** — user mới điền form hồ sơ rồi chạy chẩn đoán. Lý do: chat trống gây bí cho user mới. Backend chat.py giữ ngủ (gỡ sau) | ✅ (2026-06) |
 | D-027 | **Tắt seed demo mặc định** (`WEB_SEED_DEMO`, mặc định off) → user mới thấy trạng thái SẠCH (0 cảnh báo/chiến dịch/jobs giả). Bật khi cần demo showcase | ✅ (2026-06) |
+| D-028 | **Intake AI-adaptive**: Max phỏng vấn từng câu thông minh qua `run_discovery_turn` (giữ UI từng-câu). Wizard tĩnh 8 bước = fallback khi chưa có backend | ✅ (2026-06) |
