@@ -1,9 +1,6 @@
 /* Marketing OS — mock data + navigation config (data thật nối sau) */
 window.MOCK = {
   nav: [
-    { group: '', items: [
-      { id: 'home',  label: 'Max — Cố vấn CMO', icon: '🤖' },
-    ]},
     { group: '① Khám phá & Chẩn đoán', items: [
       { id: 'dossier', label: 'Hồ sơ doanh nghiệp', icon: '🗂️' },
     ]},

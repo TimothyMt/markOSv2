@@ -197,6 +197,31 @@
     await loadDoc();   // render vào chính #docView này
   }
 
+  // Form nhập hồ sơ doanh nghiệp — điểm khởi đầu cho user mới (thay ô chat)
+  let _editProfile = false;
+  const PROFILE_FIELDS = [
+    ['business_name', 'Tên doanh nghiệp', 'vd: Cà phê An'],
+    ['industry', 'Ngành', 'vd: F&B — Quán cà phê'],
+    ['product_service', 'Sản phẩm / Dịch vụ', 'vd: Cà phê specialty'],
+    ['target_customer', 'Khách hàng mục tiêu', 'vd: Dân văn phòng 25–34, Q.1'],
+    ['location', 'Khu vực', 'vd: TP.HCM, Quận 1'],
+    ['monthly_revenue', 'Doanh thu/tháng', 'vd: 120 triệu'],
+    ['monthly_marketing_budget', 'Ngân sách marketing/tháng', 'vd: 15 triệu'],
+    ['primary_goal', 'Mục tiêu chính', 'vd: +50% đơn online trong 90 ngày'],
+    ['main_challenge', 'Thách thức lớn nhất', 'vd: cạnh tranh chuỗi lớn'],
+    ['competitors', 'Đối thủ chính', 'vd: Highlands, Phúc Long'],
+  ];
+  function profileForm(p) {
+    return `
+      <p class="muted" style="margin-bottom:12px">Điền hồ sơ để Max chẩn đoán & lập chiến lược cho đúng doanh nghiệp của bạn.</p>
+      <div class="form">${PROFILE_FIELDS.map(([k, l, ph]) =>
+        `<label class="fld"><span>${l}</span><input id="pf_${k}" value="${(p[k] || '').replace(/"/g, '&quot;')}" placeholder="${ph}"></label>`).join('')}</div>
+      <div style="display:flex;gap:8px;margin-top:14px">
+        <button class="primary-btn" data-act="save-profile">💾 Lưu hồ sơ</button>
+        ${(_editProfile && Object.keys(p).length) ? '<button class="ghost-line" data-act="cancel-profile">Huỷ</button>' : ''}
+      </div>`;
+  }
+
   P.dossier = {
     title: 'Hồ sơ doanh nghiệp',
     sub: 'Tủ hồ sơ — mọi thứ Max tạo ra được lưu ở đây: hồ sơ, chẩn đoán, kết quả phân tích, lịch sử chạy',
@@ -217,8 +242,11 @@
       const bv = M.bizBrandVoice;
       const u = M.bizUser || {};
       const hasProfile = Object.keys(p).length > 0;
+      // Form-first: user mới (đã nối Supabase, chưa có hồ sơ) → điền form ngay; hoặc bấm Sửa.
+      const showForm = _editProfile || (M.bizEnabled && !hasProfile);
 
-      const profileBody = hasProfile ? `
+      const profileBody = showForm ? profileForm(p)
+        : hasProfile ? `
           ${profRow('Doanh nghiệp', p.business_name)}
           ${profRow('Ngành', p.industry)}
           ${profRow('Giai đoạn', p.stage)}
@@ -229,14 +257,13 @@
           ${profRow('Mục tiêu chính', p.primary_goal)}
           ${profRow('Thách thức', p.main_challenge)}
           ${profRow('USP', p.usp)}
-          ${profRow('Khu vực', p.location)}`
-        : (M.bizEnabled
-          ? `<p class="muted">User chưa có hồ sơ. <a class="link" href="#home">Trò chuyện với Max</a> để Max thu thập.</p>`
-          : `<div class="kv"><span>Ngành</span><b>F&B — Quán cà phê</b></div>
+          ${profRow('Khu vực', p.location)}
+          <button class="ghost-line full" data-act="edit-profile" style="margin-top:12px">✎ Sửa hồ sơ</button>`
+        : `<div class="kv"><span>Ngành</span><b>F&B — Quán cà phê</b></div>
              <div class="kv"><span>Sản phẩm</span><b>Cà phê specialty</b></div>
              <div class="kv"><span>Khu vực</span><b>TP.HCM, Q.1</b></div>
              <div class="kv"><span>Mục tiêu</span><b>+50% trong 90 ngày</b></div>
-             <p class="muted" style="margin-top:10px">Dữ liệu mẫu — hồ sơ thật do Max thu thập khi trò chuyện.</p>`);
+             <p class="muted" style="margin-top:10px">Dữ liệu mẫu — chạy server có Supabase để nhập hồ sơ thật.</p>`;
 
       // 1 khối thống nhất: mỗi phân tích = 1 dòng, trạng thái + đúng 1 hành động.
       const ANALYSES = [
@@ -1234,19 +1261,19 @@
         </ul></section>`;
   }
   function route() {
-    const raw = (location.hash.replace('#','') || 'home');
+    const raw = (location.hash.replace('#','') || 'dossier');
     const [seg0, seg1] = raw.split('/');
     let id = seg0;
-    if (id === 'pipeline' || id === 'agents') id = 'dossier';   // gộp → Hồ sơ doanh nghiệp
+    // pivot: bỏ Max chat → mọi thứ bắt đầu từ Hồ sơ doanh nghiệp
+    if (id === 'pipeline' || id === 'agents' || id === 'home' || id === 'chat') id = 'dossier';
     if (id === 'doc') _docId = seg1 || null;                    // trang đọc output: #doc/<id>
-    const page = P[id] || P.home;
-    const isHome = (P[id] ? id : 'home') === 'home';
+    const page = P[id] || P.dossier;
     killCharts();
     renderSidebar(id);
-    document.body.classList.toggle('chat-mode', isHome);   // ẩn rail, bố cục hội thoại
+    document.body.classList.remove('chat-mode');
     const actions = page.actions || '';
     document.getElementById('view').innerHTML =
-      (isHome ? '' : pageHead(page.title, page.sub, actions)) + page.render();
+      pageHead(page.title, page.sub, actions) + page.render();
     if (page.mount) page.mount();
     fillDocEmbeds();   // nhúng trình đọc/sửa text vào trang chi tiết (demo + thật)
     document.querySelector('.main').scrollTo(0,0);
@@ -1461,6 +1488,8 @@
       return;
     }
     // ── Điều hướng / đọc (chạy được cả trên demo tĩnh, không cần backend) ──
+    if (act === 'edit-profile') { _editProfile = true; route(); return; }
+    if (act === 'cancel-profile') { _editProfile = false; route(); return; }
     if (act === 'view-skillrun') { location.hash = '#doc/' + el.dataset.id; return; }
     if (act === 'doc-open') { _docId = el.dataset.id; _docEdit = false; loadDoc(); return; }
     if (act === 'doc-edit') { _docEdit = true; renderDoc(); return; }
@@ -1470,6 +1499,19 @@
       return;
     }
     if (!apiAvailable) { toast('Tính năng này cần backend — chạy: python run_web.py'); if (el.type === 'checkbox') el.checked = !el.checked; return; }
+
+    if (act === 'save-profile') {
+      const fields = {};
+      PROFILE_FIELDS.forEach(([k]) => { const el = document.getElementById('pf_' + k); if (el) fields[k] = el.value.trim(); });
+      if (!fields.product_service && !fields.industry) { toast('Nhập tối thiểu Ngành hoặc Sản phẩm'); return; }
+      try {
+        const r = await API.post('api/biz/profile', { fields, user_id: _bizUserId });
+        if (r.error) { toast(r.error); return; }
+        _editProfile = false; toast('Đã lưu hồ sơ — giờ chạy chẩn đoán được rồi');
+        await refreshBiz(); renderRail(); renderTopbar(); route();
+      } catch (e) { toast('Lưu hồ sơ thất bại'); }
+      return;
+    }
 
     // ── AI agent + dữ liệu thật (không theo luồng state web_*) ──
     if (act === 'run-agent') {

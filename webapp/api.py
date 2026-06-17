@@ -77,6 +77,13 @@ async def biz_skillrun(request):
     return JSONResponse(await biz.skill_run_content(request.path_params["id"]))
 
 
+async def biz_save_profile(request):
+    """Lưu hồ sơ doanh nghiệp (điểm khởi đầu form-first)."""
+    data = await request.json()
+    res = await biz.save_profile(data.get("user_id"), data.get("fields") or {})
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
 async def biz_skillrun_rate(request):
     """Chấm điểm 1 output research (👍/👎 → 5/1)."""
     data = await request.json()
@@ -261,6 +268,7 @@ def api_routes() -> list:
         Route("/api/notify/test",                  notify_test,        methods=["POST"]),
         Route("/api/biz",                          biz_data,           methods=["GET"]),
         Route("/api/biz/skillrun/{id:str}",        biz_skillrun,       methods=["GET"]),
+        Route("/api/biz/profile",                  biz_save_profile,   methods=["POST"]),
         Route("/api/biz/skillrun/{id:str}/rate",   biz_skillrun_rate,  methods=["POST"]),
         Route("/api/biz/skillrun/save",            biz_skillrun_save,  methods=["POST"]),
         Route("/api/biz/skillruns",                biz_skill_versions, methods=["GET"]),

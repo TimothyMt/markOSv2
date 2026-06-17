@@ -199,6 +199,31 @@ async def skill_run_content(run_id: str) -> dict:
     return {}
 
 
+async def save_profile(user_id=None, fields: dict = None) -> dict:
+    """Lưu hồ sơ doanh nghiệp (form-first entry). Tạo user nếu chưa có rồi upsert profile.
+
+    No-auth (v1 demo): nếu chưa chọn được user → dùng WEB_DEFAULT_USER_ID, mặc định 1.
+    """
+    if not available():
+        return {"error": "Chưa cấu hình Supabase — không lưu được hồ sơ."}
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            try:
+                uid = int(os.getenv("WEB_DEFAULT_USER_ID") or 1)
+            except ValueError:
+                uid = 1
+        clean = {k: v for k, v in (fields or {}).items() if v}
+        from storage.v2 import users as users_mod, profiles
+        await users_mod.upsert_user(user_id=uid, name=clean.get("business_name") or None)
+        row = await profiles.upsert_profile(uid, **clean)
+        return {"ok": True, "userId": uid, "profile": row}
+    except Exception as e:
+        logger.warning("biz.save_profile failed: %s", e)
+        return {"error": str(e)}
+
+
 async def rate_skill_run(run_id: str, rating: int, feedback: str = None) -> dict:
     """Chấm điểm 1 output research (1–5) — feed vòng học của bot (skill_runs.rating)."""
     try:
