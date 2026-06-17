@@ -7,7 +7,7 @@
 - [x] Đổi "Xem"/"Xem & tương tác"/"Xem output" → `#doc/<id>` (bỏ modal)
 - [x] `tests/test_web_api.py` (routes + degrade + build) — test tự động đầu tiên
 - [x] `node --check` + `pytest` + build standalone + commit
-- [ ] ⛳ Checkpoint 1: duyệt
+- [x] ⛳ Checkpoint 1: duyệt
 
 ## T2 — Sửa tay → version mới
 - [x] `business.save_skill_edit` + `POST /api/biz/skillrun/save`
@@ -23,4 +23,4 @@
 - [x] `business.patch_skill_run` (PATCH_OK/ASK/NOOP) + `POST /api/biz/skillrun/{id}/patch`
 - [x] UI ô yêu cầu + loading + 3 trạng thái
 - [ ] test route + degrade; commit
-- [ ] ⛳ Checkpoint 2: nghiệm thu golden path
+- [x] ⛳ Checkpoint 2: review nhẹ xong (nghiệm thu E2E cần Railway)

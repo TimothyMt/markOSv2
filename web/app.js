@@ -319,7 +319,7 @@
   };
 
   /* ---- Trang đọc & chỉnh sửa output research (#doc/<id>) ---- */
-  let _docId = null, _docRun = null, _docVersions = [], _docEdit = false, _docPatching = false;
+  let _docId = null, _docRun = null, _docVersions = [], _docEdit = false, _docPatching = false, _docAsk = '';
   P.doc = {
     title: 'Đọc & chỉnh sửa output',
     sub: '',
@@ -328,7 +328,7 @@
     mount: () => { _docEdit = false; loadDoc(); },
   };
   async function loadDoc() {
-    _docRun = null; _docVersions = [];
+    _docRun = null; _docVersions = []; _docAsk = '';
     if (!apiAvailable || !_docId) { renderDoc(); return; }
     try { _docRun = await API.get('api/biz/skillrun/' + _docId); } catch (e) { _docRun = null; }
     if (_docRun && _docRun.skill_name) {
@@ -384,7 +384,8 @@
       ${_docEdit ? '' : `<div class="doc-patch">
         <input id="docPatchBox" type="text" placeholder="Nhờ Max chỉnh: vd 'viết lại phần định giá ngắn hơn'…">
         <button class="primary-btn sm" data-act="doc-patch" ${_docPatching?'disabled':''}>${_docPatching?'Đang sửa…':'🤖 Nhờ Max chỉnh'}</button>
-      </div>`}
+      </div>
+      ${_docAsk ? `<p class="doc-ask">🤖 Max cần rõ thêm: ${_docAsk}</p>` : ''}`}
       <div class="doc-grid">${bodyOrEditor}${versions}</div>`;
   }
 
@@ -1539,9 +1540,9 @@
         const r = await API.post('api/biz/skillrun/' + _docRun.id + '/patch', { comment });
         _docPatching = false;
         if (r.error) { toast(r.error); renderDoc(); return; }
-        if (r.status === 'ask') { _docRun._ask = r.question; renderDoc(); toast('Max cần làm rõ thêm'); alert('Max hỏi lại: ' + r.question); return; }
-        if (r.status === 'noop') { renderDoc(); toast('Không tìm thấy đoạn khớp — thử mô tả rõ hơn'); return; }
-        toast('Đã sửa: ' + (r.summary || 'xong')); refreshBiz();
+        if (r.status === 'ask') { _docAsk = r.question || 'Hãy mô tả rõ hơn đoạn cần sửa.'; renderDoc(); return; }
+        if (r.status === 'noop') { _docAsk = 'Không tìm thấy đoạn khớp — thử nêu rõ tên phần/đoạn cần sửa.'; renderDoc(); return; }
+        _docAsk = ''; toast('Đã sửa: ' + (r.summary || 'xong')); refreshBiz();
         if (r.run && r.run.id) location.hash = '#doc/' + r.run.id;   // version mới
       } catch (e) { _docPatching = false; renderDoc(); toast('Không sửa được'); }
       return;
