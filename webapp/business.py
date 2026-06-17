@@ -199,6 +199,18 @@ async def skill_run_content(run_id: str) -> dict:
     return {}
 
 
+async def rate_skill_run(run_id: str, rating: int, feedback: str = None) -> dict:
+    """Chấm điểm 1 output research (1–5) — feed vòng học của bot (skill_runs.rating)."""
+    try:
+        await ensure_client()
+        from storage.v2 import skill_runs
+        ok = await skill_runs.update_rating(run_id, int(rating), feedback)
+        return {"ok": bool(ok)}
+    except Exception as e:
+        logger.warning("biz.rate_skill_run(%s) failed: %s", run_id, e)
+        return {"error": str(e)}
+
+
 # ── Ads data (đọc ads_snapshots + user_fb_connections) ──────────
 async def ads_data(user_id=None, days: int = 7) -> dict:
     """Dữ liệu Ads thật: snapshots gần nhất + thông tin kết nối FB account.

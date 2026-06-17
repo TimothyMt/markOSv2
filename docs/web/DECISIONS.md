@@ -28,6 +28,7 @@
 | D-021 | **Chat ≠ nơi lưu trữ.** Max chat = buồng lái (tạm thời); output Max tạo (skill_runs/strategies) lưu bền ở Supabase, xem lại ở trang chặng + **Hồ sơ doanh nghiệp** | ✅ (2026-06) |
 | D-022 | Gộp 2 trang trùng (pipeline + agents) → **1 trang `dossier` "Hồ sơ doanh nghiệp"** (tủ hồ sơ bền vững). `#pipeline`/`#agents` redirect về `#dossier` | ✅ (2026-06) |
 | D-023 | **Transcript chat persist vào Supabase** (`web_chat`), bền qua restart; cache in-memory + degrade an toàn nếu chưa tạo bảng | ✅ (2026-06) |
+| D-024 | **Output research bền ở `skill_runs`** (versioned), hiển thị 3 nơi; **tương tác được**: 👍/👎 (feed rating/học), Copy, Tạo lại (bản mới). Chat = nhẹ, giữ thoải mái | ✅ (2026-06) |
 
 ## Đã chốt các câu hỏi mở (2026-06)
 Q-A→D-011 · Q-B→D-012 · Q-C→D-013 · Q-D→D-014.
