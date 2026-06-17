@@ -206,7 +206,6 @@
     },
     render: () => {
       const p = M.bizProfile || {};
-      const latest = M.bizLatest || {};
       const jobs = M.agentJobs || [];
       const runs = M.bizSkillRuns || [];
       const camps = M.bizCampaigns || [];
@@ -214,17 +213,6 @@
       const bv = M.bizBrandVoice;
       const u = M.bizUser || {};
       const hasProfile = Object.keys(p).length > 0;
-
-      // Tiến trình chẩn đoán (trạng thái thật từ skill_runs, hoặc mock khi chưa nối)
-      const steps = M.bizEnabled ? [
-        ['market_research','Nghiên cứu thị trường','TAM/SAM/SOM + động lực'],
-        ['competitor','Phân tích đối thủ','8 đối thủ × 8 chiều'],
-        ['customer_insight','Customer Insight','ICP + JTBD + tâm lý'],
-        ['psychology_pricing','Định giá & Tâm lý','Mô hình giá + tâm lý'],
-        ['swot','SWOT','Ma trận chiến lược'],
-        ['synthesis','Chiến lược tổng hợp','SAVE + SMART + roadmap'],
-      ].map(([k,name,desc]) => ({ k, name, desc, status: latest[k] ? 'done' : 'pending' }))
-        : (M.pipeline || []).map(s => ({ ...s, k: null }));
 
       const profileBody = hasProfile ? `
           ${profRow('Doanh nghiệp', p.business_name)}
@@ -246,33 +234,47 @@
              <div class="kv"><span>Mục tiêu</span><b>+50% trong 90 ngày</b></div>
              <p class="muted" style="margin-top:10px">Dữ liệu mẫu — hồ sơ thật do Max thu thập khi trò chuyện.</p>`);
 
+      // 1 khối thống nhất: mỗi phân tích = 1 dòng, trạng thái + đúng 1 hành động.
+      const ANALYSES = [
+        ['market_research','market','🌐','Nghiên cứu thị trường','TAM/SAM/SOM + động lực'],
+        ['competitor','competitor','🥊','Phân tích đối thủ','8 đối thủ × 8 chiều'],
+        ['customer_insight','customer','👤','Customer Insight','ICP + JTBD + tâm lý'],
+        ['psychology_pricing','pricing','💲','Định giá & Tâm lý','Mô hình giá + tâm lý'],
+        ['swot','swot','⚖️','SWOT','Ma trận chiến lược'],
+        ['synthesis','strategy','🎯','Chiến lược tổng hợp','SAVE + SMART + roadmap 90 ngày'],
+      ];
+      const isRunning = (t) => jobs.some(j => j.status === 'running' && (j.task === t || j.task === 'full'));
+      const diagBody = `<div class="diag-list">${ANALYSES.map(([k, task, ic, name, desc]) => {
+        const run = runs.find(r => r.skill_name === k);
+        const running = isRunning(task);
+        const st = run ? 'done' : running ? 'running' : 'pending';
+        const rate = (run && run.rating) ? (run.rating >= 4 ? ' 👍' : run.rating <= 2 ? ' 👎' : ' ★' + run.rating) : '';
+        const act = running ? badge('Đang chạy', 'amber')
+          : run ? `<button class="primary-btn sm" data-act="view-skillrun" data-id="${run.id}">Xem & sửa</button>
+                   <button class="icon-btn" data-act="run-agent" data-task="${task}" title="Chạy lại bản mới">↻</button>`
+          : `<button class="ghost-line sm" data-act="run-agent" data-task="${task}">▶ Chạy</button>`;
+        return `<div class="diag-row ${st}">
+          <span class="diag-ic">${st === 'done' ? '✓' : ic}</span>
+          <div class="diag-main"><p>${name}</p><span class="muted">${desc}</span></div>
+          <div class="diag-state muted">${run ? 'v' + run.version + rate : ''}</div>
+          <div class="diag-act">${act}</div>
+        </div>`;
+      }).join('')}</div>`;
+
       return `
       <section class="grid">
-        ${card('Hồ sơ doanh nghiệp', profileBody, {cls:'span-5', action: u.user_id ? badge('user ' + u.user_id) : ''})}
+        ${card('Hồ sơ doanh nghiệp', profileBody, {cls:'span-5', action: u.user_id ? badge('user ' + u.user_id) : (M.bizEnabled?'':badge('mẫu','amber'))})}
 
-        ${card('Tiến trình chẩn đoán', `
-          <div class="stepper">
-            ${steps.map((s,i)=>`
-              <div class="step ${s.status}">
-                <div class="step-dot">${s.status==='done'?'✓':i+1}</div>
-                <div class="step-body"><p>${s.name}</p><span class="muted">${s.desc}</span></div>
-                ${s.k && latest[s.k]
-                  ? `<button class="ghost-line sm" data-act="view-skillrun" data-id="${latest[s.k].id}">Xem</button>`
-                  : stepBadge(s.status)}
-              </div>`).join('')}
-          </div>`, {cls:'span-7'})}
+        ${card('Chẩn đoán & kết quả', diagBody, {cls:'span-7',
+          action: `<span class="muted">Chạy từng mục, hoặc “Toàn diện” ở góc trên</span>`})}
 
-        ${card('Chạy AI Agent', `
-          <p class="muted" style="margin-bottom:10px">Mỗi nút gọi pipeline/skill THẬT, lưu kết quả vào hồ sơ. Tiến độ realtime bên dưới.</p>
-          <div class="agent-run">
-            ${runBtn('full','▶ Toàn diện')}
-            ${runBtn('market','🌐 Thị trường')}
-            ${runBtn('competitor','🥊 Đối thủ')}
-            ${runBtn('customer','👤 Khách hàng')}
-            ${runBtn('pricing','💲 Định giá')}
-            ${runBtn('swot','⚖️ SWOT')}
-            ${runBtn('strategy','🎯 Chiến lược')}
-          </div>`, {cls:'span-7'})}
+        ${jobs.length ? card('Tiến trình Agent (realtime)', `
+          <ul class="rows">${jobs.map(j=>`
+            <li class="row">
+              <div class="row-main"><p>${j.label} <span class="muted">· user ${j.userId}</span></p>
+                <span class="muted">${j.status==='running'? (j.progress||'…') : (j.error || j.summary || '')}</span></div>
+              ${jobStatusTag(j.status)}
+            </li>`).join('')}</ul>`, {cls:'span-12'}) : ''}
 
         ${card('Tài khoản & quota', `
           ${profRow('User', u.name || u.user_id)}
@@ -281,38 +283,18 @@
           ${profRow('Quota token', u.token_quota!=null ? fmtNum(u.token_quota) : null)}
           ${bv ? `<div class="kv"><span>Brand Voice</span><b>${badge('v'+bv.version,'green')}</b></div>`
                : `<div class="kv"><span>Brand Voice</span><b>${badge('Chưa setup','amber')}</b></div>`}
-        `, {cls:'span-5'})}
-
-        ${jobs.length ? card('Tiến trình Agent', `
-          <ul class="rows">${jobs.map(j=>`
-            <li class="row">
-              <div class="row-main"><p>${j.label} <span class="muted">· user ${j.userId}</span></p>
-                <span class="muted">${j.status==='running'? (j.progress||'…') : (j.error || j.summary || '')}</span></div>
-              ${jobStatusTag(j.status)}
-            </li>`).join('')}</ul>`, {cls:'span-12'}) : ''}
-
-        ${card(`Kết quả AI đã tạo (${runs.length})${M.bizEnabled?'':' · mẫu'}`, runs.length ? table(
-          ['Skill','Phiên bản','Độ dài','Đánh giá','Thời điểm',''],
-          runs.map(r=>[
-            r.skill_name, 'v'+(r.version||1), fmtNum(r.length)+' ký tự',
-            r.rating ? (r.rating>=4?'👍':r.rating<=2?'👎':'★'+r.rating) : '—',
-            (r.created_at||'').replace('T',' ').slice(0,16),
-            `<button class="ghost-line sm" data-act="view-skillrun" data-id="${r.id}">Xem & tương tác</button>`])) :
-          `<p class="muted">Chưa có output nào. Chạy agent để sinh kết quả — kết quả lưu vĩnh viễn tại đây.</p>`,
-          {cls:'span-12'})}
+        `, {cls:'span-4'})}
 
         ${card(`Chiến dịch (${camps.length})`, camps.length ? table(
-          ['Tên','Mục tiêu','Trạng thái','Tạo lúc'],
+          ['Tên','Mục tiêu','Trạng thái'],
           camps.map(c=>[c.name||'(chưa đặt tên)', c.primary_goal||'—',
-            badge(c.status||'draft', c.status==='active'?'green':c.status==='archived'?'':'amber'),
-            (c.created_at||'').slice(0,10)])) :
-          `<p class="muted">Chưa có chiến dịch nào.</p>`, {cls:'span-6'})}
+            badge(c.status||'draft', c.status==='active'?'green':c.status==='archived'?'':'amber')])) :
+          `<p class="muted">Chưa có chiến dịch.</p>`, {cls:'span-4'})}
 
-        ${card(`Đối thủ đang theo dõi (${comps.length})`, comps.length ? table(
-          ['Fanpage','Page ID','Chu kỳ (h)','Ads gần nhất'],
-          comps.map(c=>[c.page_name||'—', c.page_id||'—', c.interval_hours||24,
-            (c.last_ad_ids||[]).length])) :
-          `<p class="muted">User chưa theo dõi đối thủ nào.</p>`, {cls:'span-6'})}
+        ${card(`Đối thủ theo dõi (${comps.length})`, comps.length ? table(
+          ['Fanpage','Chu kỳ (h)','Ads'],
+          comps.map(c=>[c.page_name||'—', c.interval_hours||24, (c.last_ad_ids||[]).length])) :
+          `<p class="muted">Chưa theo dõi đối thủ nào.</p>`, {cls:'span-4'})}
       </section>`;
     },
     mount: () => {},

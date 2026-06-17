@@ -732,3 +732,17 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 
 .doc-ask { background:color-mix(in srgb, var(--amber) 14%, transparent); border:1px solid var(--amber);
   border-radius:8px; padding:8px 12px; font-size:13px; color:var(--txt); margin-bottom:14px; }
+
+/* ── Chẩn đoán & kết quả — danh sách state-driven (gộp stepper+run+results) ── */
+.diag-list { display:flex; flex-direction:column; }
+.diag-row { display:flex; align-items:center; gap:12px; padding:11px 4px; border-bottom:1px solid var(--stroke); }
+.diag-row:last-child { border-bottom:none; }
+.diag-ic { width:30px; height:30px; flex:0 0 30px; border-radius:50%; display:grid; place-items:center;
+  background:var(--panel-2); border:1px solid var(--stroke); font-size:14px; }
+.diag-row.done .diag-ic { background:var(--green); color:#fff; border-color:var(--green); }
+.diag-row.running .diag-ic { background:var(--amber); color:#1a1205; border-color:var(--amber); }
+.diag-main { flex:1; min-width:0; }
+.diag-main p { margin:0; font-size:13.5px; color:var(--txt); }
+.diag-main span { font-size:11.5px; }
+.diag-state { flex:0 0 auto; font-size:12px; white-space:nowrap; }
+.diag-act { flex:0 0 auto; display:flex; align-items:center; gap:6px; }
