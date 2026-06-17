@@ -212,8 +212,11 @@
     ['competitors', 'Đối thủ chính', 'vd: Highlands, Phúc Long'],
   ];
   function profileForm(p) {
+    const note = (apiAvailable && M.bizEnabled)
+      ? 'Điền hồ sơ để Max chẩn đoán & lập chiến lược cho đúng doanh nghiệp của bạn.'
+      : '⚠️ Đang ở chế độ xem trước — cần kết nối Supabase (server) để Lưu hồ sơ & chạy phân tích.';
     return `
-      <p class="muted" style="margin-bottom:12px">Điền hồ sơ để Max chẩn đoán & lập chiến lược cho đúng doanh nghiệp của bạn.</p>
+      <p class="muted" style="margin-bottom:12px">${note}</p>
       <div class="form">${PROFILE_FIELDS.map(([k, l, ph]) =>
         `<label class="fld"><span>${l}</span><input id="pf_${k}" value="${(p[k] || '').replace(/"/g, '&quot;')}" placeholder="${ph}"></label>`).join('')}</div>
       <div style="display:flex;gap:8px;margin-top:14px">
@@ -242,11 +245,11 @@
       const bv = M.bizBrandVoice;
       const u = M.bizUser || {};
       const hasProfile = Object.keys(p).length > 0;
-      // Form-first: user mới (đã nối Supabase, chưa có hồ sơ) → điền form ngay; hoặc bấm Sửa.
-      const showForm = _editProfile || (M.bizEnabled && !hasProfile);
+      // Form-first: chưa có hồ sơ → hiện form điền (kể cả chưa nối backend). Có rồi → xem + Sửa.
+      const showForm = _editProfile || !hasProfile;
 
       const profileBody = showForm ? profileForm(p)
-        : hasProfile ? `
+        : `
           ${profRow('Doanh nghiệp', p.business_name)}
           ${profRow('Ngành', p.industry)}
           ${profRow('Giai đoạn', p.stage)}
@@ -258,12 +261,7 @@
           ${profRow('Thách thức', p.main_challenge)}
           ${profRow('USP', p.usp)}
           ${profRow('Khu vực', p.location)}
-          <button class="ghost-line full" data-act="edit-profile" style="margin-top:12px">✎ Sửa hồ sơ</button>`
-        : `<div class="kv"><span>Ngành</span><b>F&B — Quán cà phê</b></div>
-             <div class="kv"><span>Sản phẩm</span><b>Cà phê specialty</b></div>
-             <div class="kv"><span>Khu vực</span><b>TP.HCM, Q.1</b></div>
-             <div class="kv"><span>Mục tiêu</span><b>+50% trong 90 ngày</b></div>
-             <p class="muted" style="margin-top:10px">Dữ liệu mẫu — chạy server có Supabase để nhập hồ sơ thật.</p>`;
+          <button class="ghost-line full" data-act="edit-profile" style="margin-top:12px">✎ Sửa hồ sơ</button>`;
 
       // 1 khối thống nhất: mỗi phân tích = 1 dòng, trạng thái + đúng 1 hành động.
       const ANALYSES = [
@@ -294,7 +292,7 @@
 
       return `
       <section class="grid">
-        ${card('Hồ sơ doanh nghiệp', profileBody, {cls:'span-5', action: u.user_id ? badge('user ' + u.user_id) : (M.bizEnabled?'':badge('mẫu','amber'))})}
+        ${card('Hồ sơ doanh nghiệp', profileBody, {cls:'span-5', action: u.user_id ? badge('user ' + u.user_id) : ''})}
 
         ${card('Chẩn đoán & kết quả', diagBody, {cls:'span-7',
           action: `<span class="muted">Chạy từng mục, hoặc “Toàn diện” ở góc trên</span>`})}
