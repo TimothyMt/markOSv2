@@ -197,6 +197,55 @@ window.MOCK = {
     ],
   },
 
+  // Output research MẪU — để bản demo tĩnh xem được trang đọc/sửa (#doc/<id>)
+  bizSkillRuns: [
+    { id:'sample-competitor', skill_name:'competitor', page:'competitor', version:2, rating:4,
+      model_used:'demo', created_at:'2026-06-16T09:20', length:1180 },
+    { id:'sample-market', skill_name:'market_research', page:'market', version:1, rating:null,
+      model_used:'demo', created_at:'2026-06-16T09:05', length:1540 },
+  ],
+  sampleDocs: {
+    'sample-competitor': { id:'sample-competitor', skill_name:'competitor', version:2, rating:4,
+      model_used:'demo', created_at:'2026-06-16T09:20', content:
+`## Phân tích đối thủ — Quán cà phê specialty (Q.1, TP.HCM)
+
+**Bối cảnh:** thị trường cà phê specialty khu trung tâm cạnh tranh cao, 3 nhóm đối thủ chính.
+
+### Ma trận cạnh tranh
+- **Highlands / Phúc Long (chuỗi lớn):** phủ điểm bán dày, giá trung, thương hiệu mạnh. Yếu: trải nghiệm "đại trà", ít câu chuyện specialty.
+- **The Coffee House (chuỗi tầm trung):** không gian làm việc tốt, app/loyalty mạnh. Yếu: chất lượng hạt không nhấn "specialty".
+- **Quán specialty độc lập:** chất lượng cao, tệp trung thành. Yếu: nhận diện yếu, marketing rời rạc.
+
+### Khoảng trống (cơ hội)
+1. **Câu chuyện nguồn gốc hạt** — kể minh bạch farm/khâu rang, thứ chuỗi lớn không làm tốt.
+2. **Trải nghiệm "chậm" cao cấp** ở khung sáng — nhắm dân văn phòng Q.1.
+3. **Nội dung giáo dục vị giác** (cupping, pha thủ công) tạo khác biệt.
+
+### Đe doạ
+- Chuỗi lớn ép giá combo, chi phí ads tăng theo mùa.
+- Lòng trung thành ngành cà phê thấp → cần loyalty + lý do quay lại.
+
+> Khuyến nghị: định vị "specialty thật — minh bạch nguồn gốc", đẩy UGC + nội dung giáo dục vị giác; tránh đua giá trực diện với chuỗi.` },
+    'sample-market': { id:'sample-market', skill_name:'market_research', version:1, rating:null,
+      model_used:'demo', created_at:'2026-06-16T09:05', content:
+`## Nghiên cứu thị trường — Cà phê specialty VN
+
+### Quy mô (ước lượng)
+- **TAM:** ~2.400 tỷ/năm (cà phê chuỗi & specialty VN).
+- **SAM:** ~480 tỷ (specialty đô thị lớn).
+- **SOM (90 ngày, 1 điểm bán Q.1):** ~24 tỷ tiềm năng vùng lân cận.
+
+### Động lực
+- Tăng trưởng ~14%/năm, cao hơn TB ngành F&B.
+- Gen Z chuộng local brand + trải nghiệm "đáng check-in".
+- 65% khách trẻ đặt qua app/giao hàng.
+
+### Rào cản
+- Chi phí mặt bằng trung tâm cao; cạnh tranh giá từ chuỗi.
+
+> Khuyến nghị: tập trung tệp văn phòng + Gen Z Q.1, kênh chính Facebook/TikTok/Zalo, nhấn câu chuyện specialty thay vì giá.` },
+  },
+
   adsCopy: {
     TOFU: { title:'Nhận biết', items:['“Buổi sáng cần một lý do để dậy sớm…”','“Cà phê thật, giá thật.”'] },
     MOFU: { title:'Cân nhắc', items:['“3 lý do khách quay lại mỗi tuần”','So sánh: chúng tôi vs quán thường'] },

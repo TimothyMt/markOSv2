@@ -291,7 +291,7 @@
               ${jobStatusTag(j.status)}
             </li>`).join('')}</ul>`, {cls:'span-12'}) : ''}
 
-        ${card(`Kết quả AI đã tạo (${runs.length})`, runs.length ? table(
+        ${card(`Kết quả AI đã tạo (${runs.length})${M.bizEnabled?'':' · mẫu'}`, runs.length ? table(
           ['Skill','Phiên bản','Độ dài','Đánh giá','Thời điểm',''],
           runs.map(r=>[
             r.skill_name, 'v'+(r.version||1), fmtNum(r.length)+' ký tự',
@@ -329,7 +329,12 @@
   };
   async function loadDoc() {
     _docRun = null; _docVersions = []; _docAsk = '';
-    if (!apiAvailable || !_docId) { renderDoc(); return; }
+    if (!_docId) { renderDoc(); return; }
+    if (!apiAvailable) {                       // bản demo tĩnh → dùng output mẫu
+      _docRun = (M.sampleDocs || {})[_docId] || null;
+      _docVersions = _docRun ? (M.bizSkillRuns || []).filter(v => v.skill_name === _docRun.skill_name) : [];
+      renderDoc(); return;
+    }
     try { _docRun = await API.get('api/biz/skillrun/' + _docId); } catch (e) { _docRun = null; }
     if (_docRun && _docRun.skill_name) {
       try {
@@ -1469,6 +1474,14 @@
       }
       return;
     }
+    // ── Điều hướng / đọc (chạy được cả trên demo tĩnh, không cần backend) ──
+    if (act === 'view-skillrun') { location.hash = '#doc/' + el.dataset.id; return; }
+    if (act === 'doc-edit') { _docEdit = true; renderDoc(); return; }
+    if (act === 'doc-edit-cancel') { _docEdit = false; renderDoc(); return; }
+    if (act === 'copy-skillrun') {
+      if (_docRun && navigator.clipboard) navigator.clipboard.writeText(_docRun.content || '').then(() => toast('Đã copy nội dung'));
+      return;
+    }
     if (!apiAvailable) { toast('Tính năng này cần backend — chạy: python run_web.py'); if (el.type === 'checkbox') el.checked = !el.checked; return; }
 
     // ── AI agent + dữ liệu thật (không theo luồng state web_*) ──
@@ -1479,10 +1492,6 @@
         toast('Đã khởi chạy AI agent — theo dõi tiến trình realtime');
         await refreshBiz(); renderRail(); renderTopbar(); route();
       } catch (e) { toast('Không khởi chạy được agent'); }
-      return;
-    }
-    if (act === 'view-skillrun') {
-      location.hash = '#doc/' + el.dataset.id;   // mở trang đọc riêng (không modal)
       return;
     }
     if (act === 'rate-skillrun') {
@@ -1498,14 +1507,6 @@
       } catch (e) { toast('Không lưu được đánh giá'); }
       return;
     }
-    if (act === 'copy-skillrun') {
-      if (_docRun && navigator.clipboard) {
-        navigator.clipboard.writeText(_docRun.content || '').then(() => toast('Đã copy nội dung'));
-      }
-      return;
-    }
-    if (act === 'doc-edit') { _docEdit = true; renderDoc(); return; }
-    if (act === 'doc-edit-cancel') { _docEdit = false; renderDoc(); return; }
     if (act === 'doc-edit-save') {
       const box = document.getElementById('docEditBox');
       if (!box || !_docRun) return;
