@@ -42,7 +42,11 @@ logs/
 .pytest_cache/
 .coverage
 htmlcov/
-.claude/
+# .claude: ignore local config, but VERSION the vendored agent-skills
+.claude/*
+!.claude/skills
+!.claude/commands
+!.claude/agents
 
 # Demo harness scratch output (not source)
 demo_out/
