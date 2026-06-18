@@ -774,6 +774,17 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 .intake-max { display:flex; align-items:center; gap:8px; margin-bottom:10px; color:var(--txt-2); font-size:13px; }
 .intake-max .cav { width:26px; height:26px; flex:0 0 26px; border-radius:7px; background:linear-gradient(135deg,var(--primary),var(--primary-2)); }
 
+/* Chọn khoảng / chọn hướng (A1b doanh thu, A2 mục tiêu) */
+.intake-choices { display:flex; flex-direction:column; gap:8px; }
+.intake-choice { text-align:left; background:var(--panel-2); border:1px solid var(--stroke-2); border-radius:12px;
+  padding:12px 14px; color:var(--txt); font-size:15px; font-family:inherit; cursor:pointer; transition:border-color .15s, background .15s; }
+.intake-choice:hover { border-color:var(--primary); }
+.intake-choice.on { border-color:var(--primary); background:rgba(91,140,255,.12); }
+
+/* Banner định hướng (la bàn) trên trang Chiến lược — D-030/B1 */
+.dir-banner { padding:12px 16px; font-size:13.5px; line-height:1.5; color:var(--txt-2);
+  border-left:3px solid var(--primary); background:rgba(91,140,255,.08); }
+
 </style>
 </head>
 <body>
@@ -1251,8 +1262,14 @@ window.MOCK = {
     { key: 'product_service', q: 'Sản phẩm / dịch vụ chính là gì?', ph: 'vd: Cà phê specialty' },
     { key: 'target_customer', q: 'Khách hàng mục tiêu của bạn là ai?', ph: 'vd: Dân văn phòng 25–34, Q.1' },
     { key: 'location', q: 'Bạn kinh doanh ở khu vực nào?', ph: 'vd: TP.HCM, Quận 1', optional: true },
+    { key: 'monthly_revenue', q: 'Doanh thu mỗi tháng khoảng bao nhiêu?', optional: true,
+      choices: ['Mới mở, chưa có doanh thu', 'Dưới 50 triệu', '50–200 triệu', '200 triệu–1 tỷ', 'Trên 1 tỷ', 'Không tiện chia sẻ'],
+      note: 'Giúp Max ước lượng giai đoạn doanh nghiệp. Không tiện thì cứ bỏ qua.' },
     { key: 'monthly_marketing_budget', q: 'Ngân sách marketing mỗi tháng khoảng bao nhiêu?', ph: 'vd: 15 triệu', optional: true },
-    { key: 'primary_goal', q: 'Mục tiêu marketing 90 ngày tới của bạn?', ph: 'vd: +50% đơn online' },
+    { key: 'primary_goal', q: '90 ngày tới bạn muốn ưu tiên điều gì nhất?',
+      choices: ['Tăng nhận diện thương hiệu', 'Ra nhiều đơn / doanh thu', 'Giữ chân & chăm khách cũ', 'Ra mắt sản phẩm mới'],
+      note: 'Chọn hướng ưu tiên — con số cụ thể sẽ chốt khi bạn lập từng chiến dịch theo dịp.' },
+    { key: 'current_channels', q: 'Hiện bạn đang dùng kênh marketing nào?', ph: 'vd: Facebook, TikTok, Zalo OA', optional: true },
     { key: 'main_challenge', q: 'Thách thức lớn nhất hiện tại là gì?', ph: 'vd: cạnh tranh chuỗi lớn', optional: true },
   ];
   // AI-adaptive intake (Max phỏng vấn thông minh) — dùng khi có backend thật
@@ -1308,17 +1325,23 @@ window.MOCK = {
     const st = INTAKE_STEPS[i];
     const val = (_intakeData[st.key] || '').replace(/"/g, '&quot;');
     const preview = (!apiAvailable || !M.bizEnabled);
+    // Bước dạng chọn khoảng / chọn hướng (A1b doanh thu, A2 mục tiêu) — không nhập số
+    const body = st.choices
+      ? `<div class="intake-choices">${st.choices.map(c =>
+          `<button class="intake-choice${_intakeData[st.key] === c || (c === 'Không tiện chia sẻ' && _intakeData[st.key] === 'chưa rõ') ? ' on' : ''}" data-act="intake-choice" data-val="${c.replace(/"/g, '&quot;')}">${c}</button>`).join('')}</div>`
+      : `<input id="intakeBox" class="intake-input" value="${val}" placeholder="${st.ph}" autocomplete="off">`;
     return `
       <div class="intake">
         <div class="intake-prog"><div class="intake-bar" style="width:${Math.round(i / n * 100)}%"></div></div>
         <p class="intake-count">Câu ${i + 1}/${n}${st.optional ? ' · không bắt buộc' : ''}</p>
         <h3 class="intake-q">${st.q}</h3>
-        <input id="intakeBox" class="intake-input" value="${val}" placeholder="${st.ph}" autocomplete="off">
+        ${body}
+        ${st.note ? `<p class="muted intake-note">${st.note}</p>` : ''}
         <div class="intake-nav">
           ${i > 0 ? '<button class="ghost-line" data-act="intake-back">← Quay lại</button>' : '<span></span>'}
           <div style="display:flex;gap:8px">
             ${st.optional ? '<button class="ghost-line" data-act="intake-skip">Bỏ qua</button>' : ''}
-            <button class="primary-btn" data-act="intake-next">${i === n - 1 ? '✓ Hoàn tất' : 'Tiếp →'}</button>
+            ${st.choices ? '' : `<button class="primary-btn" data-act="intake-next">${i === n - 1 ? '✓ Hoàn tất' : 'Tiếp →'}</button>`}
           </div>
         </div>
         ${preview ? '<p class="muted intake-note">⚠️ Xem trước — cần kết nối Supabase để lưu khi hoàn tất.</p>' : ''}
@@ -1330,9 +1353,10 @@ window.MOCK = {
     ['product_service', 'Sản phẩm / Dịch vụ', 'vd: Cà phê specialty'],
     ['target_customer', 'Khách hàng mục tiêu', 'vd: Dân văn phòng 25–34, Q.1'],
     ['location', 'Khu vực', 'vd: TP.HCM, Quận 1'],
-    ['monthly_revenue', 'Doanh thu/tháng', 'vd: 120 triệu'],
+    ['monthly_revenue', 'Doanh thu/tháng', "vd: 50–200 triệu (hoặc 'chưa rõ')"],
     ['monthly_marketing_budget', 'Ngân sách marketing/tháng', 'vd: 15 triệu'],
-    ['primary_goal', 'Mục tiêu chính', 'vd: +50% đơn online trong 90 ngày'],
+    ['primary_goal', 'Mục tiêu chính (định hướng)', 'vd: tăng nhận diện / ra đơn / giữ chân khách'],
+    ['current_channels', 'Kênh đang dùng', 'vd: Facebook, TikTok, Zalo OA'],
     ['main_challenge', 'Thách thức lớn nhất', 'vd: cạnh tranh chuỗi lớn'],
     ['competitors', 'Đối thủ chính', 'vd: Highlands, Phúc Long'],
   ];
@@ -1384,6 +1408,7 @@ window.MOCK = {
           ${profRow('Doanh thu/tháng', p.monthly_revenue)}
           ${profRow('Ngân sách marketing', p.monthly_marketing_budget)}
           ${profRow('Mục tiêu chính', p.primary_goal)}
+          ${profRow('Kênh đang dùng', p.current_channels)}
           ${profRow('Thách thức', p.main_challenge)}
           ${profRow('USP', p.usp)}
           ${profRow('Khu vực', p.location)}
@@ -1396,7 +1421,7 @@ window.MOCK = {
         ['customer_insight','customer','👤','Customer Insight','ICP + JTBD + tâm lý'],
         ['psychology_pricing','pricing','💲','Định giá & Tâm lý','Mô hình giá + tâm lý'],
         ['swot','swot','⚖️','SWOT','Ma trận chiến lược'],
-        ['synthesis','strategy','🎯','Chiến lược tổng hợp','SAVE + SMART + roadmap 90 ngày'],
+        ['synthesis','strategy','🎯','Chiến lược tổng hợp','SAVE + định hướng 90 ngày'],
       ];
       const isRunning = (t) => jobs.some(j => j.status === 'running' && (j.task === t || j.task === 'full'));
       const diagBody = `<div class="diag-list">${ANALYSES.map(([k, task, ic, name, desc]) => {
@@ -1466,12 +1491,18 @@ window.MOCK = {
   };
 
   // điều khiển wizard intake (giữ giá trị ô đang gõ trước khi chuyển bước)
-  async function handleIntake(action) {
+  async function handleIntake(action, choiceVal) {
     const box = document.getElementById('intakeBox');
     const st = INTAKE_STEPS[Math.min(_intakeStep, INTAKE_STEPS.length - 1)];
     if (box) _intakeData[st.key] = box.value.trim();
+    // Chọn khoảng/hướng: "Không tiện chia sẻ" → lưu "chưa rõ" (khớp AI-adaptive mode)
+    if (action === 'choice') { _intakeData[st.key] = (choiceVal === 'Không tiện chia sẻ') ? 'chưa rõ' : choiceVal; }
     if (action === 'back') { _intakeStep = Math.max(0, _intakeStep - 1); route(); return; }
-    if (action === 'skip') { _intakeStep++; route(); return; }
+    if (action === 'skip') {
+      // doanh thu bỏ qua → "chưa rõ" để không bao giờ rỗng/undefined (A1b)
+      if (st.key === 'monthly_revenue') _intakeData[st.key] = 'chưa rõ';
+      _intakeStep++; route(); return;
+    }
     if (!st.optional && !(_intakeData[st.key])) { toast('Vui lòng nhập, hoặc chọn câu không bắt buộc'); return; }
     if (_intakeStep < INTAKE_STEPS.length - 1) { _intakeStep++; route(); return; }
     if (!apiAvailable) { toast('Đây là bản xem trước — cần backend + Supabase để lưu'); return; }
@@ -1720,13 +1751,21 @@ window.MOCK = {
           <div class="roadmap">${M.roadmap.map(r=>`
             <div class="rm-phase"><span class="rm-tag">${r.phase}</span><p class="rm-title">${r.title}</p>
               <ul class="bullet">${r.items.map(i=>`<li>${i}</li>`).join('')}</ul></div>`).join('')}</div>`, {cls:'span-12'})}`;
+  // Banner 2 tầng: Synthesis = la bàn (định hướng); số cụ thể chốt ở chiến dịch (B1)
+  const directionalBanner = `
+        <div class="card span-12 dir-banner">
+          🧭 Đây là <b>ĐỊNH HƯỚNG</b> chiến lược 90 ngày (la bàn): định vị, trục nội dung,
+          kênh, ưu tiên từng giai đoạn. Con số cụ thể — SMART, ngân sách đợt, deadline —
+          sẽ được <b>chốt khi bạn lập từng chiến dịch theo dịp</b>.
+        </div>`;
   P.strategy = {
-    title: 'Chiến lược tổng hợp', sub: 'Định vị · SAVE/SMART · Roadmap 90 ngày · KPI',
-    actions: `<a class="primary-btn" href="#brief">→ Campaign Brief</a>`,
+    title: 'Chiến lược tổng hợp', sub: 'Định vị · SAVE · Định hướng 90 ngày · KPI cần theo dõi',
+    actions: `<a class="primary-btn" href="#occasion">→ Lập chiến dịch theo dịp</a>`,
     render: () => {
       const latest = (M.bizLatest || {}).synthesis;
       if (M.bizEnabled && latest) {
         return `<section class="grid">
+          ${directionalBanner}
           ${agentBar('strategy','synthesis')}
           ${card('Chiến lược 90 ngày — do Max lập', `
             <div class="ai-output collapsible" data-skill-run="${latest.id}">Đang tải chiến lược…</div>
@@ -1739,9 +1778,9 @@ window.MOCK = {
           ${card('', `<div class="empty-cta">
             <div class="empty-ic">🎯</div>
             <h3>Chưa có chiến lược cho doanh nghiệp này</h3>
-            <p class="muted">Trò chuyện với Max để khai báo doanh nghiệp, rồi chạy chẩn đoán — Max sẽ tổng hợp chiến lược 90 ngày (định vị, mục tiêu, roadmap, KPI).</p>
+            <p class="muted">Điền Hồ sơ doanh nghiệp rồi chạy chẩn đoán — Max sẽ tổng hợp <b>định hướng</b> chiến lược 90 ngày (định vị, trục nội dung, kênh, ưu tiên từng giai đoạn).</p>
             <div class="empty-actions">
-              <a class="primary-btn" href="#home">💬 Trò chuyện với Max</a>
+              <a class="primary-btn" href="#dossier">📋 Điền Hồ sơ doanh nghiệp</a>
               <button class="ghost-line" data-act="run-agent" data-task="full">🚀 Chạy chẩn đoán ngay</button>
             </div></div>`, {cls:'span-12'})}
         </section>`;
@@ -1752,6 +1791,25 @@ window.MOCK = {
         ${strategyMock()}
       </section>`;
     },
+    mount: () => {},
+  };
+
+  /* ---- Cầu nối: Lập chiến dịch theo dịp (M1 — đang phát triển) ---- */
+  P.occasion = {
+    title: 'Lập chiến dịch theo dịp', sub: 'Nơi chốt SMART thật — kế thừa định hướng từ Chiến lược',
+    actions: `<a class="ghost-line" href="#strategy">← Về Chiến lược</a>`,
+    render: () => `<section class="grid">
+        ${card('', `<div class="empty-cta">
+          <div class="empty-ic">🗓️</div>
+          <h3>Đang phát triển — sắp ra mắt</h3>
+          <p class="muted">Đây là chặng <b>M1</b>: từ một dịp cụ thể (Tết, ra mắt, Black Friday…) Max sẽ
+          kế thừa <b>định hướng</b> ở Chiến lược 90 ngày rồi giúp bạn <b>chốt SMART thật</b> —
+          mục tiêu có số, ngân sách đợt, deadline, theo đúng giai đoạn roadmap hiện tại.</p>
+          <p class="muted">Chiến lược (la bàn) đã có. Bước này (bản đồ chi tiết) đang được xây.</p>
+          <div class="empty-actions">
+            <a class="ghost-line" href="#strategy">← Xem lại Chiến lược định hướng</a>
+          </div></div>`, {cls:'span-12'})}
+      </section>`,
     mount: () => {},
   };
 
@@ -2645,6 +2703,7 @@ window.MOCK = {
     if (act === 'intake-next') { handleIntake('next'); return; }
     if (act === 'intake-back') { handleIntake('back'); return; }
     if (act === 'intake-skip') { handleIntake('skip'); return; }
+    if (act === 'intake-choice') { handleIntake('choice', el.dataset.val); return; }
     if (act === 'edit-profile') { _editProfile = true; route(); return; }
     if (act === 'cancel-profile') { _editProfile = false; route(); return; }
     if (act === 'view-skillrun') { location.hash = '#doc/' + el.dataset.id; return; }
