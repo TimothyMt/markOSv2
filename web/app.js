@@ -691,7 +691,8 @@
           <div class="save">${M.saveFramework.map(s=>`
             <div class="save-item"><div class="save-k">${s.k}</div>
               <div><p>${s.name}</p><span class="muted">${s.text}</span></div></div>`).join('')}</div>`, {cls:'span-6'})}
-        ${card('SMART Goals', `<ul class="bullet">${M.smart.map(g=>`<li>✅ ${g}</li>`).join('')}</ul>`, {cls:'span-6'})}
+        ${card('Mục tiêu định hướng theo giai đoạn', `<ul class="bullet">${M.directionalGoals.map(g=>`<li>🧭 ${g}</li>`).join('')}</ul>
+          <p class="muted" style="margin-top:8px">Số cụ thể (SMART, deadline) chốt khi lập chiến dịch theo dịp.</p>`, {cls:'span-6'})}
         ${card('Roadmap 90 ngày', `
           <div class="roadmap">${M.roadmap.map(r=>`
             <div class="rm-phase"><span class="rm-tag">${r.phase}</span><p class="rm-title">${r.title}</p>
@@ -733,6 +734,7 @@
       return `<section class="grid">
         <div class="card span-12" style="padding:10px 14px">${badge('Dữ liệu mẫu','amber')}
           <span class="muted"> Bản minh hoạ — chạy server thật (Supabase + LLM) để Max lập chiến lược cho bạn.</span></div>
+        ${directionalBanner}
         ${strategyMock()}
       </section>`;
     },

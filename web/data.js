@@ -130,10 +130,11 @@ window.MOCK = {
     { k: 'E', name: 'Education — Giáo dục', text: 'Giáo dục nhu cầu TRƯỚC khi chào bán.' },
   ],
 
-  smart: [
-    'Tăng doanh thu 90 ngày từ 120tr → 180tr/tháng (+15% MoM)',
-    'Nâng repeat visit rate 30 ngày từ 22% → 35%',
-    'Giảm CPA trung bình từ 31.200₫ → 24.000₫',
+  // Định hướng theo giai đoạn (KHÔNG chốt số — số chốt khi lập chiến dịch, D-029/D-030)
+  directionalGoals: [
+    '0–30 ngày — ưu tiên NHẬN DIỆN: phủ thông điệp định vị, validate kênh & mẫu nội dung',
+    '31–60 ngày — ưu tiên TƯƠNG TÁC / LEAD: nuôi tệp quan tâm, thu lead chất lượng',
+    '61–90 ngày — ưu tiên CHUYỂN ĐỔI: tối ưu & scale cái đã có tín hiệu tốt',
   ],
 
   roadmap: [

@@ -941,10 +941,11 @@ window.MOCK = {
     { k: 'E', name: 'Education — Giáo dục', text: 'Giáo dục nhu cầu TRƯỚC khi chào bán.' },
   ],
 
-  smart: [
-    'Tăng doanh thu 90 ngày từ 120tr → 180tr/tháng (+15% MoM)',
-    'Nâng repeat visit rate 30 ngày từ 22% → 35%',
-    'Giảm CPA trung bình từ 31.200₫ → 24.000₫',
+  // Định hướng theo giai đoạn (KHÔNG chốt số — số chốt khi lập chiến dịch, D-029/D-030)
+  directionalGoals: [
+    '0–30 ngày — ưu tiên NHẬN DIỆN: phủ thông điệp định vị, validate kênh & mẫu nội dung',
+    '31–60 ngày — ưu tiên TƯƠNG TÁC / LEAD: nuôi tệp quan tâm, thu lead chất lượng',
+    '61–90 ngày — ưu tiên CHUYỂN ĐỔI: tối ưu & scale cái đã có tín hiệu tốt',
   ],
 
   roadmap: [
@@ -1746,7 +1747,8 @@ window.MOCK = {
           <div class="save">${M.saveFramework.map(s=>`
             <div class="save-item"><div class="save-k">${s.k}</div>
               <div><p>${s.name}</p><span class="muted">${s.text}</span></div></div>`).join('')}</div>`, {cls:'span-6'})}
-        ${card('SMART Goals', `<ul class="bullet">${M.smart.map(g=>`<li>✅ ${g}</li>`).join('')}</ul>`, {cls:'span-6'})}
+        ${card('Mục tiêu định hướng theo giai đoạn', `<ul class="bullet">${M.directionalGoals.map(g=>`<li>🧭 ${g}</li>`).join('')}</ul>
+          <p class="muted" style="margin-top:8px">Số cụ thể (SMART, deadline) chốt khi lập chiến dịch theo dịp.</p>`, {cls:'span-6'})}
         ${card('Roadmap 90 ngày', `
           <div class="roadmap">${M.roadmap.map(r=>`
             <div class="rm-phase"><span class="rm-tag">${r.phase}</span><p class="rm-title">${r.title}</p>
@@ -1788,6 +1790,7 @@ window.MOCK = {
       return `<section class="grid">
         <div class="card span-12" style="padding:10px 14px">${badge('Dữ liệu mẫu','amber')}
           <span class="muted"> Bản minh hoạ — chạy server thật (Supabase + LLM) để Max lập chiến lược cho bạn.</span></div>
+        ${directionalBanner}
         ${strategyMock()}
       </section>`;
     },
