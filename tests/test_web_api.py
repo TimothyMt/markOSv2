@@ -59,6 +59,46 @@ def test_standalone_build_has_doc_reader():
     assert "data-act=\"open-doc\"" in html or "#doc/" in html, "Chưa có lối vào trang đọc"
 
 
+_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def _read(rel: str) -> str:
+    with open(os.path.join(_ROOT, rel), encoding="utf-8") as f:
+        return f.read()
+
+
+def test_static_wizard_covers_discovery_fields():
+    """A1: static wizard phải hỏi đủ các trường discovery.REQUIRED_FIELDS."""
+    import re
+    disc = _read("agents/discovery.py")
+    m = re.search(r"REQUIRED_FIELDS\s*=\s*\[(.*?)\]", disc, re.S)
+    assert m, "Không tìm thấy REQUIRED_FIELDS trong discovery.py"
+    required = set(re.findall(r"[\"']([a-z_]+)[\"']", m.group(1)))
+    app = _read("web/app.js")
+    blk = re.search(r"const INTAKE_STEPS\s*=\s*\[(.*?)\n\s*\];", app, re.S)
+    assert blk, "Không tìm thấy INTAKE_STEPS trong app.js"
+    wizard_keys = set(re.findall(r"key:\s*'([a-z_]+)'", blk.group(1)))
+    missing = required - wizard_keys
+    assert not missing, f"Static wizard thiếu trường discovery: {missing}"
+
+
+def test_strategy_no_dead_maxchat_and_has_occasion_bridge():
+    """C2 + B3: gỡ nút chết Max-chat; có cầu nối occasion."""
+    from webapp.build_standalone import build
+    html = build()
+    assert "Trò chuyện với Max" not in html, "Còn nút Max-chat (đã bỏ theo D-026/C2)"
+    assert 'href="#home"' not in html, "Còn link chết #home"
+    assert "P.occasion" in html and "#occasion" in html, "Thiếu cầu nối Lập chiến dịch theo dịp (B3)"
+
+
+def test_synthesis_prompt_is_directional():
+    """B0/D-030: prompt synthesis nêu định hướng, KHÔNG ép SMART số cứng ở M0."""
+    p = _read("agents/prompts.py")
+    assert "Mục Tiêu Định Hướng Theo Giai Đoạn" in p, "Section 4 chưa đổi sang định hướng"
+    assert "Chỉ Số Cần Theo Dõi" in p, "Section 7 KPI chưa đổi sang 'cần theo dõi'"
+    assert "## 4. SMART Goals (2-3 goals" not in p, "Section 4 vẫn còn SMART số cứng cũ"
+
+
 if __name__ == "__main__":
     failed = 0
     for name, fn in sorted(globals().items()):
