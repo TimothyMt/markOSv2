@@ -200,7 +200,7 @@ Dựa vào Strategy synthesis + Customer Insight + Market Research, đề xuất
 - KHÔNG đề xuất campaign trái ngược với nhu cầu founder đã nêu
 
 Mỗi option phải:
-- Bám sát SAVE Framework + SMART Goals trong synthesis
+- Bám sát SAVE Framework + định hướng giai đoạn trong synthesis (SMART số cụ thể đặt ở chính campaign này)
 - Match với pain point từ Customer Insight (cite cụ thể)
 - Tận dụng cơ hội từ Market Research (timing, seasonality, market gap)
 - Khác biệt rõ ràng giữa 3 options — mỗi option giải quyết 1 mục tiêu chính khác nhau:

@@ -126,7 +126,9 @@ OUTPUT_FORMAT_INSTRUCTION = """
    - "NPS (Net Promoter Score — chỉ số đo lường độ hài lòng)"
    - Sau khi đã giải thích lần đầu → có thể dùng viết tắt tự do
 
-3. **SMART Goals — viết FULL ngay từ đầu:**
+3. **SMART Goals — CHỈ khi lập chiến dịch cụ thể, KHÔNG ở chiến lược định hướng (M0):**
+   - Chiến lược tổng hợp (synthesis/M0) = ĐỊNH HƯỚNG, KHÔNG đặt SMART số cứng (xem prompt synthesizer). Mục tiêu nêu theo trọng tâm định tính từng giai đoạn.
+   - KHI lập 1 chiến dịch theo dịp (có dịp/ngân sách/baseline) → MỚI viết SMART, và viết FULL từng chữ:
    - SAI: "S: Đạt 300 đơn..."
    - ĐÚNG: "**S (Specific — Cụ thể):** Đạt 300 đơn..."
    - ĐÚNG: "**M (Measurable — Đo lường được):** 300-600 đơn..."

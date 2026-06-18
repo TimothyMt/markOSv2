@@ -110,7 +110,9 @@ _SHARED_LANGUAGE_RULES = """**NGÔN NGỮ (BẮT BUỘC):**
    - Sau khi đã giải thích lần đầu → có thể dùng viết tắt tự do
    - CHỈ giải thích INLINE trong ngoặc ngay lần đầu. TUYỆT ĐỐI KHÔNG gom thành 1 section "Ghi chú thuật ngữ" / glossary riêng ở cuối — đó là dư thừa.
 
-3. **SMART Goals — viết FULL ngay từ đầu:**
+3. **SMART Goals — CHỈ khi lập chiến dịch cụ thể, KHÔNG ở chiến lược định hướng (M0):**
+   - Chiến lược tổng hợp (M0) = ĐỊNH HƯỚNG, KHÔNG đặt SMART số cứng. Mục tiêu nêu theo trọng tâm định tính từng giai đoạn.
+   - KHI lập 1 chiến dịch theo dịp (có dịp/ngân sách/baseline) → MỚI viết SMART FULL từng chữ:
    - "**S (Specific — Cụ thể):** ..."
    - "**M (Measurable — Đo lường được):** ..."
    - "**A (Achievable — Khả thi):** ..."
