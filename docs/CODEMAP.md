@@ -49,11 +49,12 @@ Render web: `web/app.js` `agentSection()` (L160) nhúng doc reader + trang `P.ma
 ### 🔴 SYNTHESIS — chiến lược tổng hợp (TÁCH 2 PROMPT — QUAN TRỌNG)
 | Mặt | Hàm chạy | **Prompt** | Output dạng |
 |-----|----------|-----------|-------------|
-| **WEB** (non-interactive, D-015) | `agents/pipeline.py:run_targeted_pipeline` → `agents/skills.py:StrategySynthesisSkill` (L304) | **`agents/prompts.py:STRATEGY_SYNTHESIZER_SYSTEM` (L618)** | **Markdown/HTML 10 phần** (Exec Summary, USP, SAVE, SMART, Roadmap, Channel/Budget, KPI, Retention, Quick Wins, Risks) |
-| **TELE** (interactive + 8 câu chốt hướng) | `agents/strategy.py` (L61,99) | **`agents/strategy_prompts.py:CMO_STRATEGY_SYSTEM` (L9)** | **JSON có cấu trúc** (positioning, wedge, roadmap_90d, budget_allocation, content_pillars, kpi_dashboard, kill_criteria) |
+| **Markdown synthesis** (web LUÔN dùng — D-015; bot dùng ở path legacy/non-multi-agent `bot/handlers.py:5845`) | `agents/pipeline.py:run_targeted_pipeline` → `agents/skills.py:StrategySynthesisSkill` (L304) | **`agents/prompts.py:STRATEGY_SYNTHESIZER_SYSTEM` (L618)** | **Markdown/HTML 10 phần** (Exec Summary, USP, SAVE, SMART→định hướng (D-030), Roadmap, Channel/Budget, KPI, Retention, Quick Wins, Risks) |
+| **JSON strategy** (chỉ TELE, interactive + 8 câu chốt hướng) | `agents/strategy.py` (L61,99) | **`agents/strategy_prompts.py:CMO_STRATEGY_SYSTEM` (L9)** | **JSON có cấu trúc** (positioning, wedge, roadmap_90d, budget_allocation, content_pillars, kpi_dashboard, kill_criteria) |
 
-→ **Muốn đổi chiến lược trên WEB:** sửa `STRATEGY_SYNTHESIZER_SYSTEM` (prompts.py:618) + `StrategySynthesisSkill` (skills.py:304). **ĐỪNG** đụng `CMO_STRATEGY_SYSTEM`.
-→ **Muốn đổi chiến lược JSON / cầu nối campaign (tele):** sửa `CMO_STRATEGY_SYSTEM` (strategy_prompts.py) + `agents/strategy.py`. **ĐỪNG** đụng `STRATEGY_SYNTHESIZER_SYSTEM`.
+⚠️ **ĐÍNH CHÍNH:** `STRATEGY_SYNTHESIZER_SYSTEM` KHÔNG phải web-only — dùng chung **bot (`bot/handlers.py:5845`) + web (`webapp/business.py:589`)** qua `run_targeted_pipeline`. Sửa nó đổi output cả 2 surface.
+→ **Đổi bản chiến lược Markdown hiển thị (cả bot+web):** sửa `STRATEGY_SYNTHESIZER_SYSTEM` (prompts.py:618) + `StrategySynthesisSkill` (skills.py:304). Không hỏng pre-fill campaign (đó đọc JSON, không đọc Markdown này).
+→ **Đổi chiến lược JSON / cầu nối campaign pre-fill (tele):** sửa `CMO_STRATEGY_SYSTEM` (strategy_prompts.py) + `agents/strategy.py`. **ĐỪNG** đụng `STRATEGY_SYNTHESIZER_SYSTEM`.
 
 ### Cầu nối Campaign (chỉ TELE hiện có — web M1 sẽ tái dùng)
 - `agents/campaign_intake.py:build_campaign_draft_from_strategy` — kéo `roadmap_90d`+budget từ JSON synthesis (CMO) → pre-fill draft. **Đây là chỗ SMART chốt số (D-029).**
