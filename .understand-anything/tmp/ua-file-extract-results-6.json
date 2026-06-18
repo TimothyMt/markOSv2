@@ -1,0 +1,843 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 4,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "agents/manager_personas.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 726,
+      "nonEmptyLines": 618,
+      "functions": [
+        {
+          "name": "get_persona",
+          "startLine": 526,
+          "endLine": 527,
+          "params": [
+            "key"
+          ]
+        },
+        {
+          "name": "get_all_personas",
+          "startLine": 530,
+          "endLine": 531,
+          "params": []
+        },
+        {
+          "name": "_is_status_question",
+          "startLine": 544,
+          "endLine": 546,
+          "params": [
+            "msg_lower"
+          ]
+        },
+        {
+          "name": "route_to_persona",
+          "startLine": 549,
+          "endLine": 588,
+          "params": [
+            "user_msg",
+            "session"
+          ]
+        },
+        {
+          "name": "_build_orchestration_suffix",
+          "startLine": 618,
+          "endLine": 636,
+          "params": []
+        },
+        {
+          "name": "run_persona_turn",
+          "startLine": 655,
+          "endLine": 700,
+          "params": [
+            "session",
+            "user_msg",
+            "persona"
+          ]
+        },
+        {
+          "name": "render_team_card",
+          "startLine": 707,
+          "endLine": 715,
+          "params": []
+        },
+        {
+          "name": "render_persona_intro",
+          "startLine": 718,
+          "endLine": 726,
+          "params": [
+            "persona",
+            "first_time"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "ManagerPersona",
+          "startLine": 23,
+          "endLine": 33,
+          "methods": [],
+          "properties": [
+            "key",
+            "name",
+            "role",
+            "emoji",
+            "domain_summary",
+            "owns_skills",
+            "trigger_keywords",
+            "system_prompt",
+            "active",
+            "is_orchestrator"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "ManagerPersona",
+          "line": 22,
+          "isDefault": false
+        },
+        {
+          "name": "get_persona",
+          "line": 526,
+          "isDefault": false
+        },
+        {
+          "name": "get_all_personas",
+          "line": 530,
+          "isDefault": false
+        },
+        {
+          "name": "_is_status_question",
+          "line": 544,
+          "isDefault": false
+        },
+        {
+          "name": "route_to_persona",
+          "line": 549,
+          "isDefault": false
+        },
+        {
+          "name": "_build_orchestration_suffix",
+          "line": 618,
+          "isDefault": false
+        },
+        {
+          "name": "run_persona_turn",
+          "line": 655,
+          "isDefault": false
+        },
+        {
+          "name": "render_team_card",
+          "line": 707,
+          "isDefault": false
+        },
+        {
+          "name": "render_persona_intro",
+          "line": 718,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "get_persona",
+          "callee": "_PERSONA_BY_KEY.get",
+          "lineNumber": 527
+        },
+        {
+          "caller": "_is_status_question",
+          "callee": "any",
+          "lineNumber": 546
+        },
+        {
+          "caller": "route_to_persona",
+          "callee": "user_msg.lower().strip",
+          "lineNumber": 559
+        },
+        {
+          "caller": "route_to_persona",
+          "callee": "user_msg.lower",
+          "lineNumber": 559
+        },
+        {
+          "caller": "route_to_persona",
+          "callee": "_is_status_question",
+          "lineNumber": 562
+        },
+        {
+          "caller": "route_to_persona",
+          "callee": "getattr",
+          "lineNumber": 568
+        },
+        {
+          "caller": "route_to_persona",
+          "callee": "sum",
+          "lineNumber": 570
+        },
+        {
+          "caller": "route_to_persona",
+          "callee": "len",
+          "lineNumber": 577
+        },
+        {
+          "caller": "route_to_persona",
+          "callee": "msg_lower.split",
+          "lineNumber": 577
+        },
+        {
+          "caller": "route_to_persona",
+          "callee": "getattr",
+          "lineNumber": 579
+        },
+        {
+          "caller": "route_to_persona",
+          "callee": "get_persona",
+          "lineNumber": 581
+        },
+        {
+          "caller": "route_to_persona",
+          "callee": "get_persona",
+          "lineNumber": 583
+        },
+        {
+          "caller": "route_to_persona",
+          "callee": "max",
+          "lineNumber": 587
+        },
+        {
+          "caller": "route_to_persona",
+          "callee": "get_persona",
+          "lineNumber": 588
+        },
+        {
+          "caller": "_build_orchestration_suffix",
+          "callee": "\"\\n\".join",
+          "lineNumber": 619
+        },
+        {
+          "caller": "_build_orchestration_suffix",
+          "callee": "getattr",
+          "lineNumber": 622
+        },
+        {
+          "caller": "_build_orchestration_suffix",
+          "callee": "getattr",
+          "lineNumber": 622
+        },
+        {
+          "caller": "run_persona_turn",
+          "callee": "session.get_latest_result",
+          "lineNumber": 664
+        },
+        {
+          "caller": "run_persona_turn",
+          "callee": "session.get_latest_result",
+          "lineNumber": 664
+        },
+        {
+          "caller": "run_persona_turn",
+          "callee": "session.get_latest_result",
+          "lineNumber": 665
+        },
+        {
+          "caller": "run_persona_turn",
+          "callee": "session.get_latest_result",
+          "lineNumber": 666
+        },
+        {
+          "caller": "run_persona_turn",
+          "callee": "p.to_context_string",
+          "lineNumber": 667
+        },
+        {
+          "caller": "run_persona_turn",
+          "callee": "\"\\n\".join",
+          "lineNumber": 680
+        },
+        {
+          "caller": "run_persona_turn",
+          "callee": "getattr",
+          "lineNumber": 687
+        },
+        {
+          "caller": "run_persona_turn",
+          "callee": "_build_orchestration_suffix",
+          "lineNumber": 688
+        },
+        {
+          "caller": "run_persona_turn",
+          "callee": "router_call",
+          "lineNumber": 692
+        },
+        {
+          "caller": "run_persona_turn",
+          "callee": "\"\\n\".join",
+          "lineNumber": 695
+        },
+        {
+          "caller": "run_persona_turn",
+          "callee": "result.get",
+          "lineNumber": 698
+        },
+        {
+          "caller": "render_team_card",
+          "callee": "lines.append",
+          "lineNumber": 711
+        },
+        {
+          "caller": "render_team_card",
+          "callee": "lines.append",
+          "lineNumber": 712
+        },
+        {
+          "caller": "render_team_card",
+          "callee": "lines.append",
+          "lineNumber": 713
+        },
+        {
+          "caller": "render_team_card",
+          "callee": "lines.append",
+          "lineNumber": 714
+        },
+        {
+          "caller": "render_team_card",
+          "callee": "\"\\n\".join(lines).strip",
+          "lineNumber": 715
+        },
+        {
+          "caller": "render_team_card",
+          "callee": "\"\\n\".join",
+          "lineNumber": 715
+        },
+        {
+          "caller": "render_persona_intro",
+          "callee": "'` · `'.join",
+          "lineNumber": 725
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 9,
+        "functionCount": 8,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "agents/task_registry.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 584,
+      "nonEmptyLines": 558,
+      "functions": [
+        {
+          "name": "get_task",
+          "startLine": 559,
+          "endLine": 561,
+          "params": [
+            "name"
+          ]
+        },
+        {
+          "name": "list_by_category",
+          "startLine": 564,
+          "endLine": 566,
+          "params": [
+            "category"
+          ]
+        },
+        {
+          "name": "needs_intake",
+          "startLine": 569,
+          "endLine": 584,
+          "params": [
+            "session",
+            "task_name"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "TaskConfig",
+          "startLine": 17,
+          "endLine": 47,
+          "methods": [],
+          "properties": [
+            "name",
+            "label",
+            "button_emoji",
+            "category",
+            "description",
+            "opening_question",
+            "skill_class_name",
+            "pipeline_stages",
+            "intake_fields",
+            "intake_required_fields"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "TaskConfig",
+          "line": 16,
+          "isDefault": false
+        },
+        {
+          "name": "get_task",
+          "line": 559,
+          "isDefault": false
+        },
+        {
+          "name": "list_by_category",
+          "line": 564,
+          "isDefault": false
+        },
+        {
+          "name": "needs_intake",
+          "line": 569,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "get_task",
+          "callee": "TASK_REGISTRY.get",
+          "lineNumber": 561
+        },
+        {
+          "caller": "list_by_category",
+          "callee": "TASK_REGISTRY.values",
+          "lineNumber": 566
+        },
+        {
+          "caller": "needs_intake",
+          "callee": "get_task",
+          "lineNumber": 574
+        },
+        {
+          "caller": "needs_intake",
+          "callee": "getattr",
+          "lineNumber": 581
+        },
+        {
+          "caller": "needs_intake",
+          "callee": "isinstance",
+          "lineNumber": 582
+        },
+        {
+          "caller": "needs_intake",
+          "callee": "value.strip",
+          "lineNumber": 582
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 4,
+        "functionCount": 3,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "bot/__init__.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 1,
+      "nonEmptyLines": 0,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "tests/test_persona_menu_changes.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 198,
+      "nonEmptyLines": 157,
+      "functions": [
+        {
+          "name": "_all_callbacks",
+          "startLine": 15,
+          "endLine": 16,
+          "params": [
+            "markup"
+          ]
+        },
+        {
+          "name": "test_main_menu_no_mai",
+          "startLine": 20,
+          "endLine": 27,
+          "params": []
+        },
+        {
+          "name": "test_growth_drops_performance_audit",
+          "startLine": 31,
+          "endLine": 34,
+          "params": []
+        },
+        {
+          "name": "test_growth_skills_have_channel_focus",
+          "startLine": 37,
+          "endLine": 40,
+          "params": []
+        },
+        {
+          "name": "test_growth_channel_keyboard",
+          "startLine": 43,
+          "endLine": 46,
+          "params": []
+        },
+        {
+          "name": "test_post_write_fresh_fields_no_tiktok",
+          "startLine": 50,
+          "endLine": 58,
+          "params": []
+        },
+        {
+          "name": "test_nam_mode_keyboard",
+          "startLine": 61,
+          "endLine": 64,
+          "params": []
+        },
+        {
+          "name": "test_trang_mode_keyboard",
+          "startLine": 68,
+          "endLine": 71,
+          "params": []
+        },
+        {
+          "name": "test_video_scripts_content_first",
+          "startLine": 74,
+          "endLine": 84,
+          "params": []
+        },
+        {
+          "name": "test_video_scripts_msg_type_drives_format",
+          "startLine": 87,
+          "endLine": 108,
+          "params": []
+        },
+        {
+          "name": "test_key_message_hint_uses_business_and_industry",
+          "startLine": 112,
+          "endLine": 128,
+          "params": []
+        },
+        {
+          "name": "test_key_message_hint_unknown_industry_empty",
+          "startLine": 131,
+          "endLine": 135,
+          "params": []
+        },
+        {
+          "name": "test_linh_keyboards",
+          "startLine": 139,
+          "endLine": 144,
+          "params": []
+        },
+        {
+          "name": "test_xlsx_filename_detection",
+          "startLine": 148,
+          "endLine": 155,
+          "params": []
+        },
+        {
+          "name": "test_xlsx_reader_roundtrip",
+          "startLine": 158,
+          "endLine": 172,
+          "params": []
+        },
+        {
+          "name": "test_xlsx_edit_keyboard",
+          "startLine": 175,
+          "endLine": 180,
+          "params": []
+        },
+        {
+          "name": "test_bv_do_dont_parsers",
+          "startLine": 184,
+          "endLine": 198,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "_all_callbacks",
+          "line": 15,
+          "isDefault": false
+        },
+        {
+          "name": "test_main_menu_no_mai",
+          "line": 20,
+          "isDefault": false
+        },
+        {
+          "name": "test_growth_drops_performance_audit",
+          "line": 31,
+          "isDefault": false
+        },
+        {
+          "name": "test_growth_skills_have_channel_focus",
+          "line": 37,
+          "isDefault": false
+        },
+        {
+          "name": "test_growth_channel_keyboard",
+          "line": 43,
+          "isDefault": false
+        },
+        {
+          "name": "test_post_write_fresh_fields_no_tiktok",
+          "line": 50,
+          "isDefault": false
+        },
+        {
+          "name": "test_nam_mode_keyboard",
+          "line": 61,
+          "isDefault": false
+        },
+        {
+          "name": "test_trang_mode_keyboard",
+          "line": 68,
+          "isDefault": false
+        },
+        {
+          "name": "test_video_scripts_content_first",
+          "line": 74,
+          "isDefault": false
+        },
+        {
+          "name": "test_video_scripts_msg_type_drives_format",
+          "line": 87,
+          "isDefault": false
+        },
+        {
+          "name": "test_key_message_hint_uses_business_and_industry",
+          "line": 112,
+          "isDefault": false
+        },
+        {
+          "name": "test_key_message_hint_unknown_industry_empty",
+          "line": 131,
+          "isDefault": false
+        },
+        {
+          "name": "test_linh_keyboards",
+          "line": 139,
+          "isDefault": false
+        },
+        {
+          "name": "test_xlsx_filename_detection",
+          "line": 148,
+          "isDefault": false
+        },
+        {
+          "name": "test_xlsx_reader_roundtrip",
+          "line": 158,
+          "isDefault": false
+        },
+        {
+          "name": "test_xlsx_edit_keyboard",
+          "line": 175,
+          "isDefault": false
+        },
+        {
+          "name": "test_bv_do_dont_parsers",
+          "line": 184,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "test_main_menu_no_mai",
+          "callee": "_all_callbacks",
+          "lineNumber": 21
+        },
+        {
+          "caller": "test_growth_drops_performance_audit",
+          "callee": "get_persona",
+          "lineNumber": 32
+        },
+        {
+          "caller": "test_growth_skills_have_channel_focus",
+          "callee": "get_task",
+          "lineNumber": 39
+        },
+        {
+          "caller": "test_growth_channel_keyboard",
+          "callee": "_all_callbacks",
+          "lineNumber": 44
+        },
+        {
+          "caller": "test_growth_channel_keyboard",
+          "callee": "set",
+          "lineNumber": 45
+        },
+        {
+          "caller": "test_post_write_fresh_fields_no_tiktok",
+          "callee": "get_task",
+          "lineNumber": 51
+        },
+        {
+          "caller": "test_post_write_fresh_fields_no_tiktok",
+          "callee": "next",
+          "lineNumber": 55
+        },
+        {
+          "caller": "test_nam_mode_keyboard",
+          "callee": "_all_callbacks",
+          "lineNumber": 62
+        },
+        {
+          "caller": "test_trang_mode_keyboard",
+          "callee": "_all_callbacks",
+          "lineNumber": 69
+        },
+        {
+          "caller": "test_video_scripts_content_first",
+          "callee": "get_task",
+          "lineNumber": 76
+        },
+        {
+          "caller": "test_video_scripts_content_first",
+          "callee": "next",
+          "lineNumber": 80
+        },
+        {
+          "caller": "test_video_scripts_msg_type_drives_format",
+          "callee": "_P",
+          "lineNumber": 97
+        },
+        {
+          "caller": "test_video_scripts_msg_type_drives_format",
+          "callee": "VideoScriptsSkill().build_user_msg",
+          "lineNumber": 105
+        },
+        {
+          "caller": "test_video_scripts_msg_type_drives_format",
+          "callee": "VideoScriptsSkill",
+          "lineNumber": 105
+        },
+        {
+          "caller": "test_video_scripts_msg_type_drives_format",
+          "callee": "_S",
+          "lineNumber": 105
+        },
+        {
+          "caller": "test_key_message_hint_uses_business_and_industry",
+          "callee": "suggest_key_message_hint",
+          "lineNumber": 116
+        },
+        {
+          "caller": "test_key_message_hint_unknown_industry_empty",
+          "callee": "suggest_key_message_hint",
+          "lineNumber": 135
+        },
+        {
+          "caller": "test_linh_keyboards",
+          "callee": "_all_callbacks",
+          "lineNumber": 140
+        },
+        {
+          "caller": "test_linh_keyboards",
+          "callee": "_all_callbacks",
+          "lineNumber": 143
+        },
+        {
+          "caller": "test_xlsx_filename_detection",
+          "callee": "detect_skill_from_filename",
+          "lineNumber": 150
+        },
+        {
+          "caller": "test_xlsx_filename_detection",
+          "callee": "detect_skill_from_filename",
+          "lineNumber": 152
+        },
+        {
+          "caller": "test_xlsx_filename_detection",
+          "callee": "detect_skill_from_filename",
+          "lineNumber": 154
+        },
+        {
+          "caller": "test_xlsx_filename_detection",
+          "callee": "detect_skill_from_filename",
+          "lineNumber": 155
+        },
+        {
+          "caller": "test_xlsx_reader_roundtrip",
+          "callee": "Workbook",
+          "lineNumber": 163
+        },
+        {
+          "caller": "test_xlsx_reader_roundtrip",
+          "callee": "ws.append",
+          "lineNumber": 165
+        },
+        {
+          "caller": "test_xlsx_reader_roundtrip",
+          "callee": "ws.append",
+          "lineNumber": 166
+        },
+        {
+          "caller": "test_xlsx_reader_roundtrip",
+          "callee": "io.BytesIO",
+          "lineNumber": 167
+        },
+        {
+          "caller": "test_xlsx_reader_roundtrip",
+          "callee": "wb.save",
+          "lineNumber": 168
+        },
+        {
+          "caller": "test_xlsx_reader_roundtrip",
+          "callee": "read_xlsx_to_markdown",
+          "lineNumber": 169
+        },
+        {
+          "caller": "test_xlsx_reader_roundtrip",
+          "callee": "buf.getvalue",
+          "lineNumber": 169
+        },
+        {
+          "caller": "test_xlsx_reader_roundtrip",
+          "callee": "md.count",
+          "lineNumber": 172
+        },
+        {
+          "caller": "test_xlsx_edit_keyboard",
+          "callee": "_all_callbacks",
+          "lineNumber": 176
+        },
+        {
+          "caller": "test_bv_do_dont_parsers",
+          "callee": "_extract_do_rules_from_md",
+          "lineNumber": 195
+        },
+        {
+          "caller": "test_bv_do_dont_parsers",
+          "callee": "_extract_dont_rules_from_md",
+          "lineNumber": 196
+        },
+        {
+          "caller": "test_bv_do_dont_parsers",
+          "callee": "len",
+          "lineNumber": 197
+        },
+        {
+          "caller": "test_bv_do_dont_parsers",
+          "callee": "len",
+          "lineNumber": 198
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 17,
+        "functionCount": 17,
+        "classCount": 0
+      }
+    }
+  ]
+}

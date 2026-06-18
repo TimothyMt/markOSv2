@@ -1,0 +1,16 @@
+{
+  "fixedSectionOk": true,
+  "nodesRecovered": 1,
+  "edgesRestored": 2,
+  "crossBatchEdgesAdded": 0,
+  "typesRemapped": 1,
+  "complexityRemapped": 0,
+  "notes": [
+    "Fixed section (1 dropped tested_by edge, 0 supplemental tested_by edges, 4 production nodes tagged 'tested') is small and reasonable; no systemic upstream issue indicated.",
+    "Remapped node webapp/supabase_schema.sql from unknown type 'data' to 'schema' (it defines the Supabase SQL schema for the web dashboard) and updated its id from file:webapp/supabase_schema.sql to schema:webapp/supabase_schema.sql, fixing references in edges accordingly.",
+    "Recreated missing node function:agents/critic.py:run_critic (confirmed present in source as a real async function, the main entry point of critic.py) and restored the dropped edge file:config.py -> function:agents/critic.py:run_critic (related, weight 0.5).",
+    "The dropped edge function:webapp/api.py:stream -> function:webapp/events.py:Hub was not a missing node issue: Hub is actually a class and already exists as class:webapp/events.py:Hub (confirmed in webapp/events.py source and other batch-5-part-3 edges). Fixed the target prefix and restored the depends_on edge (weight 0.6) instead of creating a duplicate node.",
+    "Cross-batch import map check: all 122 file->file import relationships in ua-import-map.json already have corresponding 'imports' edges in the assembled graph; no missing edges found, none added.",
+    "Final graph: 844 nodes, 1676 edges."
+  ]
+}

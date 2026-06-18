@@ -1,0 +1,6835 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 12,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "tools/token_billing.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 213,
+      "nonEmptyLines": 171,
+      "functions": [
+        {
+          "name": "calc_cost_usd",
+          "startLine": 48,
+          "endLine": 73,
+          "params": [
+            "provider",
+            "tokens_in",
+            "tokens_out",
+            "cache_read",
+            "cache_create"
+          ]
+        },
+        {
+          "name": "calc_cost_vnd",
+          "startLine": 76,
+          "endLine": 84,
+          "params": [
+            "provider",
+            "tokens_in",
+            "tokens_out",
+            "cache_read",
+            "cache_create"
+          ]
+        },
+        {
+          "name": "fmt_usd",
+          "startLine": 87,
+          "endLine": 93,
+          "params": [
+            "amount"
+          ]
+        },
+        {
+          "name": "fmt_vnd",
+          "startLine": 96,
+          "endLine": 98,
+          "params": [
+            "amount"
+          ]
+        },
+        {
+          "name": "accumulate_cost",
+          "startLine": 105,
+          "endLine": 119,
+          "params": [
+            "session",
+            "cost_usd"
+          ]
+        },
+        {
+          "name": "get_total_cost_usd",
+          "startLine": 122,
+          "endLine": 130,
+          "params": [
+            "session"
+          ]
+        },
+        {
+          "name": "cost_summary_from_log",
+          "startLine": 137,
+          "endLine": 183,
+          "params": [
+            "token_log"
+          ]
+        },
+        {
+          "name": "format_cost_report",
+          "startLine": 186,
+          "endLine": 213,
+          "params": [
+            "session"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "calc_cost_usd",
+          "line": 48,
+          "isDefault": false
+        },
+        {
+          "name": "calc_cost_vnd",
+          "line": 76,
+          "isDefault": false
+        },
+        {
+          "name": "fmt_usd",
+          "line": 87,
+          "isDefault": false
+        },
+        {
+          "name": "fmt_vnd",
+          "line": 96,
+          "isDefault": false
+        },
+        {
+          "name": "accumulate_cost",
+          "line": 105,
+          "isDefault": false
+        },
+        {
+          "name": "get_total_cost_usd",
+          "line": 122,
+          "isDefault": false
+        },
+        {
+          "name": "cost_summary_from_log",
+          "line": 137,
+          "isDefault": false
+        },
+        {
+          "name": "format_cost_report",
+          "line": 186,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "calc_cost_usd",
+          "callee": "PROVIDER_PRICING.get",
+          "lineNumber": 61
+        },
+        {
+          "caller": "calc_cost_usd",
+          "callee": "provider.startswith",
+          "lineNumber": 69
+        },
+        {
+          "caller": "calc_cost_usd",
+          "callee": "round",
+          "lineNumber": 73
+        },
+        {
+          "caller": "calc_cost_vnd",
+          "callee": "calc_cost_usd",
+          "lineNumber": 84
+        },
+        {
+          "caller": "fmt_vnd",
+          "callee": "int",
+          "lineNumber": 98
+        },
+        {
+          "caller": "accumulate_cost",
+          "callee": "float",
+          "lineNumber": 113
+        },
+        {
+          "caller": "accumulate_cost",
+          "callee": "prefs.get",
+          "lineNumber": 113
+        },
+        {
+          "caller": "accumulate_cost",
+          "callee": "round",
+          "lineNumber": 117
+        },
+        {
+          "caller": "get_total_cost_usd",
+          "callee": "float",
+          "lineNumber": 128
+        },
+        {
+          "caller": "get_total_cost_usd",
+          "callee": "prefs.get",
+          "lineNumber": 128
+        },
+        {
+          "caller": "cost_summary_from_log",
+          "callee": "entry.get",
+          "lineNumber": 153
+        },
+        {
+          "caller": "cost_summary_from_log",
+          "callee": "entry.get",
+          "lineNumber": 154
+        },
+        {
+          "caller": "cost_summary_from_log",
+          "callee": "calc_cost_usd",
+          "lineNumber": 155
+        },
+        {
+          "caller": "cost_summary_from_log",
+          "callee": "entry.get",
+          "lineNumber": 157
+        },
+        {
+          "caller": "cost_summary_from_log",
+          "callee": "entry.get",
+          "lineNumber": 157
+        },
+        {
+          "caller": "cost_summary_from_log",
+          "callee": "entry.get",
+          "lineNumber": 158
+        },
+        {
+          "caller": "cost_summary_from_log",
+          "callee": "entry.get",
+          "lineNumber": 158
+        },
+        {
+          "caller": "cost_summary_from_log",
+          "callee": "entry.get",
+          "lineNumber": 159
+        },
+        {
+          "caller": "cost_summary_from_log",
+          "callee": "entry.get",
+          "lineNumber": 160
+        },
+        {
+          "caller": "cost_summary_from_log",
+          "callee": "by_provider.setdefault",
+          "lineNumber": 164
+        },
+        {
+          "caller": "cost_summary_from_log",
+          "callee": "by_skill.setdefault",
+          "lineNumber": 168
+        },
+        {
+          "caller": "cost_summary_from_log",
+          "callee": "by_provider.values",
+          "lineNumber": 173
+        },
+        {
+          "caller": "cost_summary_from_log",
+          "callee": "round",
+          "lineNumber": 174
+        },
+        {
+          "caller": "cost_summary_from_log",
+          "callee": "by_skill.values",
+          "lineNumber": 175
+        },
+        {
+          "caller": "cost_summary_from_log",
+          "callee": "round",
+          "lineNumber": 176
+        },
+        {
+          "caller": "cost_summary_from_log",
+          "callee": "round",
+          "lineNumber": 179
+        },
+        {
+          "caller": "cost_summary_from_log",
+          "callee": "round",
+          "lineNumber": 180
+        },
+        {
+          "caller": "format_cost_report",
+          "callee": "get_token_log",
+          "lineNumber": 189
+        },
+        {
+          "caller": "format_cost_report",
+          "callee": "cost_summary_from_log",
+          "lineNumber": 193
+        },
+        {
+          "caller": "format_cost_report",
+          "callee": "fmt_usd",
+          "lineNumber": 199
+        },
+        {
+          "caller": "format_cost_report",
+          "callee": "fmt_vnd",
+          "lineNumber": 199
+        },
+        {
+          "caller": "format_cost_report",
+          "callee": "sorted",
+          "lineNumber": 203
+        },
+        {
+          "caller": "format_cost_report",
+          "callee": "summary[\"by_provider\"].items",
+          "lineNumber": 203
+        },
+        {
+          "caller": "format_cost_report",
+          "callee": "lines.append",
+          "lineNumber": 204
+        },
+        {
+          "caller": "format_cost_report",
+          "callee": "fmt_usd",
+          "lineNumber": 204
+        },
+        {
+          "caller": "format_cost_report",
+          "callee": "sorted",
+          "lineNumber": 206
+        },
+        {
+          "caller": "format_cost_report",
+          "callee": "summary[\"by_skill\"].items",
+          "lineNumber": 206
+        },
+        {
+          "caller": "format_cost_report",
+          "callee": "lines.append",
+          "lineNumber": 208
+        },
+        {
+          "caller": "format_cost_report",
+          "callee": "lines.append",
+          "lineNumber": 209
+        },
+        {
+          "caller": "format_cost_report",
+          "callee": "lines.append",
+          "lineNumber": 211
+        },
+        {
+          "caller": "format_cost_report",
+          "callee": "fmt_usd",
+          "lineNumber": 211
+        },
+        {
+          "caller": "format_cost_report",
+          "callee": "\"\\n\".join",
+          "lineNumber": 213
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 8,
+        "functionCount": 8,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "tools/token_tracker.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 384,
+      "nonEmptyLines": 307,
+      "functions": [
+        {
+          "name": "begin_job",
+          "startLine": 20,
+          "endLine": 38,
+          "params": [
+            "session"
+          ]
+        },
+        {
+          "name": "_current_job_seq",
+          "startLine": 41,
+          "endLine": 45,
+          "params": [
+            "prefs"
+          ]
+        },
+        {
+          "name": "_append_log",
+          "startLine": 48,
+          "endLine": 56,
+          "params": [
+            "prefs",
+            "entry"
+          ]
+        },
+        {
+          "name": "track_skill",
+          "startLine": 59,
+          "endLine": 121,
+          "params": [
+            "session",
+            "skill_name",
+            "provider",
+            "input_tok",
+            "output_tok",
+            "cache_read",
+            "cache_create",
+            "latency_sec"
+          ]
+        },
+        {
+          "name": "track_usage",
+          "startLine": 124,
+          "endLine": 180,
+          "params": [
+            "session",
+            "response",
+            "label"
+          ]
+        },
+        {
+          "name": "track_usage_raw",
+          "startLine": 183,
+          "endLine": 222,
+          "params": [
+            "session",
+            "input_tokens",
+            "output_tokens",
+            "label"
+          ]
+        },
+        {
+          "name": "get_token_log",
+          "startLine": 225,
+          "endLine": 229,
+          "params": [
+            "session"
+          ]
+        },
+        {
+          "name": "get_latest_skill_entry",
+          "startLine": 232,
+          "endLine": 237,
+          "params": [
+            "session",
+            "skill_name"
+          ]
+        },
+        {
+          "name": "get_quota",
+          "startLine": 240,
+          "endLine": 246,
+          "params": [
+            "session"
+          ]
+        },
+        {
+          "name": "get_used",
+          "startLine": 249,
+          "endLine": 255,
+          "params": [
+            "session"
+          ]
+        },
+        {
+          "name": "get_remaining",
+          "startLine": 258,
+          "endLine": 260,
+          "params": [
+            "session"
+          ]
+        },
+        {
+          "name": "is_low",
+          "startLine": 263,
+          "endLine": 268,
+          "params": [
+            "session",
+            "threshold_pct"
+          ]
+        },
+        {
+          "name": "is_exhausted",
+          "startLine": 271,
+          "endLine": 273,
+          "params": [
+            "session"
+          ]
+        },
+        {
+          "name": "fmt",
+          "startLine": 276,
+          "endLine": 282,
+          "params": [
+            "n"
+          ]
+        },
+        {
+          "name": "usage_summary",
+          "startLine": 285,
+          "endLine": 290,
+          "params": [
+            "session"
+          ]
+        },
+        {
+          "name": "_provider_label",
+          "startLine": 313,
+          "endLine": 314,
+          "params": [
+            "provider"
+          ]
+        },
+        {
+          "name": "get_job_breakdown",
+          "startLine": 317,
+          "endLine": 350,
+          "params": [
+            "session",
+            "job_seq"
+          ]
+        },
+        {
+          "name": "format_job_footer",
+          "startLine": 353,
+          "endLine": 384,
+          "params": [
+            "session",
+            "job_seq"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "begin_job",
+          "line": 20,
+          "isDefault": false
+        },
+        {
+          "name": "_current_job_seq",
+          "line": 41,
+          "isDefault": false
+        },
+        {
+          "name": "_append_log",
+          "line": 48,
+          "isDefault": false
+        },
+        {
+          "name": "track_skill",
+          "line": 59,
+          "isDefault": false
+        },
+        {
+          "name": "track_usage",
+          "line": 124,
+          "isDefault": false
+        },
+        {
+          "name": "track_usage_raw",
+          "line": 183,
+          "isDefault": false
+        },
+        {
+          "name": "get_token_log",
+          "line": 225,
+          "isDefault": false
+        },
+        {
+          "name": "get_latest_skill_entry",
+          "line": 232,
+          "isDefault": false
+        },
+        {
+          "name": "get_quota",
+          "line": 240,
+          "isDefault": false
+        },
+        {
+          "name": "get_used",
+          "line": 249,
+          "isDefault": false
+        },
+        {
+          "name": "get_remaining",
+          "line": 258,
+          "isDefault": false
+        },
+        {
+          "name": "is_low",
+          "line": 263,
+          "isDefault": false
+        },
+        {
+          "name": "is_exhausted",
+          "line": 271,
+          "isDefault": false
+        },
+        {
+          "name": "fmt",
+          "line": 276,
+          "isDefault": false
+        },
+        {
+          "name": "usage_summary",
+          "line": 285,
+          "isDefault": false
+        },
+        {
+          "name": "_provider_label",
+          "line": 313,
+          "isDefault": false
+        },
+        {
+          "name": "get_job_breakdown",
+          "line": 317,
+          "isDefault": false
+        },
+        {
+          "name": "format_job_footer",
+          "line": 353,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "begin_job",
+          "callee": "int",
+          "lineNumber": 34
+        },
+        {
+          "caller": "begin_job",
+          "callee": "time.time",
+          "lineNumber": 34
+        },
+        {
+          "caller": "_current_job_seq",
+          "callee": "int",
+          "lineNumber": 43
+        },
+        {
+          "caller": "_current_job_seq",
+          "callee": "prefs.get",
+          "lineNumber": 43
+        },
+        {
+          "caller": "_append_log",
+          "callee": "prefs.get",
+          "lineNumber": 50
+        },
+        {
+          "caller": "_append_log",
+          "callee": "isinstance",
+          "lineNumber": 51
+        },
+        {
+          "caller": "_append_log",
+          "callee": "log.append",
+          "lineNumber": 53
+        },
+        {
+          "caller": "_append_log",
+          "callee": "len",
+          "lineNumber": 54
+        },
+        {
+          "caller": "track_skill",
+          "callee": "max",
+          "lineNumber": 80
+        },
+        {
+          "caller": "track_skill",
+          "callee": "max",
+          "lineNumber": 80
+        },
+        {
+          "caller": "track_skill",
+          "callee": "max",
+          "lineNumber": 80
+        },
+        {
+          "caller": "track_skill",
+          "callee": "max",
+          "lineNumber": 80
+        },
+        {
+          "caller": "track_skill",
+          "callee": "int",
+          "lineNumber": 86
+        },
+        {
+          "caller": "track_skill",
+          "callee": "str(prefs.get(\"token_used\", \"0\")).replace(\",\", \"\").replace",
+          "lineNumber": 86
+        },
+        {
+          "caller": "track_skill",
+          "callee": "str(prefs.get(\"token_used\", \"0\")).replace",
+          "lineNumber": 86
+        },
+        {
+          "caller": "track_skill",
+          "callee": "str",
+          "lineNumber": 86
+        },
+        {
+          "caller": "track_skill",
+          "callee": "prefs.get",
+          "lineNumber": 86
+        },
+        {
+          "caller": "track_skill",
+          "callee": "str",
+          "lineNumber": 90
+        },
+        {
+          "caller": "track_skill",
+          "callee": "calc_cost_usd",
+          "lineNumber": 95
+        },
+        {
+          "caller": "track_skill",
+          "callee": "max",
+          "lineNumber": 95
+        },
+        {
+          "caller": "track_skill",
+          "callee": "max",
+          "lineNumber": 95
+        },
+        {
+          "caller": "track_skill",
+          "callee": "max",
+          "lineNumber": 95
+        },
+        {
+          "caller": "track_skill",
+          "callee": "max",
+          "lineNumber": 95
+        },
+        {
+          "caller": "track_skill",
+          "callee": "accumulate_cost",
+          "lineNumber": 96
+        },
+        {
+          "caller": "track_skill",
+          "callee": "_append_log",
+          "lineNumber": 100
+        },
+        {
+          "caller": "track_skill",
+          "callee": "max",
+          "lineNumber": 103
+        },
+        {
+          "caller": "track_skill",
+          "callee": "max",
+          "lineNumber": 104
+        },
+        {
+          "caller": "track_skill",
+          "callee": "max",
+          "lineNumber": 105
+        },
+        {
+          "caller": "track_skill",
+          "callee": "max",
+          "lineNumber": 106
+        },
+        {
+          "caller": "track_skill",
+          "callee": "round",
+          "lineNumber": 108
+        },
+        {
+          "caller": "track_skill",
+          "callee": "round",
+          "lineNumber": 109
+        },
+        {
+          "caller": "track_skill",
+          "callee": "_current_job_seq",
+          "lineNumber": 110
+        },
+        {
+          "caller": "track_skill",
+          "callee": "datetime.now(timezone.utc).strftime",
+          "lineNumber": 111
+        },
+        {
+          "caller": "track_skill",
+          "callee": "datetime.now",
+          "lineNumber": 111
+        },
+        {
+          "caller": "track_skill",
+          "callee": "logger.info",
+          "lineNumber": 116
+        },
+        {
+          "caller": "track_usage",
+          "callee": "getattr",
+          "lineNumber": 138
+        },
+        {
+          "caller": "track_usage",
+          "callee": "getattr",
+          "lineNumber": 143
+        },
+        {
+          "caller": "track_usage",
+          "callee": "getattr",
+          "lineNumber": 144
+        },
+        {
+          "caller": "track_usage",
+          "callee": "getattr",
+          "lineNumber": 145
+        },
+        {
+          "caller": "track_usage",
+          "callee": "getattr",
+          "lineNumber": 146
+        },
+        {
+          "caller": "track_usage",
+          "callee": "int",
+          "lineNumber": 156
+        },
+        {
+          "caller": "track_usage",
+          "callee": "str(prefs.get(\"token_used\", \"0\")).replace(\",\", \"\").replace",
+          "lineNumber": 156
+        },
+        {
+          "caller": "track_usage",
+          "callee": "str(prefs.get(\"token_used\", \"0\")).replace",
+          "lineNumber": 156
+        },
+        {
+          "caller": "track_usage",
+          "callee": "str",
+          "lineNumber": 156
+        },
+        {
+          "caller": "track_usage",
+          "callee": "prefs.get",
+          "lineNumber": 156
+        },
+        {
+          "caller": "track_usage",
+          "callee": "str",
+          "lineNumber": 160
+        },
+        {
+          "caller": "track_usage",
+          "callee": "_append_log",
+          "lineNumber": 162
+        },
+        {
+          "caller": "track_usage",
+          "callee": "datetime.now(timezone.utc).strftime",
+          "lineNumber": 171
+        },
+        {
+          "caller": "track_usage",
+          "callee": "datetime.now",
+          "lineNumber": 171
+        },
+        {
+          "caller": "track_usage",
+          "callee": "logger.info",
+          "lineNumber": 176
+        },
+        {
+          "caller": "track_usage_raw",
+          "callee": "max",
+          "lineNumber": 192
+        },
+        {
+          "caller": "track_usage_raw",
+          "callee": "int",
+          "lineNumber": 192
+        },
+        {
+          "caller": "track_usage_raw",
+          "callee": "max",
+          "lineNumber": 192
+        },
+        {
+          "caller": "track_usage_raw",
+          "callee": "int",
+          "lineNumber": 192
+        },
+        {
+          "caller": "track_usage_raw",
+          "callee": "int",
+          "lineNumber": 198
+        },
+        {
+          "caller": "track_usage_raw",
+          "callee": "str(prefs.get(\"token_used\", \"0\")).replace(\",\", \"\").replace",
+          "lineNumber": 198
+        },
+        {
+          "caller": "track_usage_raw",
+          "callee": "str(prefs.get(\"token_used\", \"0\")).replace",
+          "lineNumber": 198
+        },
+        {
+          "caller": "track_usage_raw",
+          "callee": "str",
+          "lineNumber": 198
+        },
+        {
+          "caller": "track_usage_raw",
+          "callee": "prefs.get",
+          "lineNumber": 198
+        },
+        {
+          "caller": "track_usage_raw",
+          "callee": "str",
+          "lineNumber": 202
+        },
+        {
+          "caller": "track_usage_raw",
+          "callee": "_append_log",
+          "lineNumber": 204
+        },
+        {
+          "caller": "track_usage_raw",
+          "callee": "max",
+          "lineNumber": 207
+        },
+        {
+          "caller": "track_usage_raw",
+          "callee": "int",
+          "lineNumber": 207
+        },
+        {
+          "caller": "track_usage_raw",
+          "callee": "max",
+          "lineNumber": 208
+        },
+        {
+          "caller": "track_usage_raw",
+          "callee": "int",
+          "lineNumber": 208
+        },
+        {
+          "caller": "track_usage_raw",
+          "callee": "datetime.now(timezone.utc).strftime",
+          "lineNumber": 213
+        },
+        {
+          "caller": "track_usage_raw",
+          "callee": "datetime.now",
+          "lineNumber": 213
+        },
+        {
+          "caller": "track_usage_raw",
+          "callee": "logger.info",
+          "lineNumber": 218
+        },
+        {
+          "caller": "get_token_log",
+          "callee": "prefs.get",
+          "lineNumber": 228
+        },
+        {
+          "caller": "get_token_log",
+          "callee": "isinstance",
+          "lineNumber": 229
+        },
+        {
+          "caller": "get_latest_skill_entry",
+          "callee": "reversed",
+          "lineNumber": 234
+        },
+        {
+          "caller": "get_latest_skill_entry",
+          "callee": "get_token_log",
+          "lineNumber": 234
+        },
+        {
+          "caller": "get_latest_skill_entry",
+          "callee": "entry.get",
+          "lineNumber": 235
+        },
+        {
+          "caller": "get_quota",
+          "callee": "int",
+          "lineNumber": 244
+        },
+        {
+          "caller": "get_quota",
+          "callee": "str(prefs.get(\"token_quota\", DEFAULT_QUOTA)).replace",
+          "lineNumber": 244
+        },
+        {
+          "caller": "get_quota",
+          "callee": "str",
+          "lineNumber": 244
+        },
+        {
+          "caller": "get_quota",
+          "callee": "prefs.get",
+          "lineNumber": 244
+        },
+        {
+          "caller": "get_used",
+          "callee": "int",
+          "lineNumber": 253
+        },
+        {
+          "caller": "get_used",
+          "callee": "str(prefs.get(\"token_used\", \"0\")).replace",
+          "lineNumber": 253
+        },
+        {
+          "caller": "get_used",
+          "callee": "str",
+          "lineNumber": 253
+        },
+        {
+          "caller": "get_used",
+          "callee": "prefs.get",
+          "lineNumber": 253
+        },
+        {
+          "caller": "get_remaining",
+          "callee": "max",
+          "lineNumber": 260
+        },
+        {
+          "caller": "get_remaining",
+          "callee": "get_quota",
+          "lineNumber": 260
+        },
+        {
+          "caller": "get_remaining",
+          "callee": "get_used",
+          "lineNumber": 260
+        },
+        {
+          "caller": "is_low",
+          "callee": "get_quota",
+          "lineNumber": 265
+        },
+        {
+          "caller": "is_low",
+          "callee": "get_remaining",
+          "lineNumber": 268
+        },
+        {
+          "caller": "is_exhausted",
+          "callee": "get_remaining",
+          "lineNumber": 273
+        },
+        {
+          "caller": "fmt",
+          "callee": "str",
+          "lineNumber": 282
+        },
+        {
+          "caller": "usage_summary",
+          "callee": "get_used",
+          "lineNumber": 287
+        },
+        {
+          "caller": "usage_summary",
+          "callee": "get_quota",
+          "lineNumber": 288
+        },
+        {
+          "caller": "usage_summary",
+          "callee": "fmt",
+          "lineNumber": 290
+        },
+        {
+          "caller": "usage_summary",
+          "callee": "fmt",
+          "lineNumber": 290
+        },
+        {
+          "caller": "_provider_label",
+          "callee": "_PROVIDER_LABELS.get",
+          "lineNumber": 314
+        },
+        {
+          "caller": "get_job_breakdown",
+          "callee": "get_token_log",
+          "lineNumber": 325
+        },
+        {
+          "caller": "get_job_breakdown",
+          "callee": "e.get",
+          "lineNumber": 330
+        },
+        {
+          "caller": "get_job_breakdown",
+          "callee": "max",
+          "lineNumber": 331
+        },
+        {
+          "caller": "get_job_breakdown",
+          "callee": "e.get",
+          "lineNumber": 335
+        },
+        {
+          "caller": "get_job_breakdown",
+          "callee": "e.get",
+          "lineNumber": 337
+        },
+        {
+          "caller": "get_job_breakdown",
+          "callee": "by_provider.setdefault",
+          "lineNumber": 338
+        },
+        {
+          "caller": "get_job_breakdown",
+          "callee": "e.get",
+          "lineNumber": 342
+        },
+        {
+          "caller": "get_job_breakdown",
+          "callee": "e.get",
+          "lineNumber": 343
+        },
+        {
+          "caller": "get_job_breakdown",
+          "callee": "e.get",
+          "lineNumber": 344
+        },
+        {
+          "caller": "get_job_breakdown",
+          "callee": "e.get",
+          "lineNumber": 345
+        },
+        {
+          "caller": "get_job_breakdown",
+          "callee": "list",
+          "lineNumber": 348
+        },
+        {
+          "caller": "get_job_breakdown",
+          "callee": "by_provider.values",
+          "lineNumber": 348
+        },
+        {
+          "caller": "get_job_breakdown",
+          "callee": "rows.sort",
+          "lineNumber": 349
+        },
+        {
+          "caller": "format_job_footer",
+          "callee": "get_job_breakdown",
+          "lineNumber": 361
+        },
+        {
+          "caller": "format_job_footer",
+          "callee": "len",
+          "lineNumber": 365
+        },
+        {
+          "caller": "format_job_footer",
+          "callee": "_provider_label",
+          "lineNumber": 368
+        },
+        {
+          "caller": "format_job_footer",
+          "callee": "fmt",
+          "lineNumber": 369
+        },
+        {
+          "caller": "format_job_footer",
+          "callee": "fmt",
+          "lineNumber": 369
+        },
+        {
+          "caller": "format_job_footer",
+          "callee": "fmt",
+          "lineNumber": 370
+        },
+        {
+          "caller": "format_job_footer",
+          "callee": "lines.append",
+          "lineNumber": 378
+        },
+        {
+          "caller": "format_job_footer",
+          "callee": "_provider_label",
+          "lineNumber": 379
+        },
+        {
+          "caller": "format_job_footer",
+          "callee": "fmt",
+          "lineNumber": 380
+        },
+        {
+          "caller": "format_job_footer",
+          "callee": "fmt",
+          "lineNumber": 380
+        },
+        {
+          "caller": "format_job_footer",
+          "callee": "fmt",
+          "lineNumber": 381
+        },
+        {
+          "caller": "format_job_footer",
+          "callee": "lines.append",
+          "lineNumber": 383
+        },
+        {
+          "caller": "format_job_footer",
+          "callee": "fmt",
+          "lineNumber": 383
+        },
+        {
+          "caller": "format_job_footer",
+          "callee": "\"\\n\".join",
+          "lineNumber": 384
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 18,
+        "functionCount": 18,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "web/.nojekyll",
+      "language": "unknown",
+      "fileCategory": "code",
+      "totalLines": 1,
+      "nonEmptyLines": 0,
+      "metrics": {}
+    },
+    {
+      "path": "web/app.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 1848,
+      "nonEmptyLines": 1778,
+      "callGraph": [
+        {
+          "caller": "C",
+          "callee": "css.getPropertyValue(n).trim",
+          "lineNumber": 5
+        },
+        {
+          "caller": "C",
+          "callee": "css.getPropertyValue",
+          "lineNumber": 5
+        },
+        {
+          "caller": "reg",
+          "callee": "charts.push",
+          "lineNumber": 16
+        },
+        {
+          "caller": "killCharts",
+          "callee": "charts.forEach",
+          "lineNumber": 17
+        },
+        {
+          "caller": "killCharts",
+          "callee": "c.destroy",
+          "lineNumber": 17
+        },
+        {
+          "caller": "fill",
+          "callee": "g.createLinearGradient",
+          "lineNumber": 24
+        },
+        {
+          "caller": "fill",
+          "callee": "grad.addColorStop",
+          "lineNumber": 25
+        },
+        {
+          "caller": "fill",
+          "callee": "grad.addColorStop",
+          "lineNumber": 25
+        },
+        {
+          "caller": "num",
+          "callee": "n.toLocaleString",
+          "lineNumber": 29
+        },
+        {
+          "caller": "journeyMini",
+          "callee": "J.map((s,i)=>`\n      <a class=\"jm ${i<ai?'done':i===ai?'on':''}\" href=\"#${s.page}\" title=\"${s.desc}\">\n        <span class=\"jm-dot\">${i<ai?'✓':s.icon}</span><span class=\"jm-label\">${s.label}</span>\n      </a>${i<J.length-1?'<span class=\"jm-sep\">›</span>':''}`).join",
+          "lineNumber": 66
+        },
+        {
+          "caller": "journeyMini",
+          "callee": "J.map",
+          "lineNumber": 66
+        },
+        {
+          "caller": "fmtNum",
+          "callee": "Number(n).toLocaleString",
+          "lineNumber": 127
+        },
+        {
+          "caller": "fmtNum",
+          "callee": "Number",
+          "lineNumber": 127
+        },
+        {
+          "caller": "jobStatusTag",
+          "callee": "badge",
+          "lineNumber": 133
+        },
+        {
+          "caller": "jobStatusTag",
+          "callee": "badge",
+          "lineNumber": 134
+        },
+        {
+          "caller": "jobStatusTag",
+          "callee": "badge",
+          "lineNumber": 135
+        },
+        {
+          "caller": "agentBar",
+          "callee": "(M.agentJobs || []).some",
+          "lineNumber": 142
+        },
+        {
+          "caller": "agentBar",
+          "callee": "fmtNum",
+          "lineNumber": 148
+        },
+        {
+          "caller": "agentBar",
+          "callee": "(latest.created_at||'').slice",
+          "lineNumber": 148
+        },
+        {
+          "caller": "agentBar",
+          "callee": "runBtn",
+          "lineNumber": 153
+        },
+        {
+          "caller": "agentBar",
+          "callee": "card",
+          "lineNumber": 156
+        },
+        {
+          "caller": "agentSection",
+          "callee": "(M.bizSkillRuns || []).some",
+          "lineNumber": 161
+        },
+        {
+          "caller": "agentSection",
+          "callee": "agentBar",
+          "lineNumber": 162
+        },
+        {
+          "caller": "agentSection",
+          "callee": "(M.agentJobs || []).some",
+          "lineNumber": 163
+        },
+        {
+          "caller": "agentSection",
+          "callee": "card",
+          "lineNumber": 164
+        },
+        {
+          "caller": "agentSection",
+          "callee": "runBtn",
+          "lineNumber": 168
+        },
+        {
+          "caller": "renderAIContent",
+          "callee": "(txt || '').trim",
+          "lineNumber": 176
+        },
+        {
+          "caller": "renderAIContent",
+          "callee": "t.startsWith",
+          "lineNumber": 177
+        },
+        {
+          "caller": "renderAIContent",
+          "callee": "t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace",
+          "lineNumber": 178
+        },
+        {
+          "caller": "renderAIContent",
+          "callee": "t.replace(/&/g,'&amp;').replace",
+          "lineNumber": 178
+        },
+        {
+          "caller": "renderAIContent",
+          "callee": "t.replace",
+          "lineNumber": 178
+        },
+        {
+          "caller": "renderAIContent",
+          "callee": "esc\n      .replace(/^#### (.*)$/gm,'</p><h5>$1</h5><p>')\n      .replace(/^### (.*)$/gm,'</p><h4>$1</h4><p>')\n      .replace(/^## (.*)$/gm,'</p><h3>$1</h3><p>')\n      .replace(/^# (.*)$/gm,'</p><h2>$1</h2><p>')\n      .replace(/\\*\\*(.+?)\\*\\*/g,'<b>$1</b>')\n      .replace(/^[-*] (.*)$/gm,'• $1')\n      .replace(/\\n{2,}/g,'</p><p>')\n      .replace",
+          "lineNumber": 179
+        },
+        {
+          "caller": "renderAIContent",
+          "callee": "esc\n      .replace(/^#### (.*)$/gm,'</p><h5>$1</h5><p>')\n      .replace(/^### (.*)$/gm,'</p><h4>$1</h4><p>')\n      .replace(/^## (.*)$/gm,'</p><h3>$1</h3><p>')\n      .replace(/^# (.*)$/gm,'</p><h2>$1</h2><p>')\n      .replace(/\\*\\*(.+?)\\*\\*/g,'<b>$1</b>')\n      .replace(/^[-*] (.*)$/gm,'• $1')\n      .replace",
+          "lineNumber": 179
+        },
+        {
+          "caller": "renderAIContent",
+          "callee": "esc\n      .replace(/^#### (.*)$/gm,'</p><h5>$1</h5><p>')\n      .replace(/^### (.*)$/gm,'</p><h4>$1</h4><p>')\n      .replace(/^## (.*)$/gm,'</p><h3>$1</h3><p>')\n      .replace(/^# (.*)$/gm,'</p><h2>$1</h2><p>')\n      .replace(/\\*\\*(.+?)\\*\\*/g,'<b>$1</b>')\n      .replace",
+          "lineNumber": 179
+        },
+        {
+          "caller": "renderAIContent",
+          "callee": "esc\n      .replace(/^#### (.*)$/gm,'</p><h5>$1</h5><p>')\n      .replace(/^### (.*)$/gm,'</p><h4>$1</h4><p>')\n      .replace(/^## (.*)$/gm,'</p><h3>$1</h3><p>')\n      .replace(/^# (.*)$/gm,'</p><h2>$1</h2><p>')\n      .replace",
+          "lineNumber": 179
+        },
+        {
+          "caller": "renderAIContent",
+          "callee": "esc\n      .replace(/^#### (.*)$/gm,'</p><h5>$1</h5><p>')\n      .replace(/^### (.*)$/gm,'</p><h4>$1</h4><p>')\n      .replace(/^## (.*)$/gm,'</p><h3>$1</h3><p>')\n      .replace",
+          "lineNumber": 179
+        },
+        {
+          "caller": "renderAIContent",
+          "callee": "esc\n      .replace(/^#### (.*)$/gm,'</p><h5>$1</h5><p>')\n      .replace(/^### (.*)$/gm,'</p><h4>$1</h4><p>')\n      .replace",
+          "lineNumber": 179
+        },
+        {
+          "caller": "renderAIContent",
+          "callee": "esc\n      .replace(/^#### (.*)$/gm,'</p><h5>$1</h5><p>')\n      .replace",
+          "lineNumber": 179
+        },
+        {
+          "caller": "renderAIContent",
+          "callee": "esc\n      .replace",
+          "lineNumber": 179
+        },
+        {
+          "caller": "fillDocEmbeds",
+          "callee": "document.getElementById",
+          "lineNumber": 191
+        },
+        {
+          "caller": "fillDocEmbeds",
+          "callee": "host.classList.contains",
+          "lineNumber": 192
+        },
+        {
+          "caller": "fillDocEmbeds",
+          "callee": "(M.bizSkillRuns || []).find",
+          "lineNumber": 194
+        },
+        {
+          "caller": "fillDocEmbeds",
+          "callee": "loadDoc",
+          "lineNumber": 197
+        },
+        {
+          "caller": "aiIntakeStart",
+          "callee": "API.post",
+          "lineNumber": 231
+        },
+        {
+          "caller": "aiIntakeStart",
+          "callee": "route",
+          "lineNumber": 233
+        },
+        {
+          "caller": "aiIntakeStart",
+          "callee": "route",
+          "lineNumber": 234
+        },
+        {
+          "caller": "aiIntakeStart",
+          "callee": "route",
+          "lineNumber": 235
+        },
+        {
+          "caller": "aiIntakeSend",
+          "callee": "document.getElementById",
+          "lineNumber": 238
+        },
+        {
+          "caller": "aiIntakeSend",
+          "callee": "box.value.trim",
+          "lineNumber": 239
+        },
+        {
+          "caller": "aiIntakeSend",
+          "callee": "route",
+          "lineNumber": 241
+        },
+        {
+          "caller": "aiIntakeSend",
+          "callee": "API.post",
+          "lineNumber": 243
+        },
+        {
+          "caller": "aiIntakeSend",
+          "callee": "toast",
+          "lineNumber": 245
+        },
+        {
+          "caller": "aiIntakeSend",
+          "callee": "route",
+          "lineNumber": 245
+        },
+        {
+          "caller": "aiIntakeSend",
+          "callee": "toast",
+          "lineNumber": 248
+        },
+        {
+          "caller": "aiIntakeSend",
+          "callee": "refreshBiz",
+          "lineNumber": 249
+        },
+        {
+          "caller": "aiIntakeSend",
+          "callee": "renderRail",
+          "lineNumber": 249
+        },
+        {
+          "caller": "aiIntakeSend",
+          "callee": "renderTopbar",
+          "lineNumber": 249
+        },
+        {
+          "caller": "aiIntakeSend",
+          "callee": "route",
+          "lineNumber": 249
+        },
+        {
+          "caller": "aiIntakeSend",
+          "callee": "route",
+          "lineNumber": 252
+        },
+        {
+          "caller": "aiIntakeSend",
+          "callee": "toast",
+          "lineNumber": 253
+        },
+        {
+          "caller": "aiIntakeSend",
+          "callee": "route",
+          "lineNumber": 253
+        },
+        {
+          "caller": "intakeWizard",
+          "callee": "aiIntakeView",
+          "lineNumber": 258
+        },
+        {
+          "caller": "intakeWizard",
+          "callee": "staticWizard",
+          "lineNumber": 259
+        },
+        {
+          "caller": "staticWizard",
+          "callee": "Math.min",
+          "lineNumber": 263
+        },
+        {
+          "caller": "staticWizard",
+          "callee": "(_intakeData[st.key] || '').replace",
+          "lineNumber": 265
+        },
+        {
+          "caller": "staticWizard",
+          "callee": "Math.round",
+          "lineNumber": 269
+        },
+        {
+          "caller": "profileForm",
+          "callee": "PROFILE_FIELDS.map(([k, l, ph]) =>\n        `<label class=\"fld\"><span>${l}</span><input id=\"pf_${k}\" value=\"${(p[k] || '').replace(/\"/g, '&quot;')}\" placeholder=\"${ph}\"></label>`).join",
+          "lineNumber": 301
+        },
+        {
+          "caller": "profileForm",
+          "callee": "PROFILE_FIELDS.map",
+          "lineNumber": 301
+        },
+        {
+          "caller": "profileForm",
+          "callee": "(p[k] || '').replace",
+          "lineNumber": 302
+        },
+        {
+          "caller": "profileForm",
+          "callee": "Object.keys",
+          "lineNumber": 305
+        },
+        {
+          "caller": "actions",
+          "callee": "runBtn",
+          "lineNumber": 318
+        },
+        {
+          "caller": "isRunning",
+          "callee": "jobs.some",
+          "lineNumber": 357
+        },
+        {
+          "caller": "handleIntake",
+          "callee": "document.getElementById",
+          "lineNumber": 426
+        },
+        {
+          "caller": "handleIntake",
+          "callee": "Math.min",
+          "lineNumber": 427
+        },
+        {
+          "caller": "handleIntake",
+          "callee": "box.value.trim",
+          "lineNumber": 428
+        },
+        {
+          "caller": "handleIntake",
+          "callee": "Math.max",
+          "lineNumber": 429
+        },
+        {
+          "caller": "handleIntake",
+          "callee": "route",
+          "lineNumber": 429
+        },
+        {
+          "caller": "handleIntake",
+          "callee": "route",
+          "lineNumber": 430
+        },
+        {
+          "caller": "handleIntake",
+          "callee": "toast",
+          "lineNumber": 431
+        },
+        {
+          "caller": "handleIntake",
+          "callee": "route",
+          "lineNumber": 432
+        },
+        {
+          "caller": "handleIntake",
+          "callee": "toast",
+          "lineNumber": 433
+        },
+        {
+          "caller": "handleIntake",
+          "callee": "API.post",
+          "lineNumber": 435
+        },
+        {
+          "caller": "handleIntake",
+          "callee": "toast",
+          "lineNumber": 436
+        },
+        {
+          "caller": "handleIntake",
+          "callee": "toast",
+          "lineNumber": 438
+        },
+        {
+          "caller": "handleIntake",
+          "callee": "refreshBiz",
+          "lineNumber": 439
+        },
+        {
+          "caller": "handleIntake",
+          "callee": "renderRail",
+          "lineNumber": 439
+        },
+        {
+          "caller": "handleIntake",
+          "callee": "renderTopbar",
+          "lineNumber": 439
+        },
+        {
+          "caller": "handleIntake",
+          "callee": "route",
+          "lineNumber": 439
+        },
+        {
+          "caller": "handleIntake",
+          "callee": "toast",
+          "lineNumber": 440
+        },
+        {
+          "caller": "loadDoc",
+          "callee": "renderDoc",
+          "lineNumber": 454
+        },
+        {
+          "caller": "loadDoc",
+          "callee": "(M.bizSkillRuns || []).filter",
+          "lineNumber": 457
+        },
+        {
+          "caller": "loadDoc",
+          "callee": "renderDoc",
+          "lineNumber": 458
+        },
+        {
+          "caller": "loadDoc",
+          "callee": "API.get",
+          "lineNumber": 460
+        },
+        {
+          "caller": "loadDoc",
+          "callee": "API.get",
+          "lineNumber": 463
+        },
+        {
+          "caller": "loadDoc",
+          "callee": "encodeURIComponent",
+          "lineNumber": 463
+        },
+        {
+          "caller": "loadDoc",
+          "callee": "renderDoc",
+          "lineNumber": 468
+        },
+        {
+          "caller": "renderDoc",
+          "callee": "document.getElementById",
+          "lineNumber": 471
+        },
+        {
+          "caller": "renderDoc",
+          "callee": "(r.created_at || '').replace('T', ' ').slice",
+          "lineNumber": 478
+        },
+        {
+          "caller": "renderDoc",
+          "callee": "(r.created_at || '').replace",
+          "lineNumber": 478
+        },
+        {
+          "caller": "renderDoc",
+          "callee": "(r.content || '').replace",
+          "lineNumber": 481
+        },
+        {
+          "caller": "renderDoc",
+          "callee": "renderAIContent",
+          "lineNumber": 487
+        },
+        {
+          "caller": "renderDoc",
+          "callee": "_docVersions.map(v => `\n          <li class=\"${v.id===r.id?'cur':''}\">\n            <a href=\"#\" data-act=\"doc-open\" data-id=\"${v.id}\">v${v.version}</a>\n            <span class=\"muted\">${(v.created_at||'').slice(0,10)} · ${v.rating?'★'+v.rating:'—'}</span>\n            ${v.id!==r.id ? `<button class=\"ghost-line sm\" data-act=\"doc-set-current\" data-content-id=\"${v.id}\">Đặt hiện hành</button>` : '<span class=\"tag green\">hiện hành</span>'}\n          </li>`).join",
+          "lineNumber": 491
+        },
+        {
+          "caller": "renderDoc",
+          "callee": "_docVersions.map",
+          "lineNumber": 491
+        },
+        {
+          "caller": "renderDoc",
+          "callee": "(v.created_at||'').slice",
+          "lineNumber": 494
+        },
+        {
+          "caller": "strategyMock",
+          "callee": "card",
+          "lineNumber": 670
+        },
+        {
+          "caller": "strategyMock",
+          "callee": "M.saveFramework.map(s=>`\n            <div class=\"save-item\"><div class=\"save-k\">${s.k}</div>\n              <div><p>${s.name}</p><span class=\"muted\">${s.text}</span></div></div>`).join",
+          "lineNumber": 671
+        },
+        {
+          "caller": "strategyMock",
+          "callee": "M.saveFramework.map",
+          "lineNumber": 671
+        },
+        {
+          "caller": "strategyMock",
+          "callee": "card",
+          "lineNumber": 674
+        },
+        {
+          "caller": "strategyMock",
+          "callee": "M.smart.map(g=>`<li>✅ ${g}</li>`).join",
+          "lineNumber": 674
+        },
+        {
+          "caller": "strategyMock",
+          "callee": "M.smart.map",
+          "lineNumber": 674
+        },
+        {
+          "caller": "strategyMock",
+          "callee": "card",
+          "lineNumber": 675
+        },
+        {
+          "caller": "strategyMock",
+          "callee": "M.roadmap.map(r=>`\n            <div class=\"rm-phase\"><span class=\"rm-tag\">${r.phase}</span><p class=\"rm-title\">${r.title}</p>\n              <ul class=\"bullet\">${r.items.map(i=>`<li>${i}</li>`).join('')}</ul></div>`).join",
+          "lineNumber": 676
+        },
+        {
+          "caller": "strategyMock",
+          "callee": "M.roadmap.map",
+          "lineNumber": 676
+        },
+        {
+          "caller": "strategyMock",
+          "callee": "r.items.map(i=>`<li>${i}</li>`).join",
+          "lineNumber": 678
+        },
+        {
+          "caller": "strategyMock",
+          "callee": "r.items.map",
+          "lineNumber": 678
+        },
+        {
+          "caller": "campActiveWeek",
+          "callee": "(calPlan().campaigns || []).filter",
+          "lineNumber": 741
+        },
+        {
+          "caller": "campActiveWeek",
+          "callee": "calPlan",
+          "lineNumber": 741
+        },
+        {
+          "caller": "campPostsAt",
+          "callee": "(calPlan().campaigns || []).forEach",
+          "lineNumber": 745
+        },
+        {
+          "caller": "campPostsAt",
+          "callee": "calPlan",
+          "lineNumber": 745
+        },
+        {
+          "caller": "campPostsAt",
+          "callee": "(c.posts || []).forEach",
+          "lineNumber": 745
+        },
+        {
+          "caller": "campPostsAt",
+          "callee": "out.push",
+          "lineNumber": 746
+        },
+        {
+          "caller": "alwaysCard",
+          "callee": "pillarCls",
+          "lineNumber": 751
+        },
+        {
+          "caller": "calPlanView",
+          "callee": "calPlan",
+          "lineNumber": 759
+        },
+        {
+          "caller": "calPlanView",
+          "callee": "(P0.campaigns || []).map(c =>\n      `<div class=\"band-camp\" style=\"grid-column:${c.fromWeek} / ${c.toWeek + 1}; --c:${c.color}\">\n        <b>🔴 ${c.name}</b> · ${c.occasion} · 🎁 ${c.offer}</div>`).join",
+          "lineNumber": 760
+        },
+        {
+          "caller": "calPlanView",
+          "callee": "(P0.campaigns || []).map",
+          "lineNumber": 760
+        },
+        {
+          "caller": "calPlanView",
+          "callee": "Array.from({ length: W }, (_, k) => {\n      const w = k + 1; const camps = campActiveWeek(w);\n      const campCount = camps.reduce((n, c) => n + (c.posts || []).filter(p => p.week === w).length, 0);\n      return `<div class=\"planweek\">\n        <div class=\"pw-head\"><b>Tuần ${w}</b>\n          <button class=\"ghost-line sm\" data-act=\"cal-open-week\" data-week=\"${w}\">Mở chi tiết →</button></div>\n        <div class=\"pw-tracks\">\n          <div class=\"pw-track on\"><span class=\"trk on\">🟢 Always-on</span> ${P0.alwaysOn.length} bài brand\n            <button class=\"chip-btn sm\" data-act=\"cal-gen\" data-week=\"${w}\" data-track=\"always\">⚡ Tạo bài tuần ${w}</button></div>\n          ${camps.length ? camps.map(c => `<div class=\"pw-track camp\" style=\"--c:${c.color}\">\n            <span class=\"trk camp\" style=\"--c:${c.color}\">🔴 ${c.name}</span> ${campCount} bài đẩy offer\n            <button class=\"chip-btn sm\" data-act=\"cal-gen\" data-week=\"${w}\" data-track=\"camp\">⚡ Tạo bài campaign</button></div>`).join('')\n          : `<div class=\"pw-track muted\">Không có campaign — chỉ chạy nền Always-on</div>`}\n        </div></div>`;\n    }).join",
+          "lineNumber": 763
+        },
+        {
+          "caller": "calPlanView",
+          "callee": "Array.from",
+          "lineNumber": 763
+        },
+        {
+          "caller": "calPlanView",
+          "callee": "campActiveWeek",
+          "lineNumber": 764
+        },
+        {
+          "caller": "calPlanView",
+          "callee": "camps.reduce",
+          "lineNumber": 765
+        },
+        {
+          "caller": "calPlanView",
+          "callee": "(c.posts || []).filter",
+          "lineNumber": 765
+        },
+        {
+          "caller": "calPlanView",
+          "callee": "camps.map(c => `<div class=\"pw-track camp\" style=\"--c:${c.color}\">\n            <span class=\"trk camp\" style=\"--c:${c.color}\">🔴 ${c.name}</span> ${campCount} bài đẩy offer\n            <button class=\"chip-btn sm\" data-act=\"cal-gen\" data-week=\"${w}\" data-track=\"camp\">⚡ Tạo bài campaign</button></div>`).join",
+          "lineNumber": 772
+        },
+        {
+          "caller": "calPlanView",
+          "callee": "camps.map",
+          "lineNumber": 772
+        },
+        {
+          "caller": "calPlanView",
+          "callee": "Array.from({ length: W }, (_, k) => `<span>Tuần ${k + 1}</span>`).join",
+          "lineNumber": 785
+        },
+        {
+          "caller": "calPlanView",
+          "callee": "Array.from",
+          "lineNumber": 785
+        },
+        {
+          "caller": "calWeekView",
+          "callee": "calPlan",
+          "lineNumber": 793
+        },
+        {
+          "caller": "calWeekView",
+          "callee": "campActiveWeek",
+          "lineNumber": 794
+        },
+        {
+          "caller": "calWeekView",
+          "callee": "camps.map(c => `<div class=\"band-camp\" style=\"--c:${c.color}\"><b>🔴 ${c.name}</b> · ${c.occasion} · 🎁 ${c.offer} · đang chạy Tuần ${w}</div>`).join",
+          "lineNumber": 797
+        },
+        {
+          "caller": "calWeekView",
+          "callee": "camps.map",
+          "lineNumber": 797
+        },
+        {
+          "caller": "calWeekView",
+          "callee": "days.map((d, i) => {\n          const cps = campPostsAt(w, i);\n          const inCamp = cps.length > 0;\n          return `<div class=\"cal-col ${inCamp ? 'in-camp' : ''}\" ${inCamp ? `style=\"--c:${cps[0].camp.color}\"` : ''}>\n            <div class=\"cal-colhead\">${d}${inCamp ? `<span class=\"col-dot\" style=\"background:${cps[0].camp.color}\"></span>` : ''}</div>\n            ${alwaysCard(P0.alwaysOn[i] || { pillar: 'Educate', title: 'Bài brand' })}\n            ${cps.map(campCard).join('')}\n            <button class=\"cal-add\" data-act=\"cal-gen\" data-week=\"${w}\" data-day=\"${i}\">⚡ Tạo bài</button></div>`;\n        }).join",
+          "lineNumber": 800
+        },
+        {
+          "caller": "calWeekView",
+          "callee": "days.map",
+          "lineNumber": 800
+        },
+        {
+          "caller": "calWeekView",
+          "callee": "campPostsAt",
+          "lineNumber": 801
+        },
+        {
+          "caller": "calWeekView",
+          "callee": "alwaysCard",
+          "lineNumber": 805
+        },
+        {
+          "caller": "calWeekView",
+          "callee": "cps.map(campCard).join",
+          "lineNumber": 806
+        },
+        {
+          "caller": "calWeekView",
+          "callee": "cps.map",
+          "lineNumber": 806
+        },
+        {
+          "caller": "fmt_vnd",
+          "callee": "(n/1e6).toFixed",
+          "lineNumber": 999
+        },
+        {
+          "caller": "fmt_vnd",
+          "callee": "(n/1e3).toFixed",
+          "lineNumber": 999
+        },
+        {
+          "caller": "donut",
+          "callee": "cv",
+          "lineNumber": 1253
+        },
+        {
+          "caller": "donut",
+          "callee": "legend.map((l,i)=>`<li><i class=\"dot c${i+1}\"></i>${l[0]}<span>${l[1]}</span></li>`).join",
+          "lineNumber": 1254
+        },
+        {
+          "caller": "donut",
+          "callee": "legend.map",
+          "lineNumber": 1254
+        },
+        {
+          "caller": "table",
+          "callee": "head.map(h=>`<th>${h}</th>`).join",
+          "lineNumber": 1257
+        },
+        {
+          "caller": "table",
+          "callee": "head.map",
+          "lineNumber": 1257
+        },
+        {
+          "caller": "table",
+          "callee": "rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join",
+          "lineNumber": 1258
+        },
+        {
+          "caller": "table",
+          "callee": "rows.map",
+          "lineNumber": 1258
+        },
+        {
+          "caller": "table",
+          "callee": "r.map(c=>`<td>${c}</td>`).join",
+          "lineNumber": 1258
+        },
+        {
+          "caller": "table",
+          "callee": "r.map",
+          "lineNumber": 1258
+        },
+        {
+          "caller": "stepBadge",
+          "callee": "badge",
+          "lineNumber": 1260
+        },
+        {
+          "caller": "stepBadge",
+          "callee": "badge",
+          "lineNumber": 1260
+        },
+        {
+          "caller": "stepBadge",
+          "callee": "badge",
+          "lineNumber": 1260
+        },
+        {
+          "caller": "swotCell",
+          "callee": "items.map(i=>`<li>${i}</li>`).join",
+          "lineNumber": 1262
+        },
+        {
+          "caller": "swotCell",
+          "callee": "items.map",
+          "lineNumber": 1262
+        },
+        {
+          "caller": "calPosts",
+          "callee": "M.calendarPosts.filter",
+          "lineNumber": 1266
+        },
+        {
+          "caller": "calPosts",
+          "callee": "(M.calendar.posts[i] || []).map",
+          "lineNumber": 1267
+        },
+        {
+          "caller": "ugcCard",
+          "callee": "card",
+          "lineNumber": 1269
+        },
+        {
+          "caller": "byId",
+          "callee": "document.getElementById",
+          "lineNumber": 1282
+        },
+        {
+          "caller": "line",
+          "callee": "byId",
+          "lineNumber": 1284
+        },
+        {
+          "caller": "line",
+          "callee": "reg",
+          "lineNumber": 1285
+        },
+        {
+          "caller": "line",
+          "callee": "byId",
+          "lineNumber": 1285
+        },
+        {
+          "caller": "line",
+          "callee": "sets.map",
+          "lineNumber": 1286
+        },
+        {
+          "caller": "line",
+          "callee": "fill",
+          "lineNumber": 1287
+        },
+        {
+          "caller": "bar",
+          "callee": "byId",
+          "lineNumber": 1292
+        },
+        {
+          "caller": "bar",
+          "callee": "reg",
+          "lineNumber": 1293
+        },
+        {
+          "caller": "bar",
+          "callee": "byId",
+          "lineNumber": 1293
+        },
+        {
+          "caller": "bar",
+          "callee": "fill",
+          "lineNumber": 1294
+        },
+        {
+          "caller": "doughnut",
+          "callee": "byId",
+          "lineNumber": 1300
+        },
+        {
+          "caller": "doughnut",
+          "callee": "reg",
+          "lineNumber": 1301
+        },
+        {
+          "caller": "doughnut",
+          "callee": "byId",
+          "lineNumber": 1301
+        },
+        {
+          "caller": "sparks",
+          "callee": "document.querySelectorAll('.spark').forEach",
+          "lineNumber": 1308
+        },
+        {
+          "caller": "sparks",
+          "callee": "document.querySelectorAll",
+          "lineNumber": 1308
+        },
+        {
+          "caller": "sparks",
+          "callee": "reg",
+          "lineNumber": 1310
+        },
+        {
+          "caller": "sparks",
+          "callee": "s.d.map",
+          "lineNumber": 1310
+        },
+        {
+          "caller": "sparks",
+          "callee": "fill",
+          "lineNumber": 1311
+        },
+        {
+          "caller": "renderSidebar",
+          "callee": "M.nav.map(g=>`\n        ${g.group?`<p class=\"nav-label\">${g.group}</p>`:''}\n        ${g.items.map(it=>`<a class=\"nav-item ${it.id===active?'active':''}\" href=\"#${it.id}\"><span class=\"ic\">${it.icon}</span> ${it.label}</a>`).join('')}\n      `).join",
+          "lineNumber": 1322
+        },
+        {
+          "caller": "renderSidebar",
+          "callee": "M.nav.map",
+          "lineNumber": 1322
+        },
+        {
+          "caller": "renderSidebar",
+          "callee": "g.items.map(it=>`<a class=\"nav-item ${it.id===active?'active':''}\" href=\"#${it.id}\"><span class=\"ic\">${it.icon}</span> ${it.label}</a>`).join",
+          "lineNumber": 1324
+        },
+        {
+          "caller": "renderSidebar",
+          "callee": "g.items.map",
+          "lineNumber": 1324
+        },
+        {
+          "caller": "renderSidebar",
+          "callee": "document.getElementById",
+          "lineNumber": 1327
+        },
+        {
+          "caller": "renderTopbar",
+          "callee": "document.getElementById",
+          "lineNumber": 1330
+        },
+        {
+          "caller": "renderTopbar",
+          "callee": "num",
+          "lineNumber": 1334
+        },
+        {
+          "caller": "renderTopbar",
+          "callee": "Math.max",
+          "lineNumber": 1334
+        },
+        {
+          "caller": "renderTopbar",
+          "callee": "(u ? name : 'M').trim().slice(0, 2).toUpperCase",
+          "lineNumber": 1337
+        },
+        {
+          "caller": "renderTopbar",
+          "callee": "(u ? name : 'M').trim().slice",
+          "lineNumber": 1337
+        },
+        {
+          "caller": "renderTopbar",
+          "callee": "(u ? name : 'M').trim",
+          "lineNumber": 1337
+        },
+        {
+          "caller": "renderTopbar",
+          "callee": "document.getElementById",
+          "lineNumber": 1339
+        },
+        {
+          "caller": "renderTopbar",
+          "callee": "setLive",
+          "lineNumber": 1348
+        },
+        {
+          "caller": "renderRail",
+          "callee": "Math.min",
+          "lineNumber": 1354
+        },
+        {
+          "caller": "renderRail",
+          "callee": "Math.round",
+          "lineNumber": 1354
+        },
+        {
+          "caller": "renderRail",
+          "callee": "num",
+          "lineNumber": 1357
+        },
+        {
+          "caller": "renderRail",
+          "callee": "num",
+          "lineNumber": 1357
+        },
+        {
+          "caller": "renderRail",
+          "callee": "document.getElementById",
+          "lineNumber": 1362
+        },
+        {
+          "caller": "renderRail",
+          "callee": "(M.alerts||[]).map(a=>alertItem(a)).join",
+          "lineNumber": 1364
+        },
+        {
+          "caller": "renderRail",
+          "callee": "(M.alerts||[]).map",
+          "lineNumber": 1364
+        },
+        {
+          "caller": "renderRail",
+          "callee": "alertItem",
+          "lineNumber": 1364
+        },
+        {
+          "caller": "route",
+          "callee": "location.hash.replace",
+          "lineNumber": 1373
+        },
+        {
+          "caller": "route",
+          "callee": "raw.split",
+          "lineNumber": 1374
+        },
+        {
+          "caller": "route",
+          "callee": "killCharts",
+          "lineNumber": 1380
+        },
+        {
+          "caller": "route",
+          "callee": "renderSidebar",
+          "lineNumber": 1381
+        },
+        {
+          "caller": "route",
+          "callee": "document.body.classList.remove",
+          "lineNumber": 1382
+        },
+        {
+          "caller": "route",
+          "callee": "document.getElementById",
+          "lineNumber": 1384
+        },
+        {
+          "caller": "route",
+          "callee": "pageHead",
+          "lineNumber": 1385
+        },
+        {
+          "caller": "route",
+          "callee": "page.render",
+          "lineNumber": 1385
+        },
+        {
+          "caller": "route",
+          "callee": "page.mount",
+          "lineNumber": 1386
+        },
+        {
+          "caller": "route",
+          "callee": "fillDocEmbeds",
+          "lineNumber": 1387
+        },
+        {
+          "caller": "route",
+          "callee": "document.querySelector('.main').scrollTo",
+          "lineNumber": 1388
+        },
+        {
+          "caller": "route",
+          "callee": "document.querySelector",
+          "lineNumber": 1388
+        },
+        {
+          "caller": "route",
+          "callee": "document.body.classList.remove",
+          "lineNumber": 1389
+        },
+        {
+          "caller": "get",
+          "callee": "fetch",
+          "lineNumber": 1394
+        },
+        {
+          "caller": "get",
+          "callee": "r.json",
+          "lineNumber": 1394
+        },
+        {
+          "caller": "post",
+          "callee": "fetch",
+          "lineNumber": 1395
+        },
+        {
+          "caller": "post",
+          "callee": "JSON.stringify",
+          "lineNumber": 1395
+        },
+        {
+          "caller": "post",
+          "callee": "r.json",
+          "lineNumber": 1395
+        },
+        {
+          "caller": "del",
+          "callee": "fetch",
+          "lineNumber": 1396
+        },
+        {
+          "caller": "del",
+          "callee": "r.json",
+          "lineNumber": 1396
+        },
+        {
+          "caller": "toast",
+          "callee": "document.createElement",
+          "lineNumber": 1400
+        },
+        {
+          "caller": "toast",
+          "callee": "document.body.appendChild",
+          "lineNumber": 1402
+        },
+        {
+          "caller": "toast",
+          "callee": "requestAnimationFrame",
+          "lineNumber": 1403
+        },
+        {
+          "caller": "toast",
+          "callee": "t.classList.add",
+          "lineNumber": 1403
+        },
+        {
+          "caller": "toast",
+          "callee": "setTimeout",
+          "lineNumber": 1404
+        },
+        {
+          "caller": "toast",
+          "callee": "t.classList.remove",
+          "lineNumber": 1404
+        },
+        {
+          "caller": "toast",
+          "callee": "setTimeout",
+          "lineNumber": 1404
+        },
+        {
+          "caller": "toast",
+          "callee": "t.remove",
+          "lineNumber": 1404
+        },
+        {
+          "caller": "refreshBiz",
+          "callee": "API.get",
+          "lineNumber": 1413
+        },
+        {
+          "caller": "refreshBiz",
+          "callee": "bizQuery",
+          "lineNumber": 1413
+        },
+        {
+          "caller": "refreshBiz",
+          "callee": "Object.assign",
+          "lineNumber": 1414
+        },
+        {
+          "caller": "refreshAds",
+          "callee": "API.get",
+          "lineNumber": 1421
+        },
+        {
+          "caller": "refreshAds",
+          "callee": "bizQuery().replace",
+          "lineNumber": 1421
+        },
+        {
+          "caller": "refreshAds",
+          "callee": "bizQuery",
+          "lineNumber": 1421
+        },
+        {
+          "caller": "refreshAds",
+          "callee": "Object.assign",
+          "lineNumber": 1422
+        },
+        {
+          "caller": "showModal",
+          "callee": "document.getElementById",
+          "lineNumber": 1430
+        },
+        {
+          "caller": "showModal",
+          "callee": "document.createElement",
+          "lineNumber": 1432
+        },
+        {
+          "caller": "showModal",
+          "callee": "document.body.appendChild",
+          "lineNumber": 1437
+        },
+        {
+          "caller": "showModal",
+          "callee": "ov.addEventListener",
+          "lineNumber": 1438
+        },
+        {
+          "caller": "showModal",
+          "callee": "ov.classList.remove",
+          "lineNumber": 1438
+        },
+        {
+          "caller": "showModal",
+          "callee": "ov.querySelector('#bizModalX').addEventListener",
+          "lineNumber": 1439
+        },
+        {
+          "caller": "showModal",
+          "callee": "ov.querySelector",
+          "lineNumber": 1439
+        },
+        {
+          "caller": "showModal",
+          "callee": "ov.classList.remove",
+          "lineNumber": 1439
+        },
+        {
+          "caller": "showModal",
+          "callee": "ov.querySelector",
+          "lineNumber": 1441
+        },
+        {
+          "caller": "showModal",
+          "callee": "ov.querySelector",
+          "lineNumber": 1442
+        },
+        {
+          "caller": "showModal",
+          "callee": "renderAIContent",
+          "lineNumber": 1442
+        },
+        {
+          "caller": "showModal",
+          "callee": "ov.querySelector",
+          "lineNumber": 1443
+        },
+        {
+          "caller": "showModal",
+          "callee": "ov.classList.add",
+          "lineNumber": 1458
+        },
+        {
+          "caller": "chatBubble",
+          "callee": "renderAIContent",
+          "lineNumber": 1466
+        },
+        {
+          "caller": "heroHTML",
+          "callee": "CHAT_EXAMPLES.map(e =>\n      `<button class=\"eg-card\" ${disabled?'disabled':''} data-act=\"chat-eg\" data-text=\"${e.text.replace(/\"/g,'&quot;')}\">\n        <span class=\"eg-ic\">${e.icon}</span><span>${e.text}</span></button>`).join",
+          "lineNumber": 1469
+        },
+        {
+          "caller": "heroHTML",
+          "callee": "CHAT_EXAMPLES.map",
+          "lineNumber": 1469
+        },
+        {
+          "caller": "heroHTML",
+          "callee": "e.text.replace",
+          "lineNumber": 1470
+        },
+        {
+          "caller": "renderChat",
+          "callee": "document.getElementById",
+          "lineNumber": 1485
+        },
+        {
+          "caller": "renderChat",
+          "callee": "stream.classList.add",
+          "lineNumber": 1488
+        },
+        {
+          "caller": "renderChat",
+          "callee": "heroHTML",
+          "lineNumber": 1489
+        },
+        {
+          "caller": "renderChat",
+          "callee": "stream.classList.remove",
+          "lineNumber": 1491
+        },
+        {
+          "caller": "renderChat",
+          "callee": "_chatMsgs.map(chatBubble).join",
+          "lineNumber": 1492
+        },
+        {
+          "caller": "renderChat",
+          "callee": "_chatMsgs.map",
+          "lineNumber": 1492
+        },
+        {
+          "caller": "renderChat",
+          "callee": "document.getElementById",
+          "lineNumber": 1497
+        },
+        {
+          "caller": "renderChat",
+          "callee": "_chatSuggest.map(s => s.task\n      ? `<button class=\"chip-btn\" data-act=\"chat-suggest\" data-task=\"${s.task}\">${s.label}</button>`\n      : `<button class=\"chip-btn\" data-act=\"chat-suggest\" data-goto=\"${s.goto}\">${s.label}</button>`).join",
+          "lineNumber": 1498
+        },
+        {
+          "caller": "renderChat",
+          "callee": "_chatSuggest.map",
+          "lineNumber": 1498
+        },
+        {
+          "caller": "growBox",
+          "callee": "Math.min",
+          "lineNumber": 1505
+        },
+        {
+          "caller": "initChat",
+          "callee": "renderChat",
+          "lineNumber": 1509
+        },
+        {
+          "caller": "initChat",
+          "callee": "API.get",
+          "lineNumber": 1511
+        },
+        {
+          "caller": "initChat",
+          "callee": "bizQuery",
+          "lineNumber": 1511
+        },
+        {
+          "caller": "initChat",
+          "callee": "renderChat",
+          "lineNumber": 1514
+        },
+        {
+          "caller": "initChat",
+          "callee": "document.getElementById",
+          "lineNumber": 1515
+        },
+        {
+          "caller": "initChat",
+          "callee": "box.focus",
+          "lineNumber": 1517
+        },
+        {
+          "caller": "initChat",
+          "callee": "growBox",
+          "lineNumber": 1518
+        },
+        {
+          "caller": "initChat",
+          "callee": "e.preventDefault",
+          "lineNumber": 1519
+        },
+        {
+          "caller": "initChat",
+          "callee": "sendChat",
+          "lineNumber": 1519
+        },
+        {
+          "caller": "sendChat",
+          "callee": "document.getElementById",
+          "lineNumber": 1523
+        },
+        {
+          "caller": "sendChat",
+          "callee": "(preset || (box ? box.value.trim() : '')).trim",
+          "lineNumber": 1524
+        },
+        {
+          "caller": "sendChat",
+          "callee": "box.value.trim",
+          "lineNumber": 1524
+        },
+        {
+          "caller": "sendChat",
+          "callee": "growBox",
+          "lineNumber": 1526
+        },
+        {
+          "caller": "sendChat",
+          "callee": "_chatMsgs.push",
+          "lineNumber": 1527
+        },
+        {
+          "caller": "sendChat",
+          "callee": "renderChat",
+          "lineNumber": 1528
+        },
+        {
+          "caller": "sendChat",
+          "callee": "API.post",
+          "lineNumber": 1530
+        },
+        {
+          "caller": "sendChat",
+          "callee": "_chatMsgs.push",
+          "lineNumber": 1532
+        },
+        {
+          "caller": "sendChat",
+          "callee": "_chatMsgs.concat",
+          "lineNumber": 1534
+        },
+        {
+          "caller": "sendChat",
+          "callee": "refreshBiz",
+          "lineNumber": 1537
+        },
+        {
+          "caller": "sendChat",
+          "callee": "_chatMsgs.push",
+          "lineNumber": 1539
+        },
+        {
+          "caller": "sendChat",
+          "callee": "document.querySelector",
+          "lineNumber": 1540
+        },
+        {
+          "caller": "sendChat",
+          "callee": "journeyMini",
+          "lineNumber": 1541
+        },
+        {
+          "caller": "sendChat",
+          "callee": "renderChat",
+          "lineNumber": 1542
+        },
+        {
+          "caller": "sendChat",
+          "callee": "document.getElementById",
+          "lineNumber": 1543
+        },
+        {
+          "caller": "sendChat",
+          "callee": "box2.focus",
+          "lineNumber": 1543
+        },
+        {
+          "caller": "handleAction",
+          "callee": "sendChat",
+          "lineNumber": 1548
+        },
+        {
+          "caller": "handleAction",
+          "callee": "sendChat",
+          "lineNumber": 1549
+        },
+        {
+          "caller": "handleAction",
+          "callee": "el.closest",
+          "lineNumber": 1551
+        },
+        {
+          "caller": "handleAction",
+          "callee": "card.querySelector",
+          "lineNumber": 1551
+        },
+        {
+          "caller": "handleAction",
+          "callee": "out.classList.toggle",
+          "lineNumber": 1552
+        },
+        {
+          "caller": "handleAction",
+          "callee": "route",
+          "lineNumber": 1555
+        },
+        {
+          "caller": "handleAction",
+          "callee": "parseInt",
+          "lineNumber": 1556
+        },
+        {
+          "caller": "handleAction",
+          "callee": "route",
+          "lineNumber": 1556
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1561
+        },
+        {
+          "caller": "handleAction",
+          "callee": "API.post",
+          "lineNumber": 1563
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1564
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1565
+        },
+        {
+          "caller": "handleAction",
+          "callee": "prompt",
+          "lineNumber": 1571
+        },
+        {
+          "caller": "handleAction",
+          "callee": "prompt",
+          "lineNumber": 1572
+        },
+        {
+          "caller": "handleAction",
+          "callee": "prompt",
+          "lineNumber": 1573
+        },
+        {
+          "caller": "handleAction",
+          "callee": "Math.max",
+          "lineNumber": 1574
+        },
+        {
+          "caller": "handleAction",
+          "callee": "Math.min",
+          "lineNumber": 1574
+        },
+        {
+          "caller": "handleAction",
+          "callee": "parseInt",
+          "lineNumber": 1574
+        },
+        {
+          "caller": "handleAction",
+          "callee": "prompt",
+          "lineNumber": 1574
+        },
+        {
+          "caller": "handleAction",
+          "callee": "Math.max",
+          "lineNumber": 1575
+        },
+        {
+          "caller": "handleAction",
+          "callee": "Math.min",
+          "lineNumber": 1575
+        },
+        {
+          "caller": "handleAction",
+          "callee": "parseInt",
+          "lineNumber": 1575
+        },
+        {
+          "caller": "handleAction",
+          "callee": "prompt",
+          "lineNumber": 1575
+        },
+        {
+          "caller": "handleAction",
+          "callee": "String",
+          "lineNumber": 1575
+        },
+        {
+          "caller": "handleAction",
+          "callee": "(P0.campaigns = P0.campaigns || []).push",
+          "lineNumber": 1583
+        },
+        {
+          "caller": "handleAction",
+          "callee": "route",
+          "lineNumber": 1584
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1584
+        },
+        {
+          "caller": "handleAction",
+          "callee": "API.post",
+          "lineNumber": 1591
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1592
+        },
+        {
+          "caller": "handleAction",
+          "callee": "_chatMsgs.push",
+          "lineNumber": 1593
+        },
+        {
+          "caller": "handleAction",
+          "callee": "renderChat",
+          "lineNumber": 1594
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1594
+        },
+        {
+          "caller": "handleAction",
+          "callee": "refreshBiz",
+          "lineNumber": 1594
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1595
+        },
+        {
+          "caller": "handleAction",
+          "callee": "aiIntakeSend",
+          "lineNumber": 1600
+        },
+        {
+          "caller": "handleAction",
+          "callee": "handleIntake",
+          "lineNumber": 1601
+        },
+        {
+          "caller": "handleAction",
+          "callee": "handleIntake",
+          "lineNumber": 1602
+        },
+        {
+          "caller": "handleAction",
+          "callee": "handleIntake",
+          "lineNumber": 1603
+        },
+        {
+          "caller": "handleAction",
+          "callee": "route",
+          "lineNumber": 1604
+        },
+        {
+          "caller": "handleAction",
+          "callee": "route",
+          "lineNumber": 1605
+        },
+        {
+          "caller": "handleAction",
+          "callee": "loadDoc",
+          "lineNumber": 1607
+        },
+        {
+          "caller": "handleAction",
+          "callee": "renderDoc",
+          "lineNumber": 1608
+        },
+        {
+          "caller": "handleAction",
+          "callee": "renderDoc",
+          "lineNumber": 1609
+        },
+        {
+          "caller": "handleAction",
+          "callee": "navigator.clipboard.writeText(_docRun.content || '').then",
+          "lineNumber": 1611
+        },
+        {
+          "caller": "handleAction",
+          "callee": "navigator.clipboard.writeText",
+          "lineNumber": 1611
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1611
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1614
+        },
+        {
+          "caller": "handleAction",
+          "callee": "PROFILE_FIELDS.forEach",
+          "lineNumber": 1618
+        },
+        {
+          "caller": "handleAction",
+          "callee": "document.getElementById",
+          "lineNumber": 1618
+        },
+        {
+          "caller": "handleAction",
+          "callee": "el.value.trim",
+          "lineNumber": 1618
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1619
+        },
+        {
+          "caller": "handleAction",
+          "callee": "API.post",
+          "lineNumber": 1621
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1622
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1623
+        },
+        {
+          "caller": "handleAction",
+          "callee": "refreshBiz",
+          "lineNumber": 1624
+        },
+        {
+          "caller": "handleAction",
+          "callee": "renderRail",
+          "lineNumber": 1624
+        },
+        {
+          "caller": "handleAction",
+          "callee": "renderTopbar",
+          "lineNumber": 1624
+        },
+        {
+          "caller": "handleAction",
+          "callee": "route",
+          "lineNumber": 1624
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1625
+        },
+        {
+          "caller": "handleAction",
+          "callee": "API.post",
+          "lineNumber": 1632
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1633
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1634
+        },
+        {
+          "caller": "handleAction",
+          "callee": "refreshBiz",
+          "lineNumber": 1635
+        },
+        {
+          "caller": "handleAction",
+          "callee": "renderRail",
+          "lineNumber": 1635
+        },
+        {
+          "caller": "handleAction",
+          "callee": "renderTopbar",
+          "lineNumber": 1635
+        },
+        {
+          "caller": "handleAction",
+          "callee": "route",
+          "lineNumber": 1635
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1636
+        },
+        {
+          "caller": "handleAction",
+          "callee": "API.post",
+          "lineNumber": 1643
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1644
+        },
+        {
+          "caller": "handleAction",
+          "callee": "renderDoc",
+          "lineNumber": 1646
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1647
+        },
+        {
+          "caller": "handleAction",
+          "callee": "refreshBiz",
+          "lineNumber": 1648
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1649
+        },
+        {
+          "caller": "handleAction",
+          "callee": "document.getElementById",
+          "lineNumber": 1653
+        },
+        {
+          "caller": "handleAction",
+          "callee": "API.post",
+          "lineNumber": 1656
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1658
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1659
+        },
+        {
+          "caller": "handleAction",
+          "callee": "refreshBiz",
+          "lineNumber": 1659
+        },
+        {
+          "caller": "handleAction",
+          "callee": "loadDoc",
+          "lineNumber": 1660
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1661
+        },
+        {
+          "caller": "handleAction",
+          "callee": "API.get",
+          "lineNumber": 1667
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1668
+        },
+        {
+          "caller": "handleAction",
+          "callee": "API.post",
+          "lineNumber": 1669
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1671
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1672
+        },
+        {
+          "caller": "handleAction",
+          "callee": "refreshBiz",
+          "lineNumber": 1672
+        },
+        {
+          "caller": "handleAction",
+          "callee": "loadDoc",
+          "lineNumber": 1673
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1674
+        },
+        {
+          "caller": "handleAction",
+          "callee": "document.getElementById",
+          "lineNumber": 1678
+        },
+        {
+          "caller": "handleAction",
+          "callee": "box.value.trim",
+          "lineNumber": 1679
+        },
+        {
+          "caller": "handleAction",
+          "callee": "renderDoc",
+          "lineNumber": 1681
+        },
+        {
+          "caller": "handleAction",
+          "callee": "API.post",
+          "lineNumber": 1683
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1685
+        },
+        {
+          "caller": "handleAction",
+          "callee": "renderDoc",
+          "lineNumber": 1685
+        },
+        {
+          "caller": "handleAction",
+          "callee": "renderDoc",
+          "lineNumber": 1686
+        },
+        {
+          "caller": "handleAction",
+          "callee": "renderDoc",
+          "lineNumber": 1687
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1688
+        },
+        {
+          "caller": "handleAction",
+          "callee": "refreshBiz",
+          "lineNumber": 1688
+        },
+        {
+          "caller": "handleAction",
+          "callee": "loadDoc",
+          "lineNumber": 1689
+        },
+        {
+          "caller": "handleAction",
+          "callee": "renderDoc",
+          "lineNumber": 1690
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1690
+        },
+        {
+          "caller": "handleAction",
+          "callee": "API.post",
+          "lineNumber": 1695
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1696
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1697
+        },
+        {
+          "caller": "handleAction",
+          "callee": "refreshBiz",
+          "lineNumber": 1697
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1699
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1704
+        },
+        {
+          "caller": "handleAction",
+          "callee": "users.map((u, i) => `${i + 1}. ${u.name || u.user_id} (${u.user_id})`).join",
+          "lineNumber": 1705
+        },
+        {
+          "caller": "handleAction",
+          "callee": "users.map",
+          "lineNumber": 1705
+        },
+        {
+          "caller": "handleAction",
+          "callee": "prompt",
+          "lineNumber": 1706
+        },
+        {
+          "caller": "handleAction",
+          "callee": "parseInt",
+          "lineNumber": 1708
+        },
+        {
+          "caller": "handleAction",
+          "callee": "refreshBiz",
+          "lineNumber": 1709
+        },
+        {
+          "caller": "handleAction",
+          "callee": "refreshAds",
+          "lineNumber": 1709
+        },
+        {
+          "caller": "handleAction",
+          "callee": "renderRail",
+          "lineNumber": 1709
+        },
+        {
+          "caller": "handleAction",
+          "callee": "renderTopbar",
+          "lineNumber": 1709
+        },
+        {
+          "caller": "handleAction",
+          "callee": "route",
+          "lineNumber": 1709
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1709
+        },
+        {
+          "caller": "handleAction",
+          "callee": "parseInt",
+          "lineNumber": 1713
+        },
+        {
+          "caller": "handleAction",
+          "callee": "refreshAds",
+          "lineNumber": 1714
+        },
+        {
+          "caller": "handleAction",
+          "callee": "route",
+          "lineNumber": 1714
+        },
+        {
+          "caller": "handleAction",
+          "callee": "API.get",
+          "lineNumber": 1719
+        },
+        {
+          "caller": "handleAction",
+          "callee": "bizQuery",
+          "lineNumber": 1719
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1720
+        },
+        {
+          "caller": "handleAction",
+          "callee": "window.open",
+          "lineNumber": 1721
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1722
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1723
+        },
+        {
+          "caller": "handleAction",
+          "callee": "prompt",
+          "lineNumber": 1730
+        },
+        {
+          "caller": "handleAction",
+          "callee": "name.trim",
+          "lineNumber": 1731
+        },
+        {
+          "caller": "handleAction",
+          "callee": "API.post",
+          "lineNumber": 1732
+        },
+        {
+          "caller": "handleAction",
+          "callee": "name.trim",
+          "lineNumber": 1732
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1732
+        },
+        {
+          "caller": "handleAction",
+          "callee": "API.del",
+          "lineNumber": 1734
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1734
+        },
+        {
+          "caller": "handleAction",
+          "callee": "API.post",
+          "lineNumber": 1736
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1736
+        },
+        {
+          "caller": "handleAction",
+          "callee": "API.post",
+          "lineNumber": 1738
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1738
+        },
+        {
+          "caller": "handleAction",
+          "callee": "API.post",
+          "lineNumber": 1740
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1740
+        },
+        {
+          "caller": "handleAction",
+          "callee": "API.post",
+          "lineNumber": 1742
+        },
+        {
+          "caller": "handleAction",
+          "callee": "API.post",
+          "lineNumber": 1744
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1744
+        },
+        {
+          "caller": "handleAction",
+          "callee": "prompt",
+          "lineNumber": 1746
+        },
+        {
+          "caller": "handleAction",
+          "callee": "name.trim",
+          "lineNumber": 1746
+        },
+        {
+          "caller": "handleAction",
+          "callee": "API.post",
+          "lineNumber": 1747
+        },
+        {
+          "caller": "handleAction",
+          "callee": "name.trim",
+          "lineNumber": 1747
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1747
+        },
+        {
+          "caller": "handleAction",
+          "callee": "API.del",
+          "lineNumber": 1749
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1749
+        },
+        {
+          "caller": "handleAction",
+          "callee": "prompt",
+          "lineNumber": 1751
+        },
+        {
+          "caller": "handleAction",
+          "callee": "title.trim",
+          "lineNumber": 1751
+        },
+        {
+          "caller": "handleAction",
+          "callee": "API.post",
+          "lineNumber": 1752
+        },
+        {
+          "caller": "handleAction",
+          "callee": "title.trim",
+          "lineNumber": 1752
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1752
+        },
+        {
+          "caller": "handleAction",
+          "callee": "API.del",
+          "lineNumber": 1754
+        },
+        {
+          "caller": "handleAction",
+          "callee": "prompt",
+          "lineNumber": 1756
+        },
+        {
+          "caller": "handleAction",
+          "callee": "API.post",
+          "lineNumber": 1757
+        },
+        {
+          "caller": "handleAction",
+          "callee": "topic.trim",
+          "lineNumber": 1757
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1757
+        },
+        {
+          "caller": "handleAction",
+          "callee": "prompt",
+          "lineNumber": 1759
+        },
+        {
+          "caller": "handleAction",
+          "callee": "name.trim",
+          "lineNumber": 1759
+        },
+        {
+          "caller": "handleAction",
+          "callee": "API.post",
+          "lineNumber": 1760
+        },
+        {
+          "caller": "handleAction",
+          "callee": "name.trim",
+          "lineNumber": 1760
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1760
+        },
+        {
+          "caller": "handleAction",
+          "callee": "API.del",
+          "lineNumber": 1762
+        },
+        {
+          "caller": "handleAction",
+          "callee": "prompt",
+          "lineNumber": 1764
+        },
+        {
+          "caller": "handleAction",
+          "callee": "name.trim",
+          "lineNumber": 1764
+        },
+        {
+          "caller": "handleAction",
+          "callee": "API.post",
+          "lineNumber": 1765
+        },
+        {
+          "caller": "handleAction",
+          "callee": "name.trim",
+          "lineNumber": 1765
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1765
+        },
+        {
+          "caller": "handleAction",
+          "callee": "API.post",
+          "lineNumber": 1767
+        },
+        {
+          "caller": "handleAction",
+          "callee": "API.del",
+          "lineNumber": 1769
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1769
+        },
+        {
+          "caller": "handleAction",
+          "callee": "prompt",
+          "lineNumber": 1771
+        },
+        {
+          "caller": "handleAction",
+          "callee": "API.post",
+          "lineNumber": 1772
+        },
+        {
+          "caller": "handleAction",
+          "callee": "parseInt",
+          "lineNumber": 1772
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1772
+        },
+        {
+          "caller": "handleAction",
+          "callee": "API.post",
+          "lineNumber": 1774
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1774
+        },
+        {
+          "caller": "handleAction",
+          "callee": "API.post",
+          "lineNumber": 1776
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1777
+        },
+        {
+          "caller": "handleAction",
+          "callee": "Object.assign",
+          "lineNumber": 1780
+        },
+        {
+          "caller": "handleAction",
+          "callee": "renderRail",
+          "lineNumber": 1780
+        },
+        {
+          "caller": "handleAction",
+          "callee": "renderTopbar",
+          "lineNumber": 1780
+        },
+        {
+          "caller": "handleAction",
+          "callee": "route",
+          "lineNumber": 1780
+        },
+        {
+          "caller": "handleAction",
+          "callee": "toast",
+          "lineNumber": 1781
+        },
+        {
+          "caller": "setLive",
+          "callee": "document.getElementById",
+          "lineNumber": 1801
+        },
+        {
+          "caller": "setLive",
+          "callee": "dot.classList.toggle",
+          "lineNumber": 1802
+        },
+        {
+          "caller": "applyStream",
+          "callee": "JSON.parse",
+          "lineNumber": 1808
+        },
+        {
+          "caller": "applyStream",
+          "callee": "Object.assign",
+          "lineNumber": 1809
+        },
+        {
+          "caller": "applyStream",
+          "callee": "JSON.stringify",
+          "lineNumber": 1811
+        },
+        {
+          "caller": "applyStream",
+          "callee": "(state.agentJobs || []).map",
+          "lineNumber": 1811
+        },
+        {
+          "caller": "applyStream",
+          "callee": "(state.agentJobs || []).some",
+          "lineNumber": 1814
+        },
+        {
+          "caller": "applyStream",
+          "callee": "refreshBiz",
+          "lineNumber": 1814
+        },
+        {
+          "caller": "applyStream",
+          "callee": "/^(INPUT|TEXTAREA|SELECT)$/.test",
+          "lineNumber": 1817
+        },
+        {
+          "caller": "applyStream",
+          "callee": "renderRail",
+          "lineNumber": 1818
+        },
+        {
+          "caller": "applyStream",
+          "callee": "renderTopbar",
+          "lineNumber": 1818
+        },
+        {
+          "caller": "applyStream",
+          "callee": "route",
+          "lineNumber": 1819
+        },
+        {
+          "caller": "applyStream",
+          "callee": "document.getElementById",
+          "lineNumber": 1820
+        },
+        {
+          "caller": "applyStream",
+          "callee": "dot.classList.add",
+          "lineNumber": 1821
+        },
+        {
+          "caller": "applyStream",
+          "callee": "setTimeout",
+          "lineNumber": 1821
+        },
+        {
+          "caller": "applyStream",
+          "callee": "dot.classList.remove",
+          "lineNumber": 1821
+        },
+        {
+          "caller": "startStream",
+          "callee": "setLive",
+          "lineNumber": 1827
+        },
+        {
+          "caller": "startStream",
+          "callee": "setLive",
+          "lineNumber": 1828
+        },
+        {
+          "caller": "startStream",
+          "callee": "applyStream",
+          "lineNumber": 1829
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "web/data.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 241,
+      "nonEmptyLines": 214,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "webapp/build_standalone.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 43,
+      "nonEmptyLines": 33,
+      "functions": [
+        {
+          "name": "build",
+          "startLine": 16,
+          "endLine": 32,
+          "params": []
+        },
+        {
+          "name": "main",
+          "startLine": 35,
+          "endLine": 39,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "build",
+          "line": 16,
+          "isDefault": false
+        },
+        {
+          "name": "main",
+          "line": 35,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "build",
+          "callee": "(WEB / \"index.html\").read_text",
+          "lineNumber": 17
+        },
+        {
+          "caller": "build",
+          "callee": "(WEB / \"styles.css\").read_text",
+          "lineNumber": 18
+        },
+        {
+          "caller": "build",
+          "callee": "(WEB / \"data.js\").read_text",
+          "lineNumber": 19
+        },
+        {
+          "caller": "build",
+          "callee": "(WEB / \"app.js\").read_text",
+          "lineNumber": 20
+        },
+        {
+          "caller": "build",
+          "callee": "shell.replace(\n        '<link rel=\"stylesheet\" href=\"styles.css\" />',\n        f\"<style>\\n{css}\\n</style>\",\n    ).replace(\n        '<script src=\"data.js\"></script>',\n        f\"<script>\\n{data_js}\\n</script>\",\n    ).replace",
+          "lineNumber": 22
+        },
+        {
+          "caller": "build",
+          "callee": "shell.replace(\n        '<link rel=\"stylesheet\" href=\"styles.css\" />',\n        f\"<style>\\n{css}\\n</style>\",\n    ).replace",
+          "lineNumber": 22
+        },
+        {
+          "caller": "build",
+          "callee": "shell.replace",
+          "lineNumber": 22
+        },
+        {
+          "caller": "main",
+          "callee": "build",
+          "lineNumber": 36
+        },
+        {
+          "caller": "main",
+          "callee": "(WEB / \"dashboard-standalone.html\").write_text",
+          "lineNumber": 37
+        },
+        {
+          "caller": "main",
+          "callee": "(ROOT / \"index.html\").write_text",
+          "lineNumber": 38
+        },
+        {
+          "caller": "main",
+          "callee": "print",
+          "lineNumber": 39
+        },
+        {
+          "caller": "main",
+          "callee": "len",
+          "lineNumber": 39
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "webapp/business.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 621,
+      "nonEmptyLines": 542,
+      "functions": [
+        {
+          "name": "available",
+          "startLine": 51,
+          "endLine": 54,
+          "params": []
+        },
+        {
+          "name": "ensure_client",
+          "startLine": 57,
+          "endLine": 62,
+          "params": []
+        },
+        {
+          "name": "jobs_public",
+          "startLine": 66,
+          "endLine": 67,
+          "params": []
+        },
+        {
+          "name": "_trim_jobs",
+          "startLine": 70,
+          "endLine": 73,
+          "params": []
+        },
+        {
+          "name": "list_users",
+          "startLine": 77,
+          "endLine": 91,
+          "params": [
+            "limit"
+          ]
+        },
+        {
+          "name": "pick_user_id",
+          "startLine": 94,
+          "endLine": 108,
+          "params": [
+            "requested"
+          ]
+        },
+        {
+          "name": "_slim_run",
+          "startLine": 111,
+          "endLine": 124,
+          "params": [
+            "r"
+          ]
+        },
+        {
+          "name": "_bv_dict",
+          "startLine": 127,
+          "endLine": 138,
+          "params": [
+            "bv"
+          ]
+        },
+        {
+          "name": "biz_data",
+          "startLine": 141,
+          "endLine": 187,
+          "params": [
+            "user_id"
+          ]
+        },
+        {
+          "name": "skill_run_content",
+          "startLine": 190,
+          "endLine": 199,
+          "params": [
+            "run_id"
+          ]
+        },
+        {
+          "name": "save_profile",
+          "startLine": 202,
+          "endLine": 224,
+          "params": [
+            "user_id",
+            "fields"
+          ]
+        },
+        {
+          "name": "intake_turn",
+          "startLine": 227,
+          "endLine": 271,
+          "params": [
+            "user_id",
+            "message"
+          ]
+        },
+        {
+          "name": "rate_skill_run",
+          "startLine": 274,
+          "endLine": 283,
+          "params": [
+            "run_id",
+            "rating",
+            "feedback"
+          ]
+        },
+        {
+          "name": "save_skill_edit",
+          "startLine": 286,
+          "endLine": 301,
+          "params": [
+            "user_id",
+            "skill_name",
+            "content"
+          ]
+        },
+        {
+          "name": "list_skill_versions",
+          "startLine": 304,
+          "endLine": 322,
+          "params": [
+            "user_id",
+            "skill_name"
+          ]
+        },
+        {
+          "name": "patch_skill_run",
+          "startLine": 325,
+          "endLine": 349,
+          "params": [
+            "run_id",
+            "comment"
+          ]
+        },
+        {
+          "name": "ads_data",
+          "startLine": 353,
+          "endLine": 498,
+          "params": [
+            "user_id",
+            "days"
+          ]
+        },
+        {
+          "name": "fb_connect_url",
+          "startLine": 502,
+          "endLine": 527,
+          "params": [
+            "user_id"
+          ]
+        },
+        {
+          "name": "run_agent",
+          "startLine": 531,
+          "endLine": 561,
+          "params": [
+            "user_id",
+            "task"
+          ]
+        },
+        {
+          "name": "_execute",
+          "startLine": 564,
+          "endLine": 621,
+          "params": [
+            "job"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "available",
+          "line": 51,
+          "isDefault": false
+        },
+        {
+          "name": "ensure_client",
+          "line": 57,
+          "isDefault": false
+        },
+        {
+          "name": "jobs_public",
+          "line": 66,
+          "isDefault": false
+        },
+        {
+          "name": "_trim_jobs",
+          "line": 70,
+          "isDefault": false
+        },
+        {
+          "name": "list_users",
+          "line": 77,
+          "isDefault": false
+        },
+        {
+          "name": "pick_user_id",
+          "line": 94,
+          "isDefault": false
+        },
+        {
+          "name": "_slim_run",
+          "line": 111,
+          "isDefault": false
+        },
+        {
+          "name": "_bv_dict",
+          "line": 127,
+          "isDefault": false
+        },
+        {
+          "name": "biz_data",
+          "line": 141,
+          "isDefault": false
+        },
+        {
+          "name": "skill_run_content",
+          "line": 190,
+          "isDefault": false
+        },
+        {
+          "name": "save_profile",
+          "line": 202,
+          "isDefault": false
+        },
+        {
+          "name": "intake_turn",
+          "line": 227,
+          "isDefault": false
+        },
+        {
+          "name": "rate_skill_run",
+          "line": 274,
+          "isDefault": false
+        },
+        {
+          "name": "save_skill_edit",
+          "line": 286,
+          "isDefault": false
+        },
+        {
+          "name": "list_skill_versions",
+          "line": 304,
+          "isDefault": false
+        },
+        {
+          "name": "patch_skill_run",
+          "line": 325,
+          "isDefault": false
+        },
+        {
+          "name": "ads_data",
+          "line": 353,
+          "isDefault": false
+        },
+        {
+          "name": "fb_connect_url",
+          "line": 502,
+          "isDefault": false
+        },
+        {
+          "name": "run_agent",
+          "line": 531,
+          "isDefault": false
+        },
+        {
+          "name": "_execute",
+          "line": 564,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "available",
+          "callee": "os.getenv",
+          "lineNumber": 52
+        },
+        {
+          "caller": "available",
+          "callee": "os.getenv",
+          "lineNumber": 53
+        },
+        {
+          "caller": "available",
+          "callee": "os.getenv",
+          "lineNumber": 53
+        },
+        {
+          "caller": "available",
+          "callee": "bool",
+          "lineNumber": 54
+        },
+        {
+          "caller": "ensure_client",
+          "callee": "s.init_pool",
+          "lineNumber": 61
+        },
+        {
+          "caller": "jobs_public",
+          "callee": "sorted",
+          "lineNumber": 67
+        },
+        {
+          "caller": "jobs_public",
+          "callee": "_jobs.values",
+          "lineNumber": 67
+        },
+        {
+          "caller": "jobs_public",
+          "callee": "j.get",
+          "lineNumber": 67
+        },
+        {
+          "caller": "_trim_jobs",
+          "callee": "len",
+          "lineNumber": 71
+        },
+        {
+          "caller": "_trim_jobs",
+          "callee": "sorted",
+          "lineNumber": 72
+        },
+        {
+          "caller": "_trim_jobs",
+          "callee": "_jobs[k].get",
+          "lineNumber": 72
+        },
+        {
+          "caller": "_trim_jobs",
+          "callee": "_jobs.pop",
+          "lineNumber": 73
+        },
+        {
+          "caller": "list_users",
+          "callee": "ensure_client",
+          "lineNumber": 79
+        },
+        {
+          "caller": "list_users",
+          "callee": "c.table(\"users\")\n            .select(\"user_id,name,plan,token_quota,token_used,industry_cached,last_active_at\")\n            .is_(\"deleted_at\", \"null\")\n            .order(\"last_active_at\", desc=True)\n            .limit(limit)\n            .execute",
+          "lineNumber": 81
+        },
+        {
+          "caller": "list_users",
+          "callee": "c.table(\"users\")\n            .select(\"user_id,name,plan,token_quota,token_used,industry_cached,last_active_at\")\n            .is_(\"deleted_at\", \"null\")\n            .order(\"last_active_at\", desc=True)\n            .limit",
+          "lineNumber": 81
+        },
+        {
+          "caller": "list_users",
+          "callee": "c.table(\"users\")\n            .select(\"user_id,name,plan,token_quota,token_used,industry_cached,last_active_at\")\n            .is_(\"deleted_at\", \"null\")\n            .order",
+          "lineNumber": 81
+        },
+        {
+          "caller": "list_users",
+          "callee": "c.table(\"users\")\n            .select(\"user_id,name,plan,token_quota,token_used,industry_cached,last_active_at\")\n            .is_",
+          "lineNumber": 81
+        },
+        {
+          "caller": "list_users",
+          "callee": "c.table(\"users\")\n            .select",
+          "lineNumber": 81
+        },
+        {
+          "caller": "list_users",
+          "callee": "c.table",
+          "lineNumber": 81
+        },
+        {
+          "caller": "list_users",
+          "callee": "logger.warning",
+          "lineNumber": 90
+        },
+        {
+          "caller": "pick_user_id",
+          "callee": "int",
+          "lineNumber": 98
+        },
+        {
+          "caller": "pick_user_id",
+          "callee": "os.getenv",
+          "lineNumber": 101
+        },
+        {
+          "caller": "pick_user_id",
+          "callee": "int",
+          "lineNumber": 104
+        },
+        {
+          "caller": "pick_user_id",
+          "callee": "list_users",
+          "lineNumber": 107
+        },
+        {
+          "caller": "_slim_run",
+          "callee": "r.get",
+          "lineNumber": 112
+        },
+        {
+          "caller": "_slim_run",
+          "callee": "r.get",
+          "lineNumber": 114
+        },
+        {
+          "caller": "_slim_run",
+          "callee": "r.get",
+          "lineNumber": 115
+        },
+        {
+          "caller": "_slim_run",
+          "callee": "SKILL_TO_PAGE.get",
+          "lineNumber": 116
+        },
+        {
+          "caller": "_slim_run",
+          "callee": "r.get",
+          "lineNumber": 116
+        },
+        {
+          "caller": "_slim_run",
+          "callee": "r.get",
+          "lineNumber": 117
+        },
+        {
+          "caller": "_slim_run",
+          "callee": "r.get",
+          "lineNumber": 118
+        },
+        {
+          "caller": "_slim_run",
+          "callee": "r.get",
+          "lineNumber": 119
+        },
+        {
+          "caller": "_slim_run",
+          "callee": "r.get",
+          "lineNumber": 120
+        },
+        {
+          "caller": "_slim_run",
+          "callee": "r.get",
+          "lineNumber": 121
+        },
+        {
+          "caller": "_slim_run",
+          "callee": "len",
+          "lineNumber": 123
+        },
+        {
+          "caller": "_bv_dict",
+          "callee": "getattr",
+          "lineNumber": 131
+        },
+        {
+          "caller": "_bv_dict",
+          "callee": "getattr",
+          "lineNumber": 132
+        },
+        {
+          "caller": "_bv_dict",
+          "callee": "getattr",
+          "lineNumber": 133
+        },
+        {
+          "caller": "_bv_dict",
+          "callee": "getattr",
+          "lineNumber": 134
+        },
+        {
+          "caller": "_bv_dict",
+          "callee": "getattr",
+          "lineNumber": 135
+        },
+        {
+          "caller": "_bv_dict",
+          "callee": "getattr",
+          "lineNumber": 136
+        },
+        {
+          "caller": "_bv_dict",
+          "callee": "getattr",
+          "lineNumber": 137
+        },
+        {
+          "caller": "biz_data",
+          "callee": "available",
+          "lineNumber": 143
+        },
+        {
+          "caller": "biz_data",
+          "callee": "ensure_client",
+          "lineNumber": 146
+        },
+        {
+          "caller": "biz_data",
+          "callee": "logger.warning",
+          "lineNumber": 148
+        },
+        {
+          "caller": "biz_data",
+          "callee": "str",
+          "lineNumber": 149
+        },
+        {
+          "caller": "biz_data",
+          "callee": "list_users",
+          "lineNumber": 151
+        },
+        {
+          "caller": "biz_data",
+          "callee": "pick_user_id",
+          "lineNumber": 152
+        },
+        {
+          "caller": "biz_data",
+          "callee": "jobs_public",
+          "lineNumber": 157
+        },
+        {
+          "caller": "_safe",
+          "callee": "logger.warning",
+          "lineNumber": 169
+        },
+        {
+          "caller": "biz_data",
+          "callee": "_safe",
+          "lineNumber": 172
+        },
+        {
+          "caller": "biz_data",
+          "callee": "profiles.get_profile",
+          "lineNumber": 172
+        },
+        {
+          "caller": "biz_data",
+          "callee": "_safe",
+          "lineNumber": 173
+        },
+        {
+          "caller": "biz_data",
+          "callee": "users_mod.get_user",
+          "lineNumber": 173
+        },
+        {
+          "caller": "biz_data",
+          "callee": "_safe",
+          "lineNumber": 174
+        },
+        {
+          "caller": "biz_data",
+          "callee": "campaigns_v2.list_campaigns_v2",
+          "lineNumber": 174
+        },
+        {
+          "caller": "biz_data",
+          "callee": "_safe",
+          "lineNumber": 175
+        },
+        {
+          "caller": "biz_data",
+          "callee": "tracked_competitors.list_tracked_by_user",
+          "lineNumber": 175
+        },
+        {
+          "caller": "biz_data",
+          "callee": "_safe",
+          "lineNumber": 176
+        },
+        {
+          "caller": "biz_data",
+          "callee": "skill_runs.list_skill_runs",
+          "lineNumber": 176
+        },
+        {
+          "caller": "biz_data",
+          "callee": "_safe",
+          "lineNumber": 177
+        },
+        {
+          "caller": "biz_data",
+          "callee": "brand_voice.get_brand_voice",
+          "lineNumber": 177
+        },
+        {
+          "caller": "biz_data",
+          "callee": "_slim_run",
+          "lineNumber": 179
+        },
+        {
+          "caller": "biz_data",
+          "callee": "latest.setdefault",
+          "lineNumber": 184
+        },
+        {
+          "caller": "biz_data",
+          "callee": "_bv_dict",
+          "lineNumber": 186
+        },
+        {
+          "caller": "skill_run_content",
+          "callee": "ensure_client",
+          "lineNumber": 193
+        },
+        {
+          "caller": "skill_run_content",
+          "callee": "c.table(\"skill_runs\").select(\"*\").eq(\"id\", run_id).limit(1).execute",
+          "lineNumber": 194
+        },
+        {
+          "caller": "skill_run_content",
+          "callee": "c.table(\"skill_runs\").select(\"*\").eq(\"id\", run_id).limit",
+          "lineNumber": 194
+        },
+        {
+          "caller": "skill_run_content",
+          "callee": "c.table(\"skill_runs\").select(\"*\").eq",
+          "lineNumber": 194
+        },
+        {
+          "caller": "skill_run_content",
+          "callee": "c.table(\"skill_runs\").select",
+          "lineNumber": 194
+        },
+        {
+          "caller": "skill_run_content",
+          "callee": "c.table",
+          "lineNumber": 194
+        },
+        {
+          "caller": "skill_run_content",
+          "callee": "logger.warning",
+          "lineNumber": 198
+        },
+        {
+          "caller": "save_profile",
+          "callee": "available",
+          "lineNumber": 207
+        },
+        {
+          "caller": "save_profile",
+          "callee": "ensure_client",
+          "lineNumber": 210
+        },
+        {
+          "caller": "save_profile",
+          "callee": "pick_user_id",
+          "lineNumber": 211
+        },
+        {
+          "caller": "save_profile",
+          "callee": "int",
+          "lineNumber": 214
+        },
+        {
+          "caller": "save_profile",
+          "callee": "os.getenv",
+          "lineNumber": 214
+        },
+        {
+          "caller": "save_profile",
+          "callee": "(fields or {}).items",
+          "lineNumber": 217
+        },
+        {
+          "caller": "save_profile",
+          "callee": "users_mod.upsert_user",
+          "lineNumber": 219
+        },
+        {
+          "caller": "save_profile",
+          "callee": "clean.get",
+          "lineNumber": 219
+        },
+        {
+          "caller": "save_profile",
+          "callee": "profiles.upsert_profile",
+          "lineNumber": 220
+        },
+        {
+          "caller": "save_profile",
+          "callee": "logger.warning",
+          "lineNumber": 223
+        },
+        {
+          "caller": "save_profile",
+          "callee": "str",
+          "lineNumber": 224
+        },
+        {
+          "caller": "intake_turn",
+          "callee": "available",
+          "lineNumber": 234
+        },
+        {
+          "caller": "intake_turn",
+          "callee": "ensure_client",
+          "lineNumber": 237
+        },
+        {
+          "caller": "intake_turn",
+          "callee": "pick_user_id",
+          "lineNumber": 240
+        },
+        {
+          "caller": "intake_turn",
+          "callee": "int",
+          "lineNumber": 243
+        },
+        {
+          "caller": "intake_turn",
+          "callee": "os.getenv",
+          "lineNumber": 243
+        },
+        {
+          "caller": "intake_turn",
+          "callee": "get_session",
+          "lineNumber": 248
+        },
+        {
+          "caller": "intake_turn",
+          "callee": "run_discovery_turn",
+          "lineNumber": 250
+        },
+        {
+          "caller": "intake_turn",
+          "callee": "logger.exception",
+          "lineNumber": 252
+        },
+        {
+          "caller": "intake_turn",
+          "callee": "apply_discovery_to_profile",
+          "lineNumber": 256
+        },
+        {
+          "caller": "intake_turn",
+          "callee": "save_session",
+          "lineNumber": 257
+        },
+        {
+          "caller": "intake_turn",
+          "callee": "asdict(session.profile).items",
+          "lineNumber": 261
+        },
+        {
+          "caller": "intake_turn",
+          "callee": "asdict",
+          "lineNumber": 261
+        },
+        {
+          "caller": "intake_turn",
+          "callee": "users_mod.upsert_user",
+          "lineNumber": 262
+        },
+        {
+          "caller": "intake_turn",
+          "callee": "clean.get",
+          "lineNumber": 262
+        },
+        {
+          "caller": "intake_turn",
+          "callee": "profiles.upsert_profile",
+          "lineNumber": 263
+        },
+        {
+          "caller": "intake_turn",
+          "callee": "logger.warning",
+          "lineNumber": 265
+        },
+        {
+          "caller": "intake_turn",
+          "callee": "save_session",
+          "lineNumber": 268
+        },
+        {
+          "caller": "rate_skill_run",
+          "callee": "ensure_client",
+          "lineNumber": 277
+        },
+        {
+          "caller": "rate_skill_run",
+          "callee": "skill_runs.update_rating",
+          "lineNumber": 279
+        },
+        {
+          "caller": "rate_skill_run",
+          "callee": "int",
+          "lineNumber": 279
+        },
+        {
+          "caller": "rate_skill_run",
+          "callee": "bool",
+          "lineNumber": 280
+        },
+        {
+          "caller": "rate_skill_run",
+          "callee": "logger.warning",
+          "lineNumber": 282
+        },
+        {
+          "caller": "rate_skill_run",
+          "callee": "str",
+          "lineNumber": 283
+        },
+        {
+          "caller": "save_skill_edit",
+          "callee": "ensure_client",
+          "lineNumber": 292
+        },
+        {
+          "caller": "save_skill_edit",
+          "callee": "pick_user_id",
+          "lineNumber": 293
+        },
+        {
+          "caller": "save_skill_edit",
+          "callee": "skill_runs.insert_skill_run",
+          "lineNumber": 297
+        },
+        {
+          "caller": "save_skill_edit",
+          "callee": "logger.warning",
+          "lineNumber": 300
+        },
+        {
+          "caller": "save_skill_edit",
+          "callee": "str",
+          "lineNumber": 301
+        },
+        {
+          "caller": "list_skill_versions",
+          "callee": "ensure_client",
+          "lineNumber": 309
+        },
+        {
+          "caller": "list_skill_versions",
+          "callee": "pick_user_id",
+          "lineNumber": 310
+        },
+        {
+          "caller": "list_skill_versions",
+          "callee": "skill_runs.list_skill_runs",
+          "lineNumber": 314
+        },
+        {
+          "caller": "list_skill_versions",
+          "callee": "r.get",
+          "lineNumber": 316
+        },
+        {
+          "caller": "list_skill_versions",
+          "callee": "r.get",
+          "lineNumber": 316
+        },
+        {
+          "caller": "list_skill_versions",
+          "callee": "r.get",
+          "lineNumber": 316
+        },
+        {
+          "caller": "list_skill_versions",
+          "callee": "r.get",
+          "lineNumber": 317
+        },
+        {
+          "caller": "list_skill_versions",
+          "callee": "r.get",
+          "lineNumber": 317
+        },
+        {
+          "caller": "list_skill_versions",
+          "callee": "len",
+          "lineNumber": 318
+        },
+        {
+          "caller": "list_skill_versions",
+          "callee": "r.get",
+          "lineNumber": 318
+        },
+        {
+          "caller": "list_skill_versions",
+          "callee": "logger.warning",
+          "lineNumber": 321
+        },
+        {
+          "caller": "patch_skill_run",
+          "callee": "ensure_client",
+          "lineNumber": 333
+        },
+        {
+          "caller": "patch_skill_run",
+          "callee": "skill_run_content",
+          "lineNumber": 334
+        },
+        {
+          "caller": "patch_skill_run",
+          "callee": "patch_document",
+          "lineNumber": 338
+        },
+        {
+          "caller": "patch_skill_run",
+          "callee": "run.get",
+          "lineNumber": 338
+        },
+        {
+          "caller": "patch_skill_run",
+          "callee": "skill_runs.insert_skill_run",
+          "lineNumber": 344
+        },
+        {
+          "caller": "patch_skill_run",
+          "callee": "summarize_changes",
+          "lineNumber": 346
+        },
+        {
+          "caller": "patch_skill_run",
+          "callee": "logger.warning",
+          "lineNumber": 348
+        },
+        {
+          "caller": "patch_skill_run",
+          "callee": "str",
+          "lineNumber": 349
+        },
+        {
+          "caller": "ads_data",
+          "callee": "available",
+          "lineNumber": 359
+        },
+        {
+          "caller": "ads_data",
+          "callee": "ensure_client",
+          "lineNumber": 362
+        },
+        {
+          "caller": "ads_data",
+          "callee": "str",
+          "lineNumber": 364
+        },
+        {
+          "caller": "ads_data",
+          "callee": "pick_user_id",
+          "lineNumber": 366
+        },
+        {
+          "caller": "_safe",
+          "callee": "logger.warning",
+          "lineNumber": 376
+        },
+        {
+          "caller": "ads_data",
+          "callee": "_safe",
+          "lineNumber": 380
+        },
+        {
+          "caller": "ads_data",
+          "callee": "c.table(\"user_fb_connections\")\n         .select(\"user_id,ad_account_id,account_name,expires_at,connected_at,notification_enabled,available_accounts,last_pull_at\")\n         .eq(\"user_id\", uid).limit(1).execute",
+          "lineNumber": 381
+        },
+        {
+          "caller": "ads_data",
+          "callee": "c.table(\"user_fb_connections\")\n         .select(\"user_id,ad_account_id,account_name,expires_at,connected_at,notification_enabled,available_accounts,last_pull_at\")\n         .eq(\"user_id\", uid).limit",
+          "lineNumber": 381
+        },
+        {
+          "caller": "ads_data",
+          "callee": "c.table(\"user_fb_connections\")\n         .select(\"user_id,ad_account_id,account_name,expires_at,connected_at,notification_enabled,available_accounts,last_pull_at\")\n         .eq",
+          "lineNumber": 381
+        },
+        {
+          "caller": "ads_data",
+          "callee": "c.table(\"user_fb_connections\")\n         .select",
+          "lineNumber": 381
+        },
+        {
+          "caller": "ads_data",
+          "callee": "c.table",
+          "lineNumber": 381
+        },
+        {
+          "caller": "ads_data",
+          "callee": "(datetime.now(timezone.utc) - timedelta(days=days)).strftime",
+          "lineNumber": 389
+        },
+        {
+          "caller": "ads_data",
+          "callee": "datetime.now",
+          "lineNumber": 389
+        },
+        {
+          "caller": "ads_data",
+          "callee": "timedelta",
+          "lineNumber": 389
+        },
+        {
+          "caller": "ads_data",
+          "callee": "_safe",
+          "lineNumber": 390
+        },
+        {
+          "caller": "ads_data",
+          "callee": "c.table(\"ads_snapshots\")\n         .select(\"*\")\n         .eq(\"user_id\", uid)\n         .gte(\"snapshot_date\", cutoff)\n         .order(\"snapshot_date\", desc=True)\n         .limit(200)\n         .execute",
+          "lineNumber": 391
+        },
+        {
+          "caller": "ads_data",
+          "callee": "c.table(\"ads_snapshots\")\n         .select(\"*\")\n         .eq(\"user_id\", uid)\n         .gte(\"snapshot_date\", cutoff)\n         .order(\"snapshot_date\", desc=True)\n         .limit",
+          "lineNumber": 391
+        },
+        {
+          "caller": "ads_data",
+          "callee": "c.table(\"ads_snapshots\")\n         .select(\"*\")\n         .eq(\"user_id\", uid)\n         .gte(\"snapshot_date\", cutoff)\n         .order",
+          "lineNumber": 391
+        },
+        {
+          "caller": "ads_data",
+          "callee": "c.table(\"ads_snapshots\")\n         .select(\"*\")\n         .eq(\"user_id\", uid)\n         .gte",
+          "lineNumber": 391
+        },
+        {
+          "caller": "ads_data",
+          "callee": "c.table(\"ads_snapshots\")\n         .select(\"*\")\n         .eq",
+          "lineNumber": 391
+        },
+        {
+          "caller": "ads_data",
+          "callee": "c.table(\"ads_snapshots\")\n         .select",
+          "lineNumber": 391
+        },
+        {
+          "caller": "ads_data",
+          "callee": "c.table",
+          "lineNumber": 391
+        },
+        {
+          "caller": "ads_data",
+          "callee": "sum",
+          "lineNumber": 403
+        },
+        {
+          "caller": "ads_data",
+          "callee": "s.get",
+          "lineNumber": 403
+        },
+        {
+          "caller": "ads_data",
+          "callee": "sum",
+          "lineNumber": 404
+        },
+        {
+          "caller": "ads_data",
+          "callee": "s.get",
+          "lineNumber": 404
+        },
+        {
+          "caller": "ads_data",
+          "callee": "sum",
+          "lineNumber": 405
+        },
+        {
+          "caller": "ads_data",
+          "callee": "s.get",
+          "lineNumber": 405
+        },
+        {
+          "caller": "ads_data",
+          "callee": "sum",
+          "lineNumber": 406
+        },
+        {
+          "caller": "ads_data",
+          "callee": "s.get",
+          "lineNumber": 406
+        },
+        {
+          "caller": "ads_data",
+          "callee": "sum",
+          "lineNumber": 407
+        },
+        {
+          "caller": "ads_data",
+          "callee": "s.get",
+          "lineNumber": 407
+        },
+        {
+          "caller": "ads_data",
+          "callee": "round",
+          "lineNumber": 408
+        },
+        {
+          "caller": "ads_data",
+          "callee": "round",
+          "lineNumber": 409
+        },
+        {
+          "caller": "ads_data",
+          "callee": "round",
+          "lineNumber": 410
+        },
+        {
+          "caller": "ads_data",
+          "callee": "round",
+          "lineNumber": 411
+        },
+        {
+          "caller": "ads_data",
+          "callee": "s.get",
+          "lineNumber": 416
+        },
+        {
+          "caller": "ads_data",
+          "callee": "s.get",
+          "lineNumber": 420
+        },
+        {
+          "caller": "ads_data",
+          "callee": "s.get",
+          "lineNumber": 426
+        },
+        {
+          "caller": "ads_data",
+          "callee": "s.get",
+          "lineNumber": 427
+        },
+        {
+          "caller": "ads_data",
+          "callee": "s.get",
+          "lineNumber": 428
+        },
+        {
+          "caller": "ads_data",
+          "callee": "s.get",
+          "lineNumber": 429
+        },
+        {
+          "caller": "ads_data",
+          "callee": "s.get",
+          "lineNumber": 430
+        },
+        {
+          "caller": "ads_data",
+          "callee": "s.get",
+          "lineNumber": 431
+        },
+        {
+          "caller": "ads_data",
+          "callee": "s.get",
+          "lineNumber": 433
+        },
+        {
+          "caller": "ads_data",
+          "callee": "camp_map.values",
+          "lineNumber": 437
+        },
+        {
+          "caller": "ads_data",
+          "callee": "round",
+          "lineNumber": 440
+        },
+        {
+          "caller": "ads_data",
+          "callee": "round",
+          "lineNumber": 440
+        },
+        {
+          "caller": "ads_data",
+          "callee": "round",
+          "lineNumber": 441
+        },
+        {
+          "caller": "ads_data",
+          "callee": "round",
+          "lineNumber": 442
+        },
+        {
+          "caller": "ads_data",
+          "callee": "campaigns_agg.append",
+          "lineNumber": 443
+        },
+        {
+          "caller": "ads_data",
+          "callee": "spenders.sort",
+          "lineNumber": 457
+        },
+        {
+          "caller": "ads_data",
+          "callee": "max",
+          "lineNumber": 458
+        },
+        {
+          "caller": "ads_data",
+          "callee": "len",
+          "lineNumber": 458
+        },
+        {
+          "caller": "ads_data",
+          "callee": "sorted",
+          "lineNumber": 460
+        },
+        {
+          "caller": "ads_data",
+          "callee": "s.get",
+          "lineNumber": 465
+        },
+        {
+          "caller": "ads_data",
+          "callee": "s.get",
+          "lineNumber": 468
+        },
+        {
+          "caller": "ads_data",
+          "callee": "s.get",
+          "lineNumber": 469
+        },
+        {
+          "caller": "ads_data",
+          "callee": "sorted",
+          "lineNumber": 472
+        },
+        {
+          "caller": "ads_data",
+          "callee": "daily.values",
+          "lineNumber": 472
+        },
+        {
+          "caller": "ads_data",
+          "callee": "daily_chart.append",
+          "lineNumber": 473
+        },
+        {
+          "caller": "ads_data",
+          "callee": "round",
+          "lineNumber": 475
+        },
+        {
+          "caller": "ads_data",
+          "callee": "round",
+          "lineNumber": 476
+        },
+        {
+          "caller": "ads_data",
+          "callee": "round",
+          "lineNumber": 485
+        },
+        {
+          "caller": "ads_data",
+          "callee": "int",
+          "lineNumber": 490
+        },
+        {
+          "caller": "ads_data",
+          "callee": "int",
+          "lineNumber": 491
+        },
+        {
+          "caller": "fb_connect_url",
+          "callee": "available",
+          "lineNumber": 509
+        },
+        {
+          "caller": "fb_connect_url",
+          "callee": "pick_user_id",
+          "lineNumber": 517
+        },
+        {
+          "caller": "fb_connect_url",
+          "callee": "ensure_client",
+          "lineNumber": 521
+        },
+        {
+          "caller": "fb_connect_url",
+          "callee": "build_oauth_url",
+          "lineNumber": 523
+        },
+        {
+          "caller": "fb_connect_url",
+          "callee": "logger.warning",
+          "lineNumber": 526
+        },
+        {
+          "caller": "run_agent",
+          "callee": "available",
+          "lineNumber": 533
+        },
+        {
+          "caller": "run_agent",
+          "callee": "ensure_client",
+          "lineNumber": 538
+        },
+        {
+          "caller": "run_agent",
+          "callee": "pick_user_id",
+          "lineNumber": 541
+        },
+        {
+          "caller": "run_agent",
+          "callee": "int",
+          "lineNumber": 545
+        },
+        {
+          "caller": "run_agent",
+          "callee": "time.time",
+          "lineNumber": 545
+        },
+        {
+          "caller": "run_agent",
+          "callee": "TASK_LABELS.get",
+          "lineNumber": 550
+        },
+        {
+          "caller": "run_agent",
+          "callee": "time.time",
+          "lineNumber": 553
+        },
+        {
+          "caller": "run_agent",
+          "callee": "_trim_jobs",
+          "lineNumber": 559
+        },
+        {
+          "caller": "run_agent",
+          "callee": "asyncio.create_task",
+          "lineNumber": 560
+        },
+        {
+          "caller": "run_agent",
+          "callee": "_execute",
+          "lineNumber": 560
+        },
+        {
+          "caller": "_execute",
+          "callee": "ensure_client",
+          "lineNumber": 568
+        },
+        {
+          "caller": "_execute",
+          "callee": "get_session",
+          "lineNumber": 571
+        },
+        {
+          "caller": "_execute",
+          "callee": "begin_job",
+          "lineNumber": 576
+        },
+        {
+          "caller": "progress",
+          "callee": "str",
+          "lineNumber": 583
+        },
+        {
+          "caller": "_execute",
+          "callee": "run_targeted_pipeline",
+          "lineNumber": 589
+        },
+        {
+          "caller": "_execute",
+          "callee": "done.append",
+          "lineNumber": 596
+        },
+        {
+          "caller": "_execute",
+          "callee": "save_session",
+          "lineNumber": 599
+        },
+        {
+          "caller": "_execute",
+          "callee": "len",
+          "lineNumber": 602
+        },
+        {
+          "caller": "_execute",
+          "callee": "', '.join",
+          "lineNumber": 602
+        },
+        {
+          "caller": "_execute",
+          "callee": "logger.exception",
+          "lineNumber": 605
+        },
+        {
+          "caller": "_execute",
+          "callee": "str",
+          "lineNumber": 607
+        },
+        {
+          "caller": "_execute",
+          "callee": "time.time",
+          "lineNumber": 609
+        },
+        {
+          "caller": "_execute",
+          "callee": "tg.notify",
+          "lineNumber": 613
+        },
+        {
+          "caller": "_execute",
+          "callee": "job.get",
+          "lineNumber": 614
+        },
+        {
+          "caller": "_execute",
+          "callee": "tg.notify",
+          "lineNumber": 617
+        },
+        {
+          "caller": "_execute",
+          "callee": "job.get",
+          "lineNumber": 618
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 20,
+        "functionCount": 20,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "webapp/chat.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 243,
+      "nonEmptyLines": 204,
+      "functions": [
+        {
+          "name": "_log",
+          "startLine": 33,
+          "endLine": 34,
+          "params": [
+            "uid"
+          ]
+        },
+        {
+          "name": "history",
+          "startLine": 37,
+          "endLine": 42,
+          "params": [
+            "user_id"
+          ]
+        },
+        {
+          "name": "_load_history",
+          "startLine": 46,
+          "endLine": 63,
+          "params": [
+            "uid"
+          ]
+        },
+        {
+          "name": "_ensure_log",
+          "startLine": 66,
+          "endLine": 70,
+          "params": [
+            "uid"
+          ]
+        },
+        {
+          "name": "_persist",
+          "startLine": 73,
+          "endLine": 84,
+          "params": [
+            "uid",
+            "msgs"
+          ]
+        },
+        {
+          "name": "load_history",
+          "startLine": 87,
+          "endLine": 100,
+          "params": [
+            "user_id"
+          ]
+        },
+        {
+          "name": "_profile_complete",
+          "startLine": 103,
+          "endLine": 108,
+          "params": [
+            "session"
+          ]
+        },
+        {
+          "name": "_stage",
+          "startLine": 111,
+          "endLine": 118,
+          "params": [
+            "session",
+            "skill_keys"
+          ]
+        },
+        {
+          "name": "_suggestions",
+          "startLine": 121,
+          "endLine": 142,
+          "params": [
+            "stage",
+            "skill_keys"
+          ]
+        },
+        {
+          "name": "_skill_keys",
+          "startLine": 145,
+          "endLine": 152,
+          "params": [
+            "uid"
+          ]
+        },
+        {
+          "name": "_advisor_reply",
+          "startLine": 155,
+          "endLine": 183,
+          "params": [
+            "session",
+            "uid"
+          ]
+        },
+        {
+          "name": "chat_turn",
+          "startLine": 186,
+          "endLine": 243,
+          "params": [
+            "user_id",
+            "message"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "_log",
+          "line": 33,
+          "isDefault": false
+        },
+        {
+          "name": "history",
+          "line": 37,
+          "isDefault": false
+        },
+        {
+          "name": "_load_history",
+          "line": 46,
+          "isDefault": false
+        },
+        {
+          "name": "_ensure_log",
+          "line": 66,
+          "isDefault": false
+        },
+        {
+          "name": "_persist",
+          "line": 73,
+          "isDefault": false
+        },
+        {
+          "name": "load_history",
+          "line": 87,
+          "isDefault": false
+        },
+        {
+          "name": "_profile_complete",
+          "line": 103,
+          "isDefault": false
+        },
+        {
+          "name": "_stage",
+          "line": 111,
+          "isDefault": false
+        },
+        {
+          "name": "_suggestions",
+          "line": 121,
+          "isDefault": false
+        },
+        {
+          "name": "_skill_keys",
+          "line": 145,
+          "isDefault": false
+        },
+        {
+          "name": "_advisor_reply",
+          "line": 155,
+          "isDefault": false
+        },
+        {
+          "name": "chat_turn",
+          "line": 186,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "_log",
+          "callee": "_chat_log.setdefault",
+          "lineNumber": 34
+        },
+        {
+          "caller": "history",
+          "callee": "_chat_log.get",
+          "lineNumber": 40
+        },
+        {
+          "caller": "history",
+          "callee": "int",
+          "lineNumber": 40
+        },
+        {
+          "caller": "_load_history",
+          "callee": "biz.ensure_client",
+          "lineNumber": 50
+        },
+        {
+          "caller": "_load_history",
+          "callee": "c.table(_CHAT_TABLE)\n            .select(\"role,content\")\n            .eq(\"user_id\", uid)\n            .order(\"id\")\n            .limit(200)\n            .execute",
+          "lineNumber": 52
+        },
+        {
+          "caller": "_load_history",
+          "callee": "c.table(_CHAT_TABLE)\n            .select(\"role,content\")\n            .eq(\"user_id\", uid)\n            .order(\"id\")\n            .limit",
+          "lineNumber": 52
+        },
+        {
+          "caller": "_load_history",
+          "callee": "c.table(_CHAT_TABLE)\n            .select(\"role,content\")\n            .eq(\"user_id\", uid)\n            .order",
+          "lineNumber": 52
+        },
+        {
+          "caller": "_load_history",
+          "callee": "c.table(_CHAT_TABLE)\n            .select(\"role,content\")\n            .eq",
+          "lineNumber": 52
+        },
+        {
+          "caller": "_load_history",
+          "callee": "c.table(_CHAT_TABLE)\n            .select",
+          "lineNumber": 52
+        },
+        {
+          "caller": "_load_history",
+          "callee": "c.table",
+          "lineNumber": 52
+        },
+        {
+          "caller": "_load_history",
+          "callee": "logger.warning",
+          "lineNumber": 62
+        },
+        {
+          "caller": "_load_history",
+          "callee": "_chat_log.get",
+          "lineNumber": 63
+        },
+        {
+          "caller": "_ensure_log",
+          "callee": "_chat_log.get",
+          "lineNumber": 68
+        },
+        {
+          "caller": "_ensure_log",
+          "callee": "_load_history",
+          "lineNumber": 69
+        },
+        {
+          "caller": "_persist",
+          "callee": "biz.ensure_client",
+          "lineNumber": 79
+        },
+        {
+          "caller": "_persist",
+          "callee": "c.table(_CHAT_TABLE).insert(\n            [{\"user_id\": uid, \"role\": m[\"role\"], \"content\": m[\"content\"]} for m in msgs]\n        ).execute",
+          "lineNumber": 80
+        },
+        {
+          "caller": "_persist",
+          "callee": "c.table(_CHAT_TABLE).insert",
+          "lineNumber": 80
+        },
+        {
+          "caller": "_persist",
+          "callee": "c.table",
+          "lineNumber": 80
+        },
+        {
+          "caller": "_persist",
+          "callee": "logger.warning",
+          "lineNumber": 84
+        },
+        {
+          "caller": "load_history",
+          "callee": "biz.available",
+          "lineNumber": 91
+        },
+        {
+          "caller": "load_history",
+          "callee": "history",
+          "lineNumber": 92
+        },
+        {
+          "caller": "load_history",
+          "callee": "biz.ensure_client",
+          "lineNumber": 93
+        },
+        {
+          "caller": "load_history",
+          "callee": "biz.pick_user_id",
+          "lineNumber": 94
+        },
+        {
+          "caller": "load_history",
+          "callee": "_ensure_log",
+          "lineNumber": 97
+        },
+        {
+          "caller": "load_history",
+          "callee": "logger.warning",
+          "lineNumber": 99
+        },
+        {
+          "caller": "load_history",
+          "callee": "history",
+          "lineNumber": 100
+        },
+        {
+          "caller": "_profile_complete",
+          "callee": "sum",
+          "lineNumber": 106
+        },
+        {
+          "caller": "_profile_complete",
+          "callee": "getattr",
+          "lineNumber": 106
+        },
+        {
+          "caller": "_profile_complete",
+          "callee": "bool",
+          "lineNumber": 108
+        },
+        {
+          "caller": "_profile_complete",
+          "callee": "getattr",
+          "lineNumber": 108
+        },
+        {
+          "caller": "_stage",
+          "callee": "_profile_complete",
+          "lineNumber": 112
+        },
+        {
+          "caller": "_skill_keys",
+          "callee": "skill_runs.list_skill_runs",
+          "lineNumber": 148
+        },
+        {
+          "caller": "_skill_keys",
+          "callee": "r.get",
+          "lineNumber": 149
+        },
+        {
+          "caller": "_skill_keys",
+          "callee": "r.get",
+          "lineNumber": 149
+        },
+        {
+          "caller": "_skill_keys",
+          "callee": "logger.warning",
+          "lineNumber": 151
+        },
+        {
+          "caller": "_skill_keys",
+          "callee": "set",
+          "lineNumber": 152
+        },
+        {
+          "caller": "_advisor_reply",
+          "callee": "_log",
+          "lineNumber": 159
+        },
+        {
+          "caller": "_advisor_reply",
+          "callee": "\"\\n\".join",
+          "lineNumber": 160
+        },
+        {
+          "caller": "_advisor_reply",
+          "callee": "_skill_keys",
+          "lineNumber": 164
+        },
+        {
+          "caller": "_advisor_reply",
+          "callee": "\", \".join",
+          "lineNumber": 165
+        },
+        {
+          "caller": "_advisor_reply",
+          "callee": "sorted",
+          "lineNumber": 165
+        },
+        {
+          "caller": "_advisor_reply",
+          "callee": "session.profile.to_context_string",
+          "lineNumber": 168
+        },
+        {
+          "caller": "_advisor_reply",
+          "callee": "router_call",
+          "lineNumber": 174
+        },
+        {
+          "caller": "_advisor_reply",
+          "callee": "(result.get(\"output\") or \"\").strip",
+          "lineNumber": 180
+        },
+        {
+          "caller": "_advisor_reply",
+          "callee": "result.get",
+          "lineNumber": 180
+        },
+        {
+          "caller": "_advisor_reply",
+          "callee": "logger.error",
+          "lineNumber": 182
+        },
+        {
+          "caller": "chat_turn",
+          "callee": "biz.available",
+          "lineNumber": 190
+        },
+        {
+          "caller": "chat_turn",
+          "callee": "biz.ensure_client",
+          "lineNumber": 193
+        },
+        {
+          "caller": "chat_turn",
+          "callee": "biz.pick_user_id",
+          "lineNumber": 197
+        },
+        {
+          "caller": "chat_turn",
+          "callee": "get_session",
+          "lineNumber": 202
+        },
+        {
+          "caller": "chat_turn",
+          "callee": "(message or \"\").strip",
+          "lineNumber": 203
+        },
+        {
+          "caller": "chat_turn",
+          "callee": "_ensure_log",
+          "lineNumber": 204
+        },
+        {
+          "caller": "chat_turn",
+          "callee": "log.append",
+          "lineNumber": 206
+        },
+        {
+          "caller": "chat_turn",
+          "callee": "_profile_complete",
+          "lineNumber": 208
+        },
+        {
+          "caller": "chat_turn",
+          "callee": "run_discovery_turn",
+          "lineNumber": 211
+        },
+        {
+          "caller": "chat_turn",
+          "callee": "logger.exception",
+          "lineNumber": 213
+        },
+        {
+          "caller": "chat_turn",
+          "callee": "apply_discovery_to_profile",
+          "lineNumber": 216
+        },
+        {
+          "caller": "chat_turn",
+          "callee": "save_session",
+          "lineNumber": 217
+        },
+        {
+          "caller": "chat_turn",
+          "callee": "save_session",
+          "lineNumber": 222
+        },
+        {
+          "caller": "chat_turn",
+          "callee": "_advisor_reply",
+          "lineNumber": 225
+        },
+        {
+          "caller": "chat_turn",
+          "callee": "log.append",
+          "lineNumber": 227
+        },
+        {
+          "caller": "chat_turn",
+          "callee": "_persist",
+          "lineNumber": 230
+        },
+        {
+          "caller": "chat_turn",
+          "callee": "len",
+          "lineNumber": 231
+        },
+        {
+          "caller": "chat_turn",
+          "callee": "len",
+          "lineNumber": 232
+        },
+        {
+          "caller": "chat_turn",
+          "callee": "_skill_keys",
+          "lineNumber": 234
+        },
+        {
+          "caller": "chat_turn",
+          "callee": "_stage",
+          "lineNumber": 235
+        },
+        {
+          "caller": "chat_turn",
+          "callee": "_profile_complete",
+          "lineNumber": 240
+        },
+        {
+          "caller": "chat_turn",
+          "callee": "_suggestions",
+          "lineNumber": 241
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 12,
+        "functionCount": 12,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "webapp/notify.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 45,
+      "nonEmptyLines": 36,
+      "functions": [
+        {
+          "name": "_cfg",
+          "startLine": 18,
+          "endLine": 19,
+          "params": []
+        },
+        {
+          "name": "enabled",
+          "startLine": 22,
+          "endLine": 24,
+          "params": []
+        },
+        {
+          "name": "notify",
+          "startLine": 27,
+          "endLine": 45,
+          "params": [
+            "text"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "_cfg",
+          "line": 18,
+          "isDefault": false
+        },
+        {
+          "name": "enabled",
+          "line": 22,
+          "isDefault": false
+        },
+        {
+          "name": "notify",
+          "line": 27,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "_cfg",
+          "callee": "os.getenv",
+          "lineNumber": 19
+        },
+        {
+          "caller": "_cfg",
+          "callee": "os.getenv",
+          "lineNumber": 19
+        },
+        {
+          "caller": "enabled",
+          "callee": "_cfg",
+          "lineNumber": 23
+        },
+        {
+          "caller": "enabled",
+          "callee": "bool",
+          "lineNumber": 24
+        },
+        {
+          "caller": "notify",
+          "callee": "_cfg",
+          "lineNumber": 29
+        },
+        {
+          "caller": "notify",
+          "callee": "logger.info",
+          "lineNumber": 31
+        },
+        {
+          "caller": "notify",
+          "callee": "httpx.AsyncClient",
+          "lineNumber": 35
+        },
+        {
+          "caller": "notify",
+          "callee": "client.post",
+          "lineNumber": 36
+        },
+        {
+          "caller": "notify",
+          "callee": "logger.warning",
+          "lineNumber": 41
+        },
+        {
+          "caller": "notify",
+          "callee": "logger.warning",
+          "lineNumber": 44
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 3,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "webapp/store_sqlite.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 235,
+      "nonEmptyLines": 200,
+      "functions": [
+        {
+          "name": "seed_demo_enabled",
+          "startLine": 16,
+          "endLine": 18,
+          "params": []
+        },
+        {
+          "name": "_conn",
+          "startLine": 79,
+          "endLine": 82,
+          "params": []
+        },
+        {
+          "name": "_seed",
+          "startLine": 85,
+          "endLine": 88,
+          "params": [
+            "c",
+            "table",
+            "cols",
+            "rows"
+          ]
+        },
+        {
+          "name": "init",
+          "startLine": 91,
+          "endLine": 120,
+          "params": []
+        },
+        {
+          "name": "get_state",
+          "startLine": 123,
+          "endLine": 143,
+          "params": []
+        },
+        {
+          "name": "_exec",
+          "startLine": 146,
+          "endLine": 148,
+          "params": [
+            "sql",
+            "params"
+          ]
+        },
+        {
+          "name": "add_tracked",
+          "startLine": 152,
+          "endLine": 154,
+          "params": [
+            "name"
+          ]
+        },
+        {
+          "name": "del_tracked",
+          "startLine": 156,
+          "endLine": 157,
+          "params": [
+            "i"
+          ]
+        },
+        {
+          "name": "toggle_job",
+          "startLine": 159,
+          "endLine": 165,
+          "params": [
+            "name"
+          ]
+        },
+        {
+          "name": "remove_optimization",
+          "startLine": 167,
+          "endLine": 168,
+          "params": [
+            "i"
+          ]
+        },
+        {
+          "name": "dismiss_alert",
+          "startLine": 170,
+          "endLine": 171,
+          "params": [
+            "i"
+          ]
+        },
+        {
+          "name": "set_setting",
+          "startLine": 173,
+          "endLine": 175,
+          "params": [
+            "key",
+            "value"
+          ]
+        },
+        {
+          "name": "add_campaign",
+          "startLine": 177,
+          "endLine": 179,
+          "params": [
+            "name"
+          ]
+        },
+        {
+          "name": "del_campaign",
+          "startLine": 181,
+          "endLine": 182,
+          "params": [
+            "i"
+          ]
+        },
+        {
+          "name": "add_calendar_post",
+          "startLine": 184,
+          "endLine": 186,
+          "params": [
+            "day",
+            "pillar",
+            "title"
+          ]
+        },
+        {
+          "name": "del_calendar_post",
+          "startLine": 188,
+          "endLine": 189,
+          "params": [
+            "i"
+          ]
+        },
+        {
+          "name": "generate_content",
+          "startLine": 191,
+          "endLine": 201,
+          "params": [
+            "topic"
+          ]
+        },
+        {
+          "name": "add_report",
+          "startLine": 203,
+          "endLine": 206,
+          "params": [
+            "name",
+            "type_"
+          ]
+        },
+        {
+          "name": "del_report",
+          "startLine": 208,
+          "endLine": 209,
+          "params": [
+            "i"
+          ]
+        },
+        {
+          "name": "connect_account",
+          "startLine": 211,
+          "endLine": 215,
+          "params": [
+            "name"
+          ]
+        },
+        {
+          "name": "toggle_account",
+          "startLine": 217,
+          "endLine": 223,
+          "params": [
+            "i"
+          ]
+        },
+        {
+          "name": "disconnect_account",
+          "startLine": 225,
+          "endLine": 226,
+          "params": [
+            "i"
+          ]
+        },
+        {
+          "name": "set_quota",
+          "startLine": 228,
+          "endLine": 229,
+          "params": [
+            "i",
+            "value"
+          ]
+        },
+        {
+          "name": "add_quota",
+          "startLine": 231,
+          "endLine": 232,
+          "params": [
+            "i",
+            "value"
+          ]
+        },
+        {
+          "name": "reset_usage",
+          "startLine": 234,
+          "endLine": 235,
+          "params": [
+            "i"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "seed_demo_enabled",
+          "line": 16,
+          "isDefault": false
+        },
+        {
+          "name": "_conn",
+          "line": 79,
+          "isDefault": false
+        },
+        {
+          "name": "_seed",
+          "line": 85,
+          "isDefault": false
+        },
+        {
+          "name": "init",
+          "line": 91,
+          "isDefault": false
+        },
+        {
+          "name": "get_state",
+          "line": 123,
+          "isDefault": false
+        },
+        {
+          "name": "_exec",
+          "line": 146,
+          "isDefault": false
+        },
+        {
+          "name": "add_tracked",
+          "line": 152,
+          "isDefault": false
+        },
+        {
+          "name": "del_tracked",
+          "line": 156,
+          "isDefault": false
+        },
+        {
+          "name": "toggle_job",
+          "line": 159,
+          "isDefault": false
+        },
+        {
+          "name": "remove_optimization",
+          "line": 167,
+          "isDefault": false
+        },
+        {
+          "name": "dismiss_alert",
+          "line": 170,
+          "isDefault": false
+        },
+        {
+          "name": "set_setting",
+          "line": 173,
+          "isDefault": false
+        },
+        {
+          "name": "add_campaign",
+          "line": 177,
+          "isDefault": false
+        },
+        {
+          "name": "del_campaign",
+          "line": 181,
+          "isDefault": false
+        },
+        {
+          "name": "add_calendar_post",
+          "line": 184,
+          "isDefault": false
+        },
+        {
+          "name": "del_calendar_post",
+          "line": 188,
+          "isDefault": false
+        },
+        {
+          "name": "generate_content",
+          "line": 191,
+          "isDefault": false
+        },
+        {
+          "name": "add_report",
+          "line": 203,
+          "isDefault": false
+        },
+        {
+          "name": "del_report",
+          "line": 208,
+          "isDefault": false
+        },
+        {
+          "name": "connect_account",
+          "line": 211,
+          "isDefault": false
+        },
+        {
+          "name": "toggle_account",
+          "line": 217,
+          "isDefault": false
+        },
+        {
+          "name": "disconnect_account",
+          "line": 225,
+          "isDefault": false
+        },
+        {
+          "name": "set_quota",
+          "line": 228,
+          "isDefault": false
+        },
+        {
+          "name": "add_quota",
+          "line": 231,
+          "isDefault": false
+        },
+        {
+          "name": "reset_usage",
+          "line": 234,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "seed_demo_enabled",
+          "callee": "os.getenv(\"WEB_SEED_DEMO\", \"\").lower",
+          "lineNumber": 18
+        },
+        {
+          "caller": "seed_demo_enabled",
+          "callee": "os.getenv",
+          "lineNumber": 18
+        },
+        {
+          "caller": "_conn",
+          "callee": "sqlite3.connect",
+          "lineNumber": 80
+        },
+        {
+          "caller": "_seed",
+          "callee": "c.execute(f\"SELECT 1 FROM {table} LIMIT 1\").fetchone",
+          "lineNumber": 86
+        },
+        {
+          "caller": "_seed",
+          "callee": "c.execute",
+          "lineNumber": 86
+        },
+        {
+          "caller": "_seed",
+          "callee": "\",\".join",
+          "lineNumber": 87
+        },
+        {
+          "caller": "_seed",
+          "callee": "len",
+          "lineNumber": 87
+        },
+        {
+          "caller": "_seed",
+          "callee": "c.executemany",
+          "lineNumber": 88
+        },
+        {
+          "caller": "_seed",
+          "callee": "','.join",
+          "lineNumber": 88
+        },
+        {
+          "caller": "init",
+          "callee": "_conn",
+          "lineNumber": 92
+        },
+        {
+          "caller": "init",
+          "callee": "c.executescript",
+          "lineNumber": 93
+        },
+        {
+          "caller": "init",
+          "callee": "seed_demo_enabled",
+          "lineNumber": 108
+        },
+        {
+          "caller": "init",
+          "callee": "_seed",
+          "lineNumber": 110
+        },
+        {
+          "caller": "init",
+          "callee": "_seed",
+          "lineNumber": 111
+        },
+        {
+          "caller": "init",
+          "callee": "_seed",
+          "lineNumber": 112
+        },
+        {
+          "caller": "init",
+          "callee": "_seed",
+          "lineNumber": 113
+        },
+        {
+          "caller": "init",
+          "callee": "_seed",
+          "lineNumber": 114
+        },
+        {
+          "caller": "init",
+          "callee": "_seed",
+          "lineNumber": 115
+        },
+        {
+          "caller": "init",
+          "callee": "_seed",
+          "lineNumber": 116
+        },
+        {
+          "caller": "init",
+          "callee": "_seed",
+          "lineNumber": 117
+        },
+        {
+          "caller": "init",
+          "callee": "_seed",
+          "lineNumber": 118
+        },
+        {
+          "caller": "init",
+          "callee": "_seed",
+          "lineNumber": 119
+        },
+        {
+          "caller": "init",
+          "callee": "_seed",
+          "lineNumber": 120
+        },
+        {
+          "caller": "get_state",
+          "callee": "_conn",
+          "lineNumber": 124
+        },
+        {
+          "caller": "get_state",
+          "callee": "dict",
+          "lineNumber": 125
+        },
+        {
+          "caller": "get_state",
+          "callee": "c.execute",
+          "lineNumber": 125
+        },
+        {
+          "caller": "get_state",
+          "callee": "c.execute",
+          "lineNumber": 127
+        },
+        {
+          "caller": "get_state",
+          "callee": "c.execute",
+          "lineNumber": 128
+        },
+        {
+          "caller": "get_state",
+          "callee": "c.execute",
+          "lineNumber": 130
+        },
+        {
+          "caller": "get_state",
+          "callee": "rows",
+          "lineNumber": 132
+        },
+        {
+          "caller": "get_state",
+          "callee": "rows",
+          "lineNumber": 134
+        },
+        {
+          "caller": "get_state",
+          "callee": "rows",
+          "lineNumber": 135
+        },
+        {
+          "caller": "get_state",
+          "callee": "rows",
+          "lineNumber": 137
+        },
+        {
+          "caller": "get_state",
+          "callee": "rows",
+          "lineNumber": 138
+        },
+        {
+          "caller": "get_state",
+          "callee": "rows",
+          "lineNumber": 139
+        },
+        {
+          "caller": "get_state",
+          "callee": "rows",
+          "lineNumber": 140
+        },
+        {
+          "caller": "get_state",
+          "callee": "rows",
+          "lineNumber": 141
+        },
+        {
+          "caller": "_exec",
+          "callee": "_conn",
+          "lineNumber": 147
+        },
+        {
+          "caller": "_exec",
+          "callee": "c.execute",
+          "lineNumber": 148
+        },
+        {
+          "caller": "add_tracked",
+          "callee": "_exec",
+          "lineNumber": 153
+        },
+        {
+          "caller": "add_tracked",
+          "callee": "get_state",
+          "lineNumber": 154
+        },
+        {
+          "caller": "del_tracked",
+          "callee": "_exec",
+          "lineNumber": 157
+        },
+        {
+          "caller": "del_tracked",
+          "callee": "get_state",
+          "lineNumber": 157
+        },
+        {
+          "caller": "toggle_job",
+          "callee": "_conn",
+          "lineNumber": 160
+        },
+        {
+          "caller": "toggle_job",
+          "callee": "c.execute(\"SELECT status FROM jobs WHERE name=?\", (name,)).fetchone",
+          "lineNumber": 161
+        },
+        {
+          "caller": "toggle_job",
+          "callee": "c.execute",
+          "lineNumber": 161
+        },
+        {
+          "caller": "toggle_job",
+          "callee": "c.execute",
+          "lineNumber": 163
+        },
+        {
+          "caller": "toggle_job",
+          "callee": "get_state",
+          "lineNumber": 165
+        },
+        {
+          "caller": "remove_optimization",
+          "callee": "_exec",
+          "lineNumber": 168
+        },
+        {
+          "caller": "remove_optimization",
+          "callee": "get_state",
+          "lineNumber": 168
+        },
+        {
+          "caller": "dismiss_alert",
+          "callee": "_exec",
+          "lineNumber": 171
+        },
+        {
+          "caller": "dismiss_alert",
+          "callee": "get_state",
+          "lineNumber": 171
+        },
+        {
+          "caller": "set_setting",
+          "callee": "_exec",
+          "lineNumber": 174
+        },
+        {
+          "caller": "set_setting",
+          "callee": "get_state",
+          "lineNumber": 175
+        },
+        {
+          "caller": "add_campaign",
+          "callee": "_exec",
+          "lineNumber": 178
+        },
+        {
+          "caller": "add_campaign",
+          "callee": "get_state",
+          "lineNumber": 179
+        },
+        {
+          "caller": "del_campaign",
+          "callee": "_exec",
+          "lineNumber": 182
+        },
+        {
+          "caller": "del_campaign",
+          "callee": "get_state",
+          "lineNumber": 182
+        },
+        {
+          "caller": "add_calendar_post",
+          "callee": "_exec",
+          "lineNumber": 185
+        },
+        {
+          "caller": "add_calendar_post",
+          "callee": "get_state",
+          "lineNumber": 186
+        },
+        {
+          "caller": "del_calendar_post",
+          "callee": "_exec",
+          "lineNumber": 189
+        },
+        {
+          "caller": "del_calendar_post",
+          "callee": "get_state",
+          "lineNumber": 189
+        },
+        {
+          "caller": "generate_content",
+          "callee": "_conn",
+          "lineNumber": 198
+        },
+        {
+          "caller": "generate_content",
+          "callee": "c.execute",
+          "lineNumber": 199
+        },
+        {
+          "caller": "generate_content",
+          "callee": "c.executemany",
+          "lineNumber": 200
+        },
+        {
+          "caller": "generate_content",
+          "callee": "get_state",
+          "lineNumber": 201
+        },
+        {
+          "caller": "add_report",
+          "callee": "_exec",
+          "lineNumber": 205
+        },
+        {
+          "caller": "add_report",
+          "callee": "date.today().strftime",
+          "lineNumber": 205
+        },
+        {
+          "caller": "add_report",
+          "callee": "date.today",
+          "lineNumber": 205
+        },
+        {
+          "caller": "add_report",
+          "callee": "get_state",
+          "lineNumber": 206
+        },
+        {
+          "caller": "del_report",
+          "callee": "_exec",
+          "lineNumber": 209
+        },
+        {
+          "caller": "del_report",
+          "callee": "get_state",
+          "lineNumber": 209
+        },
+        {
+          "caller": "connect_account",
+          "callee": "_exec",
+          "lineNumber": 213
+        },
+        {
+          "caller": "connect_account",
+          "callee": "random.randint",
+          "lineNumber": 214
+        },
+        {
+          "caller": "connect_account",
+          "callee": "get_state",
+          "lineNumber": 215
+        },
+        {
+          "caller": "toggle_account",
+          "callee": "_conn",
+          "lineNumber": 218
+        },
+        {
+          "caller": "toggle_account",
+          "callee": "c.execute(\"SELECT status FROM accounts WHERE id=?\", (i,)).fetchone",
+          "lineNumber": 219
+        },
+        {
+          "caller": "toggle_account",
+          "callee": "c.execute",
+          "lineNumber": 219
+        },
+        {
+          "caller": "toggle_account",
+          "callee": "c.execute",
+          "lineNumber": 221
+        },
+        {
+          "caller": "toggle_account",
+          "callee": "get_state",
+          "lineNumber": 223
+        },
+        {
+          "caller": "disconnect_account",
+          "callee": "_exec",
+          "lineNumber": 226
+        },
+        {
+          "caller": "disconnect_account",
+          "callee": "get_state",
+          "lineNumber": 226
+        },
+        {
+          "caller": "set_quota",
+          "callee": "_exec",
+          "lineNumber": 229
+        },
+        {
+          "caller": "set_quota",
+          "callee": "get_state",
+          "lineNumber": 229
+        },
+        {
+          "caller": "add_quota",
+          "callee": "_exec",
+          "lineNumber": 232
+        },
+        {
+          "caller": "add_quota",
+          "callee": "get_state",
+          "lineNumber": 232
+        },
+        {
+          "caller": "reset_usage",
+          "callee": "_exec",
+          "lineNumber": 235
+        },
+        {
+          "caller": "reset_usage",
+          "callee": "get_state",
+          "lineNumber": 235
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 25,
+        "functionCount": 25,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "webapp/supabase_schema.sql",
+      "language": "sql",
+      "fileCategory": "data",
+      "totalLines": 73,
+      "nonEmptyLines": 58,
+      "definitions": [
+        {
+          "name": "web_tracked",
+          "kind": "table",
+          "fields": [
+            "id",
+            "name",
+            "ads",
+            "status",
+            "last"
+          ],
+          "startLine": 4,
+          "endLine": 6
+        },
+        {
+          "name": "web_jobs",
+          "kind": "table",
+          "fields": [
+            "name",
+            "when_text",
+            "status"
+          ],
+          "startLine": 8,
+          "endLine": 9
+        },
+        {
+          "name": "web_optimizations",
+          "kind": "table",
+          "fields": [
+            "id",
+            "action",
+            "text",
+            "why"
+          ],
+          "startLine": 11,
+          "endLine": 13
+        },
+        {
+          "name": "web_alerts",
+          "kind": "table",
+          "fields": [
+            "id",
+            "sev",
+            "icon",
+            "title",
+            "meta"
+          ],
+          "startLine": 15,
+          "endLine": 17
+        },
+        {
+          "name": "web_settings",
+          "kind": "table",
+          "fields": [
+            "value"
+          ],
+          "startLine": 19,
+          "endLine": 20
+        },
+        {
+          "name": "web_campaigns",
+          "kind": "table",
+          "fields": [
+            "id",
+            "name",
+            "status",
+            "budget",
+            "objective"
+          ],
+          "startLine": 22,
+          "endLine": 24
+        },
+        {
+          "name": "web_calendar_posts",
+          "kind": "table",
+          "fields": [
+            "id",
+            "day",
+            "pillar",
+            "title"
+          ],
+          "startLine": 26,
+          "endLine": 28
+        },
+        {
+          "name": "web_content_items",
+          "kind": "table",
+          "fields": [
+            "id",
+            "idx",
+            "hook",
+            "format",
+            "status"
+          ],
+          "startLine": 30,
+          "endLine": 32
+        },
+        {
+          "name": "web_reports",
+          "kind": "table",
+          "fields": [
+            "id",
+            "name",
+            "type",
+            "date"
+          ],
+          "startLine": 34,
+          "endLine": 36
+        },
+        {
+          "name": "web_accounts",
+          "kind": "table",
+          "fields": [
+            "id",
+            "name",
+            "acc_id",
+            "status",
+            "spend"
+          ],
+          "startLine": 38,
+          "endLine": 40
+        },
+        {
+          "name": "web_users",
+          "kind": "table",
+          "fields": [
+            "id",
+            "uid",
+            "plan",
+            "quota",
+            "used"
+          ],
+          "startLine": 42,
+          "endLine": 44
+        },
+        {
+          "name": "web_chat",
+          "kind": "table",
+          "fields": [
+            "id",
+            "user_id",
+            "role",
+            "content",
+            "created_at"
+          ],
+          "startLine": 47,
+          "endLine": 50
+        },
+        {
+          "name": "web_chat_user_idx",
+          "kind": "index",
+          "fields": [],
+          "startLine": 51,
+          "endLine": 51
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "definitionCount": 13
+      }
+    },
+    {
+      "path": "workers/__init__.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 1,
+      "nonEmptyLines": 1,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

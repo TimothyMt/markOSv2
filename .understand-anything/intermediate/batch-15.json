@@ -1,0 +1,74 @@
+{
+  "nodes": [
+    {
+      "id": "document:docs/web/slices/M0-directional-reframe.md",
+      "type": "document",
+      "name": "M0-directional-reframe.md",
+      "filePath": "docs/web/slices/M0-directional-reframe.md",
+      "summary": "Spec (D-029) reframing the M0 web synthesis output as strategic 'direction' rather than committed SMART numbers, covering intake field alignment, output presentation changes, and removal of dead Max-chat UI, with acceptance criteria and a Vietnamese-language plan to fix three identified inconsistencies between the web wizard and the bot's discovery/synthesis logic.",
+      "tags": ["documentation", "specification", "planning", "ui-ux", "discovery"],
+      "complexity": "moderate",
+      "languageNotes": "Written in Vietnamese; references specific code symbols (web/app.js INTAKE_STEPS, agents/discovery.REQUIRED_FIELDS) as evidence for the spec's acceptance criteria."
+    },
+    {
+      "id": "document:docs/web/slices/M0-discovery-to-strategy.md",
+      "type": "document",
+      "name": "M0-discovery-to-strategy.md",
+      "filePath": "docs/web/slices/M0-discovery-to-strategy.md",
+      "summary": "One-pager planning slice for milestone M0 describing the end-to-end golden path from chat-based business discovery through diagnostic pipeline execution to rendering a real 90-day strategy page, including scope, risks, dependencies, and founder-approved decisions.",
+      "tags": ["documentation", "specification", "planning", "discovery", "strategy"],
+      "complexity": "simple",
+      "languageNotes": "Written in Vietnamese; lists explicit module dependencies (agents/discovery.py, agents/pipeline.py, agents/strategy.py, storage/v2/strategies.py, webapp/business.py, webapp/chat.py) as the slice's 'Phụ thuộc' section."
+    },
+    {
+      "id": "document:docs/web/slices/M1-content-production.md",
+      "type": "document",
+      "name": "M1-content-production.md",
+      "filePath": "docs/web/slices/M1-content-production.md",
+      "summary": "Draft one-pager for milestone M1 specifying the two-track (always-on vs. occasion-based campaign) content production model for the web app, including data model changes, a Gantt-style calendar UX prototype, and scope boundaries, to begin after M0 is accepted.",
+      "tags": ["documentation", "specification", "planning", "content-production", "campaign"],
+      "complexity": "simple",
+      "languageNotes": "Written in Vietnamese; references domain logic source modules (agents/operational_prompts.py, agents/campaign_ideation.py, agents/campaign_scope_library.py) that the web layer must mirror."
+    },
+    {
+      "id": "document:docs/web/slices/output-reader-editor.md",
+      "type": "document",
+      "name": "output-reader-editor.md",
+      "filePath": "docs/web/slices/output-reader-editor.md",
+      "summary": "Spec for a dedicated full-width reading and editing experience for AI research outputs, covering a standalone '#doc/<run_id>' page, inline manual edits, AI-assisted ('Max') paragraph edits via surgical_edit.patch_document, and version history, with acceptance criteria for each feature.",
+      "tags": ["documentation", "specification", "planning", "versioning", "editor"],
+      "complexity": "moderate",
+      "languageNotes": "Written in Vietnamese; ties feature F3 directly to the backend function agents/surgical_edit.patch_document and new API routes in webapp/api.py."
+    }
+  ],
+  "edges": [
+    {
+      "source": "document:docs/web/slices/M0-directional-reframe.md",
+      "target": "document:docs/web/slices/M0-discovery-to-strategy.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/web/slices/M0-directional-reframe.md",
+      "target": "document:docs/web/slices/output-reader-editor.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/web/slices/M0-discovery-to-strategy.md",
+      "target": "document:docs/web/slices/M1-content-production.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/web/slices/M1-content-production.md",
+      "target": "document:docs/web/slices/M0-directional-reframe.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    }
+  ]
+}

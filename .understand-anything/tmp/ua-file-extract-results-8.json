@@ -1,0 +1,715 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 11,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "storage/migrations/001_initial_sessions.sql",
+      "language": "sql",
+      "fileCategory": "data",
+      "totalLines": 30,
+      "nonEmptyLines": 26,
+      "definitions": [
+        {
+          "name": "sessions",
+          "kind": "table",
+          "fields": [
+            "user_id",
+            "stage",
+            "profile",
+            "intake_history",
+            "results",
+            "created_at",
+            "updated_at"
+          ],
+          "startLine": 4,
+          "endLine": 12
+        },
+        {
+          "name": "idx_sessions_stage",
+          "kind": "index",
+          "fields": [],
+          "startLine": 29,
+          "endLine": 29
+        },
+        {
+          "name": "idx_sessions_updated_at",
+          "kind": "index",
+          "fields": [],
+          "startLine": 30,
+          "endLine": 30
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "definitionCount": 3
+      }
+    },
+    {
+      "path": "storage/migrations/002_tracked_competitors.sql",
+      "language": "sql",
+      "fileCategory": "data",
+      "totalLines": 35,
+      "nonEmptyLines": 30,
+      "definitions": [
+        {
+          "name": "tracked_competitors",
+          "kind": "table",
+          "fields": [
+            "id",
+            "user_id",
+            "last_ad_ids",
+            "created_at",
+            "updated_at"
+          ],
+          "startLine": 4,
+          "endLine": 17
+        },
+        {
+          "name": "idx_tracked_user",
+          "kind": "index",
+          "fields": [],
+          "startLine": 19,
+          "endLine": 19
+        },
+        {
+          "name": "idx_tracked_due",
+          "kind": "index",
+          "fields": [],
+          "startLine": 20,
+          "endLine": 20
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "definitionCount": 3
+      }
+    },
+    {
+      "path": "storage/migrations/003_feedback_log.sql",
+      "language": "sql",
+      "fileCategory": "data",
+      "totalLines": 21,
+      "nonEmptyLines": 19,
+      "definitions": [
+        {
+          "name": "feedback_log",
+          "kind": "table",
+          "fields": [
+            "id",
+            "user_id",
+            "skill_name",
+            "rating",
+            "feedback_text",
+            "industry",
+            "stage",
+            "business_name",
+            "output_excerpt"
+          ],
+          "startLine": 4,
+          "endLine": 16
+        },
+        {
+          "name": "idx_feedback_skill_industry",
+          "kind": "index",
+          "fields": [],
+          "startLine": 18,
+          "endLine": 18
+        },
+        {
+          "name": "idx_feedback_created",
+          "kind": "index",
+          "fields": [],
+          "startLine": 19,
+          "endLine": 19
+        },
+        {
+          "name": "idx_feedback_low_rating",
+          "kind": "index",
+          "fields": [],
+          "startLine": 20,
+          "endLine": 20
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "definitionCount": 4
+      }
+    },
+    {
+      "path": "storage/migrations/004_user_brand_voice.sql",
+      "language": "sql",
+      "fileCategory": "data",
+      "totalLines": 45,
+      "nonEmptyLines": 38,
+      "definitions": [
+        {
+          "name": "user_brand_voice",
+          "kind": "table",
+          "fields": [
+            "id",
+            "user_id",
+            "version",
+            "is_active",
+            "created_at",
+            "updated_at"
+          ],
+          "startLine": 5,
+          "endLine": 25
+        },
+        {
+          "name": "idx_brand_voice_user",
+          "kind": "index",
+          "fields": [],
+          "startLine": 28,
+          "endLine": 28
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "definitionCount": 2
+      }
+    },
+    {
+      "path": "storage/migrations/005_pgvector.sql",
+      "language": "sql",
+      "fileCategory": "data",
+      "totalLines": 80,
+      "nonEmptyLines": 70,
+      "definitions": [
+        {
+          "name": "user_campaign_history",
+          "kind": "table",
+          "fields": [
+            "id",
+            "user_id",
+            "industry",
+            "stage",
+            "usp",
+            "competitor",
+            "customer_insight",
+            "synthesis",
+            "campaign_brief",
+            "created_at"
+          ],
+          "startLine": 9,
+          "endLine": 34
+        },
+        {
+          "name": "idx_campaign_history_user",
+          "kind": "index",
+          "fields": [],
+          "startLine": 37,
+          "endLine": 37
+        },
+        {
+          "name": "idx_campaign_history_embedding",
+          "kind": "index",
+          "fields": [],
+          "startLine": 42,
+          "endLine": 42
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "definitionCount": 3
+      }
+    },
+    {
+      "path": "storage/migrations/006_normalize_schema.sql",
+      "language": "sql",
+      "fileCategory": "data",
+      "totalLines": 285,
+      "nonEmptyLines": 227,
+      "definitions": [
+        {
+          "name": "users",
+          "kind": "table",
+          "fields": [
+            "user_id",
+            "token_used",
+            "plan",
+            "last_active_at",
+            "created_at",
+            "updated_at"
+          ],
+          "startLine": 14,
+          "endLine": 33
+        },
+        {
+          "name": "user_business_profile",
+          "kind": "table",
+          "fields": [
+            "user_id",
+            "industry",
+            "stage",
+            "target_customer",
+            "monthly_revenue",
+            "team_size",
+            "monthly_marketing_budget",
+            "current_channels",
+            "main_challenge",
+            "competitors",
+            "location",
+            "usp_confidence"
+          ],
+          "startLine": 46,
+          "endLine": 72
+        },
+        {
+          "name": "user_sessions_slim",
+          "kind": "table",
+          "fields": [
+            "user_id",
+            "selected_task",
+            "intake_history",
+            "tone_calibration",
+            "updated_at"
+          ],
+          "startLine": 83,
+          "endLine": 100
+        },
+        {
+          "name": "skill_runs",
+          "kind": "table",
+          "fields": [
+            "id",
+            "user_id",
+            "skill_name",
+            "content",
+            "model_used",
+            "link",
+            "for"
+          ],
+          "startLine": 110,
+          "endLine": 133
+        },
+        {
+          "name": "campaigns",
+          "kind": "table",
+          "fields": [
+            "id",
+            "user_id",
+            "offer_lever",
+            "end_date",
+            "calendar_skill_run_id",
+            "embedding",
+            "created_at",
+            "updated_at"
+          ],
+          "startLine": 146,
+          "endLine": 175
+        },
+        {
+          "name": "posts",
+          "kind": "table",
+          "fields": [
+            "post_id",
+            "campaign_id",
+            "day",
+            "status",
+            "link",
+            "updated_at"
+          ],
+          "startLine": 189,
+          "endLine": 215
+        },
+        {
+          "name": "idx_users_active",
+          "kind": "index",
+          "fields": [],
+          "startLine": 35,
+          "endLine": 35
+        },
+        {
+          "name": "idx_users_industry",
+          "kind": "index",
+          "fields": [],
+          "startLine": 37,
+          "endLine": 37
+        },
+        {
+          "name": "idx_users_quota_warning",
+          "kind": "index",
+          "fields": [],
+          "startLine": 39,
+          "endLine": 39
+        },
+        {
+          "name": "idx_profile_industry",
+          "kind": "index",
+          "fields": [],
+          "startLine": 74,
+          "endLine": 74
+        },
+        {
+          "name": "idx_profile_stage",
+          "kind": "index",
+          "fields": [],
+          "startLine": 76,
+          "endLine": 76
+        },
+        {
+          "name": "idx_sessions_stale",
+          "kind": "index",
+          "fields": [],
+          "startLine": 102,
+          "endLine": 102
+        },
+        {
+          "name": "idx_skill_runs_user_skill",
+          "kind": "index",
+          "fields": [],
+          "startLine": 135,
+          "endLine": 135
+        },
+        {
+          "name": "idx_skill_runs_rating",
+          "kind": "index",
+          "fields": [],
+          "startLine": 137,
+          "endLine": 137
+        },
+        {
+          "name": "idx_skill_runs_recent",
+          "kind": "index",
+          "fields": [],
+          "startLine": 139,
+          "endLine": 139
+        },
+        {
+          "name": "idx_campaigns_user_status",
+          "kind": "index",
+          "fields": [],
+          "startLine": 177,
+          "endLine": 177
+        },
+        {
+          "name": "idx_campaigns_active",
+          "kind": "index",
+          "fields": [],
+          "startLine": 179,
+          "endLine": 179
+        },
+        {
+          "name": "idx_campaigns_embedding",
+          "kind": "index",
+          "fields": [],
+          "startLine": 181,
+          "endLine": 181
+        },
+        {
+          "name": "idx_posts_user_channel",
+          "kind": "index",
+          "fields": [],
+          "startLine": 217,
+          "endLine": 217
+        },
+        {
+          "name": "idx_posts_campaign",
+          "kind": "index",
+          "fields": [],
+          "startLine": 219,
+          "endLine": 219
+        },
+        {
+          "name": "idx_posts_parent",
+          "kind": "index",
+          "fields": [],
+          "startLine": 221,
+          "endLine": 221
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "definitionCount": 21
+      }
+    },
+    {
+      "path": "storage/migrations/007_engagement_spine.sql",
+      "language": "sql",
+      "fileCategory": "data",
+      "totalLines": 172,
+      "nonEmptyLines": 139,
+      "definitions": [
+        {
+          "name": "engagements",
+          "kind": "table",
+          "fields": [
+            "id",
+            "user_id",
+            "title",
+            "vd",
+            "strategy_id",
+            "created_at",
+            "updated_at"
+          ],
+          "startLine": 19,
+          "endLine": 38
+        },
+        {
+          "name": "diagnostic_briefs",
+          "kind": "table",
+          "fields": [
+            "id",
+            "engagement_id",
+            "user_id",
+            "tokens_used",
+            "created_at"
+          ],
+          "startLine": 50,
+          "endLine": 74
+        },
+        {
+          "name": "strategies",
+          "kind": "table",
+          "fields": [
+            "id",
+            "engagement_id",
+            "user_id",
+            "brief_id",
+            "version",
+            "content_pillars",
+            "kpi_dashboard",
+            "model_used",
+            "tokens_used",
+            "rating",
+            "feedback_text",
+            "created_at"
+          ],
+          "startLine": 83,
+          "endLine": 112
+        },
+        {
+          "name": "idx_engagements_user_status",
+          "kind": "index",
+          "fields": [],
+          "startLine": 40,
+          "endLine": 40
+        },
+        {
+          "name": "idx_engagements_has_strategy",
+          "kind": "index",
+          "fields": [],
+          "startLine": 43,
+          "endLine": 43
+        },
+        {
+          "name": "idx_briefs_engagement",
+          "kind": "index",
+          "fields": [],
+          "startLine": 76,
+          "endLine": 76
+        },
+        {
+          "name": "idx_strategies_engagement",
+          "kind": "index",
+          "fields": [],
+          "startLine": 114,
+          "endLine": 114
+        },
+        {
+          "name": "idx_strategies_user_recent",
+          "kind": "index",
+          "fields": [],
+          "startLine": 116,
+          "endLine": 116
+        },
+        {
+          "name": "idx_skill_runs_strategy",
+          "kind": "index",
+          "fields": [],
+          "startLine": 128,
+          "endLine": 128
+        },
+        {
+          "name": "idx_skill_runs_engagement",
+          "kind": "index",
+          "fields": [],
+          "startLine": 130,
+          "endLine": 130
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "definitionCount": 10
+      }
+    },
+    {
+      "path": "storage/migrations/008_v2_fields.sql",
+      "language": "sql",
+      "fileCategory": "data",
+      "totalLines": 18,
+      "nonEmptyLines": 14,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "definitionCount": 0
+      }
+    },
+    {
+      "path": "storage/migrations/009_campaign_intelligence.sql",
+      "language": "sql",
+      "fileCategory": "data",
+      "totalLines": 25,
+      "nonEmptyLines": 23,
+      "definitions": [
+        {
+          "name": "campaign_intelligence",
+          "kind": "table",
+          "fields": [
+            "id",
+            "user_id",
+            "industry"
+          ],
+          "startLine": 8,
+          "endLine": 21
+        },
+        {
+          "name": "idx_campintel_industry",
+          "kind": "index",
+          "fields": [],
+          "startLine": 23,
+          "endLine": 23
+        },
+        {
+          "name": "idx_campintel_event",
+          "kind": "index",
+          "fields": [],
+          "startLine": 24,
+          "endLine": 24
+        },
+        {
+          "name": "idx_campintel_created",
+          "kind": "index",
+          "fields": [],
+          "startLine": 25,
+          "endLine": 25
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "definitionCount": 4
+      }
+    },
+    {
+      "path": "storage/migrations/010_fb_connections.sql",
+      "language": "sql",
+      "fileCategory": "data",
+      "totalLines": 79,
+      "nonEmptyLines": 66,
+      "definitions": [
+        {
+          "name": "user_fb_connections",
+          "kind": "table",
+          "fields": [
+            "user_id",
+            "last_pull_at",
+            "notify_time",
+            "lead_rate"
+          ],
+          "startLine": 5,
+          "endLine": 27
+        },
+        {
+          "name": "oauth_states",
+          "kind": "table",
+          "fields": [
+            "state_token",
+            "user_id",
+            "expires_at"
+          ],
+          "startLine": 30,
+          "endLine": 34
+        },
+        {
+          "name": "ads_snapshots",
+          "kind": "table",
+          "fields": [
+            "user_id",
+            "snapshot_date",
+            "campaign_id",
+            "campaign_name",
+            "impressions",
+            "reach",
+            "clicks",
+            "ctr",
+            "cpm",
+            "frequency",
+            "leads",
+            "purchases",
+            "purchase_value",
+            "video_views_3s"
+          ],
+          "startLine": 37,
+          "endLine": 64
+        },
+        {
+          "name": "ads_alert_cooldowns",
+          "kind": "table",
+          "fields": [
+            "user_id",
+            "campaign_id",
+            "alert_type"
+          ],
+          "startLine": 70,
+          "endLine": 76
+        },
+        {
+          "name": "idx_ads_snapshots_user_date",
+          "kind": "index",
+          "fields": [],
+          "startLine": 66,
+          "endLine": 66
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "definitionCount": 5
+      }
+    },
+    {
+      "path": "storage/migrations/011_fb_available_accounts.sql",
+      "language": "sql",
+      "fileCategory": "data",
+      "totalLines": 3,
+      "nonEmptyLines": 3,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "definitionCount": 0
+      }
+    }
+  ]
+}

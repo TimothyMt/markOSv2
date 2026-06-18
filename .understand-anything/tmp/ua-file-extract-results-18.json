@@ -1,0 +1,7137 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 25,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": ".claude/skills/using-agent-skills/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 189,
+      "nonEmptyLines": 145,
+      "sections": [
+        {
+          "heading": "Using Agent Skills",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "Skill Discovery",
+          "level": 2,
+          "line": 12
+        },
+        {
+          "heading": "Core Operating Behaviors",
+          "level": 2,
+          "line": 44
+        },
+        {
+          "heading": "1. Surface Assumptions",
+          "level": 3,
+          "line": 48
+        },
+        {
+          "heading": "2. Manage Confusion Actively",
+          "level": 3,
+          "line": 62
+        },
+        {
+          "heading": "3. Push Back When Warranted",
+          "level": 3,
+          "line": 74
+        },
+        {
+          "heading": "4. Enforce Simplicity",
+          "level": 3,
+          "line": 85
+        },
+        {
+          "heading": "5. Maintain Scope Discipline",
+          "level": 3,
+          "line": 96
+        },
+        {
+          "heading": "6. Verify, Don't Assume",
+          "level": 3,
+          "line": 109
+        },
+        {
+          "heading": "Failure Modes to Avoid",
+          "level": 2,
+          "line": 113
+        },
+        {
+          "heading": "Skill Rules",
+          "level": 2,
+          "line": 128
+        },
+        {
+          "heading": "Lifecycle Sequence",
+          "level": 2,
+          "line": 138
+        },
+        {
+          "heading": "Quick Reference",
+          "level": 2,
+          "line": 163
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 14
+      }
+    },
+    {
+      "path": ".nojekyll",
+      "language": "unknown",
+      "fileCategory": "code",
+      "totalLines": 1,
+      "nonEmptyLines": 0,
+      "metrics": {}
+    },
+    {
+      "path": ".python-version",
+      "language": "unknown",
+      "fileCategory": "code",
+      "totalLines": 1,
+      "nonEmptyLines": 1,
+      "metrics": {}
+    },
+    {
+      "path": "agents/campaign_intake_prompts.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 252,
+      "nonEmptyLines": 219,
+      "functions": [
+        {
+          "name": "build_intake_user",
+          "startLine": 87,
+          "endLine": 125,
+          "params": [
+            "strategy_ctx",
+            "profile_ctx",
+            "draft_json",
+            "brand_voice_draft",
+            "industry_scope"
+          ]
+        },
+        {
+          "name": "build_funnel_mapper_user",
+          "startLine": 237,
+          "endLine": 252,
+          "params": [
+            "campaign",
+            "industry_scope",
+            "archetype_block"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "build_intake_user",
+          "line": 87,
+          "isDefault": false
+        },
+        {
+          "name": "build_funnel_mapper_user",
+          "line": 237,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "build_intake_user",
+          "callee": "\", \".join",
+          "lineNumber": 96
+        },
+        {
+          "caller": "build_intake_user",
+          "callee": "bv.get",
+          "lineNumber": 96
+        },
+        {
+          "caller": "build_intake_user",
+          "callee": "\"\\n\".join",
+          "lineNumber": 97
+        },
+        {
+          "caller": "build_intake_user",
+          "callee": "bv.get",
+          "lineNumber": 99
+        },
+        {
+          "caller": "build_intake_user",
+          "callee": "' | '.join",
+          "lineNumber": 100
+        },
+        {
+          "caller": "build_intake_user",
+          "callee": "bv.get",
+          "lineNumber": 100
+        },
+        {
+          "caller": "build_intake_user",
+          "callee": "' | '.join",
+          "lineNumber": 101
+        },
+        {
+          "caller": "build_intake_user",
+          "callee": "bv.get",
+          "lineNumber": 101
+        },
+        {
+          "caller": "build_intake_user",
+          "callee": "bv.get",
+          "lineNumber": 102
+        },
+        {
+          "caller": "build_intake_user",
+          "callee": "\"\\n\".join",
+          "lineNumber": 125
+        },
+        {
+          "caller": "build_funnel_mapper_user",
+          "callee": "_json.dumps",
+          "lineNumber": 242
+        },
+        {
+          "caller": "build_funnel_mapper_user",
+          "callee": "\"\\n\".join",
+          "lineNumber": 252
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "agents/campaign_scope_library.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 151,
+      "nonEmptyLines": 144,
+      "functions": [
+        {
+          "name": "get_scope",
+          "startLine": 134,
+          "endLine": 136,
+          "params": [
+            "industry"
+          ]
+        },
+        {
+          "name": "format_scope_for_prompt",
+          "startLine": 139,
+          "endLine": 151,
+          "params": [
+            "industry"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "get_scope",
+          "line": 134,
+          "isDefault": false
+        },
+        {
+          "name": "format_scope_for_prompt",
+          "line": 139,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "get_scope",
+          "callee": "SCOPE_LIBRARY.get",
+          "lineNumber": 136
+        },
+        {
+          "caller": "format_scope_for_prompt",
+          "callee": "get_scope",
+          "lineNumber": 141
+        },
+        {
+          "caller": "format_scope_for_prompt",
+          "callee": "', '.join",
+          "lineNumber": 144
+        },
+        {
+          "caller": "format_scope_for_prompt",
+          "callee": "', '.join",
+          "lineNumber": 145
+        },
+        {
+          "caller": "format_scope_for_prompt",
+          "callee": "', '.join",
+          "lineNumber": 146
+        },
+        {
+          "caller": "format_scope_for_prompt",
+          "callee": "', '.join",
+          "lineNumber": 147
+        },
+        {
+          "caller": "format_scope_for_prompt",
+          "callee": "', '.join",
+          "lineNumber": 148
+        },
+        {
+          "caller": "format_scope_for_prompt",
+          "callee": "scope.get",
+          "lineNumber": 149
+        },
+        {
+          "caller": "format_scope_for_prompt",
+          "callee": "\"\\n\".join",
+          "lineNumber": 151
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "agents/discovery_prompts.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 260,
+      "nonEmptyLines": 214,
+      "functions": [
+        {
+          "name": "build_research_user",
+          "startLine": 204,
+          "endLine": 212,
+          "params": [
+            "profile_ctx",
+            "industry_brief",
+            "search_hint"
+          ]
+        },
+        {
+          "name": "build_brief_user",
+          "startLine": 215,
+          "endLine": 260,
+          "params": [
+            "profile_ctx",
+            "industry_brief",
+            "market_note",
+            "competitor_note",
+            "customer_note",
+            "grounded",
+            "extra_notes"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "build_research_user",
+          "line": 204,
+          "isDefault": false
+        },
+        {
+          "name": "build_brief_user",
+          "line": 215,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "build_research_user",
+          "callee": "\"\\n\".join",
+          "lineNumber": 212
+        },
+        {
+          "caller": "build_brief_user",
+          "callee": "\"\\n\".join",
+          "lineNumber": 260
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "agents/social_industry_profiles.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 401,
+      "nonEmptyLines": 288,
+      "functions": [
+        {
+          "name": "get_tiktok_content_lines",
+          "startLine": 379,
+          "endLine": 385,
+          "params": [
+            "industry"
+          ]
+        },
+        {
+          "name": "get_social_industry_profile",
+          "startLine": 388,
+          "endLine": 395,
+          "params": [
+            "industry"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "get_tiktok_content_lines",
+          "line": 379,
+          "isDefault": false
+        },
+        {
+          "name": "get_social_industry_profile",
+          "line": 388,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "get_tiktok_content_lines",
+          "callee": "(industry or \"\").strip().lower",
+          "lineNumber": 384
+        },
+        {
+          "caller": "get_tiktok_content_lines",
+          "callee": "(industry or \"\").strip",
+          "lineNumber": 384
+        },
+        {
+          "caller": "get_tiktok_content_lines",
+          "callee": "TIKTOK_CONTENT_LINES.get",
+          "lineNumber": 385
+        },
+        {
+          "caller": "get_social_industry_profile",
+          "callee": "(industry or \"\").strip().lower",
+          "lineNumber": 394
+        },
+        {
+          "caller": "get_social_industry_profile",
+          "callee": "(industry or \"\").strip",
+          "lineNumber": 394
+        },
+        {
+          "caller": "get_social_industry_profile",
+          "callee": "SOCIAL_INDUSTRY_PROFILES.get",
+          "lineNumber": 395
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "agents/surgical_edit.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 220,
+      "nonEmptyLines": 181,
+      "functions": [
+        {
+          "name": "split_sections",
+          "startLine": 28,
+          "endLine": 47,
+          "params": [
+            "text"
+          ]
+        },
+        {
+          "name": "_sections_outline",
+          "startLine": 50,
+          "endLine": 52,
+          "params": [
+            "sections"
+          ]
+        },
+        {
+          "name": "detect_edit_target",
+          "startLine": 75,
+          "endLine": 113,
+          "params": [
+            "comment",
+            "sections"
+          ]
+        },
+        {
+          "name": "_rewrite_section",
+          "startLine": 126,
+          "endLine": 148,
+          "params": [
+            "section",
+            "instructions"
+          ]
+        },
+        {
+          "name": "patch_document",
+          "startLine": 151,
+          "endLine": 207,
+          "params": [
+            "text",
+            "comment"
+          ]
+        },
+        {
+          "name": "summarize_changes",
+          "startLine": 210,
+          "endLine": 220,
+          "params": [
+            "detect"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "split_sections",
+          "line": 28,
+          "isDefault": false
+        },
+        {
+          "name": "_sections_outline",
+          "line": 50,
+          "isDefault": false
+        },
+        {
+          "name": "detect_edit_target",
+          "line": 75,
+          "isDefault": false
+        },
+        {
+          "name": "_rewrite_section",
+          "line": 126,
+          "isDefault": false
+        },
+        {
+          "name": "patch_document",
+          "line": 151,
+          "isDefault": false
+        },
+        {
+          "name": "summarize_changes",
+          "line": 210,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "split_sections",
+          "callee": "list",
+          "lineNumber": 34
+        },
+        {
+          "caller": "split_sections",
+          "callee": "_SECTION_RE.finditer",
+          "lineNumber": 34
+        },
+        {
+          "caller": "split_sections",
+          "callee": "enumerate",
+          "lineNumber": 36
+        },
+        {
+          "caller": "split_sections",
+          "callee": "m.start",
+          "lineNumber": 37
+        },
+        {
+          "caller": "split_sections",
+          "callee": "matches[i + 1].start",
+          "lineNumber": 38
+        },
+        {
+          "caller": "split_sections",
+          "callee": "len",
+          "lineNumber": 38
+        },
+        {
+          "caller": "split_sections",
+          "callee": "len",
+          "lineNumber": 38
+        },
+        {
+          "caller": "split_sections",
+          "callee": "sections.append",
+          "lineNumber": 39
+        },
+        {
+          "caller": "split_sections",
+          "callee": "int",
+          "lineNumber": 40
+        },
+        {
+          "caller": "split_sections",
+          "callee": "m.group",
+          "lineNumber": 40
+        },
+        {
+          "caller": "split_sections",
+          "callee": "m.group(3).strip",
+          "lineNumber": 41
+        },
+        {
+          "caller": "split_sections",
+          "callee": "m.group",
+          "lineNumber": 41
+        },
+        {
+          "caller": "split_sections",
+          "callee": "m.group(0).strip",
+          "lineNumber": 42
+        },
+        {
+          "caller": "split_sections",
+          "callee": "m.group",
+          "lineNumber": 42
+        },
+        {
+          "caller": "split_sections",
+          "callee": "text[start:end].rstrip",
+          "lineNumber": 43
+        },
+        {
+          "caller": "_sections_outline",
+          "callee": "\"\\n\".join",
+          "lineNumber": 52
+        },
+        {
+          "caller": "detect_edit_target",
+          "callee": "_sections_outline",
+          "lineNumber": 82
+        },
+        {
+          "caller": "detect_edit_target",
+          "callee": "comment.strip",
+          "lineNumber": 85
+        },
+        {
+          "caller": "detect_edit_target",
+          "callee": "call",
+          "lineNumber": 89
+        },
+        {
+          "caller": "detect_edit_target",
+          "callee": "(res.get(\"output\") or \"\").strip",
+          "lineNumber": 95
+        },
+        {
+          "caller": "detect_edit_target",
+          "callee": "res.get",
+          "lineNumber": 95
+        },
+        {
+          "caller": "detect_edit_target",
+          "callee": "re.sub(r'^```(?:json)?\\s*|\\s*```$', '', raw, flags=re.MULTILINE).strip",
+          "lineNumber": 97
+        },
+        {
+          "caller": "detect_edit_target",
+          "callee": "re.sub",
+          "lineNumber": 97
+        },
+        {
+          "caller": "detect_edit_target",
+          "callee": "re.search",
+          "lineNumber": 98
+        },
+        {
+          "caller": "detect_edit_target",
+          "callee": "m.group",
+          "lineNumber": 100
+        },
+        {
+          "caller": "detect_edit_target",
+          "callee": "json.loads",
+          "lineNumber": 101
+        },
+        {
+          "caller": "detect_edit_target",
+          "callee": "logger.warning",
+          "lineNumber": 103
+        },
+        {
+          "caller": "detect_edit_target",
+          "callee": "data.setdefault",
+          "lineNumber": 110
+        },
+        {
+          "caller": "detect_edit_target",
+          "callee": "data.setdefault",
+          "lineNumber": 111
+        },
+        {
+          "caller": "detect_edit_target",
+          "callee": "data.setdefault",
+          "lineNumber": 112
+        },
+        {
+          "caller": "_rewrite_section",
+          "callee": "\"\\n\".join",
+          "lineNumber": 130
+        },
+        {
+          "caller": "_rewrite_section",
+          "callee": "call",
+          "lineNumber": 137
+        },
+        {
+          "caller": "_rewrite_section",
+          "callee": "(res.get(\"output\") or \"\").strip",
+          "lineNumber": 143
+        },
+        {
+          "caller": "_rewrite_section",
+          "callee": "res.get",
+          "lineNumber": 143
+        },
+        {
+          "caller": "_rewrite_section",
+          "callee": "re.sub(r'^```\\w*\\s*|\\s*```$', '', out, flags=re.MULTILINE).strip",
+          "lineNumber": 144
+        },
+        {
+          "caller": "_rewrite_section",
+          "callee": "re.sub",
+          "lineNumber": 144
+        },
+        {
+          "caller": "_rewrite_section",
+          "callee": "logger.warning",
+          "lineNumber": 147
+        },
+        {
+          "caller": "_rewrite_section",
+          "callee": "section.get",
+          "lineNumber": 147
+        },
+        {
+          "caller": "patch_document",
+          "callee": "split_sections",
+          "lineNumber": 159
+        },
+        {
+          "caller": "patch_document",
+          "callee": "detect_edit_target",
+          "lineNumber": 163
+        },
+        {
+          "caller": "patch_document",
+          "callee": "detect.get",
+          "lineNumber": 165
+        },
+        {
+          "caller": "patch_document",
+          "callee": "detect.get",
+          "lineNumber": 166
+        },
+        {
+          "caller": "patch_document",
+          "callee": "detect.get",
+          "lineNumber": 171
+        },
+        {
+          "caller": "patch_document",
+          "callee": "int",
+          "lineNumber": 173
+        },
+        {
+          "caller": "patch_document",
+          "callee": "t.get",
+          "lineNumber": 173
+        },
+        {
+          "caller": "patch_document",
+          "callee": "t.get",
+          "lineNumber": 176
+        },
+        {
+          "caller": "patch_document",
+          "callee": "t.get",
+          "lineNumber": 177
+        },
+        {
+          "caller": "patch_document",
+          "callee": "by_num.setdefault(num, []).append",
+          "lineNumber": 179
+        },
+        {
+          "caller": "patch_document",
+          "callee": "by_num.setdefault",
+          "lineNumber": 179
+        },
+        {
+          "caller": "patch_document",
+          "callee": "by_num.items",
+          "lineNumber": 186
+        },
+        {
+          "caller": "patch_document",
+          "callee": "sec_by_num.get",
+          "lineNumber": 187
+        },
+        {
+          "caller": "patch_document",
+          "callee": "logger.info",
+          "lineNumber": 189
+        },
+        {
+          "caller": "patch_document",
+          "callee": "_rewrite_section",
+          "lineNumber": 191
+        },
+        {
+          "caller": "patch_document",
+          "callee": "text[:sections[0][\"start\"]].rstrip",
+          "lineNumber": 200
+        },
+        {
+          "caller": "patch_document",
+          "callee": "out_parts.append",
+          "lineNumber": 202
+        },
+        {
+          "caller": "patch_document",
+          "callee": "out_parts.append",
+          "lineNumber": 204
+        },
+        {
+          "caller": "patch_document",
+          "callee": "patched_bodies.get",
+          "lineNumber": 204
+        },
+        {
+          "caller": "patch_document",
+          "callee": "\"\\n\\n\".join",
+          "lineNumber": 206
+        },
+        {
+          "caller": "summarize_changes",
+          "callee": "detect.get",
+          "lineNumber": 212
+        },
+        {
+          "caller": "summarize_changes",
+          "callee": "t.get",
+          "lineNumber": 217
+        },
+        {
+          "caller": "summarize_changes",
+          "callee": "t.get",
+          "lineNumber": 218
+        },
+        {
+          "caller": "summarize_changes",
+          "callee": "lines.append",
+          "lineNumber": 219
+        },
+        {
+          "caller": "summarize_changes",
+          "callee": "\"\\n\".join",
+          "lineNumber": 220
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 6,
+        "functionCount": 6,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "agents/task_workflows.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 48,
+      "nonEmptyLines": 41,
+      "classes": [
+        {
+          "name": "WorkflowStep",
+          "startLine": 11,
+          "endLine": 17,
+          "methods": [],
+          "properties": [
+            "skill",
+            "persona",
+            "persona_name",
+            "context_keys",
+            "optional"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "WorkflowStep",
+          "line": 10,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "bot/excel_reader.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 115,
+      "nonEmptyLines": 93,
+      "functions": [
+        {
+          "name": "detect_skill_from_filename",
+          "startLine": 27,
+          "endLine": 48,
+          "params": [
+            "filename"
+          ]
+        },
+        {
+          "name": "_cell_to_str",
+          "startLine": 51,
+          "endLine": 57,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "_sheet_to_markdown",
+          "startLine": 60,
+          "endLine": 88,
+          "params": [
+            "ws"
+          ]
+        },
+        {
+          "name": "read_xlsx_to_markdown",
+          "startLine": 91,
+          "endLine": 115,
+          "params": [
+            "xlsx_bytes"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "detect_skill_from_filename",
+          "line": 27,
+          "isDefault": false
+        },
+        {
+          "name": "_cell_to_str",
+          "line": 51,
+          "isDefault": false
+        },
+        {
+          "name": "_sheet_to_markdown",
+          "line": 60,
+          "isDefault": false
+        },
+        {
+          "name": "read_xlsx_to_markdown",
+          "line": 91,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "detect_skill_from_filename",
+          "callee": "re.sub",
+          "lineNumber": 37
+        },
+        {
+          "caller": "detect_skill_from_filename",
+          "callee": "filename.strip",
+          "lineNumber": 37
+        },
+        {
+          "caller": "detect_skill_from_filename",
+          "callee": "sorted",
+          "lineNumber": 44
+        },
+        {
+          "caller": "detect_skill_from_filename",
+          "callee": "TASK_REGISTRY.keys",
+          "lineNumber": 44
+        },
+        {
+          "caller": "detect_skill_from_filename",
+          "callee": "stem.startswith",
+          "lineNumber": 46
+        },
+        {
+          "caller": "_cell_to_str",
+          "callee": "isinstance",
+          "lineNumber": 55
+        },
+        {
+          "caller": "_cell_to_str",
+          "callee": "value.is_integer",
+          "lineNumber": 55
+        },
+        {
+          "caller": "_cell_to_str",
+          "callee": "str",
+          "lineNumber": 56
+        },
+        {
+          "caller": "_cell_to_str",
+          "callee": "int",
+          "lineNumber": 56
+        },
+        {
+          "caller": "_cell_to_str",
+          "callee": "str(value).replace(\"|\", \"/\").replace(\"\\n\", \" \").strip",
+          "lineNumber": 57
+        },
+        {
+          "caller": "_cell_to_str",
+          "callee": "str(value).replace(\"|\", \"/\").replace",
+          "lineNumber": 57
+        },
+        {
+          "caller": "_cell_to_str",
+          "callee": "str(value).replace",
+          "lineNumber": 57
+        },
+        {
+          "caller": "_cell_to_str",
+          "callee": "str",
+          "lineNumber": 57
+        },
+        {
+          "caller": "_sheet_to_markdown",
+          "callee": "enumerate",
+          "lineNumber": 63
+        },
+        {
+          "caller": "_sheet_to_markdown",
+          "callee": "ws.iter_rows",
+          "lineNumber": 63
+        },
+        {
+          "caller": "_sheet_to_markdown",
+          "callee": "_cell_to_str",
+          "lineNumber": 66
+        },
+        {
+          "caller": "_sheet_to_markdown",
+          "callee": "cells.pop",
+          "lineNumber": 69
+        },
+        {
+          "caller": "_sheet_to_markdown",
+          "callee": "any",
+          "lineNumber": 70
+        },
+        {
+          "caller": "_sheet_to_markdown",
+          "callee": "rows.append",
+          "lineNumber": 71
+        },
+        {
+          "caller": "_sheet_to_markdown",
+          "callee": "max",
+          "lineNumber": 77
+        },
+        {
+          "caller": "_sheet_to_markdown",
+          "callee": "len",
+          "lineNumber": 77
+        },
+        {
+          "caller": "_sheet_to_markdown",
+          "callee": "len",
+          "lineNumber": 78
+        },
+        {
+          "caller": "_sheet_to_markdown",
+          "callee": "enumerate",
+          "lineNumber": 82
+        },
+        {
+          "caller": "_sheet_to_markdown",
+          "callee": "\" | \".join",
+          "lineNumber": 84
+        },
+        {
+          "caller": "_sheet_to_markdown",
+          "callee": "lines.append",
+          "lineNumber": 85
+        },
+        {
+          "caller": "_sheet_to_markdown",
+          "callee": "\"|\".join",
+          "lineNumber": 85
+        },
+        {
+          "caller": "_sheet_to_markdown",
+          "callee": "lines.append",
+          "lineNumber": 87
+        },
+        {
+          "caller": "_sheet_to_markdown",
+          "callee": "\" | \".join",
+          "lineNumber": 87
+        },
+        {
+          "caller": "_sheet_to_markdown",
+          "callee": "\"\\n\".join",
+          "lineNumber": 88
+        },
+        {
+          "caller": "read_xlsx_to_markdown",
+          "callee": "load_workbook",
+          "lineNumber": 99
+        },
+        {
+          "caller": "read_xlsx_to_markdown",
+          "callee": "io.BytesIO",
+          "lineNumber": 99
+        },
+        {
+          "caller": "read_xlsx_to_markdown",
+          "callee": "_sheet_to_markdown",
+          "lineNumber": 103
+        },
+        {
+          "caller": "read_xlsx_to_markdown",
+          "callee": "(ws.title or \"Sheet\").strip",
+          "lineNumber": 106
+        },
+        {
+          "caller": "read_xlsx_to_markdown",
+          "callee": "len",
+          "lineNumber": 108
+        },
+        {
+          "caller": "read_xlsx_to_markdown",
+          "callee": "parts.append",
+          "lineNumber": 109
+        },
+        {
+          "caller": "read_xlsx_to_markdown",
+          "callee": "parts.append",
+          "lineNumber": 111
+        },
+        {
+          "caller": "read_xlsx_to_markdown",
+          "callee": "wb.close",
+          "lineNumber": 113
+        },
+        {
+          "caller": "read_xlsx_to_markdown",
+          "callee": "\"\\n\\n\".join(parts).strip",
+          "lineNumber": 115
+        },
+        {
+          "caller": "read_xlsx_to_markdown",
+          "callee": "\"\\n\\n\".join",
+          "lineNumber": 115
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 4,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "bot/html_report.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 1241,
+      "nonEmptyLines": 1109,
+      "functions": [
+        {
+          "name": "_ensure_blank_line_before_tables",
+          "startLine": 494,
+          "endLine": 509,
+          "params": [
+            "text"
+          ]
+        },
+        {
+          "name": "_md_to_html",
+          "startLine": 512,
+          "endLine": 529,
+          "params": [
+            "text"
+          ]
+        },
+        {
+          "name": "parse_agent_output",
+          "startLine": 532,
+          "endLine": 609,
+          "params": [
+            "text"
+          ]
+        },
+        {
+          "name": "render_stage_html",
+          "startLine": 612,
+          "endLine": 657,
+          "params": [
+            "stage_key",
+            "parsed",
+            "idx",
+            "archetype_banner"
+          ]
+        },
+        {
+          "name": "_generate_tab_css",
+          "startLine": 660,
+          "endLine": 671,
+          "params": [
+            "n"
+          ]
+        },
+        {
+          "name": "render_bar_chart",
+          "startLine": 674,
+          "endLine": 693,
+          "params": [
+            "title",
+            "items"
+          ]
+        },
+        {
+          "name": "render_ads_table",
+          "startLine": 696,
+          "endLine": 712,
+          "params": [
+            "columns",
+            "rows"
+          ]
+        },
+        {
+          "name": "render_insight_grid",
+          "startLine": 715,
+          "endLine": 720,
+          "params": [
+            "good_title",
+            "good_items",
+            "warn_title",
+            "warn_items"
+          ]
+        },
+        {
+          "name": "build_ads_dashboard_report",
+          "startLine": 723,
+          "endLine": 772,
+          "params": [
+            "account_name",
+            "period_label",
+            "bar_chart_title",
+            "bar_chart_items",
+            "table_title",
+            "table_columns",
+            "table_rows",
+            "good_title",
+            "good_items",
+            "warn_title",
+            "warn_items",
+            "business_name",
+            "industry",
+            "stage"
+          ]
+        },
+        {
+          "name": "build_single_skill_report",
+          "startLine": 775,
+          "endLine": 858,
+          "params": [
+            "skill_key",
+            "parsed",
+            "output_format",
+            "business_name",
+            "industry",
+            "stage"
+          ]
+        },
+        {
+          "name": "_section_mentions_archetype",
+          "startLine": 897,
+          "endLine": 904,
+          "params": [
+            "parsed"
+          ]
+        },
+        {
+          "name": "_resolve_or_none",
+          "startLine": 952,
+          "endLine": 961,
+          "params": [
+            "industry",
+            "signal_text"
+          ]
+        },
+        {
+          "name": "_extract_context_snippets",
+          "startLine": 964,
+          "endLine": 992,
+          "params": [
+            "parsed_stages"
+          ]
+        },
+        {
+          "name": "_template_banner_data",
+          "startLine": 995,
+          "endLine": 1005,
+          "params": [
+            "business_name",
+            "industry",
+            "archetype_result"
+          ]
+        },
+        {
+          "name": "_generate_banner_copy_via_llm",
+          "startLine": 1008,
+          "endLine": 1095,
+          "params": [
+            "business_name",
+            "industry",
+            "archetype_result",
+            "context_snippets"
+          ]
+        },
+        {
+          "name": "_compose_banner_html",
+          "startLine": 1098,
+          "endLine": 1127,
+          "params": [
+            "business_name",
+            "banner_data",
+            "archetype_result"
+          ]
+        },
+        {
+          "name": "generate_archetype_banner_html",
+          "startLine": 1130,
+          "endLine": 1152,
+          "params": [
+            "business_name",
+            "industry",
+            "signal_text",
+            "parsed_stages"
+          ]
+        },
+        {
+          "name": "render_archetype_banner_sync",
+          "startLine": 1155,
+          "endLine": 1165,
+          "params": [
+            "business_name",
+            "industry",
+            "signal_text"
+          ]
+        },
+        {
+          "name": "build_report",
+          "startLine": 1168,
+          "endLine": 1241,
+          "params": [
+            "business_name",
+            "industry",
+            "stage",
+            "parsed_stages",
+            "archetype_signal_text",
+            "archetype_banner_html"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "_ensure_blank_line_before_tables",
+          "line": 494,
+          "isDefault": false
+        },
+        {
+          "name": "_md_to_html",
+          "line": 512,
+          "isDefault": false
+        },
+        {
+          "name": "parse_agent_output",
+          "line": 532,
+          "isDefault": false
+        },
+        {
+          "name": "render_stage_html",
+          "line": 612,
+          "isDefault": false
+        },
+        {
+          "name": "_generate_tab_css",
+          "line": 660,
+          "isDefault": false
+        },
+        {
+          "name": "render_bar_chart",
+          "line": 674,
+          "isDefault": false
+        },
+        {
+          "name": "render_ads_table",
+          "line": 696,
+          "isDefault": false
+        },
+        {
+          "name": "render_insight_grid",
+          "line": 715,
+          "isDefault": false
+        },
+        {
+          "name": "build_ads_dashboard_report",
+          "line": 723,
+          "isDefault": false
+        },
+        {
+          "name": "build_single_skill_report",
+          "line": 775,
+          "isDefault": false
+        },
+        {
+          "name": "_section_mentions_archetype",
+          "line": 897,
+          "isDefault": false
+        },
+        {
+          "name": "_resolve_or_none",
+          "line": 952,
+          "isDefault": false
+        },
+        {
+          "name": "_extract_context_snippets",
+          "line": 964,
+          "isDefault": false
+        },
+        {
+          "name": "_template_banner_data",
+          "line": 995,
+          "isDefault": false
+        },
+        {
+          "name": "_generate_banner_copy_via_llm",
+          "line": 1008,
+          "isDefault": false
+        },
+        {
+          "name": "_compose_banner_html",
+          "line": 1098,
+          "isDefault": false
+        },
+        {
+          "name": "generate_archetype_banner_html",
+          "line": 1130,
+          "isDefault": false
+        },
+        {
+          "name": "render_archetype_banner_sync",
+          "line": 1155,
+          "isDefault": false
+        },
+        {
+          "name": "build_report",
+          "line": 1168,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "_ensure_blank_line_before_tables",
+          "callee": "text.split",
+          "lineNumber": 498
+        },
+        {
+          "caller": "_ensure_blank_line_before_tables",
+          "callee": "line.lstrip().startswith",
+          "lineNumber": 501
+        },
+        {
+          "caller": "_ensure_blank_line_before_tables",
+          "callee": "line.lstrip",
+          "lineNumber": 501
+        },
+        {
+          "caller": "_ensure_blank_line_before_tables",
+          "callee": "prev.lstrip().startswith",
+          "lineNumber": 504
+        },
+        {
+          "caller": "_ensure_blank_line_before_tables",
+          "callee": "prev.lstrip",
+          "lineNumber": 504
+        },
+        {
+          "caller": "_ensure_blank_line_before_tables",
+          "callee": "prev.strip",
+          "lineNumber": 506
+        },
+        {
+          "caller": "_ensure_blank_line_before_tables",
+          "callee": "out.append",
+          "lineNumber": 507
+        },
+        {
+          "caller": "_ensure_blank_line_before_tables",
+          "callee": "out.append",
+          "lineNumber": 508
+        },
+        {
+          "caller": "_ensure_blank_line_before_tables",
+          "callee": "\"\\n\".join",
+          "lineNumber": 509
+        },
+        {
+          "caller": "_md_to_html",
+          "callee": "_ensure_blank_line_before_tables",
+          "lineNumber": 517
+        },
+        {
+          "caller": "_md_to_html",
+          "callee": "_md.markdown",
+          "lineNumber": 518
+        },
+        {
+          "caller": "_md_to_html",
+          "callee": "re.sub",
+          "lineNumber": 520
+        },
+        {
+          "caller": "_md_to_html",
+          "callee": "re.sub",
+          "lineNumber": 521
+        },
+        {
+          "caller": "_md_to_html",
+          "callee": "re.sub",
+          "lineNumber": 525
+        },
+        {
+          "caller": "_md_to_html",
+          "callee": "re.sub",
+          "lineNumber": 526
+        },
+        {
+          "caller": "_md_to_html",
+          "callee": "out.replace",
+          "lineNumber": 527
+        },
+        {
+          "caller": "_md_to_html",
+          "callee": "out.replace",
+          "lineNumber": 528
+        },
+        {
+          "caller": "parse_agent_output",
+          "callee": "re.split",
+          "lineNumber": 547
+        },
+        {
+          "caller": "parse_agent_output",
+          "callee": "any",
+          "lineNumber": 551
+        },
+        {
+          "caller": "parse_agent_output",
+          "callee": "re.search",
+          "lineNumber": 552
+        },
+        {
+          "caller": "parse_agent_output",
+          "callee": "chunk.strip",
+          "lineNumber": 557
+        },
+        {
+          "caller": "parse_agent_output",
+          "callee": "re.match",
+          "lineNumber": 561
+        },
+        {
+          "caller": "parse_agent_output",
+          "callee": "len",
+          "lineNumber": 564
+        },
+        {
+          "caller": "parse_agent_output",
+          "callee": "detail_parts.append",
+          "lineNumber": 565
+        },
+        {
+          "caller": "parse_agent_output",
+          "callee": "m.group(1).strip",
+          "lineNumber": 568
+        },
+        {
+          "caller": "parse_agent_output",
+          "callee": "m.group",
+          "lineNumber": 568
+        },
+        {
+          "caller": "parse_agent_output",
+          "callee": "m.group(2).strip",
+          "lineNumber": 569
+        },
+        {
+          "caller": "parse_agent_output",
+          "callee": "m.group",
+          "lineNumber": 569
+        },
+        {
+          "caller": "parse_agent_output",
+          "callee": "re.search",
+          "lineNumber": 573
+        },
+        {
+          "caller": "parse_agent_output",
+          "callee": "detail_parts.append",
+          "lineNumber": 574
+        },
+        {
+          "caller": "parse_agent_output",
+          "callee": "re.search",
+          "lineNumber": 575
+        },
+        {
+          "caller": "parse_agent_output",
+          "callee": "re.match",
+          "lineNumber": 575
+        },
+        {
+          "caller": "parse_agent_output",
+          "callee": "detail_parts.append",
+          "lineNumber": 579
+        },
+        {
+          "caller": "parse_agent_output",
+          "callee": "re.search",
+          "lineNumber": 583
+        },
+        {
+          "caller": "parse_agent_output",
+          "callee": "re.match",
+          "lineNumber": 583
+        },
+        {
+          "caller": "parse_agent_output",
+          "callee": "re.search",
+          "lineNumber": 585
+        },
+        {
+          "caller": "parse_agent_output",
+          "callee": "re.match",
+          "lineNumber": 586
+        },
+        {
+          "caller": "parse_agent_output",
+          "callee": "re.match",
+          "lineNumber": 587
+        },
+        {
+          "caller": "parse_agent_output",
+          "callee": "re.search",
+          "lineNumber": 590
+        },
+        {
+          "caller": "parse_agent_output",
+          "callee": "re.match",
+          "lineNumber": 591
+        },
+        {
+          "caller": "parse_agent_output",
+          "callee": "re.match",
+          "lineNumber": 593
+        },
+        {
+          "caller": "parse_agent_output",
+          "callee": "detail_parts.append",
+          "lineNumber": 599
+        },
+        {
+          "caller": "parse_agent_output",
+          "callee": "\"\\n\\n\".join",
+          "lineNumber": 603
+        },
+        {
+          "caller": "parse_agent_output",
+          "callee": "any",
+          "lineNumber": 606
+        },
+        {
+          "caller": "parse_agent_output",
+          "callee": "result.items",
+          "lineNumber": 606
+        },
+        {
+          "caller": "parse_agent_output",
+          "callee": "text.strip",
+          "lineNumber": 607
+        },
+        {
+          "caller": "render_stage_html",
+          "callee": "STAGE_META.get",
+          "lineNumber": 624
+        },
+        {
+          "caller": "render_stage_html",
+          "callee": "bool",
+          "lineNumber": 627
+        },
+        {
+          "caller": "render_stage_html",
+          "callee": "_section_mentions_archetype",
+          "lineNumber": 629
+        },
+        {
+          "caller": "render_stage_html",
+          "callee": "parts.append",
+          "lineNumber": 635
+        },
+        {
+          "caller": "render_stage_html",
+          "callee": "parsed.get",
+          "lineNumber": 636
+        },
+        {
+          "caller": "render_stage_html",
+          "callee": "parsed[\"insight\"].strip().strip('\"').strip",
+          "lineNumber": 637
+        },
+        {
+          "caller": "render_stage_html",
+          "callee": "parsed[\"insight\"].strip().strip",
+          "lineNumber": 637
+        },
+        {
+          "caller": "render_stage_html",
+          "callee": "parsed[\"insight\"].strip",
+          "lineNumber": 637
+        },
+        {
+          "caller": "render_stage_html",
+          "callee": "parts.append",
+          "lineNumber": 638
+        },
+        {
+          "caller": "render_stage_html",
+          "callee": "_md_to_html",
+          "lineNumber": 638
+        },
+        {
+          "caller": "render_stage_html",
+          "callee": "parsed.get",
+          "lineNumber": 639
+        },
+        {
+          "caller": "render_stage_html",
+          "callee": "parts.append",
+          "lineNumber": 640
+        },
+        {
+          "caller": "render_stage_html",
+          "callee": "_md_to_html",
+          "lineNumber": 640
+        },
+        {
+          "caller": "render_stage_html",
+          "callee": "parsed.get",
+          "lineNumber": 641
+        },
+        {
+          "caller": "render_stage_html",
+          "callee": "parsed.get",
+          "lineNumber": 642
+        },
+        {
+          "caller": "render_stage_html",
+          "callee": "parts.append",
+          "lineNumber": 643
+        },
+        {
+          "caller": "render_stage_html",
+          "callee": "_md_to_html",
+          "lineNumber": 644
+        },
+        {
+          "caller": "render_stage_html",
+          "callee": "parsed.get",
+          "lineNumber": 645
+        },
+        {
+          "caller": "render_stage_html",
+          "callee": "parts.append",
+          "lineNumber": 646
+        },
+        {
+          "caller": "render_stage_html",
+          "callee": "_md_to_html",
+          "lineNumber": 647
+        },
+        {
+          "caller": "render_stage_html",
+          "callee": "\"\\n\".join",
+          "lineNumber": 649
+        },
+        {
+          "caller": "_generate_tab_css",
+          "callee": "range",
+          "lineNumber": 663
+        },
+        {
+          "caller": "_generate_tab_css",
+          "callee": "rules.append",
+          "lineNumber": 664
+        },
+        {
+          "caller": "_generate_tab_css",
+          "callee": "rules.append",
+          "lineNumber": 667
+        },
+        {
+          "caller": "_generate_tab_css",
+          "callee": "\"\\n\".join",
+          "lineNumber": 671
+        },
+        {
+          "caller": "render_bar_chart",
+          "callee": "max",
+          "lineNumber": 679
+        },
+        {
+          "caller": "render_bar_chart",
+          "callee": "it.get",
+          "lineNumber": 679
+        },
+        {
+          "caller": "render_bar_chart",
+          "callee": "enumerate",
+          "lineNumber": 682
+        },
+        {
+          "caller": "render_bar_chart",
+          "callee": "max",
+          "lineNumber": 683
+        },
+        {
+          "caller": "render_bar_chart",
+          "callee": "round",
+          "lineNumber": 683
+        },
+        {
+          "caller": "render_bar_chart",
+          "callee": "it.get",
+          "lineNumber": 683
+        },
+        {
+          "caller": "render_bar_chart",
+          "callee": "min",
+          "lineNumber": 684
+        },
+        {
+          "caller": "render_bar_chart",
+          "callee": "len",
+          "lineNumber": 684
+        },
+        {
+          "caller": "render_bar_chart",
+          "callee": "(it.get(\"label\") or \"\").replace(\"<\", \"&lt;\").replace",
+          "lineNumber": 685
+        },
+        {
+          "caller": "render_bar_chart",
+          "callee": "(it.get(\"label\") or \"\").replace",
+          "lineNumber": 685
+        },
+        {
+          "caller": "render_bar_chart",
+          "callee": "it.get",
+          "lineNumber": 685
+        },
+        {
+          "caller": "render_bar_chart",
+          "callee": "(it.get(\"display\") or str(it.get(\"value\") or \"\")).replace(\"<\", \"&lt;\").replace",
+          "lineNumber": 686
+        },
+        {
+          "caller": "render_bar_chart",
+          "callee": "(it.get(\"display\") or str(it.get(\"value\") or \"\")).replace",
+          "lineNumber": 686
+        },
+        {
+          "caller": "render_bar_chart",
+          "callee": "it.get",
+          "lineNumber": 686
+        },
+        {
+          "caller": "render_bar_chart",
+          "callee": "str",
+          "lineNumber": 686
+        },
+        {
+          "caller": "render_bar_chart",
+          "callee": "it.get",
+          "lineNumber": 686
+        },
+        {
+          "caller": "render_bar_chart",
+          "callee": "rows.append",
+          "lineNumber": 687
+        },
+        {
+          "caller": "render_bar_chart",
+          "callee": "\"\".join",
+          "lineNumber": 693
+        },
+        {
+          "caller": "render_ads_table",
+          "callee": "\"\".join",
+          "lineNumber": 701
+        },
+        {
+          "caller": "render_ads_table",
+          "callee": "r.get",
+          "lineNumber": 704
+        },
+        {
+          "caller": "render_ads_table",
+          "callee": "r.get",
+          "lineNumber": 705
+        },
+        {
+          "caller": "render_ads_table",
+          "callee": "r.get",
+          "lineNumber": 706
+        },
+        {
+          "caller": "render_ads_table",
+          "callee": "\"\".join",
+          "lineNumber": 707
+        },
+        {
+          "caller": "render_ads_table",
+          "callee": "enumerate",
+          "lineNumber": 707
+        },
+        {
+          "caller": "render_ads_table",
+          "callee": "body.append",
+          "lineNumber": 708
+        },
+        {
+          "caller": "render_ads_table",
+          "callee": "\"\".join",
+          "lineNumber": 711
+        },
+        {
+          "caller": "_card",
+          "callee": "\"\".join",
+          "lineNumber": 718
+        },
+        {
+          "caller": "render_insight_grid",
+          "callee": "_card",
+          "lineNumber": 720
+        },
+        {
+          "caller": "render_insight_grid",
+          "callee": "_card",
+          "lineNumber": 720
+        },
+        {
+          "caller": "build_ads_dashboard_report",
+          "callee": "\"\".join",
+          "lineNumber": 741
+        },
+        {
+          "caller": "build_ads_dashboard_report",
+          "callee": "filter",
+          "lineNumber": 741
+        },
+        {
+          "caller": "build_ads_dashboard_report",
+          "callee": "render_bar_chart",
+          "lineNumber": 742
+        },
+        {
+          "caller": "build_ads_dashboard_report",
+          "callee": "render_ads_table",
+          "lineNumber": 744
+        },
+        {
+          "caller": "build_ads_dashboard_report",
+          "callee": "render_insight_grid",
+          "lineNumber": 746
+        },
+        {
+          "caller": "build_ads_dashboard_report",
+          "callee": "HTML_TEMPLATE.format",
+          "lineNumber": 760
+        },
+        {
+          "caller": "build_ads_dashboard_report",
+          "callee": "datetime.now().strftime",
+          "lineNumber": 765
+        },
+        {
+          "caller": "build_ads_dashboard_report",
+          "callee": "datetime.now",
+          "lineNumber": 765
+        },
+        {
+          "caller": "build_ads_dashboard_report",
+          "callee": "_generate_tab_css",
+          "lineNumber": 770
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "STAGE_META.get",
+          "lineNumber": 787
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "parsed.get",
+          "lineNumber": 792
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "parts.append",
+          "lineNumber": 793
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "_md_to_html",
+          "lineNumber": 794
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "parsed.get",
+          "lineNumber": 795
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "parts.append",
+          "lineNumber": 796
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "_md_to_html",
+          "lineNumber": 796
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "parsed.get",
+          "lineNumber": 799
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "parts.append",
+          "lineNumber": 800
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "_md_to_html",
+          "lineNumber": 800
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "parsed.get",
+          "lineNumber": 801
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "parts.append",
+          "lineNumber": 802
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "_md_to_html",
+          "lineNumber": 803
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "parsed.get",
+          "lineNumber": 804
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "parts.append",
+          "lineNumber": 805
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "_md_to_html",
+          "lineNumber": 806
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "parsed.get",
+          "lineNumber": 807
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "parts.append",
+          "lineNumber": 808
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "_md_to_html",
+          "lineNumber": 809
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "parsed.get",
+          "lineNumber": 810
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "parts.append",
+          "lineNumber": 811
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "_md_to_html",
+          "lineNumber": 812
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "parsed.get",
+          "lineNumber": 815
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "parsed[\"insight\"].strip().strip('\"').strip",
+          "lineNumber": 816
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "parsed[\"insight\"].strip().strip",
+          "lineNumber": 816
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "parsed[\"insight\"].strip",
+          "lineNumber": 816
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "parts.append",
+          "lineNumber": 817
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "_md_to_html",
+          "lineNumber": 817
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "parsed.get",
+          "lineNumber": 818
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "parts.append",
+          "lineNumber": 819
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "_md_to_html",
+          "lineNumber": 819
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "parsed.get",
+          "lineNumber": 820
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "parsed.get",
+          "lineNumber": 821
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "parts.append",
+          "lineNumber": 822
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "_md_to_html",
+          "lineNumber": 823
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "parsed.get",
+          "lineNumber": 824
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "parts.append",
+          "lineNumber": 825
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "_md_to_html",
+          "lineNumber": 826
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "\"\\n\".join",
+          "lineNumber": 828
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "HTML_TEMPLATE.format",
+          "lineNumber": 846
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "datetime.now().strftime",
+          "lineNumber": 851
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "datetime.now",
+          "lineNumber": 851
+        },
+        {
+          "caller": "build_single_skill_report",
+          "callee": "_generate_tab_css",
+          "lineNumber": 856
+        },
+        {
+          "caller": "_section_mentions_archetype",
+          "callee": "\" \".join(filter(None, [\n        parsed.get(\"detail\", \"\"),\n        parsed.get(\"insight\", \"\"),\n        parsed.get(\"summary\", \"\"),\n    ])).lower",
+          "lineNumber": 899
+        },
+        {
+          "caller": "_section_mentions_archetype",
+          "callee": "\" \".join",
+          "lineNumber": 899
+        },
+        {
+          "caller": "_section_mentions_archetype",
+          "callee": "filter",
+          "lineNumber": 899
+        },
+        {
+          "caller": "_section_mentions_archetype",
+          "callee": "parsed.get",
+          "lineNumber": 900
+        },
+        {
+          "caller": "_section_mentions_archetype",
+          "callee": "parsed.get",
+          "lineNumber": 901
+        },
+        {
+          "caller": "_section_mentions_archetype",
+          "callee": "parsed.get",
+          "lineNumber": 902
+        },
+        {
+          "caller": "_section_mentions_archetype",
+          "callee": "any",
+          "lineNumber": 904
+        },
+        {
+          "caller": "_resolve_or_none",
+          "callee": "resolve_archetype",
+          "lineNumber": 958
+        },
+        {
+          "caller": "_resolve_or_none",
+          "callee": "res.get",
+          "lineNumber": 959
+        },
+        {
+          "caller": "_extract_context_snippets",
+          "callee": "wanted_keys.get",
+          "lineNumber": 981
+        },
+        {
+          "caller": "_extract_context_snippets",
+          "callee": "(parsed.get(\"insight\") or parsed.get(\"summary\") or parsed.get(\"detail\") or \"\").strip",
+          "lineNumber": 984
+        },
+        {
+          "caller": "_extract_context_snippets",
+          "callee": "parsed.get",
+          "lineNumber": 984
+        },
+        {
+          "caller": "_extract_context_snippets",
+          "callee": "parsed.get",
+          "lineNumber": 984
+        },
+        {
+          "caller": "_extract_context_snippets",
+          "callee": "parsed.get",
+          "lineNumber": 984
+        },
+        {
+          "caller": "_extract_context_snippets",
+          "callee": "re.sub",
+          "lineNumber": 988
+        },
+        {
+          "caller": "_extract_context_snippets",
+          "callee": "re.sub",
+          "lineNumber": 989
+        },
+        {
+          "caller": "_extract_context_snippets",
+          "callee": "snippets.append",
+          "lineNumber": 990
+        },
+        {
+          "caller": "_extract_context_snippets",
+          "callee": "\"\\n\\n\".join",
+          "lineNumber": 992
+        },
+        {
+          "caller": "_template_banner_data",
+          "callee": "_INDUSTRY_VI.get",
+          "lineNumber": 999
+        },
+        {
+          "caller": "_template_banner_data",
+          "callee": "industry.lower",
+          "lineNumber": 999
+        },
+        {
+          "caller": "_template_banner_data",
+          "callee": "template[\"diagnosis\"].format",
+          "lineNumber": 1003
+        },
+        {
+          "caller": "_template_banner_data",
+          "callee": "template[\"impact\"].format",
+          "lineNumber": 1004
+        },
+        {
+          "caller": "_generate_banner_copy_via_llm",
+          "callee": "ARCHETYPE_LABEL.get(primary, primary).split",
+          "lineNumber": 1025
+        },
+        {
+          "caller": "_generate_banner_copy_via_llm",
+          "callee": "ARCHETYPE_LABEL.get",
+          "lineNumber": 1025
+        },
+        {
+          "caller": "_generate_banner_copy_via_llm",
+          "callee": "_INDUSTRY_VI.get",
+          "lineNumber": 1026
+        },
+        {
+          "caller": "_generate_banner_copy_via_llm",
+          "callee": "industry.lower",
+          "lineNumber": 1026
+        },
+        {
+          "caller": "_generate_banner_copy_via_llm",
+          "callee": "archetype_result.get",
+          "lineNumber": 1027
+        },
+        {
+          "caller": "_generate_banner_copy_via_llm",
+          "callee": "archetype_result.get",
+          "lineNumber": 1028
+        },
+        {
+          "caller": "_generate_banner_copy_via_llm",
+          "callee": "user_parts.append",
+          "lineNumber": 1046
+        },
+        {
+          "caller": "_generate_banner_copy_via_llm",
+          "callee": "', '.join",
+          "lineNumber": 1046
+        },
+        {
+          "caller": "_generate_banner_copy_via_llm",
+          "callee": "router_call",
+          "lineNumber": 1061
+        },
+        {
+          "caller": "_generate_banner_copy_via_llm",
+          "callee": "\"\\n\".join",
+          "lineNumber": 1064
+        },
+        {
+          "caller": "_generate_banner_copy_via_llm",
+          "callee": "(result or {}).get(\"output\", \"\").strip",
+          "lineNumber": 1072
+        },
+        {
+          "caller": "_generate_banner_copy_via_llm",
+          "callee": "(result or {}).get",
+          "lineNumber": 1072
+        },
+        {
+          "caller": "_generate_banner_copy_via_llm",
+          "callee": "re.sub",
+          "lineNumber": 1077
+        },
+        {
+          "caller": "_generate_banner_copy_via_llm",
+          "callee": "re.sub(r'\\s*```\\s*$', '', raw).strip",
+          "lineNumber": 1078
+        },
+        {
+          "caller": "_generate_banner_copy_via_llm",
+          "callee": "re.sub",
+          "lineNumber": 1078
+        },
+        {
+          "caller": "_generate_banner_copy_via_llm",
+          "callee": "json.loads",
+          "lineNumber": 1082
+        },
+        {
+          "caller": "_generate_banner_copy_via_llm",
+          "callee": "(data.get(\"diagnosis\") or \"\").strip",
+          "lineNumber": 1086
+        },
+        {
+          "caller": "_generate_banner_copy_via_llm",
+          "callee": "data.get",
+          "lineNumber": 1086
+        },
+        {
+          "caller": "_generate_banner_copy_via_llm",
+          "callee": "(data.get(\"plan_impact\") or \"\").strip",
+          "lineNumber": 1087
+        },
+        {
+          "caller": "_generate_banner_copy_via_llm",
+          "callee": "data.get",
+          "lineNumber": 1087
+        },
+        {
+          "caller": "_compose_banner_html",
+          "callee": "archetype_result.get",
+          "lineNumber": 1109
+        },
+        {
+          "caller": "_compose_banner_html",
+          "callee": "archetype_result.get",
+          "lineNumber": 1110
+        },
+        {
+          "caller": "_compose_banner_html",
+          "callee": "\", \".join",
+          "lineNumber": 1111
+        },
+        {
+          "caller": "generate_archetype_banner_html",
+          "callee": "_resolve_or_none",
+          "lineNumber": 1140
+        },
+        {
+          "caller": "generate_archetype_banner_html",
+          "callee": "_extract_context_snippets",
+          "lineNumber": 1145
+        },
+        {
+          "caller": "generate_archetype_banner_html",
+          "callee": "_generate_banner_copy_via_llm",
+          "lineNumber": 1146
+        },
+        {
+          "caller": "generate_archetype_banner_html",
+          "callee": "_template_banner_data",
+          "lineNumber": 1150
+        },
+        {
+          "caller": "generate_archetype_banner_html",
+          "callee": "_compose_banner_html",
+          "lineNumber": 1152
+        },
+        {
+          "caller": "render_archetype_banner_sync",
+          "callee": "_resolve_or_none",
+          "lineNumber": 1161
+        },
+        {
+          "caller": "render_archetype_banner_sync",
+          "callee": "_template_banner_data",
+          "lineNumber": 1164
+        },
+        {
+          "caller": "render_archetype_banner_sync",
+          "callee": "_compose_banner_html",
+          "lineNumber": 1165
+        },
+        {
+          "caller": "build_report",
+          "callee": "len",
+          "lineNumber": 1182
+        },
+        {
+          "caller": "build_report",
+          "callee": "render_archetype_banner_sync",
+          "lineNumber": 1186
+        },
+        {
+          "caller": "build_report",
+          "callee": "\"\\n  \".join",
+          "lineNumber": 1191
+        },
+        {
+          "caller": "build_report",
+          "callee": "range",
+          "lineNumber": 1195
+        },
+        {
+          "caller": "build_report",
+          "callee": "enumerate",
+          "lineNumber": 1200
+        },
+        {
+          "caller": "build_report",
+          "callee": "STAGE_META.get",
+          "lineNumber": 1201
+        },
+        {
+          "caller": "build_report",
+          "callee": "tab_labels.append",
+          "lineNumber": 1202
+        },
+        {
+          "caller": "build_report",
+          "callee": "\"\\n    \".join",
+          "lineNumber": 1207
+        },
+        {
+          "caller": "build_report",
+          "callee": "\"\\n\".join",
+          "lineNumber": 1210
+        },
+        {
+          "caller": "build_report",
+          "callee": "render_stage_html",
+          "lineNumber": 1211
+        },
+        {
+          "caller": "build_report",
+          "callee": "enumerate",
+          "lineNumber": 1212
+        },
+        {
+          "caller": "build_report",
+          "callee": "STAGE_META.get",
+          "lineNumber": 1217
+        },
+        {
+          "caller": "build_report",
+          "callee": "STAGE_META.get",
+          "lineNumber": 1225
+        },
+        {
+          "caller": "build_report",
+          "callee": "titles.append",
+          "lineNumber": 1226
+        },
+        {
+          "caller": "build_report",
+          "callee": "\" · \".join",
+          "lineNumber": 1227
+        },
+        {
+          "caller": "build_report",
+          "callee": "HTML_TEMPLATE.format",
+          "lineNumber": 1229
+        },
+        {
+          "caller": "build_report",
+          "callee": "datetime.now().strftime",
+          "lineNumber": 1234
+        },
+        {
+          "caller": "build_report",
+          "callee": "datetime.now",
+          "lineNumber": 1234
+        },
+        {
+          "caller": "build_report",
+          "callee": "_generate_tab_css",
+          "lineNumber": 1239
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 19,
+        "functionCount": 19,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "content_generation_template.xlsx",
+      "language": "xlsx",
+      "fileCategory": "code",
+      "totalLines": 58,
+      "nonEmptyLines": 58,
+      "metrics": {}
+    },
+    {
+      "path": "frameworks/pricing_segment_library.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 173,
+      "nonEmptyLines": 150,
+      "functions": [
+        {
+          "name": "get_pricing_segments",
+          "startLine": 161,
+          "endLine": 164,
+          "params": [
+            "industry"
+          ]
+        },
+        {
+          "name": "format_pricing_segments_for_prompt",
+          "startLine": 167,
+          "endLine": 173,
+          "params": [
+            "industry"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "get_pricing_segments",
+          "line": 161,
+          "isDefault": false
+        },
+        {
+          "name": "format_pricing_segments_for_prompt",
+          "line": 167,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "get_pricing_segments",
+          "callee": "PRICING_SEGMENT_LIBRARY.get",
+          "lineNumber": 164
+        },
+        {
+          "caller": "format_pricing_segments_for_prompt",
+          "callee": "get_pricing_segments",
+          "lineNumber": 169
+        },
+        {
+          "caller": "format_pricing_segments_for_prompt",
+          "callee": "lines.append",
+          "lineNumber": 172
+        },
+        {
+          "caller": "format_pricing_segments_for_prompt",
+          "callee": "\"\\n\".join",
+          "lineNumber": 173
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "services/__init__.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 1,
+      "nonEmptyLines": 0,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "services/ads_notifier.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 532,
+      "nonEmptyLines": 440,
+      "functions": [
+        {
+          "name": "pull_and_snapshot",
+          "startLine": 45,
+          "endLine": 81,
+          "params": [
+            "conn"
+          ]
+        },
+        {
+          "name": "backfill_snapshots",
+          "startLine": 87,
+          "endLine": 135,
+          "params": [
+            "conn",
+            "days"
+          ]
+        },
+        {
+          "name": "_sum_metric",
+          "startLine": 140,
+          "endLine": 141,
+          "params": [
+            "rows",
+            "key"
+          ]
+        },
+        {
+          "name": "_avg_metric",
+          "startLine": 144,
+          "endLine": 146,
+          "params": [
+            "rows",
+            "key"
+          ]
+        },
+        {
+          "name": "compute_delta",
+          "startLine": 149,
+          "endLine": 164,
+          "params": [
+            "today_rows",
+            "prev_rows"
+          ]
+        },
+        {
+          "name": "_account_health",
+          "startLine": 169,
+          "endLine": 177,
+          "params": [
+            "campaigns",
+            "conn"
+          ]
+        },
+        {
+          "name": "format_daily_digest",
+          "startLine": 182,
+          "endLine": 235,
+          "params": [
+            "campaigns",
+            "delta",
+            "conn",
+            "account_name",
+            "report_date"
+          ]
+        },
+        {
+          "name": "format_weekly_digest",
+          "startLine": 238,
+          "endLine": 272,
+          "params": [
+            "this_week_rows",
+            "prev_week_rows",
+            "conn",
+            "account_name"
+          ]
+        },
+        {
+          "name": "fetch_quick_report",
+          "startLine": 291,
+          "endLine": 337,
+          "params": [
+            "conn",
+            "period"
+          ]
+        },
+        {
+          "name": "format_quick_report",
+          "startLine": 340,
+          "endLine": 373,
+          "params": [
+            "period",
+            "current_rows",
+            "compare_rows",
+            "conn",
+            "account_name"
+          ]
+        },
+        {
+          "name": "ads_table_from_metrics",
+          "startLine": 376,
+          "endLine": 407,
+          "params": [
+            "ads",
+            "tracked_metrics",
+            "name_key",
+            "campaign_key"
+          ]
+        },
+        {
+          "name": "_find_alerts",
+          "startLine": 412,
+          "endLine": 432,
+          "params": [
+            "campaigns",
+            "conn"
+          ]
+        },
+        {
+          "name": "check_alerts",
+          "startLine": 435,
+          "endLine": 494,
+          "params": [
+            "campaigns",
+            "prev_campaigns",
+            "conn"
+          ]
+        },
+        {
+          "name": "format_alert",
+          "startLine": 497,
+          "endLine": 503,
+          "params": [
+            "alert",
+            "account_name"
+          ]
+        },
+        {
+          "name": "_find_winner",
+          "startLine": 506,
+          "endLine": 510,
+          "params": [
+            "campaigns"
+          ]
+        },
+        {
+          "name": "send_message_safe",
+          "startLine": 515,
+          "endLine": 532,
+          "params": [
+            "bot",
+            "user_id",
+            "text"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "pull_and_snapshot",
+          "line": 45,
+          "isDefault": false
+        },
+        {
+          "name": "backfill_snapshots",
+          "line": 87,
+          "isDefault": false
+        },
+        {
+          "name": "_sum_metric",
+          "line": 140,
+          "isDefault": false
+        },
+        {
+          "name": "_avg_metric",
+          "line": 144,
+          "isDefault": false
+        },
+        {
+          "name": "compute_delta",
+          "line": 149,
+          "isDefault": false
+        },
+        {
+          "name": "_account_health",
+          "line": 169,
+          "isDefault": false
+        },
+        {
+          "name": "format_daily_digest",
+          "line": 182,
+          "isDefault": false
+        },
+        {
+          "name": "format_weekly_digest",
+          "line": 238,
+          "isDefault": false
+        },
+        {
+          "name": "fetch_quick_report",
+          "line": 291,
+          "isDefault": false
+        },
+        {
+          "name": "format_quick_report",
+          "line": 340,
+          "isDefault": false
+        },
+        {
+          "name": "ads_table_from_metrics",
+          "line": 376,
+          "isDefault": false
+        },
+        {
+          "name": "_find_alerts",
+          "line": 412,
+          "isDefault": false
+        },
+        {
+          "name": "check_alerts",
+          "line": 435,
+          "isDefault": false
+        },
+        {
+          "name": "format_alert",
+          "line": 497,
+          "isDefault": false
+        },
+        {
+          "name": "_find_winner",
+          "line": 506,
+          "isDefault": false
+        },
+        {
+          "name": "send_message_safe",
+          "line": 515,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "pull_and_snapshot",
+          "callee": "decrypt_token",
+          "lineNumber": 65
+        },
+        {
+          "caller": "pull_and_snapshot",
+          "callee": "get_account_insights",
+          "lineNumber": 68
+        },
+        {
+          "caller": "pull_and_snapshot",
+          "callee": "datetime.now",
+          "lineNumber": 76
+        },
+        {
+          "caller": "pull_and_snapshot",
+          "callee": "timedelta",
+          "lineNumber": 76
+        },
+        {
+          "caller": "pull_and_snapshot",
+          "callee": "save_snapshot",
+          "lineNumber": 79
+        },
+        {
+          "caller": "pull_and_snapshot",
+          "callee": "update_last_pull",
+          "lineNumber": 80
+        },
+        {
+          "caller": "backfill_snapshots",
+          "callee": "decrypt_token",
+          "lineNumber": 109
+        },
+        {
+          "caller": "backfill_snapshots",
+          "callee": "datetime.now(timezone.utc).date",
+          "lineNumber": 112
+        },
+        {
+          "caller": "backfill_snapshots",
+          "callee": "datetime.now",
+          "lineNumber": 112
+        },
+        {
+          "caller": "backfill_snapshots",
+          "callee": "timedelta",
+          "lineNumber": 113
+        },
+        {
+          "caller": "backfill_snapshots",
+          "callee": "timedelta",
+          "lineNumber": 114
+        },
+        {
+          "caller": "backfill_snapshots",
+          "callee": "get_account_insights_daily",
+          "lineNumber": 116
+        },
+        {
+          "caller": "backfill_snapshots",
+          "callee": "since.strftime",
+          "lineNumber": 117
+        },
+        {
+          "caller": "backfill_snapshots",
+          "callee": "until.strftime",
+          "lineNumber": 118
+        },
+        {
+          "caller": "backfill_snapshots",
+          "callee": "r.get",
+          "lineNumber": 127
+        },
+        {
+          "caller": "backfill_snapshots",
+          "callee": "by_date.setdefault(d, []).append",
+          "lineNumber": 129
+        },
+        {
+          "caller": "backfill_snapshots",
+          "callee": "by_date.setdefault",
+          "lineNumber": 129
+        },
+        {
+          "caller": "backfill_snapshots",
+          "callee": "by_date.items",
+          "lineNumber": 131
+        },
+        {
+          "caller": "backfill_snapshots",
+          "callee": "datetime.strptime(date_str, \"%Y-%m-%d\").replace",
+          "lineNumber": 132
+        },
+        {
+          "caller": "backfill_snapshots",
+          "callee": "datetime.strptime",
+          "lineNumber": 132
+        },
+        {
+          "caller": "backfill_snapshots",
+          "callee": "save_snapshot",
+          "lineNumber": 133
+        },
+        {
+          "caller": "backfill_snapshots",
+          "callee": "len",
+          "lineNumber": 135
+        },
+        {
+          "caller": "_sum_metric",
+          "callee": "sum",
+          "lineNumber": 141
+        },
+        {
+          "caller": "_sum_metric",
+          "callee": "float",
+          "lineNumber": 141
+        },
+        {
+          "caller": "_sum_metric",
+          "callee": "r.get",
+          "lineNumber": 141
+        },
+        {
+          "caller": "_avg_metric",
+          "callee": "float",
+          "lineNumber": 145
+        },
+        {
+          "caller": "_avg_metric",
+          "callee": "r.get",
+          "lineNumber": 145
+        },
+        {
+          "caller": "_avg_metric",
+          "callee": "r.get",
+          "lineNumber": 145
+        },
+        {
+          "caller": "_avg_metric",
+          "callee": "sum",
+          "lineNumber": 146
+        },
+        {
+          "caller": "_avg_metric",
+          "callee": "len",
+          "lineNumber": 146
+        },
+        {
+          "caller": "compute_delta",
+          "callee": "_avg_metric",
+          "lineNumber": 154
+        },
+        {
+          "caller": "compute_delta",
+          "callee": "_avg_metric",
+          "lineNumber": 155
+        },
+        {
+          "caller": "compute_delta",
+          "callee": "_sum_metric",
+          "lineNumber": 157
+        },
+        {
+          "caller": "compute_delta",
+          "callee": "_sum_metric",
+          "lineNumber": 158
+        },
+        {
+          "caller": "_account_health",
+          "callee": "conn.get",
+          "lineNumber": 170
+        },
+        {
+          "caller": "_account_health",
+          "callee": "_avg_metric",
+          "lineNumber": 171
+        },
+        {
+          "caller": "_account_health",
+          "callee": "max",
+          "lineNumber": 172
+        },
+        {
+          "caller": "_account_health",
+          "callee": "float",
+          "lineNumber": 172
+        },
+        {
+          "caller": "_account_health",
+          "callee": "c.get",
+          "lineNumber": 172
+        },
+        {
+          "caller": "format_daily_digest",
+          "callee": "conn.get",
+          "lineNumber": 189
+        },
+        {
+          "caller": "format_daily_digest",
+          "callee": "_account_health",
+          "lineNumber": 190
+        },
+        {
+          "caller": "format_daily_digest",
+          "callee": "(report_date or (datetime.now(timezone.utc) - timedelta(days=1))).strftime",
+          "lineNumber": 191
+        },
+        {
+          "caller": "format_daily_digest",
+          "callee": "datetime.now",
+          "lineNumber": 191
+        },
+        {
+          "caller": "format_daily_digest",
+          "callee": "timedelta",
+          "lineNumber": 191
+        },
+        {
+          "caller": "format_daily_digest",
+          "callee": "fmt",
+          "lineNumber": 205
+        },
+        {
+          "caller": "format_daily_digest",
+          "callee": "abs",
+          "lineNumber": 212
+        },
+        {
+          "caller": "format_daily_digest",
+          "callee": "abs",
+          "lineNumber": 215
+        },
+        {
+          "caller": "format_daily_digest",
+          "callee": "lines.append",
+          "lineNumber": 218
+        },
+        {
+          "caller": "format_daily_digest",
+          "callee": "_find_alerts",
+          "lineNumber": 221
+        },
+        {
+          "caller": "format_daily_digest",
+          "callee": "lines.append",
+          "lineNumber": 223
+        },
+        {
+          "caller": "format_daily_digest",
+          "callee": "lines.append",
+          "lineNumber": 224
+        },
+        {
+          "caller": "format_daily_digest",
+          "callee": "lines.append",
+          "lineNumber": 226
+        },
+        {
+          "caller": "format_daily_digest",
+          "callee": "_find_winner",
+          "lineNumber": 229
+        },
+        {
+          "caller": "format_daily_digest",
+          "callee": "lines.append",
+          "lineNumber": 231
+        },
+        {
+          "caller": "format_daily_digest",
+          "callee": "lines.append",
+          "lineNumber": 232
+        },
+        {
+          "caller": "format_daily_digest",
+          "callee": "winner.get",
+          "lineNumber": 232
+        },
+        {
+          "caller": "format_daily_digest",
+          "callee": "lines.extend",
+          "lineNumber": 234
+        },
+        {
+          "caller": "format_daily_digest",
+          "callee": "\"\\n\".join",
+          "lineNumber": 235
+        },
+        {
+          "caller": "format_weekly_digest",
+          "callee": "conn.get",
+          "lineNumber": 244
+        },
+        {
+          "caller": "format_weekly_digest",
+          "callee": "compute_delta",
+          "lineNumber": 245
+        },
+        {
+          "caller": "format_weekly_digest",
+          "callee": "date.today",
+          "lineNumber": 248
+        },
+        {
+          "caller": "format_weekly_digest",
+          "callee": "(today - timedelta(days=6)).strftime",
+          "lineNumber": 249
+        },
+        {
+          "caller": "format_weekly_digest",
+          "callee": "timedelta",
+          "lineNumber": 249
+        },
+        {
+          "caller": "format_weekly_digest",
+          "callee": "today.strftime",
+          "lineNumber": 250
+        },
+        {
+          "caller": "format_weekly_digest",
+          "callee": "fmt",
+          "lineNumber": 263
+        },
+        {
+          "caller": "format_weekly_digest",
+          "callee": "fmt",
+          "lineNumber": 264
+        },
+        {
+          "caller": "format_weekly_digest",
+          "callee": "lines.append",
+          "lineNumber": 267
+        },
+        {
+          "caller": "format_weekly_digest",
+          "callee": "abs",
+          "lineNumber": 267
+        },
+        {
+          "caller": "format_weekly_digest",
+          "callee": "lines.append",
+          "lineNumber": 269
+        },
+        {
+          "caller": "format_weekly_digest",
+          "callee": "lines.extend",
+          "lineNumber": 271
+        },
+        {
+          "caller": "format_weekly_digest",
+          "callee": "\"\\n\".join",
+          "lineNumber": 272
+        },
+        {
+          "caller": "fetch_quick_report",
+          "callee": "decrypt_token",
+          "lineNumber": 304
+        },
+        {
+          "caller": "fetch_quick_report",
+          "callee": "datetime.now(timezone.utc).date",
+          "lineNumber": 306
+        },
+        {
+          "caller": "fetch_quick_report",
+          "callee": "datetime.now",
+          "lineNumber": 306
+        },
+        {
+          "caller": "fetch_quick_report",
+          "callee": "get_account_insights",
+          "lineNumber": 311
+        },
+        {
+          "caller": "fetch_quick_report",
+          "callee": "get_account_insights",
+          "lineNumber": 313
+        },
+        {
+          "caller": "fetch_quick_report",
+          "callee": "(today - timedelta(days=2)).strftime",
+          "lineNumber": 318
+        },
+        {
+          "caller": "fetch_quick_report",
+          "callee": "timedelta",
+          "lineNumber": 318
+        },
+        {
+          "caller": "fetch_quick_report",
+          "callee": "(today - timedelta(days=1)).strftime",
+          "lineNumber": 319
+        },
+        {
+          "caller": "fetch_quick_report",
+          "callee": "timedelta",
+          "lineNumber": 319
+        },
+        {
+          "caller": "fetch_quick_report",
+          "callee": "get_account_insights_daily",
+          "lineNumber": 320
+        },
+        {
+          "caller": "fetch_quick_report",
+          "callee": "(today - timedelta(days=1)).strftime",
+          "lineNumber": 322
+        },
+        {
+          "caller": "fetch_quick_report",
+          "callee": "timedelta",
+          "lineNumber": 322
+        },
+        {
+          "caller": "fetch_quick_report",
+          "callee": "r.get",
+          "lineNumber": 323
+        },
+        {
+          "caller": "fetch_quick_report",
+          "callee": "r.get",
+          "lineNumber": 324
+        },
+        {
+          "caller": "fetch_quick_report",
+          "callee": "(today - timedelta(days=14)).strftime",
+          "lineNumber": 329
+        },
+        {
+          "caller": "fetch_quick_report",
+          "callee": "timedelta",
+          "lineNumber": 329
+        },
+        {
+          "caller": "fetch_quick_report",
+          "callee": "(today - timedelta(days=1)).strftime",
+          "lineNumber": 330
+        },
+        {
+          "caller": "fetch_quick_report",
+          "callee": "timedelta",
+          "lineNumber": 330
+        },
+        {
+          "caller": "fetch_quick_report",
+          "callee": "get_account_insights_daily",
+          "lineNumber": 331
+        },
+        {
+          "caller": "fetch_quick_report",
+          "callee": "(today - timedelta(days=7)).strftime",
+          "lineNumber": 333
+        },
+        {
+          "caller": "fetch_quick_report",
+          "callee": "timedelta",
+          "lineNumber": 333
+        },
+        {
+          "caller": "fetch_quick_report",
+          "callee": "r.get",
+          "lineNumber": 334
+        },
+        {
+          "caller": "fetch_quick_report",
+          "callee": "r.get",
+          "lineNumber": 335
+        },
+        {
+          "caller": "fetch_quick_report",
+          "callee": "compute_campaign_metrics",
+          "lineNumber": 337
+        },
+        {
+          "caller": "fetch_quick_report",
+          "callee": "compute_campaign_metrics",
+          "lineNumber": 337
+        },
+        {
+          "caller": "format_quick_report",
+          "callee": "conn.get",
+          "lineNumber": 343
+        },
+        {
+          "caller": "format_quick_report",
+          "callee": "compute_delta",
+          "lineNumber": 344
+        },
+        {
+          "caller": "format_quick_report",
+          "callee": "fmt",
+          "lineNumber": 357
+        },
+        {
+          "caller": "format_quick_report",
+          "callee": "abs",
+          "lineNumber": 360
+        },
+        {
+          "caller": "format_quick_report",
+          "callee": "lines.append",
+          "lineNumber": 363
+        },
+        {
+          "caller": "format_quick_report",
+          "callee": "lines.append",
+          "lineNumber": 366
+        },
+        {
+          "caller": "format_quick_report",
+          "callee": "lines.append",
+          "lineNumber": 369
+        },
+        {
+          "caller": "format_quick_report",
+          "callee": "lines.append",
+          "lineNumber": 370
+        },
+        {
+          "caller": "format_quick_report",
+          "callee": "lines.extend",
+          "lineNumber": 372
+        },
+        {
+          "caller": "format_quick_report",
+          "callee": "\"\\n\".join",
+          "lineNumber": 373
+        },
+        {
+          "caller": "ads_table_from_metrics",
+          "callee": "ad.get",
+          "lineNumber": 395
+        },
+        {
+          "caller": "ads_table_from_metrics",
+          "callee": "ad.get",
+          "lineNumber": 395
+        },
+        {
+          "caller": "ads_table_from_metrics",
+          "callee": "cells.append",
+          "lineNumber": 399
+        },
+        {
+          "caller": "ads_table_from_metrics",
+          "callee": "fmt",
+          "lineNumber": 399
+        },
+        {
+          "caller": "ads_table_from_metrics",
+          "callee": "ad.get",
+          "lineNumber": 399
+        },
+        {
+          "caller": "ads_table_from_metrics",
+          "callee": "cells.append",
+          "lineNumber": 401
+        },
+        {
+          "caller": "ads_table_from_metrics",
+          "callee": "str",
+          "lineNumber": 401
+        },
+        {
+          "caller": "ads_table_from_metrics",
+          "callee": "ad.get",
+          "lineNumber": 401
+        },
+        {
+          "caller": "ads_table_from_metrics",
+          "callee": "ad.get",
+          "lineNumber": 403
+        },
+        {
+          "caller": "ads_table_from_metrics",
+          "callee": "ad.get",
+          "lineNumber": 405
+        },
+        {
+          "caller": "ads_table_from_metrics",
+          "callee": "rows.append",
+          "lineNumber": 406
+        },
+        {
+          "caller": "_find_alerts",
+          "callee": "conn.get",
+          "lineNumber": 413
+        },
+        {
+          "caller": "_find_alerts",
+          "callee": "float",
+          "lineNumber": 416
+        },
+        {
+          "caller": "_find_alerts",
+          "callee": "c.get",
+          "lineNumber": 416
+        },
+        {
+          "caller": "_find_alerts",
+          "callee": "c.get",
+          "lineNumber": 417
+        },
+        {
+          "caller": "_find_alerts",
+          "callee": "alerts.append",
+          "lineNumber": 419
+        },
+        {
+          "caller": "_find_alerts",
+          "callee": "c.get",
+          "lineNumber": 422
+        },
+        {
+          "caller": "_find_alerts",
+          "callee": "alerts.append",
+          "lineNumber": 426
+        },
+        {
+          "caller": "_find_alerts",
+          "callee": "c.get",
+          "lineNumber": 429
+        },
+        {
+          "caller": "check_alerts",
+          "callee": "conn.get",
+          "lineNumber": 439
+        },
+        {
+          "caller": "check_alerts",
+          "callee": "conn.get",
+          "lineNumber": 440
+        },
+        {
+          "caller": "check_alerts",
+          "callee": "conn.get",
+          "lineNumber": 441
+        },
+        {
+          "caller": "check_alerts",
+          "callee": "c.get",
+          "lineNumber": 444
+        },
+        {
+          "caller": "check_alerts",
+          "callee": "c.get",
+          "lineNumber": 444
+        },
+        {
+          "caller": "check_alerts",
+          "callee": "c.get",
+          "lineNumber": 448
+        },
+        {
+          "caller": "check_alerts",
+          "callee": "c.get",
+          "lineNumber": 448
+        },
+        {
+          "caller": "check_alerts",
+          "callee": "c.get",
+          "lineNumber": 449
+        },
+        {
+          "caller": "check_alerts",
+          "callee": "prev_map.get",
+          "lineNumber": 450
+        },
+        {
+          "caller": "check_alerts",
+          "callee": "float",
+          "lineNumber": 452
+        },
+        {
+          "caller": "check_alerts",
+          "callee": "c.get",
+          "lineNumber": 452
+        },
+        {
+          "caller": "check_alerts",
+          "callee": "check_and_set_cooldown",
+          "lineNumber": 454
+        },
+        {
+          "caller": "check_alerts",
+          "callee": "max",
+          "lineNumber": 455
+        },
+        {
+          "caller": "check_alerts",
+          "callee": "round",
+          "lineNumber": 455
+        },
+        {
+          "caller": "check_alerts",
+          "callee": "max",
+          "lineNumber": 455
+        },
+        {
+          "caller": "check_alerts",
+          "callee": "triggered.append",
+          "lineNumber": 456
+        },
+        {
+          "caller": "check_alerts",
+          "callee": "float",
+          "lineNumber": 465
+        },
+        {
+          "caller": "check_alerts",
+          "callee": "c.get",
+          "lineNumber": 465
+        },
+        {
+          "caller": "check_alerts",
+          "callee": "float",
+          "lineNumber": 466
+        },
+        {
+          "caller": "check_alerts",
+          "callee": "prev.get",
+          "lineNumber": 466
+        },
+        {
+          "caller": "check_alerts",
+          "callee": "check_and_set_cooldown",
+          "lineNumber": 470
+        },
+        {
+          "caller": "check_alerts",
+          "callee": "triggered.append",
+          "lineNumber": 471
+        },
+        {
+          "caller": "check_alerts",
+          "callee": "float",
+          "lineNumber": 480
+        },
+        {
+          "caller": "check_alerts",
+          "callee": "c.get",
+          "lineNumber": 480
+        },
+        {
+          "caller": "check_alerts",
+          "callee": "float",
+          "lineNumber": 481
+        },
+        {
+          "caller": "check_alerts",
+          "callee": "prev.get",
+          "lineNumber": 481
+        },
+        {
+          "caller": "check_alerts",
+          "callee": "check_and_set_cooldown",
+          "lineNumber": 485
+        },
+        {
+          "caller": "check_alerts",
+          "callee": "triggered.append",
+          "lineNumber": 486
+        },
+        {
+          "caller": "_find_winner",
+          "callee": "float",
+          "lineNumber": 507
+        },
+        {
+          "caller": "_find_winner",
+          "callee": "c.get",
+          "lineNumber": 507
+        },
+        {
+          "caller": "_find_winner",
+          "callee": "max",
+          "lineNumber": 510
+        },
+        {
+          "caller": "_find_winner",
+          "callee": "float",
+          "lineNumber": 510
+        },
+        {
+          "caller": "_find_winner",
+          "callee": "c.get",
+          "lineNumber": 510
+        },
+        {
+          "caller": "send_message_safe",
+          "callee": "bot.send_message",
+          "lineNumber": 519
+        },
+        {
+          "caller": "send_message_safe",
+          "callee": "str(e).lower",
+          "lineNumber": 521
+        },
+        {
+          "caller": "send_message_safe",
+          "callee": "str",
+          "lineNumber": 521
+        },
+        {
+          "caller": "send_message_safe",
+          "callee": "logger.warning",
+          "lineNumber": 524
+        },
+        {
+          "caller": "send_message_safe",
+          "callee": "bot.send_message",
+          "lineNumber": 526
+        },
+        {
+          "caller": "send_message_safe",
+          "callee": "text.replace(\"*\", \"\").replace(\"_\", \"\").replace",
+          "lineNumber": 526
+        },
+        {
+          "caller": "send_message_safe",
+          "callee": "text.replace(\"*\", \"\").replace",
+          "lineNumber": 526
+        },
+        {
+          "caller": "send_message_safe",
+          "callee": "text.replace",
+          "lineNumber": 526
+        },
+        {
+          "caller": "send_message_safe",
+          "callee": "logger.warning",
+          "lineNumber": 528
+        },
+        {
+          "caller": "send_message_safe",
+          "callee": "logger.warning",
+          "lineNumber": 530
+        },
+        {
+          "caller": "send_message_safe",
+          "callee": "logger.warning",
+          "lineNumber": 532
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 16,
+        "functionCount": 16,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "services/ads_scheduler.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 228,
+      "nonEmptyLines": 173,
+      "functions": [
+        {
+          "name": "_should_fire",
+          "startLine": 25,
+          "endLine": 30,
+          "params": [
+            "job",
+            "slot_key"
+          ]
+        },
+        {
+          "name": "start_ads_scheduler",
+          "startLine": 33,
+          "endLine": 42,
+          "params": [
+            "bot"
+          ]
+        },
+        {
+          "name": "_tick",
+          "startLine": 45,
+          "endLine": 69,
+          "params": [
+            "bot"
+          ]
+        },
+        {
+          "name": "_run_daily_digest",
+          "startLine": 74,
+          "endLine": 98,
+          "params": [
+            "bot"
+          ]
+        },
+        {
+          "name": "_run_weekly_report",
+          "startLine": 103,
+          "endLine": 132,
+          "params": [
+            "bot"
+          ]
+        },
+        {
+          "name": "_run_alert_monitor",
+          "startLine": 137,
+          "endLine": 158,
+          "params": [
+            "bot"
+          ]
+        },
+        {
+          "name": "_run_token_refresh",
+          "startLine": 163,
+          "endLine": 176,
+          "params": [
+            "bot"
+          ]
+        },
+        {
+          "name": "_run_snapshot_backfill",
+          "startLine": 181,
+          "endLine": 203,
+          "params": []
+        },
+        {
+          "name": "_run_cleanup",
+          "startLine": 208,
+          "endLine": 211,
+          "params": []
+        },
+        {
+          "name": "_handle_token_revoked",
+          "startLine": 216,
+          "endLine": 228,
+          "params": [
+            "bot",
+            "conn"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "_should_fire",
+          "line": 25,
+          "isDefault": false
+        },
+        {
+          "name": "start_ads_scheduler",
+          "line": 33,
+          "isDefault": false
+        },
+        {
+          "name": "_tick",
+          "line": 45,
+          "isDefault": false
+        },
+        {
+          "name": "_run_daily_digest",
+          "line": 74,
+          "isDefault": false
+        },
+        {
+          "name": "_run_weekly_report",
+          "line": 103,
+          "isDefault": false
+        },
+        {
+          "name": "_run_alert_monitor",
+          "line": 137,
+          "isDefault": false
+        },
+        {
+          "name": "_run_token_refresh",
+          "line": 163,
+          "isDefault": false
+        },
+        {
+          "name": "_run_snapshot_backfill",
+          "line": 181,
+          "isDefault": false
+        },
+        {
+          "name": "_run_cleanup",
+          "line": 208,
+          "isDefault": false
+        },
+        {
+          "name": "_handle_token_revoked",
+          "line": 216,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "_should_fire",
+          "callee": "_last_fired.get",
+          "lineNumber": 27
+        },
+        {
+          "caller": "start_ads_scheduler",
+          "callee": "logger.info",
+          "lineNumber": 35
+        },
+        {
+          "caller": "start_ads_scheduler",
+          "callee": "asyncio.create_task",
+          "lineNumber": 36
+        },
+        {
+          "caller": "start_ads_scheduler",
+          "callee": "_run_snapshot_backfill",
+          "lineNumber": 36
+        },
+        {
+          "caller": "start_ads_scheduler",
+          "callee": "_tick",
+          "lineNumber": 39
+        },
+        {
+          "caller": "start_ads_scheduler",
+          "callee": "logger.error",
+          "lineNumber": 41
+        },
+        {
+          "caller": "start_ads_scheduler",
+          "callee": "asyncio.sleep",
+          "lineNumber": 42
+        },
+        {
+          "caller": "_tick",
+          "callee": "datetime.now",
+          "lineNumber": 47
+        },
+        {
+          "caller": "_tick",
+          "callee": "timedelta",
+          "lineNumber": 47
+        },
+        {
+          "caller": "_tick",
+          "callee": "now_vn.weekday",
+          "lineNumber": 48
+        },
+        {
+          "caller": "_tick",
+          "callee": "now_vn.strftime",
+          "lineNumber": 49
+        },
+        {
+          "caller": "_tick",
+          "callee": "now_vn.strftime",
+          "lineNumber": 50
+        },
+        {
+          "caller": "_tick",
+          "callee": "_should_fire",
+          "lineNumber": 53
+        },
+        {
+          "caller": "_tick",
+          "callee": "asyncio.create_task",
+          "lineNumber": 55
+        },
+        {
+          "caller": "_tick",
+          "callee": "_run_weekly_report",
+          "lineNumber": 55
+        },
+        {
+          "caller": "_tick",
+          "callee": "asyncio.create_task",
+          "lineNumber": 57
+        },
+        {
+          "caller": "_tick",
+          "callee": "_run_daily_digest",
+          "lineNumber": 57
+        },
+        {
+          "caller": "_tick",
+          "callee": "_should_fire",
+          "lineNumber": 60
+        },
+        {
+          "caller": "_tick",
+          "callee": "asyncio.create_task",
+          "lineNumber": 61
+        },
+        {
+          "caller": "_tick",
+          "callee": "_run_alert_monitor",
+          "lineNumber": 61
+        },
+        {
+          "caller": "_tick",
+          "callee": "_should_fire",
+          "lineNumber": 64
+        },
+        {
+          "caller": "_tick",
+          "callee": "asyncio.create_task",
+          "lineNumber": 65
+        },
+        {
+          "caller": "_tick",
+          "callee": "_run_token_refresh",
+          "lineNumber": 65
+        },
+        {
+          "caller": "_tick",
+          "callee": "_should_fire",
+          "lineNumber": 68
+        },
+        {
+          "caller": "_tick",
+          "callee": "asyncio.create_task",
+          "lineNumber": 69
+        },
+        {
+          "caller": "_tick",
+          "callee": "_run_cleanup",
+          "lineNumber": 69
+        },
+        {
+          "caller": "_run_daily_digest",
+          "callee": "logger.info",
+          "lineNumber": 78
+        },
+        {
+          "caller": "_run_daily_digest",
+          "callee": "get_all_active_connections",
+          "lineNumber": 79
+        },
+        {
+          "caller": "_run_daily_digest",
+          "callee": "(conn.get(\"account_name\") or \"Ads Account\").replace(\"*\", \"\").replace(\"_\", \"-\").replace(\"`\", \"'\").replace(\"[\", \"(\").replace",
+          "lineNumber": 83
+        },
+        {
+          "caller": "_run_daily_digest",
+          "callee": "(conn.get(\"account_name\") or \"Ads Account\").replace(\"*\", \"\").replace(\"_\", \"-\").replace(\"`\", \"'\").replace",
+          "lineNumber": 83
+        },
+        {
+          "caller": "_run_daily_digest",
+          "callee": "(conn.get(\"account_name\") or \"Ads Account\").replace(\"*\", \"\").replace(\"_\", \"-\").replace",
+          "lineNumber": 83
+        },
+        {
+          "caller": "_run_daily_digest",
+          "callee": "(conn.get(\"account_name\") or \"Ads Account\").replace(\"*\", \"\").replace",
+          "lineNumber": 83
+        },
+        {
+          "caller": "_run_daily_digest",
+          "callee": "(conn.get(\"account_name\") or \"Ads Account\").replace",
+          "lineNumber": 83
+        },
+        {
+          "caller": "_run_daily_digest",
+          "callee": "conn.get",
+          "lineNumber": 83
+        },
+        {
+          "caller": "_run_daily_digest",
+          "callee": "pull_and_snapshot",
+          "lineNumber": 85
+        },
+        {
+          "caller": "_run_daily_digest",
+          "callee": "timedelta",
+          "lineNumber": 88
+        },
+        {
+          "caller": "_run_daily_digest",
+          "callee": "get_snapshot",
+          "lineNumber": 89
+        },
+        {
+          "caller": "_run_daily_digest",
+          "callee": "compute_delta",
+          "lineNumber": 91
+        },
+        {
+          "caller": "_run_daily_digest",
+          "callee": "format_daily_digest",
+          "lineNumber": 92
+        },
+        {
+          "caller": "_run_daily_digest",
+          "callee": "send_message_safe",
+          "lineNumber": 93
+        },
+        {
+          "caller": "_run_daily_digest",
+          "callee": "logger.warning",
+          "lineNumber": 96
+        },
+        {
+          "caller": "_run_daily_digest",
+          "callee": "str",
+          "lineNumber": 97
+        },
+        {
+          "caller": "_run_daily_digest",
+          "callee": "str",
+          "lineNumber": 97
+        },
+        {
+          "caller": "_run_daily_digest",
+          "callee": "str",
+          "lineNumber": 97
+        },
+        {
+          "caller": "_run_daily_digest",
+          "callee": "_handle_token_revoked",
+          "lineNumber": 98
+        },
+        {
+          "caller": "_run_weekly_report",
+          "callee": "logger.info",
+          "lineNumber": 107
+        },
+        {
+          "caller": "_run_weekly_report",
+          "callee": "get_all_active_connections",
+          "lineNumber": 108
+        },
+        {
+          "caller": "_run_weekly_report",
+          "callee": "date.today",
+          "lineNumber": 109
+        },
+        {
+          "caller": "_run_weekly_report",
+          "callee": "(conn.get(\"account_name\") or \"Ads Account\").replace(\"*\", \"\").replace(\"_\", \"-\").replace(\"`\", \"'\").replace(\"[\", \"(\").replace",
+          "lineNumber": 113
+        },
+        {
+          "caller": "_run_weekly_report",
+          "callee": "(conn.get(\"account_name\") or \"Ads Account\").replace(\"*\", \"\").replace(\"_\", \"-\").replace(\"`\", \"'\").replace",
+          "lineNumber": 113
+        },
+        {
+          "caller": "_run_weekly_report",
+          "callee": "(conn.get(\"account_name\") or \"Ads Account\").replace(\"*\", \"\").replace(\"_\", \"-\").replace",
+          "lineNumber": 113
+        },
+        {
+          "caller": "_run_weekly_report",
+          "callee": "(conn.get(\"account_name\") or \"Ads Account\").replace(\"*\", \"\").replace",
+          "lineNumber": 113
+        },
+        {
+          "caller": "_run_weekly_report",
+          "callee": "(conn.get(\"account_name\") or \"Ads Account\").replace",
+          "lineNumber": 113
+        },
+        {
+          "caller": "_run_weekly_report",
+          "callee": "conn.get",
+          "lineNumber": 113
+        },
+        {
+          "caller": "_run_weekly_report",
+          "callee": "pull_and_snapshot",
+          "lineNumber": 115
+        },
+        {
+          "caller": "_run_weekly_report",
+          "callee": "datetime.combine(today - timedelta(days=6), datetime.min.time()).replace",
+          "lineNumber": 118
+        },
+        {
+          "caller": "_run_weekly_report",
+          "callee": "datetime.combine",
+          "lineNumber": 118
+        },
+        {
+          "caller": "_run_weekly_report",
+          "callee": "timedelta",
+          "lineNumber": 118
+        },
+        {
+          "caller": "_run_weekly_report",
+          "callee": "datetime.min.time",
+          "lineNumber": 118
+        },
+        {
+          "caller": "_run_weekly_report",
+          "callee": "datetime.now",
+          "lineNumber": 119
+        },
+        {
+          "caller": "_run_weekly_report",
+          "callee": "timedelta",
+          "lineNumber": 120
+        },
+        {
+          "caller": "_run_weekly_report",
+          "callee": "timedelta",
+          "lineNumber": 121
+        },
+        {
+          "caller": "_run_weekly_report",
+          "callee": "get_snapshots_range",
+          "lineNumber": 123
+        },
+        {
+          "caller": "_run_weekly_report",
+          "callee": "get_snapshots_range",
+          "lineNumber": 124
+        },
+        {
+          "caller": "_run_weekly_report",
+          "callee": "format_weekly_digest",
+          "lineNumber": 126
+        },
+        {
+          "caller": "_run_weekly_report",
+          "callee": "send_message_safe",
+          "lineNumber": 127
+        },
+        {
+          "caller": "_run_weekly_report",
+          "callee": "logger.warning",
+          "lineNumber": 130
+        },
+        {
+          "caller": "_run_weekly_report",
+          "callee": "str",
+          "lineNumber": 131
+        },
+        {
+          "caller": "_run_weekly_report",
+          "callee": "str",
+          "lineNumber": 131
+        },
+        {
+          "caller": "_run_weekly_report",
+          "callee": "_handle_token_revoked",
+          "lineNumber": 132
+        },
+        {
+          "caller": "_run_alert_monitor",
+          "callee": "logger.info",
+          "lineNumber": 141
+        },
+        {
+          "caller": "_run_alert_monitor",
+          "callee": "get_all_active_connections",
+          "lineNumber": 142
+        },
+        {
+          "caller": "_run_alert_monitor",
+          "callee": "(conn.get(\"account_name\") or \"Ads Account\").replace(\"*\", \"\").replace(\"_\", \"-\").replace(\"`\", \"'\").replace(\"[\", \"(\").replace",
+          "lineNumber": 146
+        },
+        {
+          "caller": "_run_alert_monitor",
+          "callee": "(conn.get(\"account_name\") or \"Ads Account\").replace(\"*\", \"\").replace(\"_\", \"-\").replace(\"`\", \"'\").replace",
+          "lineNumber": 146
+        },
+        {
+          "caller": "_run_alert_monitor",
+          "callee": "(conn.get(\"account_name\") or \"Ads Account\").replace(\"*\", \"\").replace(\"_\", \"-\").replace",
+          "lineNumber": 146
+        },
+        {
+          "caller": "_run_alert_monitor",
+          "callee": "(conn.get(\"account_name\") or \"Ads Account\").replace(\"*\", \"\").replace",
+          "lineNumber": 146
+        },
+        {
+          "caller": "_run_alert_monitor",
+          "callee": "(conn.get(\"account_name\") or \"Ads Account\").replace",
+          "lineNumber": 146
+        },
+        {
+          "caller": "_run_alert_monitor",
+          "callee": "conn.get",
+          "lineNumber": 146
+        },
+        {
+          "caller": "_run_alert_monitor",
+          "callee": "pull_and_snapshot",
+          "lineNumber": 148
+        },
+        {
+          "caller": "_run_alert_monitor",
+          "callee": "timedelta",
+          "lineNumber": 149
+        },
+        {
+          "caller": "_run_alert_monitor",
+          "callee": "get_snapshot",
+          "lineNumber": 150
+        },
+        {
+          "caller": "_run_alert_monitor",
+          "callee": "check_alerts",
+          "lineNumber": 152
+        },
+        {
+          "caller": "_run_alert_monitor",
+          "callee": "format_alert",
+          "lineNumber": 154
+        },
+        {
+          "caller": "_run_alert_monitor",
+          "callee": "send_message_safe",
+          "lineNumber": 155
+        },
+        {
+          "caller": "_run_alert_monitor",
+          "callee": "logger.warning",
+          "lineNumber": 158
+        },
+        {
+          "caller": "_run_token_refresh",
+          "callee": "logger.info",
+          "lineNumber": 167
+        },
+        {
+          "caller": "_run_token_refresh",
+          "callee": "get_all_active_connections",
+          "lineNumber": 168
+        },
+        {
+          "caller": "_run_token_refresh",
+          "callee": "refresh_token_if_needed",
+          "lineNumber": 172
+        },
+        {
+          "caller": "_run_token_refresh",
+          "callee": "_handle_token_revoked",
+          "lineNumber": 174
+        },
+        {
+          "caller": "_run_token_refresh",
+          "callee": "logger.warning",
+          "lineNumber": 176
+        },
+        {
+          "caller": "_run_snapshot_backfill",
+          "callee": "logger.info",
+          "lineNumber": 195
+        },
+        {
+          "caller": "_run_snapshot_backfill",
+          "callee": "get_all_active_connections",
+          "lineNumber": 196
+        },
+        {
+          "caller": "_run_snapshot_backfill",
+          "callee": "backfill_snapshots",
+          "lineNumber": 200
+        },
+        {
+          "caller": "_run_snapshot_backfill",
+          "callee": "logger.info",
+          "lineNumber": 201
+        },
+        {
+          "caller": "_run_snapshot_backfill",
+          "callee": "logger.warning",
+          "lineNumber": 203
+        },
+        {
+          "caller": "_run_cleanup",
+          "callee": "cleanup_old_snapshots",
+          "lineNumber": 210
+        },
+        {
+          "caller": "_run_cleanup",
+          "callee": "logger.info",
+          "lineNumber": 211
+        },
+        {
+          "caller": "_handle_token_revoked",
+          "callee": "disable_connection",
+          "lineNumber": 221
+        },
+        {
+          "caller": "_handle_token_revoked",
+          "callee": "send_message_safe",
+          "lineNumber": 222
+        },
+        {
+          "caller": "_handle_token_revoked",
+          "callee": "logger.info",
+          "lineNumber": 228
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 10,
+        "functionCount": 10,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "storage/fb_connections.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 336,
+      "nonEmptyLines": 283,
+      "functions": [
+        {
+          "name": "_now",
+          "startLine": 14,
+          "endLine": 15,
+          "params": []
+        },
+        {
+          "name": "_client",
+          "startLine": 18,
+          "endLine": 21,
+          "params": []
+        },
+        {
+          "name": "save_connection",
+          "startLine": 26,
+          "endLine": 57,
+          "params": [
+            "user_id",
+            "encrypted_token",
+            "ad_account_id",
+            "account_name",
+            "expires_at",
+            "available_accounts"
+          ]
+        },
+        {
+          "name": "update_active_account",
+          "startLine": 60,
+          "endLine": 68,
+          "params": [
+            "user_id",
+            "account_id",
+            "account_name"
+          ]
+        },
+        {
+          "name": "get_available_accounts",
+          "startLine": 71,
+          "endLine": 85,
+          "params": [
+            "user_id"
+          ]
+        },
+        {
+          "name": "get_connection",
+          "startLine": 88,
+          "endLine": 96,
+          "params": [
+            "user_id"
+          ]
+        },
+        {
+          "name": "get_all_active_connections",
+          "startLine": 99,
+          "endLine": 108,
+          "params": []
+        },
+        {
+          "name": "update_last_pull",
+          "startLine": 111,
+          "endLine": 117,
+          "params": [
+            "user_id"
+          ]
+        },
+        {
+          "name": "update_token",
+          "startLine": 120,
+          "endLine": 127,
+          "params": [
+            "user_id",
+            "encrypted_token",
+            "expires_at"
+          ]
+        },
+        {
+          "name": "update_notification_settings",
+          "startLine": 130,
+          "endLine": 142,
+          "params": [
+            "user_id",
+            "**kwargs"
+          ]
+        },
+        {
+          "name": "delete_connection",
+          "startLine": 145,
+          "endLine": 149,
+          "params": [
+            "user_id"
+          ]
+        },
+        {
+          "name": "disable_connection",
+          "startLine": 152,
+          "endLine": 159,
+          "params": [
+            "user_id"
+          ]
+        },
+        {
+          "name": "save_oauth_state",
+          "startLine": 164,
+          "endLine": 173,
+          "params": [
+            "state_token",
+            "user_id"
+          ]
+        },
+        {
+          "name": "consume_oauth_state",
+          "startLine": 176,
+          "endLine": 194,
+          "params": [
+            "state_token"
+          ]
+        },
+        {
+          "name": "compute_campaign_metrics",
+          "startLine": 199,
+          "endLine": 230,
+          "params": [
+            "c"
+          ]
+        },
+        {
+          "name": "save_snapshot",
+          "startLine": 233,
+          "endLine": 247,
+          "params": [
+            "user_id",
+            "date",
+            "campaigns"
+          ]
+        },
+        {
+          "name": "_extract_action",
+          "startLine": 250,
+          "endLine": 256,
+          "params": [
+            "campaign",
+            "action_type"
+          ]
+        },
+        {
+          "name": "_extract_action_value",
+          "startLine": 259,
+          "endLine": 266,
+          "params": [
+            "campaign",
+            "action_type"
+          ]
+        },
+        {
+          "name": "get_snapshot",
+          "startLine": 269,
+          "endLine": 278,
+          "params": [
+            "user_id",
+            "date"
+          ]
+        },
+        {
+          "name": "get_snapshots_range",
+          "startLine": 281,
+          "endLine": 294,
+          "params": [
+            "user_id",
+            "start",
+            "end"
+          ]
+        },
+        {
+          "name": "cleanup_old_snapshots",
+          "startLine": 297,
+          "endLine": 304,
+          "params": []
+        },
+        {
+          "name": "check_and_set_cooldown",
+          "startLine": 309,
+          "endLine": 336,
+          "params": [
+            "user_id",
+            "campaign_id",
+            "alert_type"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "_now",
+          "line": 14,
+          "isDefault": false
+        },
+        {
+          "name": "_client",
+          "line": 18,
+          "isDefault": false
+        },
+        {
+          "name": "save_connection",
+          "line": 26,
+          "isDefault": false
+        },
+        {
+          "name": "update_active_account",
+          "line": 60,
+          "isDefault": false
+        },
+        {
+          "name": "get_available_accounts",
+          "line": 71,
+          "isDefault": false
+        },
+        {
+          "name": "get_connection",
+          "line": 88,
+          "isDefault": false
+        },
+        {
+          "name": "get_all_active_connections",
+          "line": 99,
+          "isDefault": false
+        },
+        {
+          "name": "update_last_pull",
+          "line": 111,
+          "isDefault": false
+        },
+        {
+          "name": "update_token",
+          "line": 120,
+          "isDefault": false
+        },
+        {
+          "name": "update_notification_settings",
+          "line": 130,
+          "isDefault": false
+        },
+        {
+          "name": "delete_connection",
+          "line": 145,
+          "isDefault": false
+        },
+        {
+          "name": "disable_connection",
+          "line": 152,
+          "isDefault": false
+        },
+        {
+          "name": "save_oauth_state",
+          "line": 164,
+          "isDefault": false
+        },
+        {
+          "name": "consume_oauth_state",
+          "line": 176,
+          "isDefault": false
+        },
+        {
+          "name": "compute_campaign_metrics",
+          "line": 199,
+          "isDefault": false
+        },
+        {
+          "name": "save_snapshot",
+          "line": 233,
+          "isDefault": false
+        },
+        {
+          "name": "_extract_action",
+          "line": 250,
+          "isDefault": false
+        },
+        {
+          "name": "_extract_action_value",
+          "line": 259,
+          "isDefault": false
+        },
+        {
+          "name": "get_snapshot",
+          "line": 269,
+          "isDefault": false
+        },
+        {
+          "name": "get_snapshots_range",
+          "line": 281,
+          "isDefault": false
+        },
+        {
+          "name": "cleanup_old_snapshots",
+          "line": 297,
+          "isDefault": false
+        },
+        {
+          "name": "check_and_set_cooldown",
+          "line": 309,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "_now",
+          "callee": "datetime.now",
+          "lineNumber": 15
+        },
+        {
+          "caller": "save_connection",
+          "callee": "_client",
+          "lineNumber": 35
+        },
+        {
+          "caller": "save_connection",
+          "callee": "logger.warning",
+          "lineNumber": 37
+        },
+        {
+          "caller": "save_connection",
+          "callee": "expires_at.isoformat",
+          "lineNumber": 44
+        },
+        {
+          "caller": "save_connection",
+          "callee": "_now().isoformat",
+          "lineNumber": 45
+        },
+        {
+          "caller": "save_connection",
+          "callee": "_now",
+          "lineNumber": 45
+        },
+        {
+          "caller": "save_connection",
+          "callee": "json.dumps",
+          "lineNumber": 49
+        },
+        {
+          "caller": "save_connection",
+          "callee": "a.get",
+          "lineNumber": 51
+        },
+        {
+          "caller": "save_connection",
+          "callee": "a.get",
+          "lineNumber": 51
+        },
+        {
+          "caller": "save_connection",
+          "callee": "a.get",
+          "lineNumber": 52
+        },
+        {
+          "caller": "save_connection",
+          "callee": "a.get",
+          "lineNumber": 53
+        },
+        {
+          "caller": "save_connection",
+          "callee": "client.table(\"user_fb_connections\").upsert(payload, on_conflict=\"user_id\").execute",
+          "lineNumber": 57
+        },
+        {
+          "caller": "save_connection",
+          "callee": "client.table(\"user_fb_connections\").upsert",
+          "lineNumber": 57
+        },
+        {
+          "caller": "save_connection",
+          "callee": "client.table",
+          "lineNumber": 57
+        },
+        {
+          "caller": "update_active_account",
+          "callee": "_client",
+          "lineNumber": 62
+        },
+        {
+          "caller": "update_active_account",
+          "callee": "client.table(\"user_fb_connections\").update({\n        \"ad_account_id\": account_id,\n        \"account_name\":  account_name,\n    }).eq(\"user_id\", user_id).execute",
+          "lineNumber": 65
+        },
+        {
+          "caller": "update_active_account",
+          "callee": "client.table(\"user_fb_connections\").update({\n        \"ad_account_id\": account_id,\n        \"account_name\":  account_name,\n    }).eq",
+          "lineNumber": 65
+        },
+        {
+          "caller": "update_active_account",
+          "callee": "client.table(\"user_fb_connections\").update",
+          "lineNumber": 65
+        },
+        {
+          "caller": "update_active_account",
+          "callee": "client.table",
+          "lineNumber": 65
+        },
+        {
+          "caller": "get_available_accounts",
+          "callee": "get_connection",
+          "lineNumber": 74
+        },
+        {
+          "caller": "get_available_accounts",
+          "callee": "conn.get",
+          "lineNumber": 77
+        },
+        {
+          "caller": "get_available_accounts",
+          "callee": "isinstance",
+          "lineNumber": 80
+        },
+        {
+          "caller": "get_available_accounts",
+          "callee": "json.loads",
+          "lineNumber": 82
+        },
+        {
+          "caller": "get_available_accounts",
+          "callee": "isinstance",
+          "lineNumber": 85
+        },
+        {
+          "caller": "get_connection",
+          "callee": "_client",
+          "lineNumber": 89
+        },
+        {
+          "caller": "get_connection",
+          "callee": "client.table(\"user_fb_connections\")\n        .select(\"*\").eq(\"user_id\", user_id).limit(1).execute",
+          "lineNumber": 93
+        },
+        {
+          "caller": "get_connection",
+          "callee": "client.table(\"user_fb_connections\")\n        .select(\"*\").eq(\"user_id\", user_id).limit",
+          "lineNumber": 93
+        },
+        {
+          "caller": "get_connection",
+          "callee": "client.table(\"user_fb_connections\")\n        .select(\"*\").eq",
+          "lineNumber": 93
+        },
+        {
+          "caller": "get_connection",
+          "callee": "client.table(\"user_fb_connections\")\n        .select",
+          "lineNumber": 93
+        },
+        {
+          "caller": "get_connection",
+          "callee": "client.table",
+          "lineNumber": 93
+        },
+        {
+          "caller": "get_all_active_connections",
+          "callee": "_client",
+          "lineNumber": 101
+        },
+        {
+          "caller": "get_all_active_connections",
+          "callee": "client.table(\"user_fb_connections\")\n        .select(\"*\").eq(\"notification_enabled\", True).execute",
+          "lineNumber": 105
+        },
+        {
+          "caller": "get_all_active_connections",
+          "callee": "client.table(\"user_fb_connections\")\n        .select(\"*\").eq",
+          "lineNumber": 105
+        },
+        {
+          "caller": "get_all_active_connections",
+          "callee": "client.table(\"user_fb_connections\")\n        .select",
+          "lineNumber": 105
+        },
+        {
+          "caller": "get_all_active_connections",
+          "callee": "client.table",
+          "lineNumber": 105
+        },
+        {
+          "caller": "update_last_pull",
+          "callee": "_client",
+          "lineNumber": 112
+        },
+        {
+          "caller": "update_last_pull",
+          "callee": "client.table(\"user_fb_connections\").update({\n        \"last_pull_at\": _now().isoformat()\n    }).eq(\"user_id\", user_id).execute",
+          "lineNumber": 115
+        },
+        {
+          "caller": "update_last_pull",
+          "callee": "client.table(\"user_fb_connections\").update({\n        \"last_pull_at\": _now().isoformat()\n    }).eq",
+          "lineNumber": 115
+        },
+        {
+          "caller": "update_last_pull",
+          "callee": "client.table(\"user_fb_connections\").update",
+          "lineNumber": 115
+        },
+        {
+          "caller": "update_last_pull",
+          "callee": "client.table",
+          "lineNumber": 115
+        },
+        {
+          "caller": "update_last_pull",
+          "callee": "_now().isoformat",
+          "lineNumber": 116
+        },
+        {
+          "caller": "update_last_pull",
+          "callee": "_now",
+          "lineNumber": 116
+        },
+        {
+          "caller": "update_token",
+          "callee": "_client",
+          "lineNumber": 121
+        },
+        {
+          "caller": "update_token",
+          "callee": "client.table(\"user_fb_connections\").update({\n        \"encrypted_token\": encrypted_token,\n        \"expires_at\":      expires_at.isoformat(),\n    }).eq(\"user_id\", user_id).execute",
+          "lineNumber": 124
+        },
+        {
+          "caller": "update_token",
+          "callee": "client.table(\"user_fb_connections\").update({\n        \"encrypted_token\": encrypted_token,\n        \"expires_at\":      expires_at.isoformat(),\n    }).eq",
+          "lineNumber": 124
+        },
+        {
+          "caller": "update_token",
+          "callee": "client.table(\"user_fb_connections\").update",
+          "lineNumber": 124
+        },
+        {
+          "caller": "update_token",
+          "callee": "client.table",
+          "lineNumber": 124
+        },
+        {
+          "caller": "update_token",
+          "callee": "expires_at.isoformat",
+          "lineNumber": 126
+        },
+        {
+          "caller": "update_notification_settings",
+          "callee": "kwargs.items",
+          "lineNumber": 136
+        },
+        {
+          "caller": "update_notification_settings",
+          "callee": "_client",
+          "lineNumber": 139
+        },
+        {
+          "caller": "update_notification_settings",
+          "callee": "client.table(\"user_fb_connections\").update(payload).eq(\"user_id\", user_id).execute",
+          "lineNumber": 142
+        },
+        {
+          "caller": "update_notification_settings",
+          "callee": "client.table(\"user_fb_connections\").update(payload).eq",
+          "lineNumber": 142
+        },
+        {
+          "caller": "update_notification_settings",
+          "callee": "client.table(\"user_fb_connections\").update",
+          "lineNumber": 142
+        },
+        {
+          "caller": "update_notification_settings",
+          "callee": "client.table",
+          "lineNumber": 142
+        },
+        {
+          "caller": "delete_connection",
+          "callee": "_client",
+          "lineNumber": 146
+        },
+        {
+          "caller": "delete_connection",
+          "callee": "client.table(\"user_fb_connections\").delete().eq(\"user_id\", user_id).execute",
+          "lineNumber": 149
+        },
+        {
+          "caller": "delete_connection",
+          "callee": "client.table(\"user_fb_connections\").delete().eq",
+          "lineNumber": 149
+        },
+        {
+          "caller": "delete_connection",
+          "callee": "client.table(\"user_fb_connections\").delete",
+          "lineNumber": 149
+        },
+        {
+          "caller": "delete_connection",
+          "callee": "client.table",
+          "lineNumber": 149
+        },
+        {
+          "caller": "disable_connection",
+          "callee": "_client",
+          "lineNumber": 154
+        },
+        {
+          "caller": "disable_connection",
+          "callee": "client.table(\"user_fb_connections\").update({\n        \"notification_enabled\": False\n    }).eq(\"user_id\", user_id).execute",
+          "lineNumber": 157
+        },
+        {
+          "caller": "disable_connection",
+          "callee": "client.table(\"user_fb_connections\").update({\n        \"notification_enabled\": False\n    }).eq",
+          "lineNumber": 157
+        },
+        {
+          "caller": "disable_connection",
+          "callee": "client.table(\"user_fb_connections\").update",
+          "lineNumber": 157
+        },
+        {
+          "caller": "disable_connection",
+          "callee": "client.table",
+          "lineNumber": 157
+        },
+        {
+          "caller": "save_oauth_state",
+          "callee": "_client",
+          "lineNumber": 165
+        },
+        {
+          "caller": "save_oauth_state",
+          "callee": "_now",
+          "lineNumber": 168
+        },
+        {
+          "caller": "save_oauth_state",
+          "callee": "timedelta",
+          "lineNumber": 168
+        },
+        {
+          "caller": "save_oauth_state",
+          "callee": "client.table(\"oauth_states\").upsert({\n        \"state_token\": state_token,\n        \"user_id\":     user_id,\n        \"expires_at\":  expires.isoformat(),\n    }).execute",
+          "lineNumber": 169
+        },
+        {
+          "caller": "save_oauth_state",
+          "callee": "client.table(\"oauth_states\").upsert",
+          "lineNumber": 169
+        },
+        {
+          "caller": "save_oauth_state",
+          "callee": "client.table",
+          "lineNumber": 169
+        },
+        {
+          "caller": "save_oauth_state",
+          "callee": "expires.isoformat",
+          "lineNumber": 172
+        },
+        {
+          "caller": "consume_oauth_state",
+          "callee": "_client",
+          "lineNumber": 178
+        },
+        {
+          "caller": "consume_oauth_state",
+          "callee": "client.table(\"oauth_states\")\n        .select(\"*\").eq(\"state_token\", state_token).limit(1).execute",
+          "lineNumber": 182
+        },
+        {
+          "caller": "consume_oauth_state",
+          "callee": "client.table(\"oauth_states\")\n        .select(\"*\").eq(\"state_token\", state_token).limit",
+          "lineNumber": 182
+        },
+        {
+          "caller": "consume_oauth_state",
+          "callee": "client.table(\"oauth_states\")\n        .select(\"*\").eq",
+          "lineNumber": 182
+        },
+        {
+          "caller": "consume_oauth_state",
+          "callee": "client.table(\"oauth_states\")\n        .select",
+          "lineNumber": 182
+        },
+        {
+          "caller": "consume_oauth_state",
+          "callee": "client.table",
+          "lineNumber": 182
+        },
+        {
+          "caller": "consume_oauth_state",
+          "callee": "client.table(\"oauth_states\").delete().eq(\"state_token\", state_token).execute",
+          "lineNumber": 188
+        },
+        {
+          "caller": "consume_oauth_state",
+          "callee": "client.table(\"oauth_states\").delete().eq",
+          "lineNumber": 188
+        },
+        {
+          "caller": "consume_oauth_state",
+          "callee": "client.table(\"oauth_states\").delete",
+          "lineNumber": 188
+        },
+        {
+          "caller": "consume_oauth_state",
+          "callee": "client.table",
+          "lineNumber": 188
+        },
+        {
+          "caller": "consume_oauth_state",
+          "callee": "datetime.fromisoformat",
+          "lineNumber": 189
+        },
+        {
+          "caller": "consume_oauth_state",
+          "callee": "expires.replace",
+          "lineNumber": 191
+        },
+        {
+          "caller": "consume_oauth_state",
+          "callee": "_now",
+          "lineNumber": 192
+        },
+        {
+          "caller": "compute_campaign_metrics",
+          "callee": "float",
+          "lineNumber": 206
+        },
+        {
+          "caller": "compute_campaign_metrics",
+          "callee": "c.get",
+          "lineNumber": 206
+        },
+        {
+          "caller": "compute_campaign_metrics",
+          "callee": "float",
+          "lineNumber": 207
+        },
+        {
+          "caller": "compute_campaign_metrics",
+          "callee": "c.get",
+          "lineNumber": 207
+        },
+        {
+          "caller": "compute_campaign_metrics",
+          "callee": "_extract_action",
+          "lineNumber": 208
+        },
+        {
+          "caller": "compute_campaign_metrics",
+          "callee": "_extract_action",
+          "lineNumber": 209
+        },
+        {
+          "caller": "compute_campaign_metrics",
+          "callee": "_extract_action_value",
+          "lineNumber": 210
+        },
+        {
+          "caller": "compute_campaign_metrics",
+          "callee": "_extract_action",
+          "lineNumber": 211
+        },
+        {
+          "caller": "compute_campaign_metrics",
+          "callee": "c.get",
+          "lineNumber": 214
+        },
+        {
+          "caller": "compute_campaign_metrics",
+          "callee": "c.get",
+          "lineNumber": 214
+        },
+        {
+          "caller": "compute_campaign_metrics",
+          "callee": "c.get",
+          "lineNumber": 215
+        },
+        {
+          "caller": "compute_campaign_metrics",
+          "callee": "float",
+          "lineNumber": 218
+        },
+        {
+          "caller": "compute_campaign_metrics",
+          "callee": "c.get",
+          "lineNumber": 218
+        },
+        {
+          "caller": "compute_campaign_metrics",
+          "callee": "float",
+          "lineNumber": 219
+        },
+        {
+          "caller": "compute_campaign_metrics",
+          "callee": "c.get",
+          "lineNumber": 219
+        },
+        {
+          "caller": "compute_campaign_metrics",
+          "callee": "float",
+          "lineNumber": 220
+        },
+        {
+          "caller": "compute_campaign_metrics",
+          "callee": "c.get",
+          "lineNumber": 220
+        },
+        {
+          "caller": "compute_campaign_metrics",
+          "callee": "float",
+          "lineNumber": 221
+        },
+        {
+          "caller": "compute_campaign_metrics",
+          "callee": "c.get",
+          "lineNumber": 221
+        },
+        {
+          "caller": "compute_campaign_metrics",
+          "callee": "float",
+          "lineNumber": 222
+        },
+        {
+          "caller": "compute_campaign_metrics",
+          "callee": "c.get",
+          "lineNumber": 222
+        },
+        {
+          "caller": "compute_campaign_metrics",
+          "callee": "round",
+          "lineNumber": 227
+        },
+        {
+          "caller": "compute_campaign_metrics",
+          "callee": "round",
+          "lineNumber": 228
+        },
+        {
+          "caller": "compute_campaign_metrics",
+          "callee": "round",
+          "lineNumber": 229
+        },
+        {
+          "caller": "save_snapshot",
+          "callee": "_client",
+          "lineNumber": 240
+        },
+        {
+          "caller": "save_snapshot",
+          "callee": "date.strftime",
+          "lineNumber": 241
+        },
+        {
+          "caller": "save_snapshot",
+          "callee": "compute_campaign_metrics",
+          "lineNumber": 242
+        },
+        {
+          "caller": "save_snapshot",
+          "callee": "client.table(\"ads_snapshots\").upsert(\n            rows, on_conflict=\"user_id,snapshot_date,campaign_id\"\n        ).execute",
+          "lineNumber": 244
+        },
+        {
+          "caller": "save_snapshot",
+          "callee": "client.table(\"ads_snapshots\").upsert",
+          "lineNumber": 244
+        },
+        {
+          "caller": "save_snapshot",
+          "callee": "client.table",
+          "lineNumber": 244
+        },
+        {
+          "caller": "_extract_action",
+          "callee": "campaign.get",
+          "lineNumber": 252
+        },
+        {
+          "caller": "_extract_action",
+          "callee": "a.get",
+          "lineNumber": 254
+        },
+        {
+          "caller": "_extract_action",
+          "callee": "float",
+          "lineNumber": 255
+        },
+        {
+          "caller": "_extract_action",
+          "callee": "a.get",
+          "lineNumber": 255
+        },
+        {
+          "caller": "_extract_action_value",
+          "callee": "campaign.get",
+          "lineNumber": 261
+        },
+        {
+          "caller": "_extract_action_value",
+          "callee": "isinstance",
+          "lineNumber": 262
+        },
+        {
+          "caller": "_extract_action_value",
+          "callee": "a.get",
+          "lineNumber": 264
+        },
+        {
+          "caller": "_extract_action_value",
+          "callee": "float",
+          "lineNumber": 265
+        },
+        {
+          "caller": "_extract_action_value",
+          "callee": "a.get",
+          "lineNumber": 265
+        },
+        {
+          "caller": "get_snapshot",
+          "callee": "_client",
+          "lineNumber": 270
+        },
+        {
+          "caller": "get_snapshot",
+          "callee": "date.strftime",
+          "lineNumber": 273
+        },
+        {
+          "caller": "get_snapshot",
+          "callee": "client.table(\"ads_snapshots\")\n        .select(\"*\").eq(\"user_id\", user_id).eq(\"snapshot_date\", date_str).execute",
+          "lineNumber": 275
+        },
+        {
+          "caller": "get_snapshot",
+          "callee": "client.table(\"ads_snapshots\")\n        .select(\"*\").eq(\"user_id\", user_id).eq",
+          "lineNumber": 275
+        },
+        {
+          "caller": "get_snapshot",
+          "callee": "client.table(\"ads_snapshots\")\n        .select(\"*\").eq",
+          "lineNumber": 275
+        },
+        {
+          "caller": "get_snapshot",
+          "callee": "client.table(\"ads_snapshots\")\n        .select",
+          "lineNumber": 275
+        },
+        {
+          "caller": "get_snapshot",
+          "callee": "client.table",
+          "lineNumber": 275
+        },
+        {
+          "caller": "get_snapshots_range",
+          "callee": "_client",
+          "lineNumber": 283
+        },
+        {
+          "caller": "get_snapshots_range",
+          "callee": "client.table(\"ads_snapshots\")\n        .select(\"*\")\n        .eq(\"user_id\", user_id)\n        .gte(\"snapshot_date\", start.strftime(\"%Y-%m-%d\"))\n        .lte(\"snapshot_date\", end.strftime(\"%Y-%m-%d\"))\n        .execute",
+          "lineNumber": 287
+        },
+        {
+          "caller": "get_snapshots_range",
+          "callee": "client.table(\"ads_snapshots\")\n        .select(\"*\")\n        .eq(\"user_id\", user_id)\n        .gte(\"snapshot_date\", start.strftime(\"%Y-%m-%d\"))\n        .lte",
+          "lineNumber": 287
+        },
+        {
+          "caller": "get_snapshots_range",
+          "callee": "client.table(\"ads_snapshots\")\n        .select(\"*\")\n        .eq(\"user_id\", user_id)\n        .gte",
+          "lineNumber": 287
+        },
+        {
+          "caller": "get_snapshots_range",
+          "callee": "client.table(\"ads_snapshots\")\n        .select(\"*\")\n        .eq",
+          "lineNumber": 287
+        },
+        {
+          "caller": "get_snapshots_range",
+          "callee": "client.table(\"ads_snapshots\")\n        .select",
+          "lineNumber": 287
+        },
+        {
+          "caller": "get_snapshots_range",
+          "callee": "client.table",
+          "lineNumber": 287
+        },
+        {
+          "caller": "get_snapshots_range",
+          "callee": "start.strftime",
+          "lineNumber": 290
+        },
+        {
+          "caller": "get_snapshots_range",
+          "callee": "end.strftime",
+          "lineNumber": 291
+        },
+        {
+          "caller": "cleanup_old_snapshots",
+          "callee": "_client",
+          "lineNumber": 299
+        },
+        {
+          "caller": "cleanup_old_snapshots",
+          "callee": "(_now() - timedelta(days=90)).strftime",
+          "lineNumber": 302
+        },
+        {
+          "caller": "cleanup_old_snapshots",
+          "callee": "_now",
+          "lineNumber": 302
+        },
+        {
+          "caller": "cleanup_old_snapshots",
+          "callee": "timedelta",
+          "lineNumber": 302
+        },
+        {
+          "caller": "cleanup_old_snapshots",
+          "callee": "client.table(\"ads_snapshots\").delete().lt(\"snapshot_date\", cutoff).execute",
+          "lineNumber": 303
+        },
+        {
+          "caller": "cleanup_old_snapshots",
+          "callee": "client.table(\"ads_snapshots\").delete().lt",
+          "lineNumber": 303
+        },
+        {
+          "caller": "cleanup_old_snapshots",
+          "callee": "client.table(\"ads_snapshots\").delete",
+          "lineNumber": 303
+        },
+        {
+          "caller": "cleanup_old_snapshots",
+          "callee": "client.table",
+          "lineNumber": 303
+        },
+        {
+          "caller": "cleanup_old_snapshots",
+          "callee": "len",
+          "lineNumber": 304
+        },
+        {
+          "caller": "check_and_set_cooldown",
+          "callee": "_client",
+          "lineNumber": 312
+        },
+        {
+          "caller": "check_and_set_cooldown",
+          "callee": "client.table(\"ads_alert_cooldowns\")\n        .select(\"last_sent_at\")\n        .eq(\"user_id\", user_id)\n        .eq(\"campaign_id\", campaign_id)\n        .eq(\"alert_type\", alert_type)\n        .limit(1)\n        .execute",
+          "lineNumber": 316
+        },
+        {
+          "caller": "check_and_set_cooldown",
+          "callee": "client.table(\"ads_alert_cooldowns\")\n        .select(\"last_sent_at\")\n        .eq(\"user_id\", user_id)\n        .eq(\"campaign_id\", campaign_id)\n        .eq(\"alert_type\", alert_type)\n        .limit",
+          "lineNumber": 316
+        },
+        {
+          "caller": "check_and_set_cooldown",
+          "callee": "client.table(\"ads_alert_cooldowns\")\n        .select(\"last_sent_at\")\n        .eq(\"user_id\", user_id)\n        .eq(\"campaign_id\", campaign_id)\n        .eq",
+          "lineNumber": 316
+        },
+        {
+          "caller": "check_and_set_cooldown",
+          "callee": "client.table(\"ads_alert_cooldowns\")\n        .select(\"last_sent_at\")\n        .eq(\"user_id\", user_id)\n        .eq",
+          "lineNumber": 316
+        },
+        {
+          "caller": "check_and_set_cooldown",
+          "callee": "client.table(\"ads_alert_cooldowns\")\n        .select(\"last_sent_at\")\n        .eq",
+          "lineNumber": 316
+        },
+        {
+          "caller": "check_and_set_cooldown",
+          "callee": "client.table(\"ads_alert_cooldowns\")\n        .select",
+          "lineNumber": 316
+        },
+        {
+          "caller": "check_and_set_cooldown",
+          "callee": "client.table",
+          "lineNumber": 316
+        },
+        {
+          "caller": "check_and_set_cooldown",
+          "callee": "datetime.fromisoformat",
+          "lineNumber": 325
+        },
+        {
+          "caller": "check_and_set_cooldown",
+          "callee": "last.replace",
+          "lineNumber": 327
+        },
+        {
+          "caller": "check_and_set_cooldown",
+          "callee": "_now",
+          "lineNumber": 328
+        },
+        {
+          "caller": "check_and_set_cooldown",
+          "callee": "timedelta",
+          "lineNumber": 328
+        },
+        {
+          "caller": "check_and_set_cooldown",
+          "callee": "client.table(\"ads_alert_cooldowns\").upsert({\n        \"user_id\":      user_id,\n        \"campaign_id\":  campaign_id,\n        \"alert_type\":   alert_type,\n        \"last_sent_at\": _now().isoformat(),\n    }, on_conflict=\"user_id,campaign_id,alert_type\").execute",
+          "lineNumber": 330
+        },
+        {
+          "caller": "check_and_set_cooldown",
+          "callee": "client.table(\"ads_alert_cooldowns\").upsert",
+          "lineNumber": 330
+        },
+        {
+          "caller": "check_and_set_cooldown",
+          "callee": "client.table",
+          "lineNumber": 330
+        },
+        {
+          "caller": "check_and_set_cooldown",
+          "callee": "_now().isoformat",
+          "lineNumber": 334
+        },
+        {
+          "caller": "check_and_set_cooldown",
+          "callee": "_now",
+          "lineNumber": 334
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 22,
+        "functionCount": 22,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "storage/workflow_errors.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 50,
+      "nonEmptyLines": 43,
+      "functions": [
+        {
+          "name": "log_workflow_error",
+          "startLine": 13,
+          "endLine": 50,
+          "params": [
+            "user_id",
+            "task_type",
+            "step_index",
+            "skill_name",
+            "error_msg"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "log_workflow_error",
+          "line": 13,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "log_workflow_error",
+          "callee": "logger.warning",
+          "lineNumber": 27
+        },
+        {
+          "caller": "log_workflow_error",
+          "callee": "str",
+          "lineNumber": 39
+        },
+        {
+          "caller": "log_workflow_error",
+          "callee": "_client.table(TABLE).insert(payload).execute",
+          "lineNumber": 41
+        },
+        {
+          "caller": "log_workflow_error",
+          "callee": "_client.table(TABLE).insert",
+          "lineNumber": 41
+        },
+        {
+          "caller": "log_workflow_error",
+          "callee": "_client.table",
+          "lineNumber": 41
+        },
+        {
+          "caller": "log_workflow_error",
+          "callee": "logger.info",
+          "lineNumber": 42
+        },
+        {
+          "caller": "log_workflow_error",
+          "callee": "logger.warning",
+          "lineNumber": 47
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "tasks/plan.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 92,
+      "nonEmptyLines": 77,
+      "sections": [
+        {
+          "heading": "PLAN — Output Reader & Editor",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Dependency graph",
+          "level": 2,
+          "line": 6
+        },
+        {
+          "heading": "Hạ tầng tái dùng (không dựng trùng)",
+          "level": 2,
+          "line": 16
+        },
+        {
+          "heading": "T1 — Trang đọc riêng `#doc/<id>` + test đầu tien",
+          "level": 2,
+          "line": 28
+        },
+        {
+          "heading": "⛳ CHECKPOINT 1 — duyệt trải nghiệm đọc trước khi thêm sửa.",
+          "level": 3,
+          "line": 44
+        },
+        {
+          "heading": "T2 — Sửa tay → version mới (F2)",
+          "level": 2,
+          "line": 48
+        },
+        {
+          "heading": "T3 — Lịch sử version (F4)",
+          "level": 2,
+          "line": 61
+        },
+        {
+          "heading": "T4 — Nhờ Max chỉnh đoạn (F3)",
+          "level": 2,
+          "line": 74
+        },
+        {
+          "heading": "⛳ CHECKPOINT 2 — nghiệm thu golden path đầy đủ (đọc → sửa tay → lịch sử → nhờ Max).",
+          "level": 3,
+          "line": 88
+        },
+        {
+          "heading": "Ngoài phạm vi (nhắc lại): diff so sánh, WYSIWYG, sửa content/ads, xuất PDF, auth.",
+          "level": 2,
+          "line": 92
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 10
+      }
+    },
+    {
+      "path": "tasks/todo.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 26,
+      "nonEmptyLines": 22,
+      "sections": [
+        {
+          "heading": "TODO — Output Reader & Editor",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "T1 — Trang đọc `#doc/<id>` + test đầu tiên",
+          "level": 2,
+          "line": 3
+        },
+        {
+          "heading": "T2 — Sửa tay → version mới",
+          "level": 2,
+          "line": 12
+        },
+        {
+          "heading": "T3 — Lịch sử version",
+          "level": 2,
+          "line": 17
+        },
+        {
+          "heading": "T4 — Nhờ Max chỉnh đoạn",
+          "level": 2,
+          "line": 22
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 5
+      }
+    },
+    {
+      "path": "tests/__init__.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 1,
+      "nonEmptyLines": 0,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "tests/test_content_pipeline_e2e.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 554,
+      "nonEmptyLines": 433,
+      "functions": [
+        {
+          "name": "_capture_injected",
+          "startLine": 143,
+          "endLine": 216,
+          "params": [
+            "skill_name",
+            "session",
+            "bv_mock"
+          ]
+        },
+        {
+          "name": "_calendar_max_week_from_text",
+          "startLine": 223,
+          "endLine": 225,
+          "params": [
+            "calendar_text"
+          ]
+        },
+        {
+          "name": "test_T1_calendar_injected_into_post_batch",
+          "startLine": 256,
+          "endLine": 266,
+          "params": []
+        },
+        {
+          "name": "test_T2_week_scope_instruction_added",
+          "startLine": 270,
+          "endLine": 280,
+          "params": []
+        },
+        {
+          "name": "test_T3_full_month_no_scope_restriction",
+          "startLine": 284,
+          "endLine": 294,
+          "params": []
+        },
+        {
+          "name": "test_T4_tone_signals_injected",
+          "startLine": 298,
+          "endLine": 311,
+          "params": []
+        },
+        {
+          "name": "test_T5_bv_injected_into_video_script_gen",
+          "startLine": 315,
+          "endLine": 325,
+          "params": []
+        },
+        {
+          "name": "test_T6_bv_not_injected_into_non_bv_skill",
+          "startLine": 329,
+          "endLine": 337,
+          "params": []
+        },
+        {
+          "name": "test_T7_max_week_reads_calendar_correctly",
+          "startLine": 340,
+          "endLine": 349,
+          "params": []
+        },
+        {
+          "name": "test_T8_max_week_fallback_when_no_calendar",
+          "startLine": 352,
+          "endLine": 357,
+          "params": []
+        },
+        {
+          "name": "test_T9_week_validation_rejects_out_of_range",
+          "startLine": 360,
+          "endLine": 374,
+          "params": []
+        },
+        {
+          "name": "test_T10_bv_draft_stored_not_auto_persisted",
+          "startLine": 378,
+          "endLine": 392,
+          "params": []
+        },
+        {
+          "name": "test_T11_weekly_mode_sets_correct_scope",
+          "startLine": 396,
+          "endLine": 417,
+          "params": []
+        },
+        {
+          "name": "test_T12_calendar_not_injected_into_ads_optimizer",
+          "startLine": 421,
+          "endLine": 430,
+          "params": []
+        },
+        {
+          "name": "test_T13_empty_tone_signals_not_injected",
+          "startLine": 434,
+          "endLine": 443,
+          "params": []
+        },
+        {
+          "name": "test_T14_calendar_capped_at_6000_chars",
+          "startLine": 447,
+          "endLine": 464,
+          "params": []
+        },
+        {
+          "name": "test_T15_ugc_brief_gets_calendar_and_tone",
+          "startLine": 468,
+          "endLine": 480,
+          "params": []
+        },
+        {
+          "name": "test_T16_bv_resume_weekly_flag_preserved",
+          "startLine": 484,
+          "endLine": 502,
+          "params": []
+        },
+        {
+          "name": "run_all",
+          "startLine": 509,
+          "endLine": 547,
+          "params": []
+        }
+      ],
+      "classes": [
+        {
+          "name": "_FakeProfile",
+          "startLine": 39,
+          "endLine": 65,
+          "methods": [
+            "to_context_string",
+            "is_basic_business_context_ready"
+          ],
+          "properties": [
+            "industry",
+            "product_service",
+            "target_customer",
+            "location",
+            "business_name",
+            "primary_goal",
+            "main_challenge",
+            "stage",
+            "usp",
+            "usp_confidence",
+            "monthly_revenue",
+            "competitors",
+            "current_channels",
+            "team_size",
+            "monthly_marketing_budget"
+          ]
+        },
+        {
+          "name": "_FakeSession",
+          "startLine": 69,
+          "endLine": 84,
+          "methods": [
+            "get_latest_result",
+            "add_result",
+            "results"
+          ],
+          "properties": [
+            "user_id",
+            "profile",
+            "pending_intake",
+            "tone_calibration",
+            "_results"
+          ]
+        },
+        {
+          "name": "_FakeSkill",
+          "startLine": 119,
+          "endLine": 136,
+          "methods": [
+            "__init__",
+            "build_context",
+            "build_user_msg"
+          ],
+          "properties": []
+        },
+        {
+          "name": "_FakeBV",
+          "startLine": 232,
+          "endLine": 248,
+          "methods": [
+            "__init__",
+            "is_empty",
+            "to_prompt_block"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "_FakeProfile",
+          "line": 38,
+          "isDefault": false
+        },
+        {
+          "name": "_FakeSession",
+          "line": 68,
+          "isDefault": false
+        },
+        {
+          "name": "_FakeSkill",
+          "line": 119,
+          "isDefault": false
+        },
+        {
+          "name": "_capture_injected",
+          "line": 143,
+          "isDefault": false
+        },
+        {
+          "name": "_calendar_max_week_from_text",
+          "line": 223,
+          "isDefault": false
+        },
+        {
+          "name": "_FakeBV",
+          "line": 232,
+          "isDefault": false
+        },
+        {
+          "name": "test_T1_calendar_injected_into_post_batch",
+          "line": 255,
+          "isDefault": false
+        },
+        {
+          "name": "test_T2_week_scope_instruction_added",
+          "line": 269,
+          "isDefault": false
+        },
+        {
+          "name": "test_T3_full_month_no_scope_restriction",
+          "line": 283,
+          "isDefault": false
+        },
+        {
+          "name": "test_T4_tone_signals_injected",
+          "line": 297,
+          "isDefault": false
+        },
+        {
+          "name": "test_T5_bv_injected_into_video_script_gen",
+          "line": 314,
+          "isDefault": false
+        },
+        {
+          "name": "test_T6_bv_not_injected_into_non_bv_skill",
+          "line": 328,
+          "isDefault": false
+        },
+        {
+          "name": "test_T7_max_week_reads_calendar_correctly",
+          "line": 340,
+          "isDefault": false
+        },
+        {
+          "name": "test_T8_max_week_fallback_when_no_calendar",
+          "line": 352,
+          "isDefault": false
+        },
+        {
+          "name": "test_T9_week_validation_rejects_out_of_range",
+          "line": 360,
+          "isDefault": false
+        },
+        {
+          "name": "test_T10_bv_draft_stored_not_auto_persisted",
+          "line": 377,
+          "isDefault": false
+        },
+        {
+          "name": "test_T11_weekly_mode_sets_correct_scope",
+          "line": 395,
+          "isDefault": false
+        },
+        {
+          "name": "test_T12_calendar_not_injected_into_ads_optimizer",
+          "line": 420,
+          "isDefault": false
+        },
+        {
+          "name": "test_T13_empty_tone_signals_not_injected",
+          "line": 433,
+          "isDefault": false
+        },
+        {
+          "name": "test_T14_calendar_capped_at_6000_chars",
+          "line": 446,
+          "isDefault": false
+        },
+        {
+          "name": "test_T15_ugc_brief_gets_calendar_and_tone",
+          "line": 467,
+          "isDefault": false
+        },
+        {
+          "name": "test_T16_bv_resume_weekly_flag_preserved",
+          "line": 483,
+          "isDefault": false
+        },
+        {
+          "name": "run_all",
+          "line": 509,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "get_latest_result",
+          "callee": "self._results.get",
+          "lineNumber": 77
+        },
+        {
+          "caller": "_capture_injected",
+          "callee": "_FakeSkill",
+          "lineNumber": 154
+        },
+        {
+          "caller": "_capture_injected",
+          "callee": "skill.build_context",
+          "lineNumber": 159
+        },
+        {
+          "caller": "_capture_injected",
+          "callee": "skill.build_user_msg",
+          "lineNumber": 160
+        },
+        {
+          "caller": "_capture_injected",
+          "callee": "bv.is_empty",
+          "lineNumber": 171
+        },
+        {
+          "caller": "_capture_injected",
+          "callee": "bv.to_prompt_block",
+          "lineNumber": 172
+        },
+        {
+          "caller": "_capture_injected",
+          "callee": "session.get_latest_result",
+          "lineNumber": 181
+        },
+        {
+          "caller": "_capture_injected",
+          "callee": "(session.pending_intake or {}).get",
+          "lineNumber": 183
+        },
+        {
+          "caller": "_capture_injected",
+          "callee": "(session.tone_calibration or {}).get",
+          "lineNumber": 199
+        },
+        {
+          "caller": "_capture_injected",
+          "callee": "signals.get",
+          "lineNumber": 201
+        },
+        {
+          "caller": "_capture_injected",
+          "callee": "tone_lines.append",
+          "lineNumber": 202
+        },
+        {
+          "caller": "_capture_injected",
+          "callee": "', '.join",
+          "lineNumber": 202
+        },
+        {
+          "caller": "_capture_injected",
+          "callee": "signals.get",
+          "lineNumber": 203
+        },
+        {
+          "caller": "_capture_injected",
+          "callee": "tone_lines.append",
+          "lineNumber": 204
+        },
+        {
+          "caller": "_capture_injected",
+          "callee": "\"; \".join",
+          "lineNumber": 204
+        },
+        {
+          "caller": "_capture_injected",
+          "callee": "signals.get",
+          "lineNumber": 205
+        },
+        {
+          "caller": "_capture_injected",
+          "callee": "tone_lines.append",
+          "lineNumber": 206
+        },
+        {
+          "caller": "_capture_injected",
+          "callee": "\"; \".join",
+          "lineNumber": 206
+        },
+        {
+          "caller": "_capture_injected",
+          "callee": "signals.get",
+          "lineNumber": 207
+        },
+        {
+          "caller": "_capture_injected",
+          "callee": "tone_lines.append",
+          "lineNumber": 208
+        },
+        {
+          "caller": "_capture_injected",
+          "callee": "\"\\n\".join",
+          "lineNumber": 213
+        },
+        {
+          "caller": "_calendar_max_week_from_text",
+          "callee": "int",
+          "lineNumber": 224
+        },
+        {
+          "caller": "_calendar_max_week_from_text",
+          "callee": "re.findall",
+          "lineNumber": 224
+        },
+        {
+          "caller": "_calendar_max_week_from_text",
+          "callee": "max",
+          "lineNumber": 225
+        },
+        {
+          "caller": "test_T1_calendar_injected_into_post_batch",
+          "callee": "_FakeSession",
+          "lineNumber": 258
+        },
+        {
+          "caller": "test_T1_calendar_injected_into_post_batch",
+          "callee": "_capture_injected",
+          "lineNumber": 261
+        },
+        {
+          "caller": "test_T1_calendar_injected_into_post_batch",
+          "callee": "print",
+          "lineNumber": 266
+        },
+        {
+          "caller": "test_T2_week_scope_instruction_added",
+          "callee": "_FakeSession",
+          "lineNumber": 272
+        },
+        {
+          "caller": "test_T2_week_scope_instruction_added",
+          "callee": "_capture_injected",
+          "lineNumber": 276
+        },
+        {
+          "caller": "test_T2_week_scope_instruction_added",
+          "callee": "print",
+          "lineNumber": 280
+        },
+        {
+          "caller": "test_T3_full_month_no_scope_restriction",
+          "callee": "_FakeSession",
+          "lineNumber": 286
+        },
+        {
+          "caller": "test_T3_full_month_no_scope_restriction",
+          "callee": "_capture_injected",
+          "lineNumber": 290
+        },
+        {
+          "caller": "test_T3_full_month_no_scope_restriction",
+          "callee": "print",
+          "lineNumber": 294
+        },
+        {
+          "caller": "test_T4_tone_signals_injected",
+          "callee": "_FakeSession",
+          "lineNumber": 300
+        },
+        {
+          "caller": "test_T4_tone_signals_injected",
+          "callee": "_capture_injected",
+          "lineNumber": 304
+        },
+        {
+          "caller": "test_T4_tone_signals_injected",
+          "callee": "print",
+          "lineNumber": 311
+        },
+        {
+          "caller": "test_T5_bv_injected_into_video_script_gen",
+          "callee": "_FakeSession",
+          "lineNumber": 317
+        },
+        {
+          "caller": "test_T5_bv_injected_into_video_script_gen",
+          "callee": "_FakeBV",
+          "lineNumber": 319
+        },
+        {
+          "caller": "test_T5_bv_injected_into_video_script_gen",
+          "callee": "_capture_injected",
+          "lineNumber": 321
+        },
+        {
+          "caller": "test_T5_bv_injected_into_video_script_gen",
+          "callee": "print",
+          "lineNumber": 325
+        },
+        {
+          "caller": "test_T6_bv_not_injected_into_non_bv_skill",
+          "callee": "_FakeSession",
+          "lineNumber": 331
+        },
+        {
+          "caller": "test_T6_bv_not_injected_into_non_bv_skill",
+          "callee": "_FakeBV",
+          "lineNumber": 332
+        },
+        {
+          "caller": "test_T6_bv_not_injected_into_non_bv_skill",
+          "callee": "_capture_injected",
+          "lineNumber": 334
+        },
+        {
+          "caller": "test_T6_bv_not_injected_into_non_bv_skill",
+          "callee": "print",
+          "lineNumber": 337
+        },
+        {
+          "caller": "test_T7_max_week_reads_calendar_correctly",
+          "callee": "_calendar_max_week_from_text",
+          "lineNumber": 342
+        },
+        {
+          "caller": "test_T7_max_week_reads_calendar_correctly",
+          "callee": "_calendar_max_week_from_text",
+          "lineNumber": 345
+        },
+        {
+          "caller": "test_T7_max_week_reads_calendar_correctly",
+          "callee": "_calendar_max_week_from_text",
+          "lineNumber": 348
+        },
+        {
+          "caller": "test_T7_max_week_reads_calendar_correctly",
+          "callee": "print",
+          "lineNumber": 349
+        },
+        {
+          "caller": "test_T8_max_week_fallback_when_no_calendar",
+          "callee": "_calendar_max_week_from_text",
+          "lineNumber": 354
+        },
+        {
+          "caller": "test_T8_max_week_fallback_when_no_calendar",
+          "callee": "_calendar_max_week_from_text",
+          "lineNumber": 355
+        },
+        {
+          "caller": "test_T8_max_week_fallback_when_no_calendar",
+          "callee": "_calendar_max_week_from_text",
+          "lineNumber": 356
+        },
+        {
+          "caller": "test_T8_max_week_fallback_when_no_calendar",
+          "callee": "print",
+          "lineNumber": 357
+        },
+        {
+          "caller": "test_T9_week_validation_rejects_out_of_range",
+          "callee": "_calendar_max_week_from_text",
+          "lineNumber": 362
+        },
+        {
+          "caller": "test_T9_week_validation_rejects_out_of_range",
+          "callee": "print",
+          "lineNumber": 374
+        },
+        {
+          "caller": "test_T10_bv_draft_stored_not_auto_persisted",
+          "callee": "_FakeSession",
+          "lineNumber": 381
+        },
+        {
+          "caller": "test_T10_bv_draft_stored_not_auto_persisted",
+          "callee": "print",
+          "lineNumber": 392
+        },
+        {
+          "caller": "test_T11_weekly_mode_sets_correct_scope",
+          "callee": "_FakeSession",
+          "lineNumber": 398
+        },
+        {
+          "caller": "test_T11_weekly_mode_sets_correct_scope",
+          "callee": "_calendar_max_week_from_text",
+          "lineNumber": 404
+        },
+        {
+          "caller": "test_T11_weekly_mode_sets_correct_scope",
+          "callee": "session.pending_intake.pop",
+          "lineNumber": 408
+        },
+        {
+          "caller": "test_T11_weekly_mode_sets_correct_scope",
+          "callee": "str",
+          "lineNumber": 410
+        },
+        {
+          "caller": "test_T11_weekly_mode_sets_correct_scope",
+          "callee": "print",
+          "lineNumber": 417
+        },
+        {
+          "caller": "test_T12_calendar_not_injected_into_ads_optimizer",
+          "callee": "_FakeSession",
+          "lineNumber": 423
+        },
+        {
+          "caller": "test_T12_calendar_not_injected_into_ads_optimizer",
+          "callee": "_capture_injected",
+          "lineNumber": 426
+        },
+        {
+          "caller": "test_T12_calendar_not_injected_into_ads_optimizer",
+          "callee": "print",
+          "lineNumber": 430
+        },
+        {
+          "caller": "test_T13_empty_tone_signals_not_injected",
+          "callee": "_FakeSession",
+          "lineNumber": 436
+        },
+        {
+          "caller": "test_T13_empty_tone_signals_not_injected",
+          "callee": "_capture_injected",
+          "lineNumber": 440
+        },
+        {
+          "caller": "test_T13_empty_tone_signals_not_injected",
+          "callee": "print",
+          "lineNumber": 443
+        },
+        {
+          "caller": "test_T14_calendar_capped_at_6000_chars",
+          "callee": "len",
+          "lineNumber": 451
+        },
+        {
+          "caller": "test_T14_calendar_capped_at_6000_chars",
+          "callee": "len",
+          "lineNumber": 453
+        },
+        {
+          "caller": "test_T14_calendar_capped_at_6000_chars",
+          "callee": "_FakeSession",
+          "lineNumber": 455
+        },
+        {
+          "caller": "test_T14_calendar_capped_at_6000_chars",
+          "callee": "_capture_injected",
+          "lineNumber": 458
+        },
+        {
+          "caller": "test_T14_calendar_capped_at_6000_chars",
+          "callee": "print",
+          "lineNumber": 464
+        },
+        {
+          "caller": "test_T15_ugc_brief_gets_calendar_and_tone",
+          "callee": "_FakeSession",
+          "lineNumber": 470
+        },
+        {
+          "caller": "test_T15_ugc_brief_gets_calendar_and_tone",
+          "callee": "_capture_injected",
+          "lineNumber": 475
+        },
+        {
+          "caller": "test_T15_ugc_brief_gets_calendar_and_tone",
+          "callee": "print",
+          "lineNumber": 480
+        },
+        {
+          "caller": "test_T16_bv_resume_weekly_flag_preserved",
+          "callee": "_FakeSession",
+          "lineNumber": 486
+        },
+        {
+          "caller": "test_T16_bv_resume_weekly_flag_preserved",
+          "callee": "session.pending_intake.get",
+          "lineNumber": 493
+        },
+        {
+          "caller": "test_T16_bv_resume_weekly_flag_preserved",
+          "callee": "session.pending_intake.get",
+          "lineNumber": 494
+        },
+        {
+          "caller": "test_T16_bv_resume_weekly_flag_preserved",
+          "callee": "session.pending_intake.pop",
+          "lineNumber": 497
+        },
+        {
+          "caller": "test_T16_bv_resume_weekly_flag_preserved",
+          "callee": "session.pending_intake.pop",
+          "lineNumber": 498
+        },
+        {
+          "caller": "test_T16_bv_resume_weekly_flag_preserved",
+          "callee": "print",
+          "lineNumber": 502
+        },
+        {
+          "caller": "run_all",
+          "callee": "asyncio.iscoroutinefunction",
+          "lineNumber": 533
+        },
+        {
+          "caller": "run_all",
+          "callee": "test",
+          "lineNumber": 534
+        },
+        {
+          "caller": "run_all",
+          "callee": "test",
+          "lineNumber": 536
+        },
+        {
+          "caller": "run_all",
+          "callee": "print",
+          "lineNumber": 540
+        },
+        {
+          "caller": "run_all",
+          "callee": "type",
+          "lineNumber": 540
+        },
+        {
+          "caller": "run_all",
+          "callee": "traceback.print_exc",
+          "lineNumber": 541
+        },
+        {
+          "caller": "run_all",
+          "callee": "print",
+          "lineNumber": 544
+        },
+        {
+          "caller": "run_all",
+          "callee": "print",
+          "lineNumber": 545
+        },
+        {
+          "caller": "run_all",
+          "callee": "len",
+          "lineNumber": 545
+        },
+        {
+          "caller": "run_all",
+          "callee": "print",
+          "lineNumber": 546
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 23,
+        "functionCount": 19,
+        "classCount": 4
+      }
+    },
+    {
+      "path": "tools/__init__.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 1,
+      "nonEmptyLines": 1,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "tools/image_prompt_library.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 457,
+      "nonEmptyLines": 423,
+      "functions": [
+        {
+          "name": "categorize",
+          "startLine": 389,
+          "endLine": 396,
+          "params": [
+            "text"
+          ]
+        },
+        {
+          "name": "pick_template",
+          "startLine": 399,
+          "endLine": 425,
+          "params": [
+            "category",
+            "aspect_ratio",
+            "context_text"
+          ]
+        },
+        {
+          "name": "build_prompt",
+          "startLine": 428,
+          "endLine": 447,
+          "params": [
+            "product",
+            "brand",
+            "offer",
+            "style_note",
+            "category",
+            "aspect_ratio"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "PromptTemplate",
+          "startLine": 23,
+          "endLine": 30,
+          "methods": [],
+          "properties": [
+            "slug",
+            "title",
+            "category",
+            "aspect_ratio_hint",
+            "base_prompt"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "PromptTemplate",
+          "line": 22,
+          "isDefault": false
+        },
+        {
+          "name": "categorize",
+          "line": 389,
+          "isDefault": false
+        },
+        {
+          "name": "pick_template",
+          "line": 399,
+          "isDefault": false
+        },
+        {
+          "name": "build_prompt",
+          "line": 428,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "categorize",
+          "callee": "(text or \"\").lower",
+          "lineNumber": 391
+        },
+        {
+          "caller": "categorize",
+          "callee": "CATEGORY_KEYWORDS.items",
+          "lineNumber": 393
+        },
+        {
+          "caller": "categorize",
+          "callee": "sum",
+          "lineNumber": 394
+        },
+        {
+          "caller": "categorize",
+          "callee": "max",
+          "lineNumber": 395
+        },
+        {
+          "caller": "pick_template",
+          "callee": "categorize",
+          "lineNumber": 414
+        },
+        {
+          "caller": "pick_template",
+          "callee": "PROMPT_LIBRARY.values",
+          "lineNumber": 415
+        },
+        {
+          "caller": "build_prompt",
+          "callee": "pick_template",
+          "lineNumber": 440
+        },
+        {
+          "caller": "build_prompt",
+          "callee": "tpl.base_prompt.format(\n        product=product or \"sản phẩm\",\n        brand=brand or \"Brand\",\n        offer=offer or \"\",\n        style_note=style_note or \"\",\n    ).strip",
+          "lineNumber": 441
+        },
+        {
+          "caller": "build_prompt",
+          "callee": "tpl.base_prompt.format",
+          "lineNumber": 441
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 4,
+        "functionCount": 3,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "tools/krillin_client.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 247,
+      "nonEmptyLines": 201,
+      "functions": [
+        {
+          "name": "extract_transcript",
+          "startLine": 53,
+          "endLine": 94,
+          "params": [
+            "source",
+            "language_hint"
+          ]
+        },
+        {
+          "name": "is_available",
+          "startLine": 97,
+          "endLine": 102,
+          "params": []
+        },
+        {
+          "name": "availability_report",
+          "startLine": 105,
+          "endLine": 112,
+          "params": []
+        },
+        {
+          "name": "_run_krillin",
+          "startLine": 119,
+          "endLine": 159,
+          "params": [
+            "source",
+            "language_hint"
+          ]
+        },
+        {
+          "name": "_run_whisper_api",
+          "startLine": 166,
+          "endLine": 197,
+          "params": [
+            "local_path",
+            "language_hint"
+          ]
+        },
+        {
+          "name": "_ensure_local_file",
+          "startLine": 204,
+          "endLine": 218,
+          "params": [
+            "url"
+          ]
+        },
+        {
+          "name": "format_transcript_for_prompt",
+          "startLine": 221,
+          "endLine": 247,
+          "params": [
+            "extract",
+            "max_chars"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "extract_transcript",
+          "line": 53,
+          "isDefault": false
+        },
+        {
+          "name": "is_available",
+          "line": 97,
+          "isDefault": false
+        },
+        {
+          "name": "availability_report",
+          "line": 105,
+          "isDefault": false
+        },
+        {
+          "name": "_run_krillin",
+          "line": 119,
+          "isDefault": false
+        },
+        {
+          "name": "_run_whisper_api",
+          "line": 166,
+          "isDefault": false
+        },
+        {
+          "name": "_ensure_local_file",
+          "line": 204,
+          "isDefault": false
+        },
+        {
+          "name": "format_transcript_for_prompt",
+          "line": 221,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "extract_transcript",
+          "callee": "bool",
+          "lineNumber": 66
+        },
+        {
+          "caller": "extract_transcript",
+          "callee": "URL_REGEX.match",
+          "lineNumber": 66
+        },
+        {
+          "caller": "extract_transcript",
+          "callee": "shutil.which",
+          "lineNumber": 69
+        },
+        {
+          "caller": "extract_transcript",
+          "callee": "_run_krillin",
+          "lineNumber": 71
+        },
+        {
+          "caller": "extract_transcript",
+          "callee": "result.setdefault",
+          "lineNumber": 73
+        },
+        {
+          "caller": "extract_transcript",
+          "callee": "logger.warning",
+          "lineNumber": 76
+        },
+        {
+          "caller": "extract_transcript",
+          "callee": "_ensure_local_file",
+          "lineNumber": 81
+        },
+        {
+          "caller": "extract_transcript",
+          "callee": "_run_whisper_api",
+          "lineNumber": 82
+        },
+        {
+          "caller": "extract_transcript",
+          "callee": "logger.warning",
+          "lineNumber": 87
+        },
+        {
+          "caller": "extract_transcript",
+          "callee": "RuntimeError",
+          "lineNumber": 90
+        },
+        {
+          "caller": "is_available",
+          "callee": "bool",
+          "lineNumber": 99
+        },
+        {
+          "caller": "is_available",
+          "callee": "shutil.which",
+          "lineNumber": 100
+        },
+        {
+          "caller": "availability_report",
+          "callee": "bool",
+          "lineNumber": 107
+        },
+        {
+          "caller": "availability_report",
+          "callee": "shutil.which",
+          "lineNumber": 107
+        },
+        {
+          "caller": "availability_report",
+          "callee": "bool",
+          "lineNumber": 108
+        },
+        {
+          "caller": "availability_report",
+          "callee": "lines.append",
+          "lineNumber": 110
+        },
+        {
+          "caller": "availability_report",
+          "callee": "lines.append",
+          "lineNumber": 111
+        },
+        {
+          "caller": "availability_report",
+          "callee": "\"\\n\".join",
+          "lineNumber": 112
+        },
+        {
+          "caller": "_run_krillin",
+          "callee": "cmd.extend",
+          "lineNumber": 132
+        },
+        {
+          "caller": "_run_krillin",
+          "callee": "logger.info",
+          "lineNumber": 134
+        },
+        {
+          "caller": "_run_krillin",
+          "callee": "' '.join",
+          "lineNumber": 134
+        },
+        {
+          "caller": "_run_krillin",
+          "callee": "asyncio.create_subprocess_exec",
+          "lineNumber": 135
+        },
+        {
+          "caller": "_run_krillin",
+          "callee": "asyncio.wait_for",
+          "lineNumber": 141
+        },
+        {
+          "caller": "_run_krillin",
+          "callee": "proc.communicate",
+          "lineNumber": 142
+        },
+        {
+          "caller": "_run_krillin",
+          "callee": "proc.kill",
+          "lineNumber": 145
+        },
+        {
+          "caller": "_run_krillin",
+          "callee": "RuntimeError",
+          "lineNumber": 146
+        },
+        {
+          "caller": "_run_krillin",
+          "callee": "RuntimeError",
+          "lineNumber": 149
+        },
+        {
+          "caller": "_run_krillin",
+          "callee": "stderr.decode",
+          "lineNumber": 149
+        },
+        {
+          "caller": "_run_krillin",
+          "callee": "json.loads",
+          "lineNumber": 151
+        },
+        {
+          "caller": "_run_krillin",
+          "callee": "stdout.decode",
+          "lineNumber": 151
+        },
+        {
+          "caller": "_run_krillin",
+          "callee": "data.get",
+          "lineNumber": 152
+        },
+        {
+          "caller": "_run_krillin",
+          "callee": "data.get",
+          "lineNumber": 154
+        },
+        {
+          "caller": "_run_krillin",
+          "callee": "\" \".join",
+          "lineNumber": 154
+        },
+        {
+          "caller": "_run_krillin",
+          "callee": "s.get",
+          "lineNumber": 154
+        },
+        {
+          "caller": "_run_krillin",
+          "callee": "float",
+          "lineNumber": 156
+        },
+        {
+          "caller": "_run_krillin",
+          "callee": "data.get",
+          "lineNumber": 156
+        },
+        {
+          "caller": "_run_krillin",
+          "callee": "data.get",
+          "lineNumber": 157
+        },
+        {
+          "caller": "_run_whisper_api",
+          "callee": "os.path.getsize",
+          "lineNumber": 170
+        },
+        {
+          "caller": "_run_whisper_api",
+          "callee": "RuntimeError",
+          "lineNumber": 172
+        },
+        {
+          "caller": "_run_whisper_api",
+          "callee": "AsyncOpenAI",
+          "lineNumber": 177
+        },
+        {
+          "caller": "_run_whisper_api",
+          "callee": "open",
+          "lineNumber": 178
+        },
+        {
+          "caller": "_run_whisper_api",
+          "callee": "client.audio.transcriptions.create",
+          "lineNumber": 179
+        },
+        {
+          "caller": "_run_whisper_api",
+          "callee": "float",
+          "lineNumber": 188
+        },
+        {
+          "caller": "_run_whisper_api",
+          "callee": "float",
+          "lineNumber": 188
+        },
+        {
+          "caller": "_run_whisper_api",
+          "callee": "float",
+          "lineNumber": 194
+        },
+        {
+          "caller": "_ensure_local_file",
+          "callee": "Path",
+          "lineNumber": 206
+        },
+        {
+          "caller": "_ensure_local_file",
+          "callee": "url.split",
+          "lineNumber": 206
+        },
+        {
+          "caller": "_ensure_local_file",
+          "callee": "tempfile.mkstemp",
+          "lineNumber": 207
+        },
+        {
+          "caller": "_ensure_local_file",
+          "callee": "os.close",
+          "lineNumber": 208
+        },
+        {
+          "caller": "_ensure_local_file",
+          "callee": "httpx.AsyncClient",
+          "lineNumber": 210
+        },
+        {
+          "caller": "_ensure_local_file",
+          "callee": "client.stream",
+          "lineNumber": 211
+        },
+        {
+          "caller": "_ensure_local_file",
+          "callee": "resp.raise_for_status",
+          "lineNumber": 212
+        },
+        {
+          "caller": "_ensure_local_file",
+          "callee": "open",
+          "lineNumber": 213
+        },
+        {
+          "caller": "_ensure_local_file",
+          "callee": "resp.aiter_bytes",
+          "lineNumber": 214
+        },
+        {
+          "caller": "_ensure_local_file",
+          "callee": "f.write",
+          "lineNumber": 215
+        },
+        {
+          "caller": "_ensure_local_file",
+          "callee": "logger.info",
+          "lineNumber": 217
+        },
+        {
+          "caller": "_ensure_local_file",
+          "callee": "os.path.getsize",
+          "lineNumber": 217
+        },
+        {
+          "caller": "format_transcript_for_prompt",
+          "callee": "extract.get",
+          "lineNumber": 223
+        },
+        {
+          "caller": "format_transcript_for_prompt",
+          "callee": "extract.get",
+          "lineNumber": 224
+        },
+        {
+          "caller": "format_transcript_for_prompt",
+          "callee": "extract.get",
+          "lineNumber": 225
+        },
+        {
+          "caller": "format_transcript_for_prompt",
+          "callee": "extract.get",
+          "lineNumber": 226
+        },
+        {
+          "caller": "format_transcript_for_prompt",
+          "callee": "s.get",
+          "lineNumber": 238
+        },
+        {
+          "caller": "format_transcript_for_prompt",
+          "callee": "s.get",
+          "lineNumber": 238
+        },
+        {
+          "caller": "format_transcript_for_prompt",
+          "callee": "lines.append",
+          "lineNumber": 239
+        },
+        {
+          "caller": "format_transcript_for_prompt",
+          "callee": "s.get('text', '').strip",
+          "lineNumber": 239
+        },
+        {
+          "caller": "format_transcript_for_prompt",
+          "callee": "s.get",
+          "lineNumber": 239
+        },
+        {
+          "caller": "format_transcript_for_prompt",
+          "callee": "\"\\n\".join",
+          "lineNumber": 240
+        },
+        {
+          "caller": "format_transcript_for_prompt",
+          "callee": "extract.get",
+          "lineNumber": 242
+        },
+        {
+          "caller": "format_transcript_for_prompt",
+          "callee": "len",
+          "lineNumber": 244
+        },
+        {
+          "caller": "format_transcript_for_prompt",
+          "callee": "len",
+          "lineNumber": 245
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 7,
+        "functionCount": 7,
+        "classCount": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,148 @@
+{
+  "nodes": [
+    {
+      "id": "config:.env.example",
+      "type": "config",
+      "name": ".env.example",
+      "filePath": ".env.example",
+      "summary": "Template for required and optional runtime environment variables, covering Telegram bot credentials, AI provider keys (Anthropic/OpenAI/Gemini), Supabase storage, Facebook Ads OAuth, admin access, and Railway deployment settings.",
+      "tags": ["configuration", "environment-variables", "secrets", "deployment"],
+      "complexity": "simple",
+      "languageNotes": "Vietnamese inline comments group variables by concern (required, AI providers, Facebook Ads, admin, deploy) and document where to obtain each credential."
+    },
+    {
+      "id": "document:DEPLOY_RAILWAY.md",
+      "type": "document",
+      "name": "DEPLOY_RAILWAY.md",
+      "filePath": "DEPLOY_RAILWAY.md",
+      "summary": "Vietnamese-language deployment guide for running the web dashboard (not the Telegram bot) on Railway, covering project setup, persistent storage options (SQLite vs Supabase vs Railway Volume), and optional Telegram notifications for web actions.",
+      "tags": ["documentation", "deployment", "infrastructure", "railway"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "service:Procfile",
+      "type": "service",
+      "name": "Procfile",
+      "filePath": "Procfile",
+      "summary": "Process file declaring the web process that launches the Telegram bot entry point with PYTHONPATH set to the app root.",
+      "tags": ["deployment", "infrastructure", "process-definition"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:README.md",
+      "type": "document",
+      "name": "README.md",
+      "filePath": "README.md",
+      "summary": "Project overview for the Marketing OS Telegram bot describing its AI-powered marketing strategy features, installation steps, directory structure, and available bot commands.",
+      "tags": ["documentation", "entry-point", "overview", "installation-guide"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:index.html",
+      "type": "file",
+      "name": "index.html",
+      "filePath": "index.html",
+      "summary": "Large static HTML page, likely the web dashboard's front-end markup, bundling most of the UI structure and inline scripts/styles for the marketing OS web interface.",
+      "tags": ["markup", "frontend", "dashboard"],
+      "complexity": "complex",
+      "languageNotes": "Nearly 2,900 lines in a single HTML file indicates a monolithic dashboard page rather than a componentized front-end build."
+    },
+    {
+      "id": "config:railway.json",
+      "type": "config",
+      "name": "railway.json",
+      "filePath": "railway.json",
+      "summary": "Railway platform configuration that overrides the default Procfile process, instructing Railway to build with Nixpacks and start the web dashboard via run_web.py with automatic restarts on failure.",
+      "tags": ["configuration", "deployment", "railway", "infrastructure"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:requirements.txt",
+      "type": "document",
+      "name": "requirements.txt",
+      "filePath": "requirements.txt",
+      "summary": "Python dependency manifest listing core packages for the bot and web stack: Anthropic and OpenAI/Gemini SDKs, python-telegram-bot, Supabase client, ASGI server (uvicorn/starlette), cryptography, and supporting utilities.",
+      "tags": ["configuration", "dependencies", "build-system", "python"],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "document:README.md",
+      "target": "file:bot/main.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "document:requirements.txt",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "config:.env.example",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "service:Procfile",
+      "target": "file:bot/main.py",
+      "type": "deploys",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "config:railway.json",
+      "target": "file:run_web.py",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:.env.example",
+      "target": "file:bot/main.py",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:.env.example",
+      "target": "file:run_web.py",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "document:DEPLOY_RAILWAY.md",
+      "target": "config:railway.json",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:DEPLOY_RAILWAY.md",
+      "target": "service:Procfile",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:DEPLOY_RAILWAY.md",
+      "target": "file:run_web.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:DEPLOY_RAILWAY.md",
+      "target": "file:webapp/supabase_schema.sql",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    }
+  ]
+}

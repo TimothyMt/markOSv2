@@ -1,0 +1,105 @@
+{
+  "nodes": [
+    {
+      "id": "document:docs/web/ARCHITECTURE.md",
+      "type": "document",
+      "name": "ARCHITECTURE.md",
+      "filePath": "docs/web/ARCHITECTURE.md",
+      "summary": "Current-state architecture map for the markOS Web App: SPA frontend talking to a Starlette backend (webapp/api.py, store.py, business.py, chat.py, events.py, notify.py) that reuses the Telegram bot's storage/agents/tools layers against a shared Supabase project, plus dev (SQLite/mock) vs prod (Supabase/live) run modes, the API contract, SSE realtime design, and known technical debt (no auth, mock charts, chat persistence gaps).",
+      "tags": ["documentation", "architecture", "system-design", "web-app", "vietnamese"],
+      "complexity": "moderate",
+      "languageNotes": "Written in Vietnamese; documents a dual-mode (dev/prod) architecture with an ASCII system diagram and explicit data-boundary rules between dashboard-owned web_* tables and the bot's production tables."
+    },
+    {
+      "id": "document:docs/web/DECISIONS.md",
+      "type": "document",
+      "name": "DECISIONS.md",
+      "filePath": "docs/web/DECISIONS.md",
+      "summary": "ADR-lite decision log for the Web App with 29 numbered decisions (D-001 to D-029) covering architecture (pluggable SQLite/Supabase store, shared Supabase with the bot), product strategy (Max-centric vs form-first entry, packaging tiers, golden-path milestones), and process rules (no fake UI, auth deferred, content calendar model), each tagged with status.",
+      "tags": ["documentation", "decision-log", "adr", "architecture", "vietnamese"],
+      "complexity": "moderate",
+      "languageNotes": "Vietnamese ADR-lite format (one-line decisions in a table); later entries supersede or reverse earlier ones (e.g., D-026 reverses D-007), reflecting an append-only, never-delete decision history."
+    },
+    {
+      "id": "document:docs/web/PRODUCT.md",
+      "type": "document",
+      "name": "PRODUCT.md",
+      "filePath": "docs/web/PRODUCT.md",
+      "summary": "Product requirements draft (PRD) for the Web App defining the value proposition (founders chat with virtual CMO 'Max' to get a marketing strategy), target users segmented by subscription tier (Starter/Pro/Agency), core jobs-to-be-done, the v1 golden-path outcomes (diagnosis-to-strategy, then content production), experience principles, the monthly-subscription business model, and explicit out-of-scope items like auth and Ads optimization.",
+      "tags": ["documentation", "product-requirements", "prd", "vietnamese", "business-model"],
+      "complexity": "moderate",
+      "languageNotes": "Vietnamese PRD with placeholder questions (❓) awaiting founder input; every feature is meant to trace back to a section in this file."
+    },
+    {
+      "id": "document:docs/web/ROADMAP.md",
+      "type": "document",
+      "name": "ROADMAP.md",
+      "filePath": "docs/web/ROADMAP.md",
+      "summary": "Milestone roadmap (M0-M4) for the Web App following a 'deepen one golden path before expanding' principle: M0 establishes one fully real end-to-end user flow, M1 completes the diagnosis-to-strategy stage, M2 ships real content production, M3 adds live Ads/competitor operations, and M4 delivers auth, billing, and observability for public readiness.",
+      "tags": ["documentation", "roadmap", "milestones", "planning", "vietnamese"],
+      "complexity": "simple",
+      "languageNotes": "Vietnamese roadmap using checkbox task lists per milestone and an explicit priority rule set (fix golden path before adding pages)."
+    },
+    {
+      "id": "document:docs/web/WAY_OF_WORKING.md",
+      "type": "document",
+      "name": "WAY_OF_WORKING.md",
+      "filePath": "docs/web/WAY_OF_WORKING.md",
+      "summary": "Working agreement between the Founder and the Engineer/CTO (Claude) defining five core principles (spec-first, vertical-slice depth, no fake UI, docs/web/ as single source of truth, decisions get recorded), the per-slice workflow loop, the Definition of Done checklist, quality/risk gates (LLM cost, security, privacy, FB API degradation), a 1-pager template, technical conventions, and triggers requiring the CTO to stop and ask the Founder.",
+      "tags": ["documentation", "process", "way-of-working", "definition-of-done", "vietnamese"],
+      "complexity": "moderate",
+      "languageNotes": "Vietnamese process contract; codifies a spec-then-code, single-vertical-slice methodology with a reusable 1-pager template and explicit escalation triggers."
+    }
+  ],
+  "edges": [
+    {
+      "source": "document:docs/web/ARCHITECTURE.md",
+      "target": "document:docs/web/DECISIONS.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/web/PRODUCT.md",
+      "target": "document:docs/web/DECISIONS.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/web/ROADMAP.md",
+      "target": "document:docs/web/PRODUCT.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/web/ROADMAP.md",
+      "target": "document:docs/web/DECISIONS.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/web/WAY_OF_WORKING.md",
+      "target": "document:docs/web/DECISIONS.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/web/WAY_OF_WORKING.md",
+      "target": "document:docs/web/ROADMAP.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/web/WAY_OF_WORKING.md",
+      "target": "document:docs/web/ARCHITECTURE.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    }
+  ]
+}

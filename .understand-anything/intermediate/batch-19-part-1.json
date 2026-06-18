@@ -1,0 +1,970 @@
+{
+  "nodes": [
+    {
+      "id": "file:tools/token_billing.py",
+      "type": "file",
+      "name": "token_billing.py",
+      "filePath": "tools/token_billing.py",
+      "summary": "Computes LLM usage cost in USD and VND across providers and formats cost summary reports from the token log.",
+      "tags": [
+        "utility",
+        "billing",
+        "cost-tracking",
+        "reporting"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:tools/token_billing.py:calc_cost_usd",
+      "type": "function",
+      "name": "calc_cost_usd",
+      "filePath": "tools/token_billing.py",
+      "lineRange": [
+        48,
+        73
+      ],
+      "summary": "Calculates USD cost for an LLM call based on provider pricing table and token counts (input, output, cache read/create).",
+      "tags": [
+        "billing",
+        "cost-tracking",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:tools/token_billing.py:calc_cost_vnd",
+      "type": "function",
+      "name": "calc_cost_vnd",
+      "filePath": "tools/token_billing.py",
+      "lineRange": [
+        76,
+        84
+      ],
+      "summary": "Converts the USD cost of an LLM call to VND for display to Vietnamese users.",
+      "tags": [
+        "billing",
+        "cost-tracking",
+        "localization"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tools/token_billing.py:fmt_usd",
+      "type": "function",
+      "name": "fmt_usd",
+      "filePath": "tools/token_billing.py",
+      "lineRange": [
+        87,
+        93
+      ],
+      "summary": "Formats a USD amount as a human-readable currency string.",
+      "tags": [
+        "formatting",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tools/token_billing.py:fmt_vnd",
+      "type": "function",
+      "name": "fmt_vnd",
+      "filePath": "tools/token_billing.py",
+      "lineRange": [
+        96,
+        98
+      ],
+      "summary": "Formats a VND amount as a human-readable currency string.",
+      "tags": [
+        "formatting",
+        "utility",
+        "localization"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tools/token_billing.py:accumulate_cost",
+      "type": "function",
+      "name": "accumulate_cost",
+      "filePath": "tools/token_billing.py",
+      "lineRange": [
+        105,
+        119
+      ],
+      "summary": "Adds a cost increment to the running total cost stored in the session preferences.",
+      "tags": [
+        "billing",
+        "cost-tracking",
+        "state"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:tools/token_billing.py:get_total_cost_usd",
+      "type": "function",
+      "name": "get_total_cost_usd",
+      "filePath": "tools/token_billing.py",
+      "lineRange": [
+        122,
+        130
+      ],
+      "summary": "Reads the accumulated total USD cost from session preferences.",
+      "tags": [
+        "billing",
+        "cost-tracking",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tools/token_billing.py:cost_summary_from_log",
+      "type": "function",
+      "name": "cost_summary_from_log",
+      "filePath": "tools/token_billing.py",
+      "lineRange": [
+        137,
+        183
+      ],
+      "summary": "Aggregates a token usage log into cost summaries broken down by provider and by skill.",
+      "tags": [
+        "billing",
+        "reporting",
+        "aggregation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:tools/token_billing.py:format_cost_report",
+      "type": "function",
+      "name": "format_cost_report",
+      "filePath": "tools/token_billing.py",
+      "lineRange": [
+        186,
+        213
+      ],
+      "summary": "Builds a formatted text report of LLM usage costs for a session, broken down by provider and skill.",
+      "tags": [
+        "reporting",
+        "billing",
+        "formatting"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:tools/token_tracker.py",
+      "type": "file",
+      "name": "token_tracker.py",
+      "filePath": "tools/token_tracker.py",
+      "summary": "Tracks per-job and per-skill LLM token usage and quota, persisting usage logs and producing usage summaries/footers shown to users.",
+      "tags": [
+        "utility",
+        "billing",
+        "quota",
+        "monitoring"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:tools/token_tracker.py:begin_job",
+      "type": "function",
+      "name": "begin_job",
+      "filePath": "tools/token_tracker.py",
+      "lineRange": [
+        20,
+        38
+      ],
+      "summary": "Starts a new tracked job sequence for a session, incrementing the job counter used to group token usage entries.",
+      "tags": [
+        "billing",
+        "state",
+        "monitoring"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tools/token_tracker.py:track_skill",
+      "type": "function",
+      "name": "track_skill",
+      "filePath": "tools/token_tracker.py",
+      "lineRange": [
+        59,
+        121
+      ],
+      "summary": "Records token usage and computed cost for a named skill execution, appending an entry to the session's token log.",
+      "tags": [
+        "billing",
+        "monitoring",
+        "state"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:tools/token_tracker.py:track_usage",
+      "type": "function",
+      "name": "track_usage",
+      "filePath": "tools/token_tracker.py",
+      "lineRange": [
+        124,
+        180
+      ],
+      "summary": "Extracts token usage metadata from an LLM response object and records it to the session's token log.",
+      "tags": [
+        "billing",
+        "monitoring",
+        "state"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:tools/token_tracker.py:track_usage_raw",
+      "type": "function",
+      "name": "track_usage_raw",
+      "filePath": "tools/token_tracker.py",
+      "lineRange": [
+        183,
+        222
+      ],
+      "summary": "Records token usage from raw input/output token counts (used when no full LLM response object is available).",
+      "tags": [
+        "billing",
+        "monitoring",
+        "state"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:tools/token_tracker.py:get_token_log",
+      "type": "function",
+      "name": "get_token_log",
+      "filePath": "tools/token_tracker.py",
+      "lineRange": [
+        225,
+        229
+      ],
+      "summary": "Returns the list of recorded token usage log entries for a session.",
+      "tags": [
+        "billing",
+        "monitoring",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tools/token_tracker.py:get_latest_skill_entry",
+      "type": "function",
+      "name": "get_latest_skill_entry",
+      "filePath": "tools/token_tracker.py",
+      "lineRange": [
+        232,
+        237
+      ],
+      "summary": "Finds the most recent token log entry matching a given skill name.",
+      "tags": [
+        "billing",
+        "monitoring",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tools/token_tracker.py:get_quota",
+      "type": "function",
+      "name": "get_quota",
+      "filePath": "tools/token_tracker.py",
+      "lineRange": [
+        240,
+        246
+      ],
+      "summary": "Reads the configured token quota for a session.",
+      "tags": [
+        "quota",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tools/token_tracker.py:get_used",
+      "type": "function",
+      "name": "get_used",
+      "filePath": "tools/token_tracker.py",
+      "lineRange": [
+        249,
+        255
+      ],
+      "summary": "Reads the total tokens used so far for a session.",
+      "tags": [
+        "quota",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tools/token_tracker.py:get_remaining",
+      "type": "function",
+      "name": "get_remaining",
+      "filePath": "tools/token_tracker.py",
+      "lineRange": [
+        258,
+        260
+      ],
+      "summary": "Computes remaining token quota for a session as quota minus used tokens.",
+      "tags": [
+        "quota",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tools/token_tracker.py:is_low",
+      "type": "function",
+      "name": "is_low",
+      "filePath": "tools/token_tracker.py",
+      "lineRange": [
+        263,
+        268
+      ],
+      "summary": "Checks whether remaining token quota has fallen below a given percentage threshold.",
+      "tags": [
+        "quota",
+        "validation",
+        "monitoring"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tools/token_tracker.py:is_exhausted",
+      "type": "function",
+      "name": "is_exhausted",
+      "filePath": "tools/token_tracker.py",
+      "lineRange": [
+        271,
+        273
+      ],
+      "summary": "Checks whether the session's token quota has been fully consumed.",
+      "tags": [
+        "quota",
+        "validation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tools/token_tracker.py:usage_summary",
+      "type": "function",
+      "name": "usage_summary",
+      "filePath": "tools/token_tracker.py",
+      "lineRange": [
+        285,
+        290
+      ],
+      "summary": "Builds a short human-readable summary string of token usage versus quota.",
+      "tags": [
+        "reporting",
+        "quota",
+        "formatting"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tools/token_tracker.py:get_job_breakdown",
+      "type": "function",
+      "name": "get_job_breakdown",
+      "filePath": "tools/token_tracker.py",
+      "lineRange": [
+        317,
+        350
+      ],
+      "summary": "Aggregates token usage entries for a specific job sequence into a per-provider breakdown of cost and token counts.",
+      "tags": [
+        "billing",
+        "aggregation",
+        "reporting"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:tools/token_tracker.py:format_job_footer",
+      "type": "function",
+      "name": "format_job_footer",
+      "filePath": "tools/token_tracker.py",
+      "lineRange": [
+        353,
+        384
+      ],
+      "summary": "Formats a footer message summarizing token cost and provider breakdown for a completed job, shown to the user.",
+      "tags": [
+        "reporting",
+        "billing",
+        "formatting"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:web/.nojekyll",
+      "type": "file",
+      "name": ".nojekyll",
+      "filePath": "web/.nojekyll",
+      "summary": "Empty marker file that disables GitHub Pages' Jekyll processing for the static web dashboard.",
+      "tags": [
+        "deployment",
+        "static-site",
+        "configuration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:web/app.js",
+      "type": "file",
+      "name": "app.js",
+      "filePath": "web/app.js",
+      "summary": "Client-side single-page application logic for the Marketing OS web dashboard: hash-based routing, chart rendering, business data fetching, AI chat with Max, and rendering of strategy/calendar/campaign views.",
+      "tags": [
+        "entry-point",
+        "spa",
+        "ui-rendering",
+        "client-side",
+        "chat"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Large vanilla-JS SPA using string-templated HTML rendering, a tiny hash router, and a thin fetch wrapper (API.get/post/del) rather than a framework."
+    },
+    {
+      "id": "file:web/data.js",
+      "type": "file",
+      "name": "data.js",
+      "filePath": "web/data.js",
+      "summary": "Defines the mock data and navigation/journey configuration (window.MOCK) used to populate the web dashboard before real backend data is wired in.",
+      "tags": [
+        "mock-data",
+        "configuration",
+        "navigation",
+        "client-side"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:webapp/build_standalone.py",
+      "type": "file",
+      "name": "build_standalone.py",
+      "filePath": "webapp/build_standalone.py",
+      "summary": "Build script that inlines the web dashboard's CSS and JS into a single standalone HTML file for static hosting (e.g., GitHub Pages).",
+      "tags": [
+        "build-system",
+        "script",
+        "static-site",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:webapp/build_standalone.py:build",
+      "type": "function",
+      "name": "build",
+      "filePath": "webapp/build_standalone.py",
+      "lineRange": [
+        16,
+        32
+      ],
+      "summary": "Reads the dashboard HTML shell plus its CSS/JS assets and inlines them into a single self-contained HTML string.",
+      "tags": [
+        "build-system",
+        "static-site",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:webapp/build_standalone.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "webapp/build_standalone.py",
+      "lineRange": [
+        35,
+        39
+      ],
+      "summary": "CLI entry point that builds the standalone dashboard HTML and writes it to both web/ and the project root for static hosting.",
+      "tags": [
+        "entry-point",
+        "build-system",
+        "cli"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:tools/token_billing.py",
+      "target": "function:tools/token_billing.py:calc_cost_usd",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tools/token_billing.py",
+      "target": "function:tools/token_billing.py:calc_cost_vnd",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tools/token_billing.py",
+      "target": "function:tools/token_billing.py:fmt_usd",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tools/token_billing.py",
+      "target": "function:tools/token_billing.py:fmt_vnd",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tools/token_billing.py",
+      "target": "function:tools/token_billing.py:accumulate_cost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tools/token_billing.py",
+      "target": "function:tools/token_billing.py:get_total_cost_usd",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tools/token_billing.py",
+      "target": "function:tools/token_billing.py:cost_summary_from_log",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tools/token_billing.py",
+      "target": "function:tools/token_billing.py:format_cost_report",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tools/token_billing.py",
+      "target": "function:tools/token_billing.py:calc_cost_usd",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tools/token_billing.py",
+      "target": "function:tools/token_billing.py:calc_cost_vnd",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tools/token_billing.py",
+      "target": "function:tools/token_billing.py:fmt_usd",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tools/token_billing.py",
+      "target": "function:tools/token_billing.py:fmt_vnd",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tools/token_billing.py",
+      "target": "function:tools/token_billing.py:accumulate_cost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tools/token_billing.py",
+      "target": "function:tools/token_billing.py:get_total_cost_usd",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tools/token_billing.py",
+      "target": "function:tools/token_billing.py:cost_summary_from_log",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tools/token_billing.py",
+      "target": "function:tools/token_billing.py:format_cost_report",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:tools/token_billing.py:calc_cost_vnd",
+      "target": "function:tools/token_billing.py:calc_cost_usd",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:tools/token_billing.py:cost_summary_from_log",
+      "target": "function:tools/token_billing.py:calc_cost_usd",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:tools/token_billing.py:format_cost_report",
+      "target": "function:tools/token_billing.py:cost_summary_from_log",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:tools/token_billing.py:format_cost_report",
+      "target": "function:tools/token_billing.py:fmt_usd",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:tools/token_billing.py:format_cost_report",
+      "target": "function:tools/token_billing.py:fmt_vnd",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tools/token_tracker.py",
+      "target": "function:tools/token_tracker.py:begin_job",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tools/token_tracker.py",
+      "target": "function:tools/token_tracker.py:track_skill",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tools/token_tracker.py",
+      "target": "function:tools/token_tracker.py:track_usage",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tools/token_tracker.py",
+      "target": "function:tools/token_tracker.py:track_usage_raw",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tools/token_tracker.py",
+      "target": "function:tools/token_tracker.py:get_token_log",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tools/token_tracker.py",
+      "target": "function:tools/token_tracker.py:get_latest_skill_entry",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tools/token_tracker.py",
+      "target": "function:tools/token_tracker.py:get_quota",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tools/token_tracker.py",
+      "target": "function:tools/token_tracker.py:get_used",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tools/token_tracker.py",
+      "target": "function:tools/token_tracker.py:get_remaining",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tools/token_tracker.py",
+      "target": "function:tools/token_tracker.py:is_low",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tools/token_tracker.py",
+      "target": "function:tools/token_tracker.py:is_exhausted",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tools/token_tracker.py",
+      "target": "function:tools/token_tracker.py:usage_summary",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tools/token_tracker.py",
+      "target": "function:tools/token_tracker.py:get_job_breakdown",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tools/token_tracker.py",
+      "target": "function:tools/token_tracker.py:format_job_footer",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tools/token_tracker.py",
+      "target": "function:tools/token_tracker.py:begin_job",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tools/token_tracker.py",
+      "target": "function:tools/token_tracker.py:track_skill",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tools/token_tracker.py",
+      "target": "function:tools/token_tracker.py:track_usage",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tools/token_tracker.py",
+      "target": "function:tools/token_tracker.py:track_usage_raw",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tools/token_tracker.py",
+      "target": "function:tools/token_tracker.py:get_token_log",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tools/token_tracker.py",
+      "target": "function:tools/token_tracker.py:get_latest_skill_entry",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tools/token_tracker.py",
+      "target": "function:tools/token_tracker.py:get_quota",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tools/token_tracker.py",
+      "target": "function:tools/token_tracker.py:get_used",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tools/token_tracker.py",
+      "target": "function:tools/token_tracker.py:get_remaining",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tools/token_tracker.py",
+      "target": "function:tools/token_tracker.py:is_low",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tools/token_tracker.py",
+      "target": "function:tools/token_tracker.py:is_exhausted",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tools/token_tracker.py",
+      "target": "function:tools/token_tracker.py:usage_summary",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tools/token_tracker.py",
+      "target": "function:tools/token_tracker.py:get_job_breakdown",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tools/token_tracker.py",
+      "target": "function:tools/token_tracker.py:format_job_footer",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:tools/token_tracker.py:track_skill",
+      "target": "function:tools/token_billing.py:calc_cost_usd",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:tools/token_tracker.py:get_remaining",
+      "target": "function:tools/token_tracker.py:get_quota",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:tools/token_tracker.py:get_remaining",
+      "target": "function:tools/token_tracker.py:get_used",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:tools/token_tracker.py:is_low",
+      "target": "function:tools/token_tracker.py:get_quota",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:tools/token_tracker.py:is_low",
+      "target": "function:tools/token_tracker.py:get_remaining",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:tools/token_tracker.py:is_exhausted",
+      "target": "function:tools/token_tracker.py:get_remaining",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:tools/token_tracker.py:usage_summary",
+      "target": "function:tools/token_tracker.py:get_used",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:tools/token_tracker.py:usage_summary",
+      "target": "function:tools/token_tracker.py:get_quota",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:tools/token_tracker.py:get_latest_skill_entry",
+      "target": "function:tools/token_tracker.py:get_token_log",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:tools/token_tracker.py:get_job_breakdown",
+      "target": "function:tools/token_tracker.py:get_token_log",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:tools/token_tracker.py:format_job_footer",
+      "target": "function:tools/token_tracker.py:get_job_breakdown",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:webapp/build_standalone.py",
+      "target": "function:webapp/build_standalone.py:build",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:webapp/build_standalone.py",
+      "target": "function:webapp/build_standalone.py:main",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:webapp/build_standalone.py",
+      "target": "function:webapp/build_standalone.py:build",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:webapp/build_standalone.py",
+      "target": "function:webapp/build_standalone.py:main",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:webapp/build_standalone.py:main",
+      "target": "function:webapp/build_standalone.py:build",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:webapp/build_standalone.py",
+      "target": "file:web/app.js",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:webapp/build_standalone.py",
+      "target": "file:web/data.js",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:webapp/build_standalone.py",
+      "target": "file:web/.nojekyll",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    }
+  ]
+}

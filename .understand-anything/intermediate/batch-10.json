@@ -1,0 +1,122 @@
+{
+  "nodes": [
+    {
+      "id": "document:.claude/commands/build.md",
+      "type": "document",
+      "name": "build.md",
+      "filePath": ".claude/commands/build.md",
+      "summary": "Defines the `/build` slash command, which implements plan tasks incrementally via a RED-GREEN-verify-commit loop, with an `auto` mode that runs the entire approved plan without stopping between tasks.",
+      "tags": ["slash-command", "documentation", "task-execution", "tdd", "automation"],
+      "complexity": "moderate",
+      "languageNotes": "Claude Code slash-command markdown with YAML frontmatter description and `$ARGUMENTS` mode dispatch."
+    },
+    {
+      "id": "document:.claude/commands/code-simplify.md",
+      "type": "document",
+      "name": "code-simplify.md",
+      "filePath": ".claude/commands/code-simplify.md",
+      "summary": "Defines the `/code-simplify` slash command, which guides simplification of recently changed code while preserving behavior, covering nesting, function length, naming, duplication, and dead code.",
+      "tags": ["slash-command", "documentation", "refactoring", "code-quality"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/commands/plan.md",
+      "type": "document",
+      "name": "plan.md",
+      "filePath": ".claude/commands/plan.md",
+      "summary": "Defines the `/plan` slash command, which breaks work into small verifiable tasks with acceptance criteria and dependency ordering, saving output to tasks/plan.md and tasks/todo.md.",
+      "tags": ["slash-command", "documentation", "planning", "task-breakdown"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/commands/review.md",
+      "type": "document",
+      "name": "review.md",
+      "filePath": ".claude/commands/review.md",
+      "summary": "Defines the `/review` slash command, which conducts a five-axis code review covering correctness, readability, architecture, security, and performance with categorized findings.",
+      "tags": ["slash-command", "documentation", "code-review", "quality"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/commands/ship.md",
+      "type": "document",
+      "name": "ship.md",
+      "filePath": ".claude/commands/ship.md",
+      "summary": "Defines the `/ship` slash command, a fan-out orchestrator that runs code-reviewer, security-auditor, and test-engineer subagents in parallel, then merges their reports into a single go/no-go launch decision with a mandatory rollback plan.",
+      "tags": ["slash-command", "documentation", "orchestration", "launch-checklist", "subagents"],
+      "complexity": "moderate",
+      "languageNotes": "Documents a parallel multi-agent fan-out/merge pattern using Claude Code's Agent tool and subagent_type dispatch."
+    },
+    {
+      "id": "document:.claude/commands/spec.md",
+      "type": "document",
+      "name": "spec.md",
+      "filePath": ".claude/commands/spec.md",
+      "summary": "Defines the `/spec` slash command, which starts spec-driven development by gathering requirements and generating a structured SPEC.md before any code is written.",
+      "tags": ["slash-command", "documentation", "spec-driven-development", "requirements"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/commands/test.md",
+      "type": "document",
+      "name": "test.md",
+      "filePath": ".claude/commands/test.md",
+      "summary": "Defines the `/test` slash command, which runs the test-driven development workflow for new features and the Prove-It pattern for bug fixes, including a hook to browser-based verification for UI issues.",
+      "tags": ["slash-command", "documentation", "tdd", "testing"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/commands/webperf.md",
+      "type": "document",
+      "name": "webperf.md",
+      "filePath": ".claude/commands/webperf.md",
+      "summary": "Defines the `/webperf` slash command, which runs a web performance audit via the web-performance-auditor subagent, supporting a Deep mode using Lighthouse/PSI/CrUX/DevTools data and a Quick mode based on static source scanning.",
+      "tags": ["slash-command", "documentation", "performance", "web-vitals", "subagents"],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "document:.claude/commands/build.md",
+      "target": "document:.claude/commands/spec.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.claude/commands/build.md",
+      "target": "document:.claude/commands/plan.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.claude/commands/ship.md",
+      "target": "document:.claude/commands/review.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.claude/commands/ship.md",
+      "target": "document:.claude/commands/webperf.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.claude/commands/test.md",
+      "target": "document:.claude/commands/build.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.claude/commands/code-simplify.md",
+      "target": "document:.claude/commands/review.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    }
+  ]
+}

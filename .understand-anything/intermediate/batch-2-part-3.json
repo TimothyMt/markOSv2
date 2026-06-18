@@ -1,0 +1,342 @@
+{
+  "nodes": [
+    {
+      "id": "file:bot/renderers.py",
+      "type": "file",
+      "name": "renderers.py",
+      "filePath": "bot/renderers.py",
+      "summary": "Converts structured/strategic and operational LLM outputs into user-facing presentation formats — Telegram message cards, Markdown report files, and multi-sheet Excel templates with table parsing and reformatting helpers.",
+      "tags": ["formatting", "serialization", "utility", "rendering"],
+      "complexity": "complex",
+      "languageNotes": "Mixes Markdown table parsing with openpyxl-style Excel generation, including LLM-assisted table repair (_haiku_rebuild_table) for malformed model output."
+    },
+    {
+      "id": "function:bot/renderers.py:parse_operational_deliverable",
+      "type": "function",
+      "name": "parse_operational_deliverable",
+      "filePath": "bot/renderers.py",
+      "lineRange": [71, 96],
+      "summary": "Parses an operational skill's raw LLM output text into a structured deliverable object.",
+      "tags": ["parsing", "operational-skill"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:bot/renderers.py:parse_operational_analysis",
+      "type": "function",
+      "name": "parse_operational_analysis",
+      "filePath": "bot/renderers.py",
+      "lineRange": [99, 118],
+      "summary": "Parses an operational analysis-type LLM output into structured sections for display.",
+      "tags": ["parsing", "operational-skill"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:bot/renderers.py:format_telegram_card",
+      "type": "function",
+      "name": "format_telegram_card",
+      "filePath": "bot/renderers.py",
+      "lineRange": [136, 182],
+      "summary": "Formats a parsed deliverable into a compact Telegram message card with headline, summary, and action hints.",
+      "tags": ["formatting", "telegram", "rendering"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:bot/renderers.py:render_markdown_file",
+      "type": "function",
+      "name": "render_markdown_file",
+      "filePath": "bot/renderers.py",
+      "lineRange": [189, 227],
+      "summary": "Renders a full Markdown report file from a parsed deliverable for download/export.",
+      "tags": ["rendering", "formatting", "export"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:bot/renderers.py:_safe_sheet_name",
+      "type": "function",
+      "name": "_safe_sheet_name",
+      "filePath": "bot/renderers.py",
+      "lineRange": [263, 277],
+      "summary": "Sanitizes a string into a valid Excel worksheet name, handling length and character restrictions.",
+      "tags": ["utility", "validation"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:bot/renderers.py:_pivot_keyvalue_tables",
+      "type": "function",
+      "name": "_pivot_keyvalue_tables",
+      "filePath": "bot/renderers.py",
+      "lineRange": [298, 329],
+      "summary": "Transforms key-value style Markdown tables into pivoted tabular form suitable for Excel rendering.",
+      "tags": ["parsing", "transformation"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:bot/renderers.py:_split_table_by_week",
+      "type": "function",
+      "name": "_split_table_by_week",
+      "filePath": "bot/renderers.py",
+      "lineRange": [332, 360],
+      "summary": "Splits a combined content-calendar table into separate per-week tables for multi-sheet Excel export.",
+      "tags": ["parsing", "transformation"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:bot/renderers.py:_parse_post_batch_narrative",
+      "type": "function",
+      "name": "_parse_post_batch_narrative",
+      "filePath": "bot/renderers.py",
+      "lineRange": [367, 478],
+      "summary": "Parses a batch of generated post narratives from raw LLM text into individual structured post records.",
+      "tags": ["parsing", "content-generation"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:bot/renderers.py:render_template_excel",
+      "type": "function",
+      "name": "render_template_excel",
+      "filePath": "bot/renderers.py",
+      "lineRange": [486, 618],
+      "summary": "Renders a structured deliverable into a pre-defined Excel template format with styled sheets.",
+      "tags": ["rendering", "export", "formatting"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:bot/renderers.py:render_excel_file",
+      "type": "function",
+      "name": "render_excel_file",
+      "filePath": "bot/renderers.py",
+      "lineRange": [621, 868],
+      "summary": "Top-level Excel export function that selects the appropriate rendering strategy and produces a downloadable workbook for a deliverable.",
+      "tags": ["rendering", "export", "orchestration"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:bot/renderers.py:_haiku_rebuild_table",
+      "type": "function",
+      "name": "_haiku_rebuild_table",
+      "filePath": "bot/renderers.py",
+      "lineRange": [871, 928],
+      "summary": "Uses a fast LLM call (Haiku) to repair malformed Markdown tables that fail strict parsing.",
+      "tags": ["ai-agent", "parsing", "repair"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:bot/renderers.py:_extract_markdown_tables",
+      "type": "function",
+      "name": "_extract_markdown_tables",
+      "filePath": "bot/renderers.py",
+      "lineRange": [931, 987],
+      "summary": "Extracts all Markdown table blocks from a raw text response for downstream parsing/rendering.",
+      "tags": ["parsing", "utility"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:frameworks/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "frameworks/__init__.py",
+      "summary": "Package marker for the frameworks module that re-exports the KPI library, SAVE framework, and SMART framework helpers as the public entry point.",
+      "tags": ["entry-point", "barrel", "package-init"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:frameworks/industry_context.py",
+      "type": "file",
+      "name": "industry_context.py",
+      "filePath": "frameworks/industry_context.py",
+      "summary": "Defines a static library of industry-specific marketing context (search seeds, purchase archetypes, key-message hints) and helper functions to look up and format that context for prompts.",
+      "tags": ["data-model", "domain-knowledge", "utility"],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:frameworks/industry_context.py:IndustryContext",
+      "type": "class",
+      "name": "IndustryContext",
+      "filePath": "frameworks/industry_context.py",
+      "lineRange": [41, 51],
+      "summary": "Data model representing a single industry's contextual marketing attributes (archetypes, seeds, messaging hints).",
+      "tags": ["data-model"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:frameworks/industry_context.py:get_industry_context_as_text",
+      "type": "function",
+      "name": "get_industry_context_as_text",
+      "filePath": "frameworks/industry_context.py",
+      "lineRange": [573, 602],
+      "summary": "Formats an industry's context data into plain text suitable for inclusion in an LLM prompt.",
+      "tags": ["formatting", "utility"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:frameworks/industry_context.py:get_full_industry_brief",
+      "type": "function",
+      "name": "get_full_industry_brief",
+      "filePath": "frameworks/industry_context.py",
+      "lineRange": [605, 614],
+      "summary": "Returns the complete combined industry brief text for use as prompt context.",
+      "tags": ["formatting", "utility"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:frameworks/industry_context.py:suggest_key_message_hint",
+      "type": "function",
+      "name": "suggest_key_message_hint",
+      "filePath": "frameworks/industry_context.py",
+      "lineRange": [617, 660],
+      "summary": "Suggests a key-message hint for a given industry and purchase archetype combination.",
+      "tags": ["domain-knowledge", "utility"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:frameworks/industry_context.py:resolve_archetype",
+      "type": "function",
+      "name": "resolve_archetype",
+      "filePath": "frameworks/industry_context.py",
+      "lineRange": [705, 766],
+      "summary": "Resolves the appropriate purchase archetype (or blend) for an industry and business description.",
+      "tags": ["domain-knowledge", "utility"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:frameworks/industry_context.py:list_industries_by_archetype",
+      "type": "function",
+      "name": "list_industries_by_archetype",
+      "filePath": "frameworks/industry_context.py",
+      "lineRange": [769, 782],
+      "summary": "Lists all industries that match a given purchase archetype.",
+      "tags": ["utility", "domain-knowledge"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:frameworks/industry_context.py:format_archetype_block",
+      "type": "function",
+      "name": "format_archetype_block",
+      "filePath": "frameworks/industry_context.py",
+      "lineRange": [785, 806],
+      "summary": "Formats a purchase archetype's details into a text block for prompt inclusion.",
+      "tags": ["formatting", "utility"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:frameworks/kpi_library.py",
+      "type": "file",
+      "name": "kpi_library.py",
+      "filePath": "frameworks/kpi_library.py",
+      "summary": "Defines the KPIFramework data model and a static library of industry-specific KPI sets (primary/secondary/vanity metrics, benchmarks, unit economics) with lookup and text-formatting helpers.",
+      "tags": ["data-model", "domain-knowledge", "utility"],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:frameworks/kpi_library.py:KPIFramework",
+      "type": "class",
+      "name": "KPIFramework",
+      "filePath": "frameworks/kpi_library.py",
+      "lineRange": [10, 21],
+      "summary": "Data model describing a single industry's KPI framework, including primary/secondary/vanity KPIs, benchmarks, and growth levers.",
+      "tags": ["data-model"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:frameworks/kpi_library.py:get_framework_as_text",
+      "type": "function",
+      "name": "get_framework_as_text",
+      "filePath": "frameworks/kpi_library.py",
+      "lineRange": [871, 907],
+      "summary": "Formats an industry's KPI framework into plain text for inclusion in an LLM prompt.",
+      "tags": ["formatting", "utility"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:frameworks/save_framework.py",
+      "type": "file",
+      "name": "save_framework.py",
+      "filePath": "frameworks/save_framework.py",
+      "summary": "Implements the SAVE marketing framework analysis generator, producing a structured solution/access/value/education breakdown for a given business and industry.",
+      "tags": ["domain-knowledge", "ai-agent", "formatting"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:frameworks/save_framework.py:generate_save_analysis",
+      "type": "function",
+      "name": "generate_save_analysis",
+      "filePath": "frameworks/save_framework.py",
+      "lineRange": [87, 127],
+      "summary": "Generates the SAVE framework analysis text for a business based on industry, description, target customer, and product/service.",
+      "tags": ["domain-knowledge", "formatting"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:frameworks/smart_framework.py",
+      "type": "file",
+      "name": "smart_framework.py",
+      "filePath": "frameworks/smart_framework.py",
+      "summary": "Implements SMART goal-setting templates and formatting helpers, scaling goal targets by business stage for inclusion in strategy prompts.",
+      "tags": ["domain-knowledge", "formatting", "utility"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:frameworks/smart_framework.py:format_smart_prompt",
+      "type": "function",
+      "name": "format_smart_prompt",
+      "filePath": "frameworks/smart_framework.py",
+      "lineRange": [133, 169],
+      "summary": "Formats a complete SMART goals prompt block for a given industry, business stage, and goal list.",
+      "tags": ["formatting", "domain-knowledge"],
+      "complexity": "moderate"
+    }
+  ],
+  "edges": [
+    { "source": "file:bot/renderers.py", "target": "file:agents/skills.py", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:bot/renderers.py", "target": "function:bot/renderers.py:parse_operational_deliverable", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:bot/renderers.py", "target": "function:bot/renderers.py:parse_operational_analysis", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:bot/renderers.py", "target": "function:bot/renderers.py:format_telegram_card", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:bot/renderers.py", "target": "function:bot/renderers.py:render_markdown_file", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:bot/renderers.py", "target": "function:bot/renderers.py:_safe_sheet_name", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:bot/renderers.py", "target": "function:bot/renderers.py:_pivot_keyvalue_tables", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:bot/renderers.py", "target": "function:bot/renderers.py:_split_table_by_week", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:bot/renderers.py", "target": "function:bot/renderers.py:_parse_post_batch_narrative", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:bot/renderers.py", "target": "function:bot/renderers.py:render_template_excel", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:bot/renderers.py", "target": "function:bot/renderers.py:render_excel_file", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:bot/renderers.py", "target": "function:bot/renderers.py:_haiku_rebuild_table", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:bot/renderers.py", "target": "function:bot/renderers.py:_extract_markdown_tables", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:bot/renderers.py", "target": "function:bot/renderers.py:format_telegram_card", "type": "exports", "direction": "forward", "weight": 0.8 },
+    { "source": "file:bot/renderers.py", "target": "function:bot/renderers.py:render_markdown_file", "type": "exports", "direction": "forward", "weight": 0.8 },
+    { "source": "file:bot/renderers.py", "target": "function:bot/renderers.py:render_excel_file", "type": "exports", "direction": "forward", "weight": 0.8 },
+    { "source": "function:bot/renderers.py:render_excel_file", "target": "function:bot/renderers.py:render_template_excel", "type": "calls", "direction": "forward", "weight": 0.8 },
+    { "source": "function:bot/renderers.py:render_excel_file", "target": "function:bot/renderers.py:_extract_markdown_tables", "type": "calls", "direction": "forward", "weight": 0.8 },
+    { "source": "function:bot/renderers.py:render_excel_file", "target": "function:bot/renderers.py:_haiku_rebuild_table", "type": "calls", "direction": "forward", "weight": 0.8 },
+    { "source": "function:bot/renderers.py:render_template_excel", "target": "function:bot/renderers.py:_pivot_keyvalue_tables", "type": "calls", "direction": "forward", "weight": 0.8 },
+    { "source": "function:bot/renderers.py:render_template_excel", "target": "function:bot/renderers.py:_split_table_by_week", "type": "calls", "direction": "forward", "weight": 0.8 },
+    { "source": "function:bot/renderers.py:render_template_excel", "target": "function:bot/renderers.py:_safe_sheet_name", "type": "calls", "direction": "forward", "weight": 0.8 },
+    { "source": "function:bot/renderers.py:format_telegram_card", "target": "function:bot/renderers.py:parse_operational_deliverable", "type": "calls", "direction": "forward", "weight": 0.8 },
+
+    { "source": "file:frameworks/__init__.py", "target": "file:frameworks/kpi_library.py", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:frameworks/__init__.py", "target": "file:frameworks/save_framework.py", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:frameworks/__init__.py", "target": "file:frameworks/smart_framework.py", "type": "imports", "direction": "forward", "weight": 0.7 },
+
+    { "source": "file:frameworks/industry_context.py", "target": "file:frameworks/kpi_library.py", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:frameworks/industry_context.py", "target": "class:frameworks/industry_context.py:IndustryContext", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:frameworks/industry_context.py", "target": "function:frameworks/industry_context.py:get_industry_context_as_text", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:frameworks/industry_context.py", "target": "function:frameworks/industry_context.py:get_full_industry_brief", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:frameworks/industry_context.py", "target": "function:frameworks/industry_context.py:suggest_key_message_hint", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:frameworks/industry_context.py", "target": "function:frameworks/industry_context.py:resolve_archetype", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:frameworks/industry_context.py", "target": "function:frameworks/industry_context.py:list_industries_by_archetype", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:frameworks/industry_context.py", "target": "function:frameworks/industry_context.py:format_archetype_block", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:frameworks/industry_context.py", "target": "class:frameworks/industry_context.py:IndustryContext", "type": "exports", "direction": "forward", "weight": 0.8 },
+    { "source": "file:frameworks/industry_context.py", "target": "function:frameworks/industry_context.py:get_full_industry_brief", "type": "exports", "direction": "forward", "weight": 0.8 },
+    { "source": "function:frameworks/industry_context.py:get_full_industry_brief", "target": "function:frameworks/industry_context.py:get_industry_context_as_text", "type": "calls", "direction": "forward", "weight": 0.8 },
+    { "source": "function:frameworks/industry_context.py:resolve_archetype", "target": "function:frameworks/industry_context.py:suggest_key_message_hint", "type": "calls", "direction": "forward", "weight": 0.8 },
+
+    { "source": "file:frameworks/kpi_library.py", "target": "class:frameworks/kpi_library.py:KPIFramework", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:frameworks/kpi_library.py", "target": "function:frameworks/kpi_library.py:get_framework_as_text", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:frameworks/kpi_library.py", "target": "class:frameworks/kpi_library.py:KPIFramework", "type": "exports", "direction": "forward", "weight": 0.8 },
+    { "source": "file:frameworks/kpi_library.py", "target": "function:frameworks/kpi_library.py:get_framework_as_text", "type": "exports", "direction": "forward", "weight": 0.8 },
+
+    { "source": "file:frameworks/save_framework.py", "target": "function:frameworks/save_framework.py:generate_save_analysis", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:frameworks/save_framework.py", "target": "function:frameworks/save_framework.py:generate_save_analysis", "type": "exports", "direction": "forward", "weight": 0.8 },
+
+    { "source": "file:frameworks/smart_framework.py", "target": "function:frameworks/smart_framework.py:format_smart_prompt", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:frameworks/smart_framework.py", "target": "function:frameworks/smart_framework.py:format_smart_prompt", "type": "exports", "direction": "forward", "weight": 0.8 }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "nodes": [
+    {
+      "id": "document:.claude/agents/code-reviewer.md",
+      "type": "document",
+      "name": "code-reviewer.md",
+      "filePath": ".claude/agents/code-reviewer.md",
+      "summary": "Claude Code subagent definition for a senior code-reviewer persona that evaluates changes across correctness, readability, architecture, security, and performance, producing a categorized review output.",
+      "tags": ["documentation", "agent-definition", "code-review", "quality"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:.claude/agents/security-auditor.md",
+      "type": "document",
+      "name": "security-auditor.md",
+      "filePath": ".claude/agents/security-auditor.md",
+      "summary": "Claude Code subagent definition for a security-auditor persona that reviews input handling, auth, data protection, infrastructure, and AI/LLM features, classifying findings by severity.",
+      "tags": ["documentation", "agent-definition", "security", "code-review"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:.claude/agents/test-engineer.md",
+      "type": "document",
+      "name": "test-engineer.md",
+      "filePath": ".claude/agents/test-engineer.md",
+      "summary": "Claude Code subagent definition for a QA/test-engineer persona that designs test suites, writes tests, and analyzes coverage gaps using a structured analyze-then-write approach.",
+      "tags": ["documentation", "agent-definition", "testing", "qa"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:.claude/agents/web-performance-auditor.md",
+      "type": "document",
+      "name": "web-performance-auditor.md",
+      "filePath": ".claude/agents/web-performance-auditor.md",
+      "summary": "Claude Code subagent definition for a web-performance-auditor persona covering Core Web Vitals, loading, rendering, and network optimization, with quick and deep (tool-assisted) operating modes.",
+      "tags": ["documentation", "agent-definition", "performance", "web-vitals"],
+      "complexity": "complex"
+    }
+  ],
+  "edges": []
+}

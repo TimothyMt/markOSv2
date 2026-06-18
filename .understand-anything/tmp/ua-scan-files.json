@@ -1,0 +1,1212 @@
+{
+  "scriptCompleted": true,
+  "files": [
+    {
+      "path": ".claude/agents/code-reviewer.md",
+      "language": "markdown",
+      "sizeLines": 97,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/agents/security-auditor.md",
+      "language": "markdown",
+      "sizeLines": 112,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/agents/test-engineer.md",
+      "language": "markdown",
+      "sizeLines": 95,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/agents/web-performance-auditor.md",
+      "language": "markdown",
+      "sizeLines": 184,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/commands/build.md",
+      "language": "markdown",
+      "sizeLines": 44,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/commands/code-simplify.md",
+      "language": "markdown",
+      "sizeLines": 22,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/commands/plan.md",
+      "language": "markdown",
+      "sizeLines": 16,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/commands/review.md",
+      "language": "markdown",
+      "sizeLines": 16,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/commands/ship.md",
+      "language": "markdown",
+      "sizeLines": 72,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/commands/spec.md",
+      "language": "markdown",
+      "sizeLines": 15,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/commands/test.md",
+      "language": "markdown",
+      "sizeLines": 19,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/commands/webperf.md",
+      "language": "markdown",
+      "sizeLines": 32,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/skills/api-and-interface-design/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 294,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/skills/browser-testing-with-devtools/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 304,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/skills/ci-cd-and-automation/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 390,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/skills/code-review-and-quality/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 347,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/skills/code-simplification/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 331,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/skills/context-engineering/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 289,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/skills/debugging-and-error-recovery/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 300,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/skills/deprecation-and-migration/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 206,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/skills/documentation-and-adrs/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 278,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/skills/doubt-driven-development/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 243,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/skills/frontend-ui-engineering/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 328,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/skills/git-workflow-and-versioning/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 300,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/skills/idea-refine/examples.md",
+      "language": "markdown",
+      "sizeLines": 238,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/skills/idea-refine/frameworks.md",
+      "language": "markdown",
+      "sizeLines": 99,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/skills/idea-refine/refinement-criteria.md",
+      "language": "markdown",
+      "sizeLines": 113,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/skills/idea-refine/scripts/idea-refine.sh",
+      "language": "shell",
+      "sizeLines": 15,
+      "fileCategory": "script"
+    },
+    {
+      "path": ".claude/skills/idea-refine/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 178,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/skills/incremental-implementation/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 245,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/skills/interview-me/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 225,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/skills/LICENSE_agent-skills",
+      "language": "unknown",
+      "sizeLines": 21,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".claude/skills/observability-and-instrumentation/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 201,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/skills/performance-optimization/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 350,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/skills/planning-and-task-breakdown/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 223,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/skills/security-and-hardening/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 461,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/skills/shipping-and-launch/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 309,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/skills/source-driven-development/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 194,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/skills/SOURCE.md",
+      "language": "markdown",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/skills/spec-driven-development/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 200,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/skills/test-driven-development/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 383,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/skills/using-agent-skills/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 189,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".env.example",
+      "language": "config",
+      "sizeLines": 41,
+      "fileCategory": "config"
+    },
+    {
+      "path": ".github/workflows/deploy-pages.yml",
+      "language": "yaml",
+      "sizeLines": 47,
+      "fileCategory": "infra"
+    },
+    {
+      "path": ".nojekyll",
+      "language": "unknown",
+      "sizeLines": 0,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".python-version",
+      "language": "unknown",
+      "sizeLines": 1,
+      "fileCategory": "code"
+    },
+    {
+      "path": "agents/__init__.py",
+      "language": "python",
+      "sizeLines": 3,
+      "fileCategory": "code"
+    },
+    {
+      "path": "agents/agent_wrappers.py",
+      "language": "python",
+      "sizeLines": 470,
+      "fileCategory": "code"
+    },
+    {
+      "path": "agents/campaign_execution.py",
+      "language": "python",
+      "sizeLines": 229,
+      "fileCategory": "code"
+    },
+    {
+      "path": "agents/campaign_ideation.py",
+      "language": "python",
+      "sizeLines": 1156,
+      "fileCategory": "code"
+    },
+    {
+      "path": "agents/campaign_intake_prompts.py",
+      "language": "python",
+      "sizeLines": 252,
+      "fileCategory": "code"
+    },
+    {
+      "path": "agents/campaign_intake.py",
+      "language": "python",
+      "sizeLines": 337,
+      "fileCategory": "code"
+    },
+    {
+      "path": "agents/campaign_scope_library.py",
+      "language": "python",
+      "sizeLines": 151,
+      "fileCategory": "code"
+    },
+    {
+      "path": "agents/content_suite_prompts.py",
+      "language": "python",
+      "sizeLines": 454,
+      "fileCategory": "code"
+    },
+    {
+      "path": "agents/critic.py",
+      "language": "python",
+      "sizeLines": 196,
+      "fileCategory": "code"
+    },
+    {
+      "path": "agents/discovery_prompts.py",
+      "language": "python",
+      "sizeLines": 260,
+      "fileCategory": "code"
+    },
+    {
+      "path": "agents/discovery.py",
+      "language": "python",
+      "sizeLines": 485,
+      "fileCategory": "code"
+    },
+    {
+      "path": "agents/funnel_mapper.py",
+      "language": "python",
+      "sizeLines": 500,
+      "fileCategory": "code"
+    },
+    {
+      "path": "agents/manager_personas.py",
+      "language": "python",
+      "sizeLines": 726,
+      "fileCategory": "code"
+    },
+    {
+      "path": "agents/max_conductor.py",
+      "language": "python",
+      "sizeLines": 113,
+      "fileCategory": "code"
+    },
+    {
+      "path": "agents/operational_prompts.py",
+      "language": "python",
+      "sizeLines": 2029,
+      "fileCategory": "code"
+    },
+    {
+      "path": "agents/operational_skill.py",
+      "language": "python",
+      "sizeLines": 263,
+      "fileCategory": "code"
+    },
+    {
+      "path": "agents/operational_skills_config.py",
+      "language": "python",
+      "sizeLines": 1216,
+      "fileCategory": "code"
+    },
+    {
+      "path": "agents/orchestrator.py",
+      "language": "python",
+      "sizeLines": 512,
+      "fileCategory": "code"
+    },
+    {
+      "path": "agents/output_formats.py",
+      "language": "python",
+      "sizeLines": 320,
+      "fileCategory": "code"
+    },
+    {
+      "path": "agents/pipeline.py",
+      "language": "python",
+      "sizeLines": 1042,
+      "fileCategory": "code"
+    },
+    {
+      "path": "agents/post_actions.py",
+      "language": "python",
+      "sizeLines": 250,
+      "fileCategory": "code"
+    },
+    {
+      "path": "agents/prompts.py",
+      "language": "python",
+      "sizeLines": 1160,
+      "fileCategory": "code"
+    },
+    {
+      "path": "agents/skills.py",
+      "language": "python",
+      "sizeLines": 422,
+      "fileCategory": "code"
+    },
+    {
+      "path": "agents/social_industry_profiles.py",
+      "language": "python",
+      "sizeLines": 401,
+      "fileCategory": "code"
+    },
+    {
+      "path": "agents/strategy_prompts.py",
+      "language": "python",
+      "sizeLines": 238,
+      "fileCategory": "code"
+    },
+    {
+      "path": "agents/strategy.py",
+      "language": "python",
+      "sizeLines": 281,
+      "fileCategory": "code"
+    },
+    {
+      "path": "agents/surgical_edit.py",
+      "language": "python",
+      "sizeLines": 220,
+      "fileCategory": "code"
+    },
+    {
+      "path": "agents/task_registry.py",
+      "language": "python",
+      "sizeLines": 584,
+      "fileCategory": "code"
+    },
+    {
+      "path": "agents/task_workflows.py",
+      "language": "python",
+      "sizeLines": 48,
+      "fileCategory": "code"
+    },
+    {
+      "path": "agents/tone_calibration.py",
+      "language": "python",
+      "sizeLines": 429,
+      "fileCategory": "code"
+    },
+    {
+      "path": "agents/workflow_runner.py",
+      "language": "python",
+      "sizeLines": 229,
+      "fileCategory": "code"
+    },
+    {
+      "path": "bot/__init__.py",
+      "language": "python",
+      "sizeLines": 0,
+      "fileCategory": "code"
+    },
+    {
+      "path": "bot/excel_reader.py",
+      "language": "python",
+      "sizeLines": 115,
+      "fileCategory": "code"
+    },
+    {
+      "path": "bot/handlers.py",
+      "language": "python",
+      "sizeLines": 9943,
+      "fileCategory": "code"
+    },
+    {
+      "path": "bot/html_report.py",
+      "language": "python",
+      "sizeLines": 1241,
+      "fileCategory": "code"
+    },
+    {
+      "path": "bot/keyboards.py",
+      "language": "python",
+      "sizeLines": 430,
+      "fileCategory": "code"
+    },
+    {
+      "path": "bot/main.py",
+      "language": "python",
+      "sizeLines": 202,
+      "fileCategory": "code"
+    },
+    {
+      "path": "bot/renderers.py",
+      "language": "python",
+      "sizeLines": 987,
+      "fileCategory": "code"
+    },
+    {
+      "path": "bot/web_control.py",
+      "language": "python",
+      "sizeLines": 93,
+      "fileCategory": "code"
+    },
+    {
+      "path": "config.py",
+      "language": "python",
+      "sizeLines": 85,
+      "fileCategory": "code"
+    },
+    {
+      "path": "content_generation_template.xlsx",
+      "language": "xlsx",
+      "sizeLines": 57,
+      "fileCategory": "code"
+    },
+    {
+      "path": "DEPLOY_RAILWAY.md",
+      "language": "markdown",
+      "sizeLines": 48,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "docs/ADS_SCHEDULER_SETUP.md",
+      "language": "markdown",
+      "sizeLines": 220,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "docs/APP_FUNCTIONS.md",
+      "language": "markdown",
+      "sizeLines": 333,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "docs/BACKLOG.md",
+      "language": "markdown",
+      "sizeLines": 652,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "docs/DB_V2_MIGRATION_PLAN.md",
+      "language": "markdown",
+      "sizeLines": 318,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "docs/IMPLEMENTATION_PLAN.md",
+      "language": "markdown",
+      "sizeLines": 766,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "docs/LAUNCH_CHECKLIST.md",
+      "language": "markdown",
+      "sizeLines": 28,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "docs/markos-flow.md",
+      "language": "markdown",
+      "sizeLines": 493,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "docs/MAX_CMO_REFERENCE.md",
+      "language": "markdown",
+      "sizeLines": 169,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "docs/SCALE_BACKLOG.md",
+      "language": "markdown",
+      "sizeLines": 31,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "docs/web/ARCHITECTURE.md",
+      "language": "markdown",
+      "sizeLines": 65,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "docs/web/DECISIONS.md",
+      "language": "markdown",
+      "sizeLines": 39,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "docs/web/PRODUCT.md",
+      "language": "markdown",
+      "sizeLines": 51,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "docs/web/ROADMAP.md",
+      "language": "markdown",
+      "sizeLines": 46,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "docs/web/slices/M0-directional-reframe.md",
+      "language": "markdown",
+      "sizeLines": 153,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "docs/web/slices/M0-discovery-to-strategy.md",
+      "language": "markdown",
+      "sizeLines": 62,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "docs/web/slices/M1-content-production.md",
+      "language": "markdown",
+      "sizeLines": 54,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "docs/web/slices/output-reader-editor.md",
+      "language": "markdown",
+      "sizeLines": 77,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "docs/web/WAY_OF_WORKING.md",
+      "language": "markdown",
+      "sizeLines": 118,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "frameworks/__init__.py",
+      "language": "python",
+      "sizeLines": 9,
+      "fileCategory": "code"
+    },
+    {
+      "path": "frameworks/industry_context.py",
+      "language": "python",
+      "sizeLines": 821,
+      "fileCategory": "code"
+    },
+    {
+      "path": "frameworks/kpi_library.py",
+      "language": "python",
+      "sizeLines": 911,
+      "fileCategory": "code"
+    },
+    {
+      "path": "frameworks/pricing_segment_library.py",
+      "language": "python",
+      "sizeLines": 173,
+      "fileCategory": "code"
+    },
+    {
+      "path": "frameworks/save_framework.py",
+      "language": "python",
+      "sizeLines": 127,
+      "fileCategory": "code"
+    },
+    {
+      "path": "frameworks/smart_framework.py",
+      "language": "python",
+      "sizeLines": 169,
+      "fileCategory": "code"
+    },
+    {
+      "path": "index.html",
+      "language": "html",
+      "sizeLines": 2896,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "Procfile",
+      "language": "procfile",
+      "sizeLines": 1,
+      "fileCategory": "infra"
+    },
+    {
+      "path": "railway.json",
+      "language": "json",
+      "sizeLines": 11,
+      "fileCategory": "config"
+    },
+    {
+      "path": "README.md",
+      "language": "markdown",
+      "sizeLines": 49,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "requirements.txt",
+      "language": "txt",
+      "sizeLines": 12,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "run_local.py",
+      "language": "python",
+      "sizeLines": 99,
+      "fileCategory": "code"
+    },
+    {
+      "path": "run_web.py",
+      "language": "python",
+      "sizeLines": 66,
+      "fileCategory": "code"
+    },
+    {
+      "path": "services/__init__.py",
+      "language": "python",
+      "sizeLines": 0,
+      "fileCategory": "code"
+    },
+    {
+      "path": "services/ads_notifier.py",
+      "language": "python",
+      "sizeLines": 532,
+      "fileCategory": "code"
+    },
+    {
+      "path": "services/ads_scheduler.py",
+      "language": "python",
+      "sizeLines": 228,
+      "fileCategory": "code"
+    },
+    {
+      "path": "services/fb_oauth.py",
+      "language": "python",
+      "sizeLines": 279,
+      "fileCategory": "code"
+    },
+    {
+      "path": "storage/__init__.py",
+      "language": "python",
+      "sizeLines": 23,
+      "fileCategory": "code"
+    },
+    {
+      "path": "storage/brand_voice.py",
+      "language": "python",
+      "sizeLines": 147,
+      "fileCategory": "code"
+    },
+    {
+      "path": "storage/campaign_history.py",
+      "language": "python",
+      "sizeLines": 188,
+      "fileCategory": "code"
+    },
+    {
+      "path": "storage/campaign_intelligence.py",
+      "language": "python",
+      "sizeLines": 54,
+      "fileCategory": "code"
+    },
+    {
+      "path": "storage/embeddings.py",
+      "language": "python",
+      "sizeLines": 59,
+      "fileCategory": "code"
+    },
+    {
+      "path": "storage/fb_connections.py",
+      "language": "python",
+      "sizeLines": 336,
+      "fileCategory": "code"
+    },
+    {
+      "path": "storage/feedback_log.py",
+      "language": "python",
+      "sizeLines": 136,
+      "fileCategory": "code"
+    },
+    {
+      "path": "storage/migrations/001_initial_sessions.sql",
+      "language": "sql",
+      "sizeLines": 30,
+      "fileCategory": "data"
+    },
+    {
+      "path": "storage/migrations/002_tracked_competitors.sql",
+      "language": "sql",
+      "sizeLines": 35,
+      "fileCategory": "data"
+    },
+    {
+      "path": "storage/migrations/003_feedback_log.sql",
+      "language": "sql",
+      "sizeLines": 21,
+      "fileCategory": "data"
+    },
+    {
+      "path": "storage/migrations/004_user_brand_voice.sql",
+      "language": "sql",
+      "sizeLines": 45,
+      "fileCategory": "data"
+    },
+    {
+      "path": "storage/migrations/005_pgvector.sql",
+      "language": "sql",
+      "sizeLines": 80,
+      "fileCategory": "data"
+    },
+    {
+      "path": "storage/migrations/006_normalize_schema.sql",
+      "language": "sql",
+      "sizeLines": 285,
+      "fileCategory": "data"
+    },
+    {
+      "path": "storage/migrations/007_engagement_spine.sql",
+      "language": "sql",
+      "sizeLines": 172,
+      "fileCategory": "data"
+    },
+    {
+      "path": "storage/migrations/008_v2_fields.sql",
+      "language": "sql",
+      "sizeLines": 18,
+      "fileCategory": "data"
+    },
+    {
+      "path": "storage/migrations/009_campaign_intelligence.sql",
+      "language": "sql",
+      "sizeLines": 25,
+      "fileCategory": "data"
+    },
+    {
+      "path": "storage/migrations/010_fb_connections.sql",
+      "language": "sql",
+      "sizeLines": 79,
+      "fileCategory": "data"
+    },
+    {
+      "path": "storage/migrations/011_fb_available_accounts.sql",
+      "language": "sql",
+      "sizeLines": 3,
+      "fileCategory": "data"
+    },
+    {
+      "path": "storage/models.py",
+      "language": "python",
+      "sizeLines": 407,
+      "fileCategory": "code"
+    },
+    {
+      "path": "storage/session_v2_adapter.py",
+      "language": "python",
+      "sizeLines": 200,
+      "fileCategory": "code"
+    },
+    {
+      "path": "storage/session.py",
+      "language": "python",
+      "sizeLines": 273,
+      "fileCategory": "code"
+    },
+    {
+      "path": "storage/tracked_competitors.py",
+      "language": "python",
+      "sizeLines": 123,
+      "fileCategory": "code"
+    },
+    {
+      "path": "storage/v2/__init__.py",
+      "language": "python",
+      "sizeLines": 81,
+      "fileCategory": "code"
+    },
+    {
+      "path": "storage/v2/_client.py",
+      "language": "python",
+      "sizeLines": 10,
+      "fileCategory": "code"
+    },
+    {
+      "path": "storage/v2/briefs.py",
+      "language": "python",
+      "sizeLines": 91,
+      "fileCategory": "code"
+    },
+    {
+      "path": "storage/v2/campaigns_v2.py",
+      "language": "python",
+      "sizeLines": 107,
+      "fileCategory": "code"
+    },
+    {
+      "path": "storage/v2/engagements.py",
+      "language": "python",
+      "sizeLines": 147,
+      "fileCategory": "code"
+    },
+    {
+      "path": "storage/v2/posts.py",
+      "language": "python",
+      "sizeLines": 144,
+      "fileCategory": "code"
+    },
+    {
+      "path": "storage/v2/profiles.py",
+      "language": "python",
+      "sizeLines": 76,
+      "fileCategory": "code"
+    },
+    {
+      "path": "storage/v2/sessions_slim.py",
+      "language": "python",
+      "sizeLines": 123,
+      "fileCategory": "code"
+    },
+    {
+      "path": "storage/v2/skill_runs.py",
+      "language": "python",
+      "sizeLines": 137,
+      "fileCategory": "code"
+    },
+    {
+      "path": "storage/v2/strategies.py",
+      "language": "python",
+      "sizeLines": 133,
+      "fileCategory": "code"
+    },
+    {
+      "path": "storage/v2/users.py",
+      "language": "python",
+      "sizeLines": 165,
+      "fileCategory": "code"
+    },
+    {
+      "path": "storage/workflow_errors.py",
+      "language": "python",
+      "sizeLines": 50,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tasks/plan.md",
+      "language": "markdown",
+      "sizeLines": 92,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "tasks/todo.md",
+      "language": "markdown",
+      "sizeLines": 26,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "tests/__init__.py",
+      "language": "python",
+      "sizeLines": 0,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tests/test_content_pipeline_e2e.py",
+      "language": "python",
+      "sizeLines": 554,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tests/test_orchestrator_e2e.py",
+      "language": "python",
+      "sizeLines": 373,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tests/test_persona_menu_changes.py",
+      "language": "python",
+      "sizeLines": 198,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tests/test_web_api.py",
+      "language": "python",
+      "sizeLines": 76,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tools/__init__.py",
+      "language": "python",
+      "sizeLines": 1,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tools/crypto.py",
+      "language": "python",
+      "sizeLines": 37,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tools/fb_ads_library.py",
+      "language": "python",
+      "sizeLines": 323,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tools/fb_marketing.py",
+      "language": "python",
+      "sizeLines": 555,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tools/image_gen.py",
+      "language": "python",
+      "sizeLines": 189,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tools/image_prompt_library.py",
+      "language": "python",
+      "sizeLines": 457,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tools/krillin_client.py",
+      "language": "python",
+      "sizeLines": 247,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tools/llm_router.py",
+      "language": "python",
+      "sizeLines": 926,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tools/token_billing.py",
+      "language": "python",
+      "sizeLines": 213,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tools/token_tracker.py",
+      "language": "python",
+      "sizeLines": 384,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tools/video_vision.py",
+      "language": "python",
+      "sizeLines": 249,
+      "fileCategory": "code"
+    },
+    {
+      "path": "web/.nojekyll",
+      "language": "unknown",
+      "sizeLines": 0,
+      "fileCategory": "code"
+    },
+    {
+      "path": "web/app.js",
+      "language": "javascript",
+      "sizeLines": 1848,
+      "fileCategory": "code"
+    },
+    {
+      "path": "web/dashboard-standalone.html",
+      "language": "html",
+      "sizeLines": 2896,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "web/data.js",
+      "language": "javascript",
+      "sizeLines": 241,
+      "fileCategory": "code"
+    },
+    {
+      "path": "web/index.html",
+      "language": "html",
+      "sizeLines": 35,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "web/README.md",
+      "language": "markdown",
+      "sizeLines": 169,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "web/styles.css",
+      "language": "css",
+      "sizeLines": 766,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "webapp/__init__.py",
+      "language": "python",
+      "sizeLines": 0,
+      "fileCategory": "code"
+    },
+    {
+      "path": "webapp/api.py",
+      "language": "python",
+      "sizeLines": 308,
+      "fileCategory": "code"
+    },
+    {
+      "path": "webapp/build_standalone.py",
+      "language": "python",
+      "sizeLines": 43,
+      "fileCategory": "code"
+    },
+    {
+      "path": "webapp/business.py",
+      "language": "python",
+      "sizeLines": 621,
+      "fileCategory": "code"
+    },
+    {
+      "path": "webapp/chat.py",
+      "language": "python",
+      "sizeLines": 243,
+      "fileCategory": "code"
+    },
+    {
+      "path": "webapp/events.py",
+      "language": "python",
+      "sizeLines": 108,
+      "fileCategory": "code"
+    },
+    {
+      "path": "webapp/notify.py",
+      "language": "python",
+      "sizeLines": 45,
+      "fileCategory": "code"
+    },
+    {
+      "path": "webapp/store_sqlite.py",
+      "language": "python",
+      "sizeLines": 235,
+      "fileCategory": "code"
+    },
+    {
+      "path": "webapp/store_supabase.py",
+      "language": "python",
+      "sizeLines": 184,
+      "fileCategory": "code"
+    },
+    {
+      "path": "webapp/store.py",
+      "language": "python",
+      "sizeLines": 64,
+      "fileCategory": "code"
+    },
+    {
+      "path": "webapp/supabase_schema.sql",
+      "language": "sql",
+      "sizeLines": 73,
+      "fileCategory": "data"
+    },
+    {
+      "path": "workers/__init__.py",
+      "language": "python",
+      "sizeLines": 1,
+      "fileCategory": "code"
+    },
+    {
+      "path": "workers/feedback_digest.py",
+      "language": "python",
+      "sizeLines": 93,
+      "fileCategory": "code"
+    },
+    {
+      "path": "workers/monitor_competitors.py",
+      "language": "python",
+      "sizeLines": 145,
+      "fileCategory": "code"
+    }
+  ],
+  "totalFiles": 196,
+  "filteredByIgnore": 0,
+  "estimatedComplexity": "large",
+  "stats": {
+    "filesScanned": 196,
+    "byCategory": {
+      "docs": 64,
+      "script": 1,
+      "code": 111,
+      "config": 2,
+      "infra": 2,
+      "markup": 4,
+      "data": 12
+    },
+    "byLanguage": {
+      "markdown": 63,
+      "shell": 1,
+      "unknown": 4,
+      "config": 1,
+      "yaml": 1,
+      "python": 104,
+      "xlsx": 1,
+      "html": 3,
+      "procfile": 1,
+      "json": 1,
+      "txt": 1,
+      "sql": 12,
+      "javascript": 2,
+      "css": 1
+    }
+  }
+}

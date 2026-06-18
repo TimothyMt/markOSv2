@@ -1,0 +1,1 @@
+{"projectRoot": "/home/user/markOSv2", "batchFiles": [{"path": ".github/workflows/deploy-pages.yml", "language": "yaml", "sizeLines": 47, "fileCategory": "infra"}], "batchImportData": {".github/workflows/deploy-pages.yml": []}}

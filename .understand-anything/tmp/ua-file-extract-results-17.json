@@ -1,0 +1,2671 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 25,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": ".claude/skills/api-and-interface-design/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 294,
+      "nonEmptyLines": 226,
+      "sections": [
+        {
+          "heading": "API and Interface Design",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "When to Use",
+          "level": 2,
+          "line": 12
+        },
+        {
+          "heading": "Core Principles",
+          "level": 2,
+          "line": 20
+        },
+        {
+          "heading": "Hyrum's Law",
+          "level": 3,
+          "line": 22
+        },
+        {
+          "heading": "The One-Version Rule",
+          "level": 3,
+          "line": 33
+        },
+        {
+          "heading": "1. Contract First",
+          "level": 3,
+          "line": 37
+        },
+        {
+          "heading": "2. Consistent Error Semantics",
+          "level": 3,
+          "line": 61
+        },
+        {
+          "heading": "3. Validate at Boundaries",
+          "level": 3,
+          "line": 88
+        },
+        {
+          "heading": "4. Prefer Addition Over Modification",
+          "level": 3,
+          "line": 125
+        },
+        {
+          "heading": "5. Predictable Naming",
+          "level": 3,
+          "line": 146
+        },
+        {
+          "heading": "REST API Patterns",
+          "level": 2,
+          "line": 156
+        },
+        {
+          "heading": "Resource Design",
+          "level": 3,
+          "line": 158
+        },
+        {
+          "heading": "Pagination",
+          "level": 3,
+          "line": 171
+        },
+        {
+          "heading": "Filtering",
+          "level": 3,
+          "line": 191
+        },
+        {
+          "heading": "Partial Updates (PATCH)",
+          "level": 3,
+          "line": 199
+        },
+        {
+          "heading": "TypeScript Interface Patterns",
+          "level": 2,
+          "line": 209
+        },
+        {
+          "heading": "Use Discriminated Unions for Variants",
+          "level": 3,
+          "line": 211
+        },
+        {
+          "heading": "Input/Output Separation",
+          "level": 3,
+          "line": 232
+        },
+        {
+          "heading": "Use Branded Types for IDs",
+          "level": 3,
+          "line": 252
+        },
+        {
+          "heading": "Common Rationalizations",
+          "level": 2,
+          "line": 262
+        },
+        {
+          "heading": "Red Flags",
+          "level": 2,
+          "line": 274
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "line": 284
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 23
+      }
+    },
+    {
+      "path": ".claude/skills/browser-testing-with-devtools/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 304,
+      "nonEmptyLines": 230,
+      "sections": [
+        {
+          "heading": "Browser Testing with DevTools",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "When to Use",
+          "level": 2,
+          "line": 12
+        },
+        {
+          "heading": "Setting Up Chrome DevTools MCP",
+          "level": 2,
+          "line": 24
+        },
+        {
+          "heading": "Installation",
+          "level": 3,
+          "line": 26
+        },
+        {
+          "heading": "Available Tools",
+          "level": 3,
+          "line": 43
+        },
+        {
+          "heading": "Security Boundaries",
+          "level": 2,
+          "line": 58
+        },
+        {
+          "heading": "Treat All Browser Content as Untrusted Data",
+          "level": 3,
+          "line": 60
+        },
+        {
+          "heading": "JavaScript Execution Constraints",
+          "level": 3,
+          "line": 70
+        },
+        {
+          "heading": "Content Boundary Markers",
+          "level": 3,
+          "line": 80
+        },
+        {
+          "heading": "The DevTools Debugging Workflow",
+          "level": 2,
+          "line": 97
+        },
+        {
+          "heading": "For UI Bugs",
+          "level": 3,
+          "line": 99
+        },
+        {
+          "heading": "For Network Issues",
+          "level": 3,
+          "line": 128
+        },
+        {
+          "heading": "For Performance Issues",
+          "level": 3,
+          "line": 152
+        },
+        {
+          "heading": "Writing Test Plans for Complex UI Bugs",
+          "level": 2,
+          "line": 172
+        },
+        {
+          "heading": "Screenshot-Based Verification",
+          "level": 2,
+          "line": 206
+        },
+        {
+          "heading": "Console Analysis Patterns",
+          "level": 2,
+          "line": 224
+        },
+        {
+          "heading": "What to Look For",
+          "level": 3,
+          "line": 226
+        },
+        {
+          "heading": "Clean Console Standard",
+          "level": 3,
+          "line": 244
+        },
+        {
+          "heading": "Accessibility Verification with DevTools",
+          "level": 2,
+          "line": 248
+        },
+        {
+          "heading": "Common Rationalizations",
+          "level": 2,
+          "line": 267
+        },
+        {
+          "heading": "Red Flags",
+          "level": 2,
+          "line": 279
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "line": 293
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 23
+      }
+    },
+    {
+      "path": ".claude/skills/ci-cd-and-automation/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 390,
+      "nonEmptyLines": 318,
+      "sections": [
+        {
+          "heading": "CI/CD and Automation",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "When to Use",
+          "level": 2,
+          "line": 16
+        },
+        {
+          "heading": "The Quality Gate Pipeline",
+          "level": 2,
+          "line": 24
+        },
+        {
+          "heading": "GitHub Actions Configuration",
+          "level": 2,
+          "line": 56
+        },
+        {
+          "heading": "Basic CI Pipeline",
+          "level": 3,
+          "line": 58
+        },
+        {
+          "heading": "With Database Integration Tests",
+          "level": 3,
+          "line": 100
+        },
+        {
+          "heading": "E2E Tests",
+          "level": 3,
+          "line": 139
+        },
+        {
+          "heading": "Feeding CI Failures Back to Agents",
+          "level": 2,
+          "line": 164
+        },
+        {
+          "heading": "Deployment Strategies",
+          "level": 2,
+          "line": 193
+        },
+        {
+          "heading": "Preview Deployments",
+          "level": 3,
+          "line": 195
+        },
+        {
+          "heading": "Feature Flags",
+          "level": 3,
+          "line": 210
+        },
+        {
+          "heading": "Staged Rollouts",
+          "level": 3,
+          "line": 229
+        },
+        {
+          "heading": "Rollback Plan",
+          "level": 3,
+          "line": 247
+        },
+        {
+          "heading": "Environment Management",
+          "level": 2,
+          "line": 271
+        },
+        {
+          "heading": "Automation Beyond CI",
+          "level": 2,
+          "line": 283
+        },
+        {
+          "heading": "Dependabot / Renovate",
+          "level": 3,
+          "line": 285
+        },
+        {
+          "heading": "Build Cop Role",
+          "level": 3,
+          "line": 298
+        },
+        {
+          "heading": "PR Checks",
+          "level": 3,
+          "line": 302
+        },
+        {
+          "heading": "CI Optimization",
+          "level": 2,
+          "line": 309
+        },
+        {
+          "heading": "Common Rationalizations",
+          "level": 2,
+          "line": 360
+        },
+        {
+          "heading": "Red Flags",
+          "level": 2,
+          "line": 370
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "line": 380
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 23
+      }
+    },
+    {
+      "path": ".claude/skills/code-review-and-quality/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 347,
+      "nonEmptyLines": 252,
+      "sections": [
+        {
+          "heading": "Code Review and Quality",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "When to Use",
+          "level": 2,
+          "line": 14
+        },
+        {
+          "heading": "The Five-Axis Review",
+          "level": 2,
+          "line": 22
+        },
+        {
+          "heading": "1. Correctness",
+          "level": 3,
+          "line": 26
+        },
+        {
+          "heading": "2. Readability & Simplicity",
+          "level": 3,
+          "line": 36
+        },
+        {
+          "heading": "3. Architecture",
+          "level": 3,
+          "line": 49
+        },
+        {
+          "heading": "4. Security",
+          "level": 3,
+          "line": 59
+        },
+        {
+          "heading": "5. Performance",
+          "level": 3,
+          "line": 72
+        },
+        {
+          "heading": "Change Sizing",
+          "level": 2,
+          "line": 83
+        },
+        {
+          "heading": "Change Descriptions",
+          "level": 2,
+          "line": 108
+        },
+        {
+          "heading": "Review Process",
+          "level": 2,
+          "line": 118
+        },
+        {
+          "heading": "Step 1: Understand the Context",
+          "level": 3,
+          "line": 120
+        },
+        {
+          "heading": "Step 2: Review the Tests First",
+          "level": 3,
+          "line": 130
+        },
+        {
+          "heading": "Step 3: Review the Implementation",
+          "level": 3,
+          "line": 142
+        },
+        {
+          "heading": "Step 4: Categorize Findings",
+          "level": 3,
+          "line": 155
+        },
+        {
+          "heading": "Step 5: Verify the Verification",
+          "level": 3,
+          "line": 169
+        },
+        {
+          "heading": "Multi-Model Review Pattern",
+          "level": 2,
+          "line": 181
+        },
+        {
+          "heading": "Dead Code Hygiene",
+          "level": 2,
+          "line": 207
+        },
+        {
+          "heading": "Review Speed",
+          "level": 2,
+          "line": 225
+        },
+        {
+          "heading": "Handling Disagreements",
+          "level": 2,
+          "line": 234
+        },
+        {
+          "heading": "Honesty in Review",
+          "level": 2,
+          "line": 245
+        },
+        {
+          "heading": "Dependency Discipline",
+          "level": 2,
+          "line": 255
+        },
+        {
+          "heading": "The Review Checklist",
+          "level": 2,
+          "line": 268
+        },
+        {
+          "heading": "See Also",
+          "level": 2,
+          "line": 313
+        },
+        {
+          "heading": "Common Rationalizations",
+          "level": 2,
+          "line": 318
+        },
+        {
+          "heading": "Red Flags",
+          "level": 2,
+          "line": 328
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "line": 339
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 28
+      }
+    },
+    {
+      "path": ".claude/skills/code-simplification/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 331,
+      "nonEmptyLines": 263,
+      "sections": [
+        {
+          "heading": "Code Simplification",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 10
+        },
+        {
+          "heading": "When to Use",
+          "level": 2,
+          "line": 14
+        },
+        {
+          "heading": "The Five Principles",
+          "level": 2,
+          "line": 30
+        },
+        {
+          "heading": "1. Preserve Behavior Exactly",
+          "level": 3,
+          "line": 32
+        },
+        {
+          "heading": "2. Follow Project Conventions",
+          "level": 3,
+          "line": 44
+        },
+        {
+          "heading": "3. Prefer Clarity Over Cleverness",
+          "level": 3,
+          "line": 61
+        },
+        {
+          "heading": "4. Maintain Balance",
+          "level": 3,
+          "line": 92
+        },
+        {
+          "heading": "5. Scope to What Changed",
+          "level": 3,
+          "line": 101
+        },
+        {
+          "heading": "The Simplification Process",
+          "level": 2,
+          "line": 105
+        },
+        {
+          "heading": "Step 1: Understand Before Touching (Chesterton's Fence)",
+          "level": 3,
+          "line": 107
+        },
+        {
+          "heading": "Step 2: Identify Simplification Opportunities",
+          "level": 3,
+          "line": 123
+        },
+        {
+          "heading": "Step 3: Apply Changes Incrementally",
+          "level": 3,
+          "line": 157
+        },
+        {
+          "heading": "Step 4: Verify the Result",
+          "level": 3,
+          "line": 173
+        },
+        {
+          "heading": "Language-Specific Guidance",
+          "level": 2,
+          "line": 187
+        },
+        {
+          "heading": "TypeScript / JavaScript",
+          "level": 3,
+          "line": 189
+        },
+        {
+          "heading": "Python",
+          "level": 3,
+          "line": 238
+        },
+        {
+          "heading": "React / JSX",
+          "level": 3,
+          "line": 273
+        },
+        {
+          "heading": "Common Rationalizations",
+          "level": 2,
+          "line": 297
+        },
+        {
+          "heading": "Red Flags",
+          "level": 2,
+          "line": 309
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "line": 319
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 21
+      }
+    },
+    {
+      "path": ".claude/skills/context-engineering/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 289,
+      "nonEmptyLines": 209,
+      "sections": [
+        {
+          "heading": "Context Engineering",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "When to Use",
+          "level": 2,
+          "line": 12
+        },
+        {
+          "heading": "The Context Hierarchy",
+          "level": 2,
+          "line": 20
+        },
+        {
+          "heading": "Level 1: Rules Files",
+          "level": 3,
+          "line": 38
+        },
+        {
+          "heading": "Level 2: Specs and Architecture",
+          "level": 3,
+          "line": 80
+        },
+        {
+          "heading": "Level 3: Relevant Source Files",
+          "level": 3,
+          "line": 88
+        },
+        {
+          "heading": "Level 4: Error Output",
+          "level": 3,
+          "line": 105
+        },
+        {
+          "heading": "Level 5: Conversation Management",
+          "level": 3,
+          "line": 113
+        },
+        {
+          "heading": "Context Packing Strategies",
+          "level": 2,
+          "line": 121
+        },
+        {
+          "heading": "The Brain Dump",
+          "level": 3,
+          "line": 123
+        },
+        {
+          "heading": "The Selective Include",
+          "level": 3,
+          "line": 137
+        },
+        {
+          "heading": "The Hierarchical Summary",
+          "level": 3,
+          "line": 156
+        },
+        {
+          "heading": "MCP Integrations",
+          "level": 2,
+          "line": 180
+        },
+        {
+          "heading": "Confusion Management",
+          "level": 2,
+          "line": 192
+        },
+        {
+          "heading": "When Context Conflicts",
+          "level": 3,
+          "line": 196
+        },
+        {
+          "heading": "When Requirements Are Incomplete",
+          "level": 3,
+          "line": 218
+        },
+        {
+          "heading": "The Inline Planning Pattern",
+          "level": 3,
+          "line": 239
+        },
+        {
+          "heading": "Anti-Patterns",
+          "level": 2,
+          "line": 253
+        },
+        {
+          "heading": "Common Rationalizations",
+          "level": 2,
+          "line": 264
+        },
+        {
+          "heading": "Red Flags",
+          "level": 2,
+          "line": 273
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "line": 282
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 22
+      }
+    },
+    {
+      "path": ".claude/skills/debugging-and-error-recovery/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 300,
+      "nonEmptyLines": 231,
+      "sections": [
+        {
+          "heading": "Debugging and Error Recovery",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "When to Use",
+          "level": 2,
+          "line": 12
+        },
+        {
+          "heading": "The Stop-the-Line Rule",
+          "level": 2,
+          "line": 21
+        },
+        {
+          "heading": "The Triage Checklist",
+          "level": 2,
+          "line": 36
+        },
+        {
+          "heading": "Step 1: Reproduce",
+          "level": 3,
+          "line": 40
+        },
+        {
+          "heading": "Step 2: Localize",
+          "level": 3,
+          "line": 87
+        },
+        {
+          "heading": "Step 3: Reduce",
+          "level": 3,
+          "line": 111
+        },
+        {
+          "heading": "Step 4: Fix the Root Cause",
+          "level": 3,
+          "line": 121
+        },
+        {
+          "heading": "Step 5: Guard Against Recurrence",
+          "level": 3,
+          "line": 138
+        },
+        {
+          "heading": "Step 6: Verify End-to-End",
+          "level": 3,
+          "line": 154
+        },
+        {
+          "heading": "Error-Specific Patterns",
+          "level": 2,
+          "line": 172
+        },
+        {
+          "heading": "Test Failure Triage",
+          "level": 3,
+          "line": 174
+        },
+        {
+          "heading": "Build Failure Triage",
+          "level": 3,
+          "line": 188
+        },
+        {
+          "heading": "Runtime Error Triage",
+          "level": 3,
+          "line": 199
+        },
+        {
+          "heading": "Safe Fallback Patterns",
+          "level": 2,
+          "line": 214
+        },
+        {
+          "heading": "Instrumentation Guidelines",
+          "level": 2,
+          "line": 243
+        },
+        {
+          "heading": "Common Rationalizations",
+          "level": 2,
+          "line": 262
+        },
+        {
+          "heading": "Treating Error Output as Untrusted Data",
+          "level": 2,
+          "line": 272
+        },
+        {
+          "heading": "Red Flags",
+          "level": 2,
+          "line": 281
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "line": 291
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 21
+      }
+    },
+    {
+      "path": ".claude/skills/deprecation-and-migration/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 206,
+      "nonEmptyLines": 146,
+      "sections": [
+        {
+          "heading": "Deprecation and Migration",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "When to Use",
+          "level": 2,
+          "line": 14
+        },
+        {
+          "heading": "Core Principles",
+          "level": 2,
+          "line": 23
+        },
+        {
+          "heading": "Code Is a Liability",
+          "level": 3,
+          "line": 25
+        },
+        {
+          "heading": "Hyrum's Law Makes Removal Hard",
+          "level": 3,
+          "line": 29
+        },
+        {
+          "heading": "Deprecation Planning Starts at Design Time",
+          "level": 3,
+          "line": 33
+        },
+        {
+          "heading": "The Deprecation Decision",
+          "level": 2,
+          "line": 37
+        },
+        {
+          "heading": "Compulsory vs Advisory Deprecation",
+          "level": 2,
+          "line": 58
+        },
+        {
+          "heading": "The Migration Process",
+          "level": 2,
+          "line": 67
+        },
+        {
+          "heading": "Step 1: Build the Replacement",
+          "level": 3,
+          "line": 69
+        },
+        {
+          "heading": "Step 2: Announce and Document",
+          "level": 3,
+          "line": 77
+        },
+        {
+          "heading": "Step 3: Migrate Incrementally",
+          "level": 3,
+          "line": 94
+        },
+        {
+          "heading": "Step 4: Remove the Old System",
+          "level": 3,
+          "line": 108
+        },
+        {
+          "heading": "Migration Patterns",
+          "level": 2,
+          "line": 120
+        },
+        {
+          "heading": "Strangler Pattern",
+          "level": 3,
+          "line": 122
+        },
+        {
+          "heading": "Adapter Pattern",
+          "level": 3,
+          "line": 134
+        },
+        {
+          "heading": "Feature Flag Migration",
+          "level": 3,
+          "line": 151
+        },
+        {
+          "heading": "Zombie Code",
+          "level": 2,
+          "line": 164
+        },
+        {
+          "heading": "Common Rationalizations",
+          "level": 2,
+          "line": 176
+        },
+        {
+          "heading": "Red Flags",
+          "level": 2,
+          "line": 187
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "line": 197
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 22
+      }
+    },
+    {
+      "path": ".claude/skills/documentation-and-adrs/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 278,
+      "nonEmptyLines": 212,
+      "sections": [
+        {
+          "heading": "Documentation and ADRs",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "When to Use",
+          "level": 2,
+          "line": 12
+        },
+        {
+          "heading": "Architecture Decision Records (ADRs)",
+          "level": 2,
+          "line": 23
+        },
+        {
+          "heading": "When to Write an ADR",
+          "level": 3,
+          "line": 27
+        },
+        {
+          "heading": "ADR Template",
+          "level": 3,
+          "line": 36
+        },
+        {
+          "heading": "ADR Lifecycle",
+          "level": 3,
+          "line": 83
+        },
+        {
+          "heading": "Inline Documentation",
+          "level": 2,
+          "line": 92
+        },
+        {
+          "heading": "When to Comment",
+          "level": 3,
+          "line": 94
+        },
+        {
+          "heading": "When NOT to Comment",
+          "level": 3,
+          "line": 112
+        },
+        {
+          "heading": "Document Known Gotchas",
+          "level": 3,
+          "line": 127
+        },
+        {
+          "heading": "API Documentation",
+          "level": 2,
+          "line": 142
+        },
+        {
+          "heading": "Inline with Types (Preferred for TypeScript)",
+          "level": 3,
+          "line": 146
+        },
+        {
+          "heading": "OpenAPI / Swagger for REST APIs",
+          "level": 3,
+          "line": 166
+        },
+        {
+          "heading": "README Structure",
+          "level": 2,
+          "line": 190
+        },
+        {
+          "heading": "Changelog Maintenance",
+          "level": 2,
+          "line": 221
+        },
+        {
+          "heading": "Documentation for Agents",
+          "level": 2,
+          "line": 240
+        },
+        {
+          "heading": "Common Rationalizations",
+          "level": 2,
+          "line": 249
+        },
+        {
+          "heading": "Red Flags",
+          "level": 2,
+          "line": 259
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "line": 269
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 20
+      }
+    },
+    {
+      "path": ".claude/skills/doubt-driven-development/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 243,
+      "nonEmptyLines": 168,
+      "sections": [
+        {
+          "heading": "Doubt-Driven Development",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "When to Use",
+          "level": 2,
+          "line": 14
+        },
+        {
+          "heading": "Loading Constraints",
+          "level": 2,
+          "line": 42
+        },
+        {
+          "heading": "The Process",
+          "level": 2,
+          "line": 49
+        },
+        {
+          "heading": "Step 1: CLAIM — Surface what stands",
+          "level": 3,
+          "line": 62
+        },
+        {
+          "heading": "Step 2: EXTRACT — Smallest reviewable unit",
+          "level": 3,
+          "line": 75
+        },
+        {
+          "heading": "Step 3: DOUBT — Invoke the fresh-context reviewer",
+          "level": 3,
+          "line": 85
+        },
+        {
+          "heading": "Cross-model escalation",
+          "level": 4,
+          "line": 112
+        },
+        {
+          "heading": "Step 4: RECONCILE — Fold findings back",
+          "level": 3,
+          "line": 168
+        },
+        {
+          "heading": "Step 5: STOP — Bounded loop, not recursion",
+          "level": 3,
+          "line": 181
+        },
+        {
+          "heading": "Common Rationalizations",
+          "level": 2,
+          "line": 193
+        },
+        {
+          "heading": "Red Flags",
+          "level": 2,
+          "line": 207
+        },
+        {
+          "heading": "Interaction with Other Skills",
+          "level": 2,
+          "line": 223
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "line": 231
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 15
+      }
+    },
+    {
+      "path": ".claude/skills/frontend-ui-engineering/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 328,
+      "nonEmptyLines": 257,
+      "sections": [
+        {
+          "heading": "Frontend UI Engineering",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "When to Use",
+          "level": 2,
+          "line": 12
+        },
+        {
+          "heading": "Component Architecture",
+          "level": 2,
+          "line": 20
+        },
+        {
+          "heading": "File Structure",
+          "level": 3,
+          "line": 22
+        },
+        {
+          "heading": "Component Patterns",
+          "level": 3,
+          "line": 36
+        },
+        {
+          "heading": "State Management",
+          "level": 2,
+          "line": 101
+        },
+        {
+          "heading": "Design System Adherence",
+          "level": 2,
+          "line": 116
+        },
+        {
+          "heading": "Avoid the AI Aesthetic",
+          "level": 3,
+          "line": 118
+        },
+        {
+          "heading": "Spacing and Layout",
+          "level": 3,
+          "line": 133
+        },
+        {
+          "heading": "Typography",
+          "level": 3,
+          "line": 145
+        },
+        {
+          "heading": "Color",
+          "level": 3,
+          "line": 159
+        },
+        {
+          "heading": "Accessibility (WCAG 2.1 AA)",
+          "level": 2,
+          "line": 165
+        },
+        {
+          "heading": "Keyboard Navigation",
+          "level": 3,
+          "line": 169
+        },
+        {
+          "heading": "ARIA Labels",
+          "level": 3,
+          "line": 187
+        },
+        {
+          "heading": "Focus Management",
+          "level": 3,
+          "line": 201
+        },
+        {
+          "heading": "Meaningful Empty and Error States",
+          "level": 3,
+          "line": 222
+        },
+        {
+          "heading": "Responsive Design",
+          "level": 2,
+          "line": 242
+        },
+        {
+          "heading": "Loading and Transitions",
+          "level": 2,
+          "line": 258
+        },
+        {
+          "heading": "See Also",
+          "level": 2,
+          "line": 295
+        },
+        {
+          "heading": "Common Rationalizations",
+          "level": 2,
+          "line": 299
+        },
+        {
+          "heading": "Red Flags",
+          "level": 2,
+          "line": 309
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "line": 318
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 23
+      }
+    },
+    {
+      "path": ".claude/skills/git-workflow-and-versioning/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 300,
+      "nonEmptyLines": 220,
+      "sections": [
+        {
+          "heading": "Git Workflow and Versioning",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "When to Use",
+          "level": 2,
+          "line": 12
+        },
+        {
+          "heading": "Core Principles",
+          "level": 2,
+          "line": 16
+        },
+        {
+          "heading": "Trunk-Based Development (Recommended)",
+          "level": 3,
+          "line": 18
+        },
+        {
+          "heading": "1. Commit Early, Commit Often",
+          "level": 3,
+          "line": 34
+        },
+        {
+          "heading": "2. Atomic Commits",
+          "level": 3,
+          "line": 48
+        },
+        {
+          "heading": "3. Descriptive Messages",
+          "level": 3,
+          "line": 65
+        },
+        {
+          "heading": "4. Keep Concerns Separate",
+          "level": 3,
+          "line": 96
+        },
+        {
+          "heading": "5. Size Your Changes",
+          "level": 3,
+          "line": 111
+        },
+        {
+          "heading": "Branching Strategy",
+          "level": 2,
+          "line": 121
+        },
+        {
+          "heading": "Feature Branches",
+          "level": 3,
+          "line": 123
+        },
+        {
+          "heading": "Branch Naming",
+          "level": 3,
+          "line": 138
+        },
+        {
+          "heading": "Working with Worktrees",
+          "level": 2,
+          "line": 147
+        },
+        {
+          "heading": "The Save Point Pattern",
+          "level": 2,
+          "line": 173
+        },
+        {
+          "heading": "Change Summaries",
+          "level": 2,
+          "line": 191
+        },
+        {
+          "heading": "Pre-Commit Hygiene",
+          "level": 2,
+          "line": 211
+        },
+        {
+          "heading": "Handling Generated Files",
+          "level": 2,
+          "line": 244
+        },
+        {
+          "heading": "Using Git for Debugging",
+          "level": 2,
+          "line": 250
+        },
+        {
+          "heading": "Common Rationalizations",
+          "level": 2,
+          "line": 270
+        },
+        {
+          "heading": "Red Flags",
+          "level": 2,
+          "line": 281
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "line": 291
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 22
+      }
+    },
+    {
+      "path": ".claude/skills/idea-refine/scripts/idea-refine.sh",
+      "language": "shell",
+      "fileCategory": "script",
+      "totalLines": 15,
+      "nonEmptyLines": 11,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": ".claude/skills/incremental-implementation/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 245,
+      "nonEmptyLines": 173,
+      "sections": [
+        {
+          "heading": "Incremental Implementation",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "When to Use",
+          "level": 2,
+          "line": 12
+        },
+        {
+          "heading": "The Increment Cycle",
+          "level": 2,
+          "line": 21
+        },
+        {
+          "heading": "Slicing Strategies",
+          "level": 2,
+          "line": 44
+        },
+        {
+          "heading": "Vertical Slices (Preferred)",
+          "level": 3,
+          "line": 46
+        },
+        {
+          "heading": "Contract-First Slicing",
+          "level": 3,
+          "line": 66
+        },
+        {
+          "heading": "Risk-First Slicing",
+          "level": 3,
+          "line": 77
+        },
+        {
+          "heading": "Implementation Rules",
+          "level": 2,
+          "line": 89
+        },
+        {
+          "heading": "Rule 0: Simplicity First",
+          "level": 3,
+          "line": 91
+        },
+        {
+          "heading": "Rule 0.5: Scope Discipline",
+          "level": 3,
+          "line": 115
+        },
+        {
+          "heading": "Rule 1: One Thing at a Time",
+          "level": 3,
+          "line": 135
+        },
+        {
+          "heading": "Rule 2: Keep It Compilable",
+          "level": 3,
+          "line": 143
+        },
+        {
+          "heading": "Rule 3: Feature Flags for Incomplete Features",
+          "level": 3,
+          "line": 147
+        },
+        {
+          "heading": "Rule 4: Safe Defaults",
+          "level": 3,
+          "line": 162
+        },
+        {
+          "heading": "Rule 5: Rollback-Friendly",
+          "level": 3,
+          "line": 174
+        },
+        {
+          "heading": "Working with Agents",
+          "level": 2,
+          "line": 183
+        },
+        {
+          "heading": "Increment Checklist",
+          "level": 2,
+          "line": 199
+        },
+        {
+          "heading": "Common Rationalizations",
+          "level": 2,
+          "line": 213
+        },
+        {
+          "heading": "Red Flags",
+          "level": 2,
+          "line": 224
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "line": 237
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 21
+      }
+    },
+    {
+      "path": ".claude/skills/interview-me/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 225,
+      "nonEmptyLines": 150,
+      "sections": [
+        {
+          "heading": "Interview Me",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "When to Use",
+          "level": 2,
+          "line": 16
+        },
+        {
+          "heading": "Loading Constraints",
+          "level": 2,
+          "line": 34
+        },
+        {
+          "heading": "The Process",
+          "level": 2,
+          "line": 38
+        },
+        {
+          "heading": "Step 1: Hypothesize, with a confidence number",
+          "level": 3,
+          "line": 40
+        },
+        {
+          "heading": "Step 2: Ask one question at a time, each with a guess attached",
+          "level": 3,
+          "line": 53
+        },
+        {
+          "heading": "Step 3: Listen for \"want vs. should want\"",
+          "level": 3,
+          "line": 79
+        },
+        {
+          "heading": "Step 4: Restate intent in the user's own words",
+          "level": 3,
+          "line": 94
+        },
+        {
+          "heading": "Step 5: Confirm — explicit yes, not \"whatever you think\"",
+          "level": 3,
+          "line": 113
+        },
+        {
+          "heading": "The 95% Confidence Stop",
+          "level": 3,
+          "line": 124
+        },
+        {
+          "heading": "Output",
+          "level": 2,
+          "line": 134
+        },
+        {
+          "heading": "Example",
+          "level": 2,
+          "line": 140
+        },
+        {
+          "heading": "Interaction with Other Skills",
+          "level": 2,
+          "line": 180
+        },
+        {
+          "heading": "Common Rationalizations",
+          "level": 2,
+          "line": 188
+        },
+        {
+          "heading": "Red Flags",
+          "level": 2,
+          "line": 201
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "line": 214
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 17
+      }
+    },
+    {
+      "path": ".claude/skills/LICENSE_agent-skills",
+      "language": "unknown",
+      "fileCategory": "code",
+      "totalLines": 21,
+      "nonEmptyLines": 17,
+      "metrics": {}
+    },
+    {
+      "path": ".claude/skills/observability-and-instrumentation/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 201,
+      "nonEmptyLines": 149,
+      "sections": [
+        {
+          "heading": "Observability and Instrumentation",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "When to Use",
+          "level": 2,
+          "line": 12
+        },
+        {
+          "heading": "Process",
+          "level": 2,
+          "line": 25
+        },
+        {
+          "heading": "1. Define \"working\" before instrumenting",
+          "level": 3,
+          "line": 27
+        },
+        {
+          "heading": "2. Pick the right signal for each question",
+          "level": 3,
+          "line": 42
+        },
+        {
+          "heading": "3. Structured logging",
+          "level": 3,
+          "line": 52
+        },
+        {
+          "heading": "4. Metrics",
+          "level": 3,
+          "line": 93
+        },
+        {
+          "heading": "5. Distributed tracing",
+          "level": 3,
+          "line": 119
+        },
+        {
+          "heading": "6. Alerting",
+          "level": 3,
+          "line": 137
+        },
+        {
+          "heading": "7. Verify the telemetry itself",
+          "level": 3,
+          "line": 157
+        },
+        {
+          "heading": "Common Rationalizations",
+          "level": 2,
+          "line": 166
+        },
+        {
+          "heading": "Red Flags",
+          "level": 2,
+          "line": 178
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "line": 190
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 14
+      }
+    },
+    {
+      "path": ".claude/skills/performance-optimization/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 350,
+      "nonEmptyLines": 282,
+      "sections": [
+        {
+          "heading": "Performance Optimization",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "When to Use",
+          "level": 2,
+          "line": 12
+        },
+        {
+          "heading": "Core Web Vitals Targets",
+          "level": 2,
+          "line": 22
+        },
+        {
+          "heading": "The Optimization Workflow",
+          "level": 2,
+          "line": 30
+        },
+        {
+          "heading": "Step 1: Measure",
+          "level": 3,
+          "line": 40
+        },
+        {
+          "heading": "Where to Start Measuring",
+          "level": 3,
+          "line": 73
+        },
+        {
+          "heading": "Step 2: Identify the Bottleneck",
+          "level": 3,
+          "line": 99
+        },
+        {
+          "heading": "Step 3: Fix Common Anti-Patterns",
+          "level": 3,
+          "line": 121
+        },
+        {
+          "heading": "N+1 Queries (Backend)",
+          "level": 4,
+          "line": 123
+        },
+        {
+          "heading": "Unbounded Data Fetching",
+          "level": 4,
+          "line": 138
+        },
+        {
+          "heading": "Missing Image Optimization (Frontend)",
+          "level": 4,
+          "line": 152
+        },
+        {
+          "heading": "Unnecessary Re-renders (React)",
+          "level": 4,
+          "line": 217
+        },
+        {
+          "heading": "Large Bundle Size",
+          "level": 4,
+          "line": 243
+        },
+        {
+          "heading": "Missing Caching (Backend)",
+          "level": 4,
+          "line": 265
+        },
+        {
+          "heading": "Performance Budget",
+          "level": 2,
+          "line": 292
+        },
+        {
+          "heading": "See Also",
+          "level": 2,
+          "line": 315
+        },
+        {
+          "heading": "Common Rationalizations",
+          "level": 2,
+          "line": 320
+        },
+        {
+          "heading": "Red Flags",
+          "level": 2,
+          "line": 330
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "line": 340
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 20
+      }
+    },
+    {
+      "path": ".claude/skills/planning-and-task-breakdown/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 223,
+      "nonEmptyLines": 162,
+      "sections": [
+        {
+          "heading": "Planning and Task Breakdown",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "When to Use",
+          "level": 2,
+          "line": 12
+        },
+        {
+          "heading": "The Planning Process",
+          "level": 2,
+          "line": 22
+        },
+        {
+          "heading": "Step 1: Enter Plan Mode",
+          "level": 3,
+          "line": 24
+        },
+        {
+          "heading": "Step 2: Identify the Dependency Graph",
+          "level": 3,
+          "line": 35
+        },
+        {
+          "heading": "Step 3: Slice Vertically",
+          "level": 3,
+          "line": 57
+        },
+        {
+          "heading": "Step 4: Write Tasks",
+          "level": 3,
+          "line": 79
+        },
+        {
+          "heading": "Step 5: Order and Checkpoint",
+          "level": 3,
+          "line": 106
+        },
+        {
+          "heading": "Task Sizing Guidelines",
+          "level": 2,
+          "line": 125
+        },
+        {
+          "heading": "Plan Document Template",
+          "level": 2,
+          "line": 143
+        },
+        {
+          "heading": "Parallelization Opportunities",
+          "level": 2,
+          "line": 188
+        },
+        {
+          "heading": "Common Rationalizations",
+          "level": 2,
+          "line": 196
+        },
+        {
+          "heading": "Red Flags",
+          "level": 2,
+          "line": 205
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "line": 214
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 15
+      }
+    },
+    {
+      "path": ".claude/skills/security-and-hardening/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 461,
+      "nonEmptyLines": 363,
+      "sections": [
+        {
+          "heading": "Security and Hardening",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "When to Use",
+          "level": 2,
+          "line": 12
+        },
+        {
+          "heading": "Process: Threat Model First",
+          "level": 2,
+          "line": 21
+        },
+        {
+          "heading": "The Three-Tier Boundary System",
+          "level": 2,
+          "line": 42
+        },
+        {
+          "heading": "Always Do (No Exceptions)",
+          "level": 3,
+          "line": 44
+        },
+        {
+          "heading": "Ask First (Requires Human Approval)",
+          "level": 3,
+          "line": 55
+        },
+        {
+          "heading": "Never Do",
+          "level": 3,
+          "line": 65
+        },
+        {
+          "heading": "OWASP Top 10 Prevention Patterns",
+          "level": 2,
+          "line": 75
+        },
+        {
+          "heading": "Injection (SQL, NoSQL, OS Command)",
+          "level": 3,
+          "line": 79
+        },
+        {
+          "heading": "Broken Authentication",
+          "level": 3,
+          "line": 92
+        },
+        {
+          "heading": "Cross-Site Scripting (XSS)",
+          "level": 3,
+          "line": 116
+        },
+        {
+          "heading": "Broken Access Control",
+          "level": 3,
+          "line": 130
+        },
+        {
+          "heading": "Security Misconfiguration",
+          "level": 3,
+          "line": 150
+        },
+        {
+          "heading": "Sensitive Data Exposure",
+          "level": 3,
+          "line": 175
+        },
+        {
+          "heading": "Server-Side Request Forgery (SSRF)",
+          "level": 3,
+          "line": 189
+        },
+        {
+          "heading": "Input Validation Patterns",
+          "level": 2,
+          "line": 222
+        },
+        {
+          "heading": "Schema Validation at Boundaries",
+          "level": 3,
+          "line": 224
+        },
+        {
+          "heading": "File Upload Safety",
+          "level": 3,
+          "line": 254
+        },
+        {
+          "heading": "Triaging npm audit Results",
+          "level": 2,
+          "line": 272
+        },
+        {
+          "heading": "Supply-Chain Hygiene",
+          "level": 3,
+          "line": 299
+        },
+        {
+          "heading": "Rate Limiting",
+          "level": 2,
+          "line": 308
+        },
+        {
+          "heading": "Secrets Management",
+          "level": 2,
+          "line": 328
+        },
+        {
+          "heading": "Securing AI / LLM Features",
+          "level": 2,
+          "line": 352
+        },
+        {
+          "heading": "Security Review Checklist",
+          "level": 2,
+          "line": 380
+        },
+        {
+          "heading": "See Also",
+          "level": 2,
+          "line": 420
+        },
+        {
+          "heading": "Common Rationalizations",
+          "level": 2,
+          "line": 424
+        },
+        {
+          "heading": "Red Flags",
+          "level": 2,
+          "line": 436
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "line": 449
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 29
+      }
+    },
+    {
+      "path": ".claude/skills/shipping-and-launch/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 309,
+      "nonEmptyLines": 240,
+      "sections": [
+        {
+          "heading": "Shipping and Launch",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "When to Use",
+          "level": 2,
+          "line": 12
+        },
+        {
+          "heading": "The Pre-Launch Checklist",
+          "level": 2,
+          "line": 20
+        },
+        {
+          "heading": "Code Quality",
+          "level": 3,
+          "line": 22
+        },
+        {
+          "heading": "Security",
+          "level": 3,
+          "line": 32
+        },
+        {
+          "heading": "Performance",
+          "level": 3,
+          "line": 42
+        },
+        {
+          "heading": "Accessibility",
+          "level": 3,
+          "line": 51
+        },
+        {
+          "heading": "Infrastructure",
+          "level": 3,
+          "line": 60
+        },
+        {
+          "heading": "Documentation",
+          "level": 3,
+          "line": 69
+        },
+        {
+          "heading": "Feature Flag Strategy",
+          "level": 2,
+          "line": 77
+        },
+        {
+          "heading": "Staged Rollout",
+          "level": 2,
+          "line": 110
+        },
+        {
+          "heading": "The Rollout Sequence",
+          "level": 3,
+          "line": 112
+        },
+        {
+          "heading": "Rollout Decision Thresholds",
+          "level": 3,
+          "line": 142
+        },
+        {
+          "heading": "When to Roll Back",
+          "level": 3,
+          "line": 153
+        },
+        {
+          "heading": "Monitoring and Observability",
+          "level": 2,
+          "line": 162
+        },
+        {
+          "heading": "What to Monitor",
+          "level": 3,
+          "line": 164
+        },
+        {
+          "heading": "Error Reporting",
+          "level": 3,
+          "line": 188
+        },
+        {
+          "heading": "Post-Launch Verification",
+          "level": 3,
+          "line": 225
+        },
+        {
+          "heading": "Rollback Strategy",
+          "level": 2,
+          "line": 238
+        },
+        {
+          "heading": "See Also",
+          "level": 2,
+          "line": 266
+        },
+        {
+          "heading": "Common Rationalizations",
+          "level": 2,
+          "line": 272
+        },
+        {
+          "heading": "Red Flags",
+          "level": 2,
+          "line": 282
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "line": 292
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 24
+      }
+    },
+    {
+      "path": ".claude/skills/source-driven-development/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 194,
+      "nonEmptyLines": 143,
+      "sections": [
+        {
+          "heading": "Source-Driven Development",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "When to Use",
+          "level": 2,
+          "line": 12
+        },
+        {
+          "heading": "The Process",
+          "level": 2,
+          "line": 27
+        },
+        {
+          "heading": "Step 1: Detect Stack and Versions",
+          "level": 3,
+          "line": 38
+        },
+        {
+          "heading": "Step 2: Fetch Official Documentation",
+          "level": 3,
+          "line": 63
+        },
+        {
+          "heading": "Step 3: Implement Following Documented Patterns",
+          "level": 3,
+          "line": 97
+        },
+        {
+          "heading": "Step 4: Cite Your Sources",
+          "level": 3,
+          "line": 122
+        },
+        {
+          "heading": "Common Rationalizations",
+          "level": 2,
+          "line": 162
+        },
+        {
+          "heading": "Red Flags",
+          "level": 2,
+          "line": 172
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "line": 183
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 11
+      }
+    },
+    {
+      "path": ".claude/skills/SOURCE.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 5,
+      "nonEmptyLines": 4,
+      "sections": [
+        {
+          "heading": "Nguồn: Agent Skills (Addy Osmani)",
+          "level": 1,
+          "line": 1
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 1
+      }
+    },
+    {
+      "path": ".claude/skills/spec-driven-development/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 200,
+      "nonEmptyLines": 144,
+      "sections": [
+        {
+          "heading": "Spec-Driven Development",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "When to Use",
+          "level": 2,
+          "line": 12
+        },
+        {
+          "heading": "The Gated Workflow",
+          "level": 2,
+          "line": 22
+        },
+        {
+          "heading": "Phase 1: Specify",
+          "level": 3,
+          "line": 34
+        },
+        {
+          "heading": "Phase 2: Plan",
+          "level": 3,
+          "line": 131
+        },
+        {
+          "heading": "Phase 3: Tasks",
+          "level": 3,
+          "line": 143
+        },
+        {
+          "heading": "Phase 4: Implement",
+          "level": 3,
+          "line": 161
+        },
+        {
+          "heading": "Keeping the Spec Alive",
+          "level": 2,
+          "line": 165
+        },
+        {
+          "heading": "Common Rationalizations",
+          "level": 2,
+          "line": 174
+        },
+        {
+          "heading": "Red Flags",
+          "level": 2,
+          "line": 184
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "line": 192
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 12
+      }
+    },
+    {
+      "path": ".claude/skills/test-driven-development/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 383,
+      "nonEmptyLines": 290,
+      "sections": [
+        {
+          "heading": "Test-Driven Development",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "When to Use",
+          "level": 2,
+          "line": 12
+        },
+        {
+          "heading": "The TDD Cycle",
+          "level": 2,
+          "line": 24
+        },
+        {
+          "heading": "Step 1: RED — Write a Failing Test",
+          "level": 3,
+          "line": 35
+        },
+        {
+          "heading": "Step 2: GREEN — Make It Pass",
+          "level": 3,
+          "line": 53
+        },
+        {
+          "heading": "Step 3: REFACTOR — Clean Up",
+          "level": 3,
+          "line": 71
+        },
+        {
+          "heading": "The Prove-It Pattern (Bug Fixes)",
+          "level": 2,
+          "line": 82
+        },
+        {
+          "heading": "The Test Pyramid",
+          "level": 2,
+          "line": 130
+        },
+        {
+          "heading": "Test Sizes (Resource Model)",
+          "level": 3,
+          "line": 149
+        },
+        {
+          "heading": "Decision Guide",
+          "level": 3,
+          "line": 161
+        },
+        {
+          "heading": "Writing Good Tests",
+          "level": 2,
+          "line": 174
+        },
+        {
+          "heading": "Test State, Not Interactions",
+          "level": 3,
+          "line": 176
+        },
+        {
+          "heading": "DAMP Over DRY in Tests",
+          "level": 3,
+          "line": 197
+        },
+        {
+          "heading": "Prefer Real Implementations Over Mocks",
+          "level": 3,
+          "line": 220
+        },
+        {
+          "heading": "Use the Arrange-Act-Assert Pattern",
+          "level": 3,
+          "line": 234
+        },
+        {
+          "heading": "One Assertion Per Concept",
+          "level": 3,
+          "line": 252
+        },
+        {
+          "heading": "Name Tests Descriptively",
+          "level": 3,
+          "line": 268
+        },
+        {
+          "heading": "Test Anti-Patterns to Avoid",
+          "level": 2,
+          "line": 287
+        },
+        {
+          "heading": "Browser Testing with DevTools",
+          "level": 2,
+          "line": 298
+        },
+        {
+          "heading": "The DevTools Debugging Workflow",
+          "level": 3,
+          "line": 302
+        },
+        {
+          "heading": "What to Check",
+          "level": 3,
+          "line": 312
+        },
+        {
+          "heading": "Security Boundaries",
+          "level": 3,
+          "line": 323
+        },
+        {
+          "heading": "When to Use Subagents for Testing",
+          "level": 2,
+          "line": 329
+        },
+        {
+          "heading": "See Also",
+          "level": 2,
+          "line": 345
+        },
+        {
+          "heading": "Common Rationalizations",
+          "level": 2,
+          "line": 349
+        },
+        {
+          "heading": "Red Flags",
+          "level": 2,
+          "line": 361
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "line": 372
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 28
+      }
+    }
+  ]
+}
