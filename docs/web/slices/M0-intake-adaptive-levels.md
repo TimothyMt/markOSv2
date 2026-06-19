@@ -20,20 +20,25 @@ NHƯNG ở "độ cao CMO" — business owner / nhân sự cấp dưới khó tr
 Đường đúng (D-032): **giữ câu mạnh nhưng hạ xuống "quan sát hàng ngày" + gợi ý động theo
 business + cho bỏ qua → AI suy có gắn nhãn.** Một luồng tự thích nghi theo level.
 
-## 2. Bộ câu hỏi (độ cao "quan sát", web)
-Khối nền **bắt buộc** (founder-unique, dễ trả lời — là lõi chống "skip tất"):
+## 2. Bộ câu hỏi (GIỮ tầng CMO — gợi ý/skip làm cầu nối)
+> Quyết định Founder: **giữ nguyên câu hỏi ở tầng CMO** (sắc, chiến lược — không hạ
+> xuống "quan sát"). Người không phải CMO vẫn dùng được nhờ **chip gợi ý grounded**
+> (recognition) + **quyền bỏ trống → AI suy**. Mỗi câu S có 1 dòng helper ngắn diễn
+> giải bình dân (không bắt buộc đọc), nhưng tiêu đề câu giữ ngôn ngữ chiến lược.
+
+Khối nền **bắt buộc** (founder-unique, dễ — lõi chống "skip tất"):
 - B1 **Bán sản phẩm/dịch vụ gì, giải quyết vấn đề gì?**
 - B2 **Ngành + địa bàn?**
 - B3 **Khách hàng mục tiêu là ai?**
 - B4 **Giá bán / giá trị đơn hàng (AOV) tầm bao nhiêu?** *(chọn khoảng)*
 - B5 **Thách thức lớn nhất hiện tại?**
 
-Khối chiến lược **skippable** (có gợi ý động + nút "để Max đoán"):
-- S1 **Khách thường tìm đến bạn lúc/dịp nào? Mua để làm gì?** → JTBD (Customer Insight, USP)
-- S2 **Khách hay so sánh bạn với ai / trước đây mua ở đâu?** → competitive alternative (Competitor, USP)
-- S3 **Khách hay khen gì nhất? Vì sao họ quay lại?** → khác biệt + proof (USP, SWOT-S)
-- S4 **Khách hay lo/hỏi gì, hay từ chối vì lý do gì?** → objection (Pain-Gain, Pricing)
-- S5 **Đối thủ bạn để ý (tên cụ thể nếu có)?** → neo grounded research (Competitor)
+Khối chiến lược **tầng CMO, skippable** (chip gợi ý grounded + nút "để Max đoán"):
+- S1 **Khách hàng "thuê" sản phẩm của bạn để hoàn thành việc gì?** _(JTBD — helper: "họ mua vào lúc/dịp nào, để giải quyết chuyện gì")_ → Customer Insight, USP
+- S2 **Nếu không có bạn, khách sẽ dùng giải pháp thay thế nào?** _(competitive alternative — helper: "họ hay so sánh bạn với ai / trước mua ở đâu")_ → Competitor, USP
+- S3 **Điểm khác biệt bền vững của bạn là gì, và bằng chứng?** _(USP+proof — helper: "khách hay khen gì nhất, vì sao quay lại")_ → USP, SWOT-S
+- S4 **Rào cản/nỗi sợ lớn nhất khiến khách chần chừ là gì?** _(objection — helper: "khách hay lo/hỏi gì, hay từ chối vì lý do gì")_ → Pain-Gain, Pricing
+- S5 **Đối thủ bạn để ý (tên cụ thể nếu có)?** → neo grounded research → Competitor
 
 Khối bối cảnh **optional** (chọn khoảng / chip):
 - C1 Doanh thu/tháng *(khoảng + "không tiện chia sẻ")* → Market SOM, suy stage

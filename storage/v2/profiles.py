@@ -16,6 +16,7 @@ _VALID_FIELDS = {
     "monthly_revenue", "team_size", "monthly_marketing_budget", "primary_goal",
     "current_channels", "main_challenge", "competitors", "location",
     "usp", "usp_confidence",
+    "intake_extra",  # D-032: câu chiến lược CMO không có cột + provenance
 }
 
 

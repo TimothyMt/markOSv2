@@ -200,23 +200,60 @@
   // Form nhập hồ sơ doanh nghiệp — điểm khởi đầu cho user mới (thay ô chat)
   let _editProfile = false;
   // Onboarding wizard — hỏi từng câu một (kiểu Typeform), thân thiện với user mới
-  let _intakeStep = 0, _intakeData = {};
+  let _intakeStep = 0, _intakeData = {}, _intakeProv = {};
+  // D-032: intake web đa-level. tier: core (bắt buộc) | strategic (tầng CMO,
+  // skip→AI suy, có chip gợi ý) | context (optional, chọn khoảng).
+  // strategic=true → hiện helper bình dân + nút "để Max đoán"; skip = field giả định.
   const INTAKE_STEPS = [
-    { key: 'business_name', q: 'Doanh nghiệp của bạn tên là gì?', ph: 'vd: Cà phê An' },
-    { key: 'industry', q: 'Bạn kinh doanh trong ngành nào?', ph: 'vd: F&B — Quán cà phê' },
-    { key: 'product_service', q: 'Sản phẩm / dịch vụ chính là gì?', ph: 'vd: Cà phê specialty' },
-    { key: 'target_customer', q: 'Khách hàng mục tiêu của bạn là ai?', ph: 'vd: Dân văn phòng 25–34, Q.1' },
-    { key: 'location', q: 'Bạn kinh doanh ở khu vực nào?', ph: 'vd: TP.HCM, Quận 1', optional: true },
-    { key: 'monthly_revenue', q: 'Doanh thu mỗi tháng khoảng bao nhiêu?', optional: true,
+    // ── Khối nền (bắt buộc) ──
+    { key: 'business_name', tier: 'core', q: 'Doanh nghiệp của bạn tên là gì?', ph: 'vd: Cà phê An' },
+    { key: 'industry', tier: 'core', q: 'Bạn kinh doanh trong ngành nào?', ph: 'vd: F&B — Quán cà phê' },
+    { key: 'location', tier: 'core', q: 'Bạn kinh doanh ở khu vực nào?', ph: 'vd: TP.HCM, Quận 1', optional: true },
+    { key: 'product_service', tier: 'core', q: 'Bạn bán sản phẩm/dịch vụ gì, và nó giải quyết vấn đề gì cho khách?', ph: 'vd: Cà phê specialty — đồ uống chất cho dân văn phòng cần tỉnh táo' },
+    { key: 'target_customer', tier: 'core', q: 'Khách hàng mục tiêu của bạn là ai?', ph: 'vd: Dân văn phòng 25–34, Q.1' },
+    { key: 'main_challenge', tier: 'core', q: 'Thách thức lớn nhất hiện tại của bạn là gì?', ph: 'vd: cạnh tranh chuỗi lớn, chi phí ads cao' },
+
+    // ── Khối chiến lược (tầng CMO — skip→AI suy, sẽ có chip gợi ý) ──
+    { key: 'jtbd', tier: 'strategic', strategic: true,
+      q: 'Khách hàng "thuê" sản phẩm của bạn để hoàn thành việc gì?',
+      helper: 'Tức là: họ mua vào lúc/dịp nào, để giải quyết chuyện gì trong cuộc sống của họ?',
+      ph: 'vd: cần ly cà phê ngon để tỉnh táo & "thưởng" cho buổi sáng bận rộn' },
+    { key: 'competitive_alternative', tier: 'strategic', strategic: true,
+      q: 'Nếu không có bạn, khách sẽ dùng giải pháp thay thế nào?',
+      helper: 'Họ hay so sánh bạn với ai, hoặc trước khi biết bạn họ mua ở đâu?',
+      ph: 'vd: Highlands, cà phê pha sẵn ở nhà, hoặc trà sữa' },
+    { key: 'differentiation', tier: 'strategic', strategic: true,
+      q: 'Điểm khác biệt bền vững của bạn là gì, và bằng chứng cho điều đó?',
+      helper: 'Khách hay khen bạn điểm gì nhất? Vì sao họ quay lại?',
+      ph: 'vd: hạt tự rang theo mẻ nhỏ — khách khen "thơm, không gắt"' },
+    { key: 'objection', tier: 'strategic', strategic: true,
+      q: 'Rào cản / nỗi sợ lớn nhất khiến khách chần chừ là gì?',
+      helper: 'Khách hay lo gì, hay hỏi gì, hay từ chối vì lý do nào trước khi mua?',
+      ph: 'vd: "giá cao hơn cà phê thường", "sợ đặt online nguội"' },
+    { key: 'competitors', tier: 'strategic', strategic: true, optional: true,
+      q: 'Có đối thủ nào bạn đang để ý không? (tên cụ thể nếu có)',
+      helper: 'Nêu tên giúp Max nghiên cứu đúng đối thủ đó — không có thì để trống.',
+      ph: 'vd: Highlands, Phúc Long, The Coffee House' },
+
+    // ── Khối bối cảnh (optional — chọn khoảng) ──
+    { key: 'price_point', tier: 'context', optional: true, q: 'Giá bán / giá trị đơn hàng trung bình tầm bao nhiêu?',
+      choices: ['Dưới 100k', '100–300k', '300k–1 triệu', '1–5 triệu', 'Trên 5 triệu', 'Chưa rõ'],
+      note: 'Giúp Max tư vấn giá & ước lượng đúng — chọn khoảng gần đúng là được.' },
+    { key: 'monthly_revenue', tier: 'context', optional: true, q: 'Doanh thu mỗi tháng khoảng bao nhiêu?',
       choices: ['Mới mở, chưa có doanh thu', 'Dưới 50 triệu', '50–200 triệu', '200 triệu–1 tỷ', 'Trên 1 tỷ', 'Không tiện chia sẻ'],
       note: 'Giúp Max ước lượng giai đoạn doanh nghiệp. Không tiện thì cứ bỏ qua.' },
-    { key: 'monthly_marketing_budget', q: 'Ngân sách marketing mỗi tháng khoảng bao nhiêu?', ph: 'vd: 15 triệu', optional: true },
-    { key: 'primary_goal', q: '90 ngày tới bạn muốn ưu tiên điều gì nhất?',
+    { key: 'monthly_marketing_budget', tier: 'context', optional: true, q: 'Ngân sách marketing mỗi tháng khoảng bao nhiêu?',
+      choices: ['Chưa chạy quảng cáo', 'Dưới 5 triệu', '5–20 triệu', '20–50 triệu', 'Trên 50 triệu', 'Không tiện chia sẻ'],
+      note: 'Để Max đề xuất kênh & phân bổ khả thi với túi tiền của bạn.' },
+    { key: 'current_channels', tier: 'context', optional: true, q: 'Hiện bạn đang dùng kênh marketing nào?', ph: 'vd: Facebook, TikTok, Zalo OA' },
+    { key: 'primary_goal', tier: 'context', q: '90 ngày tới bạn muốn ưu tiên điều gì nhất?',
       choices: ['Tăng nhận diện thương hiệu', 'Ra nhiều đơn / doanh thu', 'Giữ chân & chăm khách cũ', 'Ra mắt sản phẩm mới'],
       note: 'Chọn hướng ưu tiên — con số cụ thể sẽ chốt khi bạn lập từng chiến dịch theo dịp.' },
-    { key: 'current_channels', q: 'Hiện bạn đang dùng kênh marketing nào?', ph: 'vd: Facebook, TikTok, Zalo OA', optional: true },
-    { key: 'main_challenge', q: 'Thách thức lớn nhất hiện tại là gì?', ph: 'vd: cạnh tranh chuỗi lớn', optional: true },
   ];
+  // Field nào có cột riêng trong profile; còn lại gói vào intake_extra.answers (D-032)
+  const PROFILE_COLUMN_KEYS = new Set(['business_name', 'industry', 'location', 'product_service',
+    'target_customer', 'main_challenge', 'competitors', 'monthly_revenue',
+    'monthly_marketing_budget', 'current_channels', 'primary_goal']);
   // AI-adaptive intake (Max phỏng vấn thông minh) — dùng khi có backend thật
   let _aiQ = '', _aiBusy = false, _aiStarted = false, _aiFailed = false;
   function aiIntakeView() {
@@ -260,8 +297,8 @@
   }
 
   function intakeWizard() {
-    // Có backend thật → Max phỏng vấn AI; chưa có → wizard tĩnh (xem trước)
-    if (apiAvailable && M.bizEnabled && !_aiFailed) return aiIntakeView();
+    // D-032: wizard có bước là luồng CHÍNH (kể cả khi có backend) — để gắn được
+    // chip gợi ý + skip + provenance per-câu. AI-hội-thoại để dành/bỏ sau.
     return staticWizard();
   }
   function staticWizard() {
@@ -270,22 +307,24 @@
     const st = INTAKE_STEPS[i];
     const val = (_intakeData[st.key] || '').replace(/"/g, '&quot;');
     const preview = (!apiAvailable || !M.bizEnabled);
-    // Bước dạng chọn khoảng / chọn hướng (A1b doanh thu, A2 mục tiêu) — không nhập số
+    const canSkip = st.optional || st.strategic;   // strategic skip → AI suy (giả định)
     const body = st.choices
       ? `<div class="intake-choices">${st.choices.map(c =>
           `<button class="intake-choice${_intakeData[st.key] === c || (c === 'Không tiện chia sẻ' && _intakeData[st.key] === 'chưa rõ') ? ' on' : ''}" data-act="intake-choice" data-val="${c.replace(/"/g, '&quot;')}">${c}</button>`).join('')}</div>`
       : `<input id="intakeBox" class="intake-input" value="${val}" placeholder="${st.ph}" autocomplete="off">`;
+    const tag = st.strategic ? ' · để Max đoán nếu chưa chắc' : (st.optional ? ' · không bắt buộc' : '');
     return `
       <div class="intake">
         <div class="intake-prog"><div class="intake-bar" style="width:${Math.round(i / n * 100)}%"></div></div>
-        <p class="intake-count">Câu ${i + 1}/${n}${st.optional ? ' · không bắt buộc' : ''}</p>
+        <p class="intake-count">Câu ${i + 1}/${n}${tag}</p>
         <h3 class="intake-q">${st.q}</h3>
+        ${st.helper ? `<p class="intake-helper">💬 ${st.helper}</p>` : ''}
         ${body}
         ${st.note ? `<p class="muted intake-note">${st.note}</p>` : ''}
         <div class="intake-nav">
           ${i > 0 ? '<button class="ghost-line" data-act="intake-back">← Quay lại</button>' : '<span></span>'}
           <div style="display:flex;gap:8px">
-            ${st.optional ? '<button class="ghost-line" data-act="intake-skip">Bỏ qua</button>' : ''}
+            ${canSkip ? `<button class="ghost-line" data-act="intake-skip">${st.strategic ? '🤖 Để Max đoán' : 'Bỏ qua'}</button>` : ''}
             ${st.choices ? '' : `<button class="primary-btn" data-act="intake-next">${i === n - 1 ? '✓ Hoàn tất' : 'Tiếp →'}</button>`}
           </div>
         </div>
@@ -436,25 +475,50 @@
   };
 
   // điều khiển wizard intake (giữ giá trị ô đang gõ trước khi chuyển bước)
+  // D-032: gói _intakeData → field cột + intake_extra{answers, provenance}
+  function buildProfilePayload() {
+    const cols = {}, answers = {};
+    for (const k in _intakeData) {
+      const v = _intakeData[k];
+      if (v == null || v === '') continue;
+      if (PROFILE_COLUMN_KEYS.has(k)) cols[k] = v; else answers[k] = v;
+    }
+    const extra = {};
+    if (Object.keys(answers).length) extra.answers = answers;
+    if (Object.keys(_intakeProv).length) extra.provenance = _intakeProv;
+    if (Object.keys(extra).length) cols.intake_extra = extra;
+    return cols;
+  }
   async function handleIntake(action, choiceVal) {
     const box = document.getElementById('intakeBox');
     const st = INTAKE_STEPS[Math.min(_intakeStep, INTAKE_STEPS.length - 1)];
     if (box) _intakeData[st.key] = box.value.trim();
     // Chọn khoảng/hướng: "Không tiện chia sẻ" → lưu "chưa rõ" (khớp AI-adaptive mode)
-    if (action === 'choice') { _intakeData[st.key] = (choiceVal === 'Không tiện chia sẻ') ? 'chưa rõ' : choiceVal; }
+    if (action === 'choice') {
+      _intakeData[st.key] = (choiceVal === 'Không tiện chia sẻ') ? 'chưa rõ' : choiceVal;
+      _intakeProv[st.key] = 'typed';
+    }
     if (action === 'back') { _intakeStep = Math.max(0, _intakeStep - 1); route(); return; }
     if (action === 'skip') {
-      // doanh thu bỏ qua → "chưa rõ" để không bao giờ rỗng/undefined (A1b)
-      if (st.key === 'monthly_revenue') _intakeData[st.key] = 'chưa rõ';
+      if (st.strategic) {            // tầng CMO bỏ qua → AI suy → gắn nhãn "(giả định)"
+        _intakeProv[st.key] = 'inferred'; delete _intakeData[st.key];
+      } else if (st.key === 'monthly_revenue') {
+        _intakeData[st.key] = 'chưa rõ';   // không bao giờ rỗng (A1b)
+      }
       _intakeStep++; route(); return;
     }
-    if (!st.optional && !(_intakeData[st.key])) { toast('Vui lòng nhập, hoặc chọn câu không bắt buộc'); return; }
+    // action === 'next'
+    const v = _intakeData[st.key];
+    if (st.strategic) _intakeProv[st.key] = v ? 'typed' : 'inferred';  // empty → AI suy
+    else if (v) _intakeProv[st.key] = 'typed';
+    // Bắt buộc: core không-optional, không-strategic phải có giá trị
+    if (!st.optional && !st.strategic && !v) { toast('Vui lòng nhập, hoặc bấm "Để Max đoán/Bỏ qua"'); return; }
     if (_intakeStep < INTAKE_STEPS.length - 1) { _intakeStep++; route(); return; }
     if (!apiAvailable) { toast('Đây là bản xem trước — cần backend + Supabase để lưu'); return; }
     try {
-      const r = await API.post('api/biz/profile', { fields: _intakeData, user_id: _bizUserId });
+      const r = await API.post('api/biz/profile', { fields: buildProfilePayload(), user_id: _bizUserId });
       if (r.error) { toast(r.error); return; }
-      _intakeStep = 0; _intakeData = {};
+      _intakeStep = 0; _intakeData = {}; _intakeProv = {};
       toast('Đã tạo hồ sơ — giờ chạy chẩn đoán được rồi');
       await refreshBiz(); renderRail(); renderTopbar(); route();
     } catch (e) { toast('Lưu hồ sơ thất bại'); }

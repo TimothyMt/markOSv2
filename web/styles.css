@@ -755,7 +755,9 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 .intake-prog { height:5px; background:var(--panel-2); border-radius:999px; overflow:hidden; margin-bottom:10px; }
 .intake-bar { height:100%; background:linear-gradient(90deg,var(--primary),var(--primary-2)); transition:width .25s; }
 .intake-count { font-size:12px; color:var(--muted); margin:0 0 6px; }
-.intake-q { font-size:18px; margin:0 0 14px; line-height:1.35; color:var(--txt); }
+.intake-q { font-size:18px; margin:0 0 8px; line-height:1.35; color:var(--txt); }
+.intake-helper { font-size:13px; color:var(--muted); margin:0 0 14px; line-height:1.45;
+  padding:8px 12px; background:var(--panel-2); border-radius:8px; border-left:2px solid var(--primary); }
 .intake-input { width:100%; background:var(--panel-2); border:1px solid var(--stroke-2); border-radius:12px;
   padding:12px 14px; color:var(--txt); font-size:15px; font-family:inherit; }
 .intake-input:focus { outline:none; border-color:var(--primary); }
