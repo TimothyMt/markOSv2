@@ -55,9 +55,11 @@ Khối bối cảnh **optional** (chọn khoảng / chip):
 - **A2 — Gợi-không-gò (chống anchoring).** Mỗi câu S: luôn có ô tự ghi + nút "Khác" +
   **cho chọn nhiều**; chip ghi rõ "*phổ biến trong ngành — chọn nếu đúng với bạn*".
   - **AC:** User gõ tự do được dù có chip; chọn nhiều chip được; không bị ép chỉ-1-chip.
-- **A3 — Degrade khi không có backend/LLM.** Static demo (không backend) → chip = ví dụ
-  chung tĩnh (không gọi LLM), vẫn skip được. Không vỡ.
-  - **AC:** Mở bản tĩnh → câu S vẫn hiện (chip ví dụ chung) + skip được; không lỗi fetch.
+- **A3 — Backend luôn có (Railway) → gợi ý LUÔN grounded.** GitHub Pages tĩnh đã bỏ
+  (D-033) nên KHÔNG cần maintain chip ví dụ tĩnh. Nếu mở không backend (local dev) chỉ
+  cần **không vỡ** (câu S vẫn hiện + skip được, không chip) — không cần chip fallback.
+  - **AC:** Trên Railway, câu S1-S4 có chip grounded theo ngành; chạy local không
+    backend → câu S vẫn render + skip được, không lỗi fetch (không bắt buộc có chip).
 
 ### B. Quyền bỏ qua → AI suy
 - **B1 — Nút "Mình chưa chắc → để Max đoán" trên mọi câu S (+ C).**
@@ -95,7 +97,7 @@ Khối bối cảnh **optional** (chọn khoảng / chip):
 - `webapp/business.py` — lưu provenance vào profile (C1); build context note field
   `inferred` trước khi gọi `run_targeted_pipeline` (C2).
 - `web/styles.css` — chip, trạng thái chọn, thanh minh bạch.
-- `web/data.js` — bộ câu hỏi mới + chip ví dụ tĩnh fallback (A3).
+- `web/data.js` — bộ câu hỏi mới (không cần chip tĩnh fallback — A3/D-033).
 - `agents/discovery.py` — *chỉ nếu cần* cho AI-adaptive path (engine web dùng); ưu tiên
   giữ logic ở web layer. "chưa rõ"/confidence đã có sẵn — tái dùng.
 - `tests/test_web_api.py` — assert: endpoint suggest tồn tại; wizard có skip; provenance
@@ -109,9 +111,9 @@ Khối bối cảnh **optional** (chọn khoảng / chip):
 - KHÔNG sửa prompt engine T1-T3 để gắn nhãn — làm qua context inject (web-side).
 
 ## 7. Testing strategy
-- `tests/test_web_api.py`: (a) route `/api/biz/intake/suggest` khai báo; (b) build_standalone
-  wizard có nút skip + chip; (c) business build context note chứa tên field inferred;
-  (d) degrade không Supabase/LLM vẫn trả chip tĩnh.
+- `tests/test_web_api.py`: (a) route `/api/biz/intake/suggest` khai báo; (b) wizard có
+  nút skip + chỗ render chip; (c) business build context note chứa tên field inferred;
+  (d) không backend → wizard vẫn render + skip được (không crash; không bắt buộc chip).
 - Thủ công: chạy intake skip vài câu S → output T1-T3 có "(giả định)" đúng field; chọn chip
   → không nhãn; thanh minh bạch hiện đúng tỉ lệ.
 
@@ -128,6 +130,8 @@ Khối bối cảnh **optional** (chọn khoảng / chip):
   từng dòng" (nâng cấp sau — lần này dừng ở gợi-ý-chip + skip).
 
 ## 10. Thứ tự sau khi duyệt
-1. Câu hỏi + chip tĩnh fallback + skip + provenance (web layer) — chạy được cả demo tĩnh.
-2. Endpoint suggest grounded (A1) + context note inferred (C2) — cần backend.
+1. Câu hỏi + skip + provenance (web layer).
+2. Endpoint suggest grounded (A1) + context note inferred (C2).
 3. Thanh minh bạch (D1) + test + nghiệm thu trên Railway.
+
+> Bỏ bước "build static bundle / parity demo tĩnh" (GitHub Pages đã bỏ — D-033).
