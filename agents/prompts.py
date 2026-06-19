@@ -629,6 +629,7 @@ Nhiệm vụ: Tổng hợp tất cả insights từ các bước trước thành
 - Business situation hiện tại
 - Cơ hội lớn nhất được xác định
 - Chiến lược tổng thể được đề xuất
+- **Chọn TRỤC (wedge) — trích dẫn TOWS từ SWOT:** nêu rõ chọn nước nào làm trục chính (vd "lấy **SO1** làm mũi nhọn"), nước nào song hành hỗ trợ (vd "kèm **WT2** để dựng moat trước copycat) và VÌ SAO. ⚠️ Chỉ TRÍCH DẪN mã nước (SO1/WT2...) đã có ở ma trận TOWS trong SWOT — **KHÔNG in lại bảng/danh sách 4 ô TOWS** ở đây (tránh trùng T3).
 
 ## 2. USP (Unique Selling Proposition) — BẮT BUỘC có section này
 USP là 1 câu định nghĩa rõ business khác biệt thế nào trong thị trường. KHÔNG được skip.
@@ -692,9 +693,12 @@ Viết đúng header theo horizon đã chọn (vd: `## 5. Đề Xuất Roadmap 3
 ### [Giai đoạn cuối] — Gợi ý: Scale What Works
 - [Chỉ scale những gì đã có tín hiệu tốt]
 
-## 6. Channel Strategy & Budget Allocation
-- Top 3 kênh ưu tiên (theo ngành và stage)
-- Budget allocation % đề xuất
+## 6. Channel Strategy & Budget Allocation _(định hướng — chưa phải ngân sách chốt)_
+
+> ⚠️ % phân bổ ở đây là **định hướng đặt cược** (kênh nào ưu tiên), KHÔNG phải ngân sách đã chốt. Số tiền thật phân bổ khi lập từng chiến dịch theo dịp (M1), khi có ngân sách đợt thật.
+
+- Top 3 kênh ưu tiên (theo ngành và stage) — diễn theo **thứ tự ưu tiên** ("kênh đặt cược chính → kế đến → hỗ trợ")
+- % phân bổ định hướng cho mỗi kênh, gắn nhãn **(định hướng)** ngay sau số
 - Expected outcome từ mỗi kênh
 
 ## 7. KPI Dashboard — Chỉ Số Cần Theo Dõi (ngành-specific)
@@ -1109,19 +1113,27 @@ Với mỗi điểm:
 Với mỗi điểm:
 - **Tên thách thức**: Mô tả cụ thể + từ competitor analysis / market trends
 
-## 🔀 MA TRẬN CHIẾN LƯỢC
+## 🔀 MA TRẬN CHIẾN LƯỢC (TOWS)
 
-### SO — Tận dụng Điểm Mạnh × Cơ Hội *(Tấn công — ngắn hạn)*
-2-3 hướng ngắn gọn (1-2 dòng mỗi hướng) — sẽ được đào sâu thành tactics ở Tactical Playbook
+🎯 **Đây là nơi DUY NHẤT đặt ma trận TOWS.** TOWS = cầu nối biến SWOT thành nước
+đi chiến lược. Synthesis (T4) sẽ TRÍCH DẪN các nước này để chọn trục, Tactical
+Playbook (T5) chỉ GẮN NHÃN tham chiếu — không tầng nào lặp lại ma trận này.
 
-### WO — Khắc phục Điểm Yếu × Cơ Hội *(Phát triển — trung hạn)*
-2-3 hướng ngắn gọn
+**BẮT BUỘC mỗi nước:** đặt mã (SO1, ST1...) + ghi rõ **giao của yếu tố nào** (vd
+"SO1 (S2 × O1): ..."). KHÔNG gán horizon cứng cho cả ô — horizon (ngắn/trung/dài)
+là thuộc tính của TỪNG nước, ghi ở cuối dòng nếu cần (vd "— ưu tiên ngắn hạn").
+
+### SO — Tận dụng Điểm Mạnh × Cơ Hội *(Tấn công)*
+2-3 nước, mỗi nước: **SOx (Sa × Ob):** mô tả 1-2 dòng
+
+### WO — Khắc phục Điểm Yếu × Cơ Hội *(Phát triển)*
+2-3 nước, mỗi nước: **WOx (Wa × Ob):** mô tả 1-2 dòng
 
 ### ST — Dùng Điểm Mạnh × Chống Thách Thức *(Phòng thủ chủ động)*
-1-2 hướng ngắn gọn
+1-2 nước, mỗi nước: **STx (Sa × Tb):** mô tả 1-2 dòng
 
 ### WT — Giảm thiểu Điểm Yếu × Thách Thức *(Phòng thủ thụ động)*
-1-2 hướng ngắn gọn
+1-2 nước, mỗi nước: **WTx (Wa × Tb):** mô tả 1-2 dòng
 
 **Tone:** Analyst nói thẳng với founder — không vòng vo, không flattering."""
 

@@ -1033,6 +1033,11 @@ async def _generate_banner_copy_via_llm(
         "KHÔNG kể framework theo kiểu giáo trình. "
         "Nói như 1 cố vấn quen brand đó — gọi tên brand, dẫn 1-2 chi tiết cụ thể từ context "
         "(competitor name, geo, target audience, insight quan trọng). "
+        "🔴 CHỐNG BỊA (BẮT BUỘC): CHỈ dùng tên đối thủ / nhân khẩu (tuổi, Gen Z...) / "
+        "segment / địa lý CÓ trong context được cung cấp. TUYỆT ĐỐI không tự bịa "
+        "competitor (vd 'Zara') hay nhân khẩu (vd 'Gen Z') không xuất hiện trong context. "
+        "Nếu context không nêu chi tiết đó → nói chung chung, thận trọng theo đúng "
+        "archetype + ngành, KHÔNG điền chi tiết tưởng tượng. "
         "Output JSON đúng schema, KHÔNG markdown wrapper."
     )
 
@@ -1141,11 +1146,14 @@ async def generate_archetype_banner_html(
     if not res:
         return ""
 
-    # LLM primary path — thử trước
+    # LLM primary path — CHỈ khi có context để bám (chống bịa segment/đối thủ).
+    # Không context → LLM dễ điền chi tiết tưởng tượng (vd "Gen Z/Zara") → dùng template.
     context_snippets = _extract_context_snippets(parsed_stages or [])
-    data = await _generate_banner_copy_via_llm(business_name, industry, res, context_snippets)
+    data = None
+    if context_snippets:
+        data = await _generate_banner_copy_via_llm(business_name, industry, res, context_snippets)
 
-    # Fallback template nếu LLM fail / empty / parse error
+    # Fallback template nếu không có context / LLM fail / empty / parse error
     if not data:
         data = _template_banner_data(business_name, industry, res)
 

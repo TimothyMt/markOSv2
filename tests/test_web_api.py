@@ -99,6 +99,44 @@ def test_synthesis_prompt_is_directional():
     assert "## 4. SMART Goals (2-3 goals" not in p, "Section 4 vẫn còn SMART số cứng cũ"
 
 
+def test_tows_only_in_swot_not_tactical():
+    """D-031: TOWS (SO/WO/ST/WT) là cấu trúc CHỈ ở SWOT/T3, KHÔNG ở Tactical/T5."""
+    swot = _read("agents/prompts.py")
+    tac = _read("agents/strategy_prompts.py")
+    # T3 SWOT vẫn có ma trận TOWS đủ 4 ô
+    assert "MA TRẬN CHIẾN LƯỢC (TOWS)" in swot, "SWOT mất heading ma trận TOWS"
+    for q in ("### SO —", "### WO —", "### ST —", "### WT —"):
+        assert q in swot, f"SWOT thiếu ô TOWS: {q}"
+    # T5 Tactical KHÔNG còn dùng SO/WO/WT làm heading cấu trúc
+    for bad in ("## SO —", "## WO —", "## WT —", "## ST —"):
+        assert bad not in tac, f"Tactical vẫn dùng TOWS làm cấu trúc: {bad}"
+
+
+def test_tactical_uses_funnel_skeleton():
+    """D-031 C1: Tactical đổi xương sống sang Segment → Phễu (TOFU/MOFU/BOFU)."""
+    tac = _read("agents/strategy_prompts.py")
+    for stage in ("TOFU", "MOFU", "BOFU"):
+        assert stage in tac, f"Tactical thiếu tầng phễu: {stage}"
+    assert "phục vụ SO" in tac, "Tactical thiếu cơ chế tag TOWS (phục vụ SOx)"
+
+
+def test_tactical_no_absolute_money_in_template():
+    """D-031 4a: T5 bỏ số tiền tuyệt đối trong khung test (chỉ còn rule cấm)."""
+    tac = _read("agents/strategy_prompts.py")
+    # Dòng duy nhất được phép chứa "triệu/tuần" là rule CẤM nó.
+    offenders = [ln for ln in tac.splitlines()
+                 if "triệu/tuần" in ln and "KHÔNG ghi số tiền" not in ln]
+    assert not offenders, f"T5 còn số tiền tuyệt đối ngoài rule cấm: {offenders}"
+
+
+def test_archetype_banner_has_antifabrication_guard():
+    """D-031 D1: banner archetype không được bịa segment/đối thủ (vd Gen Z/Zara)."""
+    h = _read("bot/html_report.py")
+    assert "CHỐNG BỊA" in h, "Banner LLM thiếu guard chống bịa"
+    assert "context_snippets:" in h and "data = None" in h, \
+        "Không có guard bỏ LLM khi thiếu context (dễ bịa nhất)"
+
+
 if __name__ == "__main__":
     failed = 0
     for name, fn in sorted(globals().items()):
