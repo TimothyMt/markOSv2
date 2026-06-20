@@ -58,3 +58,5 @@ Q-A→D-011 · Q-B→D-012 · Q-C→D-013 · Q-D→D-014.
 - ⏳ **Flow lớn:** D-041 (web 2-phase gate) · D-039a-sidebar mobile · D-040 (campaign 2-track, M1).
 - ✅ **Đợt engine** (prompt): D-038B synthesis mạch tích hợp (cascade + 4b USP/SAVE) · D-035A psychology cắt scope T2 · D-035B pricing tách B2B/B2C · D-036 research bỏ roadmap (giữ insight) · D-037b SWOT 22k token + ép cô đọng (hết cụt TOWS). ⏳ Nghiệm thu = chạy lại pipeline thật.
 - ⏳ Còn lại: D-034#2 (TAM/SAM/SOM card số thật) · D-034#5 (pos-map structured) · D-041 (web 2-phase gate) · D-040 (campaign 2-track M1).
+- ✅ **D-034 #2** (TAM/SAM/SOM card số thật, web trích từ output) + **D-041** (web 2-phase có GATE: research T1-T3 → chọn wedge+USP trên data thật → strategize T4-T5; wedge inject vào context, synthesis tôn trọng). Đổi nút chính → "Chạy nghiên cứu". Sửa D-015.
+- ⏳ Còn lại: D-034#5 (pos-map structured) · D-040 (campaign 2-track M1).
