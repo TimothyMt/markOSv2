@@ -347,7 +347,7 @@ class SwotSkill(AgentSkill):
     """Tổng hợp S/W/O/T từ toàn bộ research pipeline — chạy sau USP, trước Synthesis."""
     name = "swot"
     system_prompt = SWOT_SYSTEM
-    max_tokens = 16000
+    max_tokens = 22000  # bump — SWOT + ma trận TOWS 4 ô (must-have ở cuối) từng bị cắt giữa Threats
     context_strategy = ContextStrategy.FULL_PIPELINE  # Cần đủ 5 research results
 
     def build_context(self, session: Session) -> str:

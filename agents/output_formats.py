@@ -134,7 +134,7 @@ _SHARED_MARKDOWN_RULES = """**Quy tắc viết markdown (BẮT BUỘC):**
 2. **Bold** cho mọi con số/KPI/%: "Tăng từ **80tr** lên **200tr/tháng** (**40% MoM**)"
 3. **Blockquote (>)** cho key takeaway
 4. **Sub-headings `### Tên section`** cho các nhóm lớn
-5. **Bullet lists với emoji prefix** cho action items: 🟢 Quick wins / 🟡 Medium term / 🔴 Risks
+5. **Bullet lists emoji** cho action items (🟢 Quick wins / 🟡 Medium term / 🔴 Risks) — CHỈ ở deliverable chiến lược/thực thi, KHÔNG ở stage research (research kết bằng so-what insight, không roadmap)
 
 LƯU Ý:
 - KHÔNG dùng triple backticks trong output — Telegram render xấu

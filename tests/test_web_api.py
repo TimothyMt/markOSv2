@@ -122,11 +122,23 @@ def test_strategy_no_dead_maxchat_and_has_occasion_bridge():
 
 
 def test_synthesis_prompt_is_directional():
-    """B0/D-030: prompt synthesis nêu định hướng, KHÔNG ép SMART số cứng ở M0."""
+    """B0/D-030 + D-038B: synthesis = mạch tích hợp, định hướng, KHÔNG ép SMART số."""
     p = _read("agents/prompts.py")
-    assert "Mục Tiêu Định Hướng Theo Giai Đoạn" in p, "Section 4 chưa đổi sang định hướng"
-    assert "Chỉ Số Cần Theo Dõi" in p, "Section 7 KPI chưa đổi sang 'cần theo dõi'"
-    assert "## 4. SMART Goals (2-3 goals" not in p, "Section 4 vẫn còn SMART số cứng cũ"
+    assert "Định Hướng Theo Giai Đoạn" in p, "Mất section định hướng giai đoạn"
+    assert "KPI Cần Theo Dõi" in p, "Mất section KPI cần theo dõi"
+    assert "## 4. SMART Goals (2-3 goals" not in p, "Vẫn còn SMART số cứng cũ"
+    # D-038B: cascade tích hợp
+    assert "Luận điểm trung tâm" in p and "Mạch lập luận" in p and "Khung định vị" in p, \
+        "Synthesis chưa restructure sang mạch tích hợp (D-038B)"
+
+
+def test_psychology_scope_and_research_implications():
+    """D-035A + D-036: psychology bỏ copy thực thi; research kết bằng insight (không roadmap)."""
+    p = _read("agents/prompts.py")
+    pipe = _read("agents/pipeline.py")
+    assert "KHÔNG viết headline/CTA/landing" in p, "psychology chưa cắt scope copy thực thi (D-035A)"
+    assert "mức INSIGHT, KHÔNG phải kế hoạch" in p, "Competitor implication chưa cắt roadmap (D-036)"
+    assert "KHÔNG ở stage research" in pipe, "Format Quick-win chưa loại research stage (D-036)"
 
 
 def test_tows_only_in_swot_not_tactical():
