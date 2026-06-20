@@ -1637,8 +1637,43 @@
       pageHead(page.title, page.sub, actions) + page.render();
     if (page.mount) page.mount();
     fillDocEmbeds();   // nhúng trình đọc/sửa text vào trang chi tiết (demo + thật)
+    fillSkillRunSlots();   // nạp nội dung slot .ai-output[data-skill-run] (synthesis collapsible)
+    injectPageNav(id);     // nút chuyển tab trước/sau cho chuỗi phân tích
     document.querySelector('.main').scrollTo(0,0);
     document.body.classList.remove('nav-open');
+  }
+  // Nạp nội dung skill_run vào slot .ai-output[data-skill-run] (vd synthesis collapsible)
+  async function fillSkillRunSlots() {
+    const slots = document.querySelectorAll('.ai-output[data-skill-run]');
+    for (const slot of slots) {
+      const id = slot.dataset.skillRun;
+      if (!id || slot.dataset.loaded) continue;
+      try {
+        const r = await API.get('api/biz/skillrun/' + id);
+        slot.innerHTML = renderAIContent(r.content || '(trống)');
+        enhancePosMaps(slot);
+        slot.dataset.loaded = '1';
+      } catch (e) { slot.innerHTML = '<p class="muted">Không tải được nội dung — thử lại sau.</p>'; }
+    }
+  }
+  // Nút chuyển tab trước/sau cho chuỗi phân tích T1→T5 (đọc theo trình tự)
+  const PAGE_SEQ = [
+    ['market', 'Nghiên cứu thị trường'], ['competitor', 'Phân tích đối thủ'],
+    ['customer', 'Customer Insight'], ['pricing', 'Định giá & Tâm lý'],
+    ['swot', 'SWOT'], ['strategy', 'Chiến lược tổng hợp'], ['tactical', 'Tactical Playbook'],
+  ];
+  function injectPageNav(id) {
+    const i = PAGE_SEQ.findIndex(p => p[0] === id);
+    if (i < 0) return;
+    const prev = i > 0 ? PAGE_SEQ[i - 1] : null;
+    const next = i < PAGE_SEQ.length - 1 ? PAGE_SEQ[i + 1] : null;
+    const bar = document.createElement('div');
+    bar.className = 'page-nav';
+    bar.innerHTML =
+      (prev ? `<a class="ghost-line" href="#${prev[0]}">← ${prev[1]}</a>` : '<span></span>') +
+      `<span class="page-nav-pos">${i + 1}/${PAGE_SEQ.length}</span>` +
+      (next ? `<a class="ghost-line" href="#${next[0]}">${next[1]} →</a>` : '<span></span>');
+    document.getElementById('view').appendChild(bar);
   }
   /* ════════════ backend API + actions ════════════ */
   let apiAvailable = false;

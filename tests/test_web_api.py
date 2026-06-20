@@ -191,6 +191,13 @@ def test_intake_uses_textarea():
     assert 'textarea id="intakeBox"' in app, "Ô intake chưa đổi sang textarea"
 
 
+def test_synthesis_slot_filled_and_pagenav():
+    """Fix: slot synthesis được nạp (fillSkillRunSlots); có nút chuyển tab trước/sau."""
+    app = _read("web/app.js")
+    assert "fillSkillRunSlots" in app and "data-skill-run" in app, "Thiếu filler synthesis slot"
+    assert "injectPageNav" in app and "PAGE_SEQ" in app, "Thiếu nút chuyển tab trước/sau"
+
+
 def test_tactical_page_and_mock_cleaned():
     """D-038A + D-034 #3: có trang Tactical Playbook; dọn mock F&B ở trang phân tích."""
     app = _read("web/app.js")
