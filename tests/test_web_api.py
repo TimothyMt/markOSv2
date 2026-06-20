@@ -214,7 +214,7 @@ def test_posmap_converter_and_rail_removed():
     """D-034 #4 + rail: ASCII map → visual; bỏ rail phải (main rộng hơn)."""
     app = _read("web/app.js")
     css = _read("web/styles.css")
-    assert "enhancePosMaps" in app and "pos-quads" in app, "Thiếu converter Positioning Map"
+    assert "enhancePosMaps" in app and "mq-plot" in app and "mq-dot" in app, "Thiếu converter Positioning Map (Magic Quadrant)"
     assert "248px 1fr;" in css, "Layout chưa bỏ cột rail (vẫn 3 cột)"
     assert ".rail { display: none; }" in css, "Rail phải chưa ẩn"
 

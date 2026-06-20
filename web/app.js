@@ -295,37 +295,48 @@
       }
       return { yTop, yBottom, xRight, xLeft, qdesc, items };
     }
+    // Magic Quadrant: đối thủ = chấm có tên rải trong mặt phẳng 2 trục; mình = ★ sáng
     function buildEl(map) {
-      const w = mk('div', 'pos-map-wrap');
-      w.appendChild(mk('div', 'pos-map-title', '📍 Bản đồ Định vị Cạnh tranh'));
-      if (map.yTop) w.appendChild(mk('div', 'pos-y-lbl', '↑ ' + map.yTop));
-      const qg = mk('div', 'pos-quads');
-      // góc nào chứa SẾP / có chữ "TRỐNG" = góc cơ hội → highlight
+      const short = (s, n) => { s = (s || '').replace(/—.*$/, '').trim(); return s.length > n ? s.slice(0, n - 1) + '…' : s; };
       const isOpp = qn => map.items[qn].some(it => /SếP|sếp|★/.test(it)) || /TRỐNG/i.test(map.qdesc[qn] || '');
-      [[2, 'pq2'], [1, 'pq1'], [3, 'pq3'], [4, 'pq4']].forEach(p => {
-        const opp = isOpp(p[0]);
-        const q = mk('div', 'pos-q ' + p[1] + (opp ? ' opportunity' : ''));
-        const head = mk('div', 'pos-q-head');
-        head.appendChild(mk('span', 'pos-q-lbl', 'GÓC ' + roman(p[0])));
-        if (opp) head.appendChild(mk('span', 'pos-q-badge', '🎯 Cơ hội'));
-        q.appendChild(head);
-        if (map.qdesc[p[0]]) q.appendChild(mk('div', 'pos-q-desc', map.qdesc[p[0]]));
-        const qi = mk('div', 'pos-q-items');
-        map.items[p[0]].forEach(it => {
-          const self = /SếP|sếp|★|self/.test(it);
-          qi.appendChild(mk('span', 'pos-item' + (self ? ' pos-item-self' : ''), self ? '★ Bạn ở đây' : it));
-        });
-        q.appendChild(qi); qg.appendChild(q);
+      const w = mk('div', 'mq');
+      w.appendChild(mk('div', 'mq-title', '📍 Bản đồ Định vị Cạnh tranh'));
+      const plot = mk('div', 'mq-plot');
+      // nhãn góc mờ ở 4 corner
+      const CMAP = { 1: 'mq-c1', 2: 'mq-c2', 3: 'mq-c3', 4: 'mq-c4' };
+      [1, 2, 3, 4].forEach(qn => {
+        const c = mk('div', 'mq-corner ' + CMAP[qn] + (isOpp(qn) ? ' opp' : ''));
+        const h = mk('div', 'mq-corner-h');
+        h.appendChild(mk('span', 'mq-corner-q', 'GÓC ' + roman(qn)));
+        if (isOpp(qn)) h.appendChild(mk('span', 'mq-badge', '🎯 Cơ hội'));
+        c.appendChild(h);
+        if (map.qdesc[qn]) c.appendChild(mk('span', 'mq-corner-d', short(map.qdesc[qn], 30)));
+        plot.appendChild(c);
       });
-      w.appendChild(qg);
-      if (map.yBottom) w.appendChild(mk('div', 'pos-y-lbl', '↓ ' + map.yBottom));
-      if (map.xLeft || map.xRight) {
-        const xa = mk('div', 'pos-x-axis');
-        if (map.xLeft) xa.appendChild(mk('span', 'pos-x-l', '← ' + map.xLeft));
-        xa.appendChild(mk('div', 'pos-x-line'));
-        if (map.xRight) xa.appendChild(mk('span', 'pos-x-r', map.xRight + ' →'));
-        w.appendChild(xa);
-      }
+      // chấm đối thủ — rải trong vùng góc của nó
+      const QP = { 1: [60, 84, 16, 40], 2: [16, 40, 16, 40], 3: [16, 40, 60, 84], 4: [60, 84, 60, 84] };
+      [1, 2, 3, 4].forEach(qn => {
+        const its = map.items[qn], n = its.length;
+        its.forEach((it, i) => {
+          const [x0, x1, y0, y1] = QP[qn];
+          const t = n === 1 ? 0.5 : i / (n - 1);
+          const x = x0 + (x1 - x0) * t;
+          const y = (y0 + y1) / 2 + (n > 1 ? (i % 2 ? 11 : -11) : 0);
+          const self = /SếP|sếp|★/.test(it);
+          const d = mk('div', 'mq-dot' + (self ? ' self' : '') + (x >= 50 ? ' rt' : ''));
+          d.style.left = x + '%'; d.style.top = Math.max(10, Math.min(90, y)) + '%';
+          d.appendChild(mk('span', 'mq-pt', self ? '★' : ''));
+          d.appendChild(mk('span', 'mq-name', self ? 'Bạn ở đây' : it));
+          plot.appendChild(d);
+        });
+      });
+      if (map.yTop) w.appendChild(mk('div', 'mq-yt', '▲ ' + short(map.yTop, 40)));
+      w.appendChild(plot);
+      if (map.yBottom) w.appendChild(mk('div', 'mq-yb', '▼ ' + short(map.yBottom, 40)));
+      const xa = mk('div', 'mq-x');
+      xa.appendChild(mk('span', '', map.xLeft ? '← ' + map.xLeft : ''));
+      xa.appendChild(mk('span', '', map.xRight ? map.xRight + ' →' : ''));
+      w.appendChild(xa);
       return w;
     }
     root.querySelectorAll('pre').forEach(pre => {
