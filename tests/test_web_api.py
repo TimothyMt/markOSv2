@@ -191,6 +191,15 @@ def test_intake_uses_textarea():
     assert 'textarea id="intakeBox"' in app, "Ô intake chưa đổi sang textarea"
 
 
+def test_posmap_converter_and_rail_removed():
+    """D-034 #4 + rail: ASCII map → visual; bỏ rail phải (main rộng hơn)."""
+    app = _read("web/app.js")
+    css = _read("web/styles.css")
+    assert "enhancePosMaps" in app and "pos-quads" in app, "Thiếu converter Positioning Map"
+    assert "248px 1fr;" in css, "Layout chưa bỏ cột rail (vẫn 3 cột)"
+    assert ".rail { display: none; }" in css, "Rail phải chưa ẩn"
+
+
 if __name__ == "__main__":
     failed = 0
     for name, fn in sorted(globals().items()):

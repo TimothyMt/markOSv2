@@ -34,10 +34,11 @@ body {
 body { overflow-x: hidden; }
 .app {
   display: grid;
-  grid-template-columns: 248px 1fr 320px;
+  grid-template-columns: 248px 1fr;   /* bỏ rail phải — main rộng hơn (đọc output thoáng) */
   min-height: 100vh;
   max-width: 100%;
 }
+.rail { display: none; }   /* rail phải gỡ: token đã ở topbar, alert là mock */
 
 /* ── Sidebar ─────────────────────────────────────────── */
 .sidebar {
@@ -525,11 +526,33 @@ code { background: var(--panel); border: 1px solid var(--stroke); border-radius:
 /* D-034 fix: bảng rộng CUỘN trong wrap (không tràn/cắt — mobile+web); pre code-block */
 .ai-output, .doc-body { min-width:0; max-width:100%; }
 .tbl-wrap table, .tbl-wrap .tbl { width:auto; min-width:100%; }
-.tbl-wrap td, .tbl-wrap th { white-space:normal; word-break:break-word; min-width:90px; }
+/* cột đủ rộng để chữ không bị dồn/cắt giữa từ; wrap ở khoảng trắng, cuộn nếu rộng quá */
+.tbl-wrap td, .tbl-wrap th { white-space:normal; overflow-wrap:break-word; word-break:normal;
+  min-width:140px; max-width:280px; vertical-align:top; }
+/* bảng content (markdown) — header KHÔNG uppercase/letter-spacing (đỡ rộng + dễ đọc) */
+.ai-output .tbl th, .doc-body .tbl th { text-transform:none; letter-spacing:normal; font-size:12px; }
 .ai-pre { background:var(--panel-2); border:1px solid var(--stroke); border-radius:8px;
   padding:12px 14px; margin:12px 0; overflow-x:auto; -webkit-overflow-scrolling:touch;
   font-family:ui-monospace,Menlo,Consolas,monospace; font-size:12px; line-height:1.45;
   white-space:pre; color:var(--txt-2); max-width:100%; }
+/* D-034 #4: Positioning Map visual (ASCII → 4 góc) — dark theme */
+.pos-map-wrap { margin:18px 0; }
+.pos-map-title { font-size:14px; font-weight:700; color:var(--txt); margin-bottom:8px; }
+.pos-y-lbl { text-align:center; font-size:12px; font-weight:600; color:var(--muted); padding:4px 0; }
+.pos-quads { display:grid; grid-template-columns:1fr 1fr; border:1px solid var(--stroke-2); border-radius:10px; overflow:hidden; }
+.pos-q { padding:14px; min-height:96px; }
+.pq2 { background:rgba(91,140,255,.07); border-right:1px solid var(--stroke); border-bottom:1px solid var(--stroke); }
+.pq1 { background:rgba(45,200,140,.10); border-bottom:1px solid var(--stroke); }   /* GÓC I = khoảng trống/cơ hội */
+.pq3 { background:rgba(245,180,90,.07); border-right:1px solid var(--stroke); }
+.pq4 { background:rgba(170,120,255,.07); }
+.pos-q-lbl { font-size:10px; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:4px; letter-spacing:.05em; }
+.pos-q-desc { font-size:12px; font-weight:600; color:var(--txt); margin-bottom:8px; line-height:1.4; }
+.pos-q-items { display:flex; flex-wrap:wrap; gap:5px; }
+.pos-item { font-size:12px; padding:3px 9px; border-radius:12px; background:var(--panel-2); border:1px solid var(--stroke-2); color:var(--txt); }
+.pos-item-self { background:var(--primary); color:#fff; border-color:var(--primary); font-weight:700; }
+.pos-x-axis { display:flex; align-items:center; gap:10px; margin-top:8px; font-size:12px; font-weight:600; color:var(--muted); }
+.pos-x-l, .pos-x-r { flex-shrink:0; }
+.pos-x-line { flex:1; height:2px; background:var(--stroke-2); }
 
 /* ════════ Max — conversation-first co-pilot ════════ */
 /* Chat mode: ẩn rail, mở rộng vùng chính, bỏ chrome thừa */
