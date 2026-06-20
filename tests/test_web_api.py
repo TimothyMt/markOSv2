@@ -43,6 +43,15 @@ def test_market_kpis_route_and_degrade():
     assert asyncio.run(biz.market_kpis("")) == {}, "market_kpis không degrade khi thiếu run_id"
 
 
+def test_campaign_2track():
+    """D-040: hub 2 tuyến — route campaign-plan; FE có always-on pillars + occasion."""
+    assert "/api/biz/campaign-plan" in _paths(), "Thiếu route /api/biz/campaign-plan"
+    assert asyncio.run(biz.campaign_plan(None)) == {}, "campaign_plan không degrade khi thiếu backend"
+    app = _read("web/app.js")
+    assert "loadCampaignPlan" in app and "Always-on" in app and "Occasion" in app, \
+        "FE chưa có hub 2 tuyến (always-on + occasion)"
+
+
 def test_gate_2phase():
     """D-041: web 2-phase — route gate; task research/strategize; FE có GATE."""
     assert "/api/biz/gate" in _paths(), "Thiếu route /api/biz/gate"

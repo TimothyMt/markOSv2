@@ -112,6 +112,12 @@ async def biz_save_gate(request):
     return JSONResponse(res, status_code=400 if "error" in res else 200)
 
 
+async def biz_campaign_plan(request):
+    """D-040 — content pillars (always-on) + gợi ý occasion theo ngành."""
+    res = await biz.campaign_plan(request.query_params.get("user_id"))
+    return JSONResponse({"plan": res})
+
+
 async def biz_skillrun_rate(request):
     """Chấm điểm 1 output research (👍/👎 → 5/1)."""
     data = await request.json()
@@ -301,6 +307,7 @@ def api_routes() -> list:
         Route("/api/biz/intake/suggest",           biz_intake_suggest, methods=["POST"]),
         Route("/api/biz/market-kpis",              biz_market_kpis,    methods=["GET"]),
         Route("/api/biz/gate",                     biz_save_gate,      methods=["POST"]),
+        Route("/api/biz/campaign-plan",            biz_campaign_plan,  methods=["GET"]),
         Route("/api/biz/skillrun/{id:str}/rate",   biz_skillrun_rate,  methods=["POST"]),
         Route("/api/biz/skillrun/save",            biz_skillrun_save,  methods=["POST"]),
         Route("/api/biz/skillruns",                biz_skill_versions, methods=["GET"]),

@@ -850,6 +850,12 @@ textarea.intake-input { resize:none; overflow:hidden; min-height:48px; line-heig
 .gate-usp { display:flex; flex-direction:column; gap:8px; margin-top:6px; }
 .radio-row { display:flex; align-items:center; gap:8px; font-size:14px; color:var(--txt); cursor:pointer; }
 .radio-row input { accent-color:var(--primary); }
+/* D-040: content pillars (always-on) */
+.pillars { display:flex; flex-direction:column; gap:12px; }
+.pillar { background:var(--panel-2); border:1px solid var(--stroke); border-left:3px solid var(--primary);
+  border-radius:10px; padding:12px 14px; }
+.pillar-head { display:flex; align-items:center; gap:8px; margin-bottom:4px; font-size:14px; }
+.pillar-cad { font-size:12px; color:var(--primary-2); margin:6px 0 4px; }
 .intake-nav { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:16px; }
 .intake-note { font-size:12px; margin-top:12px; }
 

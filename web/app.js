@@ -930,7 +930,7 @@
   }
   P.strategy = {
     title: 'Chiến lược tổng hợp', sub: 'Định vị · SAVE · Định hướng 90 ngày · KPI cần theo dõi',
-    actions: `<a class="ghost-line" href="#tactical">🔨 Tactical Playbook</a> <a class="primary-btn" href="#occasion">→ Lập chiến dịch theo dịp</a>`,
+    actions: `<a class="ghost-line" href="#tactical">🔨 Tactical Playbook</a> <a class="primary-btn" href="#occasion">→ Lập chiến dịch</a>`,
     render: () => {
       const latest = (M.bizLatest || {}).synthesis;
       if (M.bizEnabled && latest) {
@@ -1021,23 +1021,57 @@
   };
 
   /* ---- Cầu nối: Lập chiến dịch theo dịp (M1 — đang phát triển) ---- */
+  // D-040: hub 2-tuyến — Always-on (nền) + Occasion (theo dịp). Industry-aware.
   P.occasion = {
-    title: 'Lập chiến dịch theo dịp', sub: 'Nơi chốt SMART thật — kế thừa định hướng từ Chiến lược',
+    title: 'Lập chiến dịch', sub: '2 tuyến chạy song song: Always-on (nền) + Theo dịp (occasion)',
     actions: `<a class="ghost-line" href="#strategy">← Về Chiến lược</a>`,
-    render: () => `<section class="grid">
-        ${card('', `<div class="empty-cta">
-          <div class="empty-ic">🗓️</div>
-          <h3>Đang phát triển — sắp ra mắt</h3>
-          <p class="muted">Đây là chặng <b>M1</b>: từ một dịp cụ thể (Tết, ra mắt, Black Friday…) Max sẽ
-          kế thừa <b>định hướng</b> ở Chiến lược 90 ngày rồi giúp bạn <b>chốt SMART thật</b> —
-          mục tiêu có số, ngân sách đợt, deadline, theo đúng giai đoạn roadmap hiện tại.</p>
-          <p class="muted">Chiến lược (la bàn) đã có. Bước này (bản đồ chi tiết) đang được xây.</p>
-          <div class="empty-actions">
-            <a class="ghost-line" href="#strategy">← Xem lại Chiến lược định hướng</a>
-          </div></div>`, {cls:'span-12'})}
-      </section>`,
-    mount: () => {},
+    render: () => {
+      if (M.bizEnabled && !(M.bizLatest || {}).synthesis) {
+        return `<section class="grid">${card('', `<div class="empty-cta">
+          <div class="empty-ic">🗓️</div><h3>Cần có Chiến lược trước</h3>
+          <p class="muted">2 tuyến chiến dịch kế thừa từ Chiến lược (la bàn) + Tactical Playbook. Hãy lập chiến lược trước.</p>
+          <div class="empty-actions"><a class="primary-btn" href="#strategy">🎯 Tới bước Lập chiến lược</a></div></div>`, {cls:'span-12'})}</section>`;
+      }
+      return `<section class="grid">
+        <div class="card span-12 dir-banner">🧭 <b>Synthesis = la bàn TRÊN cả 2 tuyến.</b> <b>Always-on</b> chạy nền liên tục để được nhớ (Byron Sharp); <b>Occasion</b> là đợt theo dịp tạo spike (Binet&Field). 2 tuyến SONG SONG — occasion cộng thêm, không tắt nền.</div>
+        <div id="campaignPlan" class="span-12"><div class="card"><p class="muted">⏳ Đang lập 2 tuyến theo ngành của bạn…</p></div></div>
+      </section>`;
+    },
+    mount: () => { loadCampaignPlan(); },
   };
+  // D-040: nạp content pillars (always-on) + gợi ý occasion theo ngành
+  async function loadCampaignPlan() {
+    const host = document.getElementById('campaignPlan');
+    if (!host || !apiAvailable || !M.bizEnabled) return;
+    const E = s => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    try {
+      const r = await API.get('api/biz/campaign-plan' + bizQuery());
+      const p = (r && r.plan) || {};
+      const pillars = p.pillars || [], occ = p.occasions || [];
+      if (!pillars.length && !occ.length) {
+        host.innerHTML = `<div class="card"><p class="muted">Chưa lập được 2 tuyến — chạy lại Chiến lược (T4) rồi quay lại.</p></div>`; return;
+      }
+      const pillarCards = pillars.map(x => `
+        <div class="pillar">
+          <div class="pillar-head"><b>${E(x.name)}</b> ${x.funnel ? `<span class="tag">${E(x.funnel)}</span>` : ''}</div>
+          ${x.role ? `<p class="muted">${E(x.role)}</p>` : ''}
+          ${x.cadence ? `<p class="pillar-cad">🔁 ${E(x.cadence)}</p>` : ''}
+          ${(x.angles || []).length ? `<ul class="bullet">${x.angles.map(a => `<li>${E(a)}</li>`).join('')}</ul>` : ''}
+        </div>`).join('');
+      const occRows = occ.map(o => `
+        <li class="row"><div class="row-main"><p>🔴 ${E(o.name)} ${o.when ? `<span class="muted">· ${E(o.when)}</span>` : ''}</p>${o.why ? `<span class="muted">${E(o.why)}</span>` : ''}</div></li>`).join('');
+      host.innerHTML = `<section class="grid" style="margin:0">
+        ${card('🟢 Always-on — tuyến NỀN (content pillars)', `
+          <p class="muted" style="margin-bottom:12px">Chạy đều quanh năm để thương hiệu được nhớ. Bám USP + JTBD + archetype ngành. <b>Không chốt số</b> — đây là nền (D-029).</p>
+          <div class="pillars">${pillarCards || '<p class="muted">—</p>'}</div>
+          <a class="ghost-line full" href="#content" style="margin-top:14px">→ Đưa vào Lịch nội dung</a>`, { cls: 'span-7' })}
+        ${card('🔴 Theo dịp — Occasion (gợi ý theo ngành)', `
+          <p class="muted" style="margin-bottom:12px">Đợt có window — nơi <b>chốt SMART thật</b> (số, ngân sách đợt, deadline). Hợp mùa vụ ngành:</p>
+          <ul class="rows">${occRows || '<li class="muted">—</li>'}</ul>
+          <button class="primary-btn full" data-act="new-occasion" style="margin-top:14px">＋ Tạo chiến dịch theo dịp</button>`, { cls: 'span-5' })}
+      </section>`;
+    } catch (e) { host.innerHTML = `<div class="card"><p class="muted">Không lập được kế hoạch — thử lại sau.</p></div>`; }
+  }
 
   /* ---- Campaign Brief ---- */
   P.brief = {
@@ -2017,6 +2051,10 @@
         toast('Đã chốt hướng — Max đang lập chiến lược + playbook…');
         await refreshBiz(); renderRail(); renderTopbar(); route();
       } catch (e) { toast('Không lập được chiến lược'); }
+      return;
+    }
+    if (act === 'new-occasion') {   // D-040: luồng tạo occasion đầy đủ (pre-fill SMART) = M1 lớn
+      toast('Luồng tạo chiến dịch theo dịp (chốt SMART) đang được xây — M1. Always-on đã sẵn sàng dùng.');
       return;
     }
     if (act === 'rate-skillrun') {

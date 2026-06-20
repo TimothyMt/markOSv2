@@ -222,6 +222,81 @@ async def save_gate(user_id=None, wedge: str = "", usp_stance: str = "", usp_tex
 _market_kpi_cache: dict = {}
 
 
+async def _latest_content(uid: int, skill_name: str) -> str:
+    """Content của skill_run mới nhất theo skill_name (cho campaign_plan)."""
+    try:
+        c = await ensure_client()
+        resp = (await c.table("skill_runs").select("content")
+                .eq("user_id", uid).eq("skill_name", skill_name)
+                .order("version", desc=True).limit(1).execute())
+        if resp.data:
+            return resp.data[0].get("content") or ""
+    except Exception as e:
+        logger.warning("_latest_content(%s) failed: %s", skill_name, e)
+    return ""
+
+
+_campaign_plan_cache: dict = {}
+
+
+async def campaign_plan(user_id=None) -> dict:
+    """D-040: sinh content PILLARS (Always-on) + gợi ý OCCASION theo ngành — từ
+    Synthesis + Tactical + industry context (Byron Sharp + Binet&Field). Cache; degrade {}."""
+    if not available():
+        return {}
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {}
+        synth = await _latest_content(uid, "synthesis")
+        if not synth.strip():
+            return {}   # cần Chiến lược (T4) trước
+        tact = await _latest_content(uid, "tactical_playbook")
+        from storage.v2 import profiles
+        prof = await profiles.get_profile(uid) or {}
+        industry = prof.get("industry") or ""
+        wedge = ((prof.get("intake_extra") or {}).get("wedge")) or ""
+        cache_key = f"{uid}:{hash(synth[:300])}"
+        if cache_key in _campaign_plan_cache:
+            return _campaign_plan_cache[cache_key]
+        ictx = ""
+        try:
+            from frameworks.industry_context import INDUSTRY_CONTEXT
+            ic = INDUSTRY_CONTEXT.get((industry or "").lower())
+            if ic:
+                ictx = f"Archetype mua hàng: {ic.purchase_archetype}. Động lực/mùa vụ ngành: {ic.market_dynamics[:450]}"
+        except Exception:
+            pass
+        from tools.llm_router import call as router_call, TaskType
+        import json as _json
+        system = (
+            "Bạn là CMO lập kế hoạch 2 TUYẾN marketing theo marketing hiện đại (Byron Sharp = "
+            "hiện diện liên tục để được nhớ; Binet&Field 60/40 brand/activation). Từ Chiến lược + "
+            "Tactical + bối cảnh NGÀNH, sinh:\n"
+            "(1) 4-6 content PILLARS cho ALWAYS-ON (nền chạy đều, KHÔNG gắn dịp) — bám USP/JTBD/"
+            "archetype/wedge; mỗi pillar có vai + tầng phễu + nhịp đăng + vài góc bài.\n"
+            "(2) 3-5 gợi ý OCCASION (đợt theo dịp) hợp MÙA VỤ của ngành (đọc kỹ động lực/mùa vụ).\n"
+            'Output JSON đúng schema: {"pillars":[{"name":"","role":"","funnel":"TOFU|MOFU|BOFU",'
+            '"cadence":"","angles":["",""]}],"occasions":[{"name":"","when":"","why":""}]}.\n'
+            "🔴 Bám đúng NGÀNH + wedge; KHÔNG bịa số/ngân sách (always-on KHÔNG chốt SMART). KHÔNG markdown."
+        )
+        user = (f"# Ngành\n{industry}\n{ictx}\n\n# Wedge (tệp ưu tiên đã chọn)\n{wedge or '(chưa chọn — tự suy)'}\n\n"
+                f"# Chiến lược (Synthesis)\n{synth[:3500]}\n\n# Tactical Playbook\n{(tact or '(chưa có)')[:2500]}")
+        res = await router_call(task_type=TaskType.INTAKE_JSON, system=system, user=user, max_tokens=1600)
+        raw = (res or {}).get("output", "").strip()
+        raw = re.sub(r'^```(?:json)?\s*', '', raw)
+        raw = re.sub(r'\s*```\s*$', '', raw).strip()
+        data = _json.loads(raw)
+        out = {"pillars": data.get("pillars") or [], "occasions": data.get("occasions") or []}
+        if out["pillars"] or out["occasions"]:
+            _campaign_plan_cache[cache_key] = out
+        return out
+    except Exception as e:
+        logger.warning("biz.campaign_plan failed (non-fatal): %s", e)
+        return {}
+
+
 async def market_kpis(run_id: str = "") -> dict:
     """D-034 #2: trích TAM/SAM/SOM số THẬT từ output market_research (web-side, cache theo run).
     Thiếu/lỗi → {} (UI ẩn card, không bao giờ hiện số bịa)."""
