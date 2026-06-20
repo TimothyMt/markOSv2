@@ -15,6 +15,7 @@ Không phụ thuộc store backend — tái dùng client của storage.session (
 import asyncio
 import logging
 import os
+import re
 import time
 
 logger = logging.getLogger(__name__)
@@ -222,6 +223,63 @@ async def save_profile(user_id=None, fields: dict = None) -> dict:
     except Exception as e:
         logger.warning("biz.save_profile failed: %s", e)
         return {"error": str(e)}
+
+
+_STRATEGIC_QS = {
+    "jtbd": 'Khách "thuê" sản phẩm để hoàn thành việc gì (mua lúc/dịp nào, giải quyết chuyện gì)',
+    "competitive_alternative": "Nếu không có brand này, khách dùng giải pháp thay thế nào / so sánh với ai",
+    "differentiation": "Điểm khác biệt bền vững + bằng chứng (khách hay khen gì, vì sao quay lại)",
+    "objection": "Rào cản / nỗi sợ lớn nhất khiến khách chần chừ (hay lo/hỏi/từ chối vì gì)",
+    "competitors": "Tên đối thủ điển hình cùng ngách/địa bàn",
+}
+
+
+async def intake_suggestions(fields: dict = None) -> dict:
+    """D-032 step 2 — sinh chip gợi ý cho câu chiến lược tầng CMO, bám
+    ngành/sản phẩm/khách user đã nhập. Degrade an toàn: lỗi → {} (UI không chip).
+
+    Returns: {jtbd:[...], competitive_alternative:[...], differentiation:[...],
+              objection:[...], competitors:[...]}
+    """
+    f = fields or {}
+    biz_ctx = "\n".join(filter(None, [
+        f.get("business_name") and f"Tên: {f['business_name']}",
+        f.get("industry") and f"Ngành: {f['industry']}",
+        f.get("location") and f"Địa bàn: {f['location']}",
+        f.get("product_service") and f"Sản phẩm/dịch vụ: {f['product_service']}",
+        f.get("target_customer") and f"Khách mục tiêu: {f['target_customer']}",
+    ]))
+    if not biz_ctx.strip():
+        return {}
+    try:
+        from tools.llm_router import call as router_call, TaskType
+        import json as _json
+        qlist = "\n".join(f'- "{k}": {desc}' for k, desc in _STRATEGIC_QS.items())
+        system = (
+            "Bạn giúp founder Việt Nam điền hồ sơ marketing. Với MỖI câu chiến lược, "
+            "đưa 3-4 GỢI Ý câu trả lời NGẮN (≤14 từ), cụ thể & đời thường theo đúng "
+            "ngành/sản phẩm/khách của họ — để họ NHẬN RA và chọn (không phải tự nghĩ). "
+            "🔴 CHỐNG BỊA: chỉ dùng tên đối thủ / nhân khẩu có cơ sở từ ngành; KHÔNG bịa "
+            "số liệu, KHÔNG bịa brand không tồn tại. Gợi ý là 'phổ biến trong ngành' — "
+            "founder chọn nếu đúng. Output JSON object: key = mã câu, value = mảng string. "
+            "KHÔNG markdown wrapper."
+        )
+        user = f"# Business\n{biz_ctx}\n\n# Các câu cần gợi ý\n{qlist}\n\n# Output\nJSON: {{\"jtbd\":[...], ...}}"
+        res = await router_call(task_type=TaskType.INTAKE_JSON, system=system, user=user, max_tokens=900)
+        raw = (res or {}).get("output", "").strip()
+        raw = re.sub(r'^```(?:json)?\s*', '', raw)
+        raw = re.sub(r'\s*```\s*$', '', raw).strip()
+        data = _json.loads(raw)
+        # Chỉ giữ key hợp lệ + value là list string ngắn
+        out = {}
+        for k in _STRATEGIC_QS:
+            v = data.get(k)
+            if isinstance(v, list):
+                out[k] = [str(x).strip() for x in v if str(x).strip()][:4]
+        return out
+    except Exception as e:
+        logger.warning("biz.intake_suggestions failed (non-fatal): %s", e)
+        return {}
 
 
 async def intake_turn(user_id=None, message: str = "") -> dict:

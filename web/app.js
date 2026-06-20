@@ -201,6 +201,22 @@
   let _editProfile = false;
   // Onboarding wizard — hỏi từng câu một (kiểu Typeform), thân thiện với user mới
   let _intakeStep = 0, _intakeData = {}, _intakeProv = {};
+  let _intakeSuggest = {}, _intakeSuggestBusy = false, _intakeSuggestDone = false;
+  // D-032 step 2: sinh chip gợi ý cho câu chiến lược, bám ngành/sản phẩm/khách đã nhập
+  async function fetchIntakeSuggestions() {
+    if (_intakeSuggestDone || _intakeSuggestBusy || !apiAvailable) return;
+    _intakeSuggestBusy = true;
+    try {
+      const core = {};
+      ['business_name', 'industry', 'location', 'product_service', 'target_customer'].forEach(k => {
+        if (_intakeData[k]) core[k] = _intakeData[k];
+      });
+      const r = await API.post('api/biz/intake/suggest', { fields: core, user_id: _bizUserId });
+      _intakeSuggest = (r && r.suggestions) || {};
+    } catch (e) { _intakeSuggest = {}; }
+    _intakeSuggestBusy = false; _intakeSuggestDone = true;
+    route();
+  }
   // D-032: intake web đa-level. tier: core (bắt buộc) | strategic (tầng CMO,
   // skip→AI suy, có chip gợi ý) | context (optional, chọn khoảng).
   // strategic=true → hiện helper bình dân + nút "để Max đoán"; skip = field giả định.
@@ -312,6 +328,19 @@
       ? `<div class="intake-choices">${st.choices.map(c =>
           `<button class="intake-choice${_intakeData[st.key] === c || (c === 'Không tiện chia sẻ' && _intakeData[st.key] === 'chưa rõ') ? ' on' : ''}" data-act="intake-choice" data-val="${c.replace(/"/g, '&quot;')}">${c}</button>`).join('')}</div>`
       : `<input id="intakeBox" class="intake-input" value="${val}" placeholder="${st.ph}" autocomplete="off">`;
+    // D-032 step 2: câu chiến lược → fetch + render chip gợi ý (recognition, chọn nhiều được)
+    let chips = '';
+    if (st.strategic) {
+      if (!_intakeSuggestDone && apiAvailable) fetchIntakeSuggestions();
+      const sug = _intakeSuggest[st.key] || [];
+      if (sug.length) {
+        chips = `<div class="intake-sug"><span class="intake-sug-lbl">Gợi ý phổ biến trong ngành — bấm để chọn (chọn nhiều được):</span>
+          <div class="intake-sug-chips">${sug.map(s =>
+            `<button class="intake-sug-chip" data-act="intake-suggest" data-val="${s.replace(/"/g, '&quot;')}">+ ${s}</button>`).join('')}</div></div>`;
+      } else if (_intakeSuggestBusy) {
+        chips = `<div class="intake-sug muted">💡 Đang gợi ý theo ngành của bạn…</div>`;
+      }
+    }
     const tag = st.strategic ? ' · để Max đoán nếu chưa chắc' : (st.optional ? ' · không bắt buộc' : '');
     return `
       <div class="intake">
@@ -320,6 +349,7 @@
         <h3 class="intake-q">${st.q}</h3>
         ${st.helper ? `<p class="intake-helper">💬 ${st.helper}</p>` : ''}
         ${body}
+        ${chips}
         ${st.note ? `<p class="muted intake-note">${st.note}</p>` : ''}
         <div class="intake-nav">
           ${i > 0 ? '<button class="ghost-line" data-act="intake-back">← Quay lại</button>' : '<span></span>'}
@@ -497,6 +527,14 @@
     if (action === 'choice') {
       _intakeData[st.key] = (choiceVal === 'Không tiện chia sẻ') ? 'chưa rõ' : choiceVal;
       _intakeProv[st.key] = 'typed';
+    }
+    if (action === 'suggest') {        // bấm chip gợi ý → thêm vào câu trả lời (chọn nhiều)
+      const cur = (_intakeData[st.key] || '').trim();
+      const add = (choiceVal || '').trim();
+      const has = cur.split(/[,;]\s*/).some(p => p.trim() === add);
+      _intakeData[st.key] = has ? cur : (cur ? cur + ', ' + add : add);
+      _intakeProv[st.key] = 'suggested';
+      route(); return;
     }
     if (action === 'back') { _intakeStep = Math.max(0, _intakeStep - 1); route(); return; }
     if (action === 'skip') {
@@ -768,6 +806,15 @@
           kênh, ưu tiên từng giai đoạn. Con số cụ thể — SMART, ngân sách đợt, deadline —
           sẽ được <b>chốt khi bạn lập từng chiến dịch theo dịp</b>.
         </div>`;
+  // D-032 step 3: thanh minh bạch — Max tự suy bao nhiêu mục chiến lược (founder bỏ trống)
+  const _STRAT_KEYS = ['jtbd', 'competitive_alternative', 'differentiation', 'objection', 'competitors'];
+  function inferredMeter() {
+    const prov = ((M.bizProfile || {}).intake_extra || {}).provenance || {};
+    const inferred = _STRAT_KEYS.filter(k => prov[k] === 'inferred');
+    if (!inferred.length) return '';
+    return `<div class="card span-12 infer-banner">🤖 Max đã <b>tự suy ${inferred.length}/${_STRAT_KEYS.length} mục chiến lược</b> (bạn để trống) —
+      phần phân tích dựa vào chúng được đánh dấu <b>(giả định — cần kiểm chứng)</b>. Bổ sung ở Hồ sơ doanh nghiệp để sắc hơn.</div>`;
+  }
   P.strategy = {
     title: 'Chiến lược tổng hợp', sub: 'Định vị · SAVE · Định hướng 90 ngày · KPI cần theo dõi',
     actions: `<a class="primary-btn" href="#occasion">→ Lập chiến dịch theo dịp</a>`,
@@ -776,6 +823,7 @@
       if (M.bizEnabled && latest) {
         return `<section class="grid">
           ${directionalBanner}
+          ${inferredMeter()}
           ${agentBar('strategy','synthesis')}
           ${card('Chiến lược 90 ngày — do Max lập', `
             <div class="ai-output collapsible" data-skill-run="${latest.id}">Đang tải chiến lược…</div>
@@ -1715,6 +1763,7 @@
     if (act === 'intake-back') { handleIntake('back'); return; }
     if (act === 'intake-skip') { handleIntake('skip'); return; }
     if (act === 'intake-choice') { handleIntake('choice', el.dataset.val); return; }
+    if (act === 'intake-suggest') { handleIntake('suggest', el.dataset.val); return; }
     if (act === 'edit-profile') { _editProfile = true; route(); return; }
     if (act === 'cancel-profile') { _editProfile = false; route(); return; }
     if (act === 'view-skillrun') { location.hash = '#doc/' + el.dataset.id; return; }

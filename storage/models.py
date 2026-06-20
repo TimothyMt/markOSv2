@@ -74,6 +74,11 @@ class BusinessProfile:
     usp: Optional[str] = None
     usp_confidence: Optional[str] = None
 
+    # D-032 — câu chiến lược tầng CMO không có cột riêng + provenance từng field
+    # {answers:{jtbd,competitive_alternative,differentiation,objection,price_point},
+    #  provenance:{field: typed|suggested|inferred}}
+    intake_extra: Optional[dict] = None
+
     def is_ready_for_analysis(self) -> bool:
         """Legacy global check — kept for backward compat.
         Use is_ready_for(task_name) for per-task field requirements (Phase 1.2)."""
@@ -176,6 +181,29 @@ class BusinessProfile:
             }.get(self.usp_confidence, self.usp_confidence)
             lines.append(usp_line)
             lines.append(f"- **USP confidence**: {confidence_label}")
+        # D-032 — câu chiến lược tầng CMO (JTBD / lựa-chọn-thay-thế / khác biệt / objection)
+        extra = self.intake_extra or {}
+        answers = extra.get("answers") or {}
+        prov = extra.get("provenance") or {}
+        _LBL = {
+            "jtbd": "Job-to-be-done của khách",
+            "competitive_alternative": "Lựa chọn thay thế của khách",
+            "differentiation": "Khác biệt bền vững (theo founder)",
+            "objection": "Rào cản/nỗi sợ của khách",
+            "price_point": "Giá bán / AOV",
+        }
+        for k, lbl in _LBL.items():
+            v = answers.get(k)
+            if v:
+                lines.append(f"- **{lbl}**: {v}")
+        # Field founder BỎ QUA → AI tự suy → liệt kê để analyses gắn nhãn "(giả định)"
+        inferred = [_LBL.get(k, k) for k, src in prov.items() if src == "inferred"]
+        if inferred:
+            lines.append(
+                "\n> ⚠️ **GIẢ ĐỊNH (BẮT BUỘC GẮN NHÃN):** founder CHƯA cung cấp các mục sau — "
+                "khi phân tích dựa vào chúng, PHẢI gắn **(giả định — cần kiểm chứng)** ngay sau: "
+                + ", ".join(inferred) + "."
+            )
         return "\n".join(lines)
 
 

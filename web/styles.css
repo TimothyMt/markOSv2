@@ -761,6 +761,17 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 .intake-input { width:100%; background:var(--panel-2); border:1px solid var(--stroke-2); border-radius:12px;
   padding:12px 14px; color:var(--txt); font-size:15px; font-family:inherit; }
 .intake-input:focus { outline:none; border-color:var(--primary); }
+/* D-032 step 2: chip gợi ý câu chiến lược */
+.intake-sug { margin:12px 0 0; font-size:13px; }
+.intake-sug.muted { color:var(--muted); }
+.intake-sug-lbl { display:block; color:var(--muted); margin-bottom:8px; }
+.intake-sug-chips { display:flex; flex-wrap:wrap; gap:8px; }
+.intake-sug-chip { background:var(--panel-2); border:1px dashed var(--stroke-2); border-radius:16px;
+  padding:6px 12px; color:var(--txt); font-size:13px; font-family:inherit; cursor:pointer;
+  transition:all .15s; }
+.intake-sug-chip:hover { border-color:var(--primary); border-style:solid; background:rgba(91,140,255,.12); }
+.infer-banner { padding:10px 14px; font-size:13px; line-height:1.5; background:rgba(245,180,90,.10);
+  border:1px solid rgba(245,180,90,.35); border-radius:10px; }
 .intake-nav { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:16px; }
 .intake-note { font-size:12px; margin-top:12px; }
 

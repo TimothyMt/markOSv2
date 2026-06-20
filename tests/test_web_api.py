@@ -32,6 +32,36 @@ def test_core_routes_present():
     assert not missing, f"Thiếu route: {missing}"
 
 
+def test_intake_suggest_route_present():
+    """D-032 step 2: endpoint sinh chip gợi ý câu chiến lược."""
+    assert "/api/biz/intake/suggest" in _paths(), "Thiếu route /api/biz/intake/suggest"
+
+
+def test_intake_suggest_degrades_without_llm():
+    """D-032: thiếu context → {} ; không raise."""
+    assert asyncio.run(biz.intake_suggestions({})) == {}
+
+
+def test_context_string_labels_inferred_fields():
+    """D-032 step 3: to_context_string render câu chiến lược + nhãn (giả định) cho inferred."""
+    import importlib.util
+    _spec = importlib.util.spec_from_file_location(
+        "_models_isolated", os.path.join(_ROOT, "storage", "models.py"))
+    _m = importlib.util.module_from_spec(_spec)
+    _spec.loader.exec_module(_m)
+    BusinessProfile = _m.BusinessProfile
+    p = BusinessProfile(
+        industry="thời trang", product_service="đồ nhà plus-size", target_customer="nữ 25-45",
+        intake_extra={"answers": {"jtbd": "mặc thoải mái ở nhà"},
+                      "provenance": {"jtbd": "typed", "objection": "inferred",
+                                     "competitive_alternative": "inferred"}},
+    )
+    out = p.to_context_string()
+    assert "Job-to-be-done" in out and "mặc thoải mái" in out, "Câu chiến lược chưa vào context"
+    assert "GIẢ ĐỊNH" in out and "Rào cản" in out, "Field inferred chưa được gắn nhãn giả định"
+    assert "Job-to-be-done của khách" not in out.split("GIẢ ĐỊNH")[1], "typed bị gắn nhãn nhầm"
+
+
 def test_editor_routes_present():
     # T2-T4: save (sửa tay), skillruns (lịch sử), patch (nhờ Max chỉnh)
     p = _paths()
