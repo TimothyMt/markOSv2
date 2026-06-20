@@ -98,6 +98,12 @@ async def biz_intake_suggest(request):
     return JSONResponse({"suggestions": res})
 
 
+async def biz_market_kpis(request):
+    """D-034 #2 — TAM/SAM/SOM số thật trích từ output market_research (cache)."""
+    res = await biz.market_kpis(request.query_params.get("run_id", ""))
+    return JSONResponse({"kpis": res})
+
+
 async def biz_skillrun_rate(request):
     """Chấm điểm 1 output research (👍/👎 → 5/1)."""
     data = await request.json()
@@ -285,6 +291,7 @@ def api_routes() -> list:
         Route("/api/biz/profile",                  biz_save_profile,   methods=["POST"]),
         Route("/api/biz/intake",                   biz_intake,         methods=["POST"]),
         Route("/api/biz/intake/suggest",           biz_intake_suggest, methods=["POST"]),
+        Route("/api/biz/market-kpis",              biz_market_kpis,    methods=["GET"]),
         Route("/api/biz/skillrun/{id:str}/rate",   biz_skillrun_rate,  methods=["POST"]),
         Route("/api/biz/skillrun/save",            biz_skillrun_save,  methods=["POST"]),
         Route("/api/biz/skillruns",                biz_skill_versions, methods=["GET"]),

@@ -37,6 +37,12 @@ def test_intake_suggest_route_present():
     assert "/api/biz/intake/suggest" in _paths(), "Thiếu route /api/biz/intake/suggest"
 
 
+def test_market_kpis_route_and_degrade():
+    """D-034 #2: endpoint TAM/SAM/SOM số thật; thiếu run_id → {} (không bịa)."""
+    assert "/api/biz/market-kpis" in _paths(), "Thiếu route /api/biz/market-kpis"
+    assert asyncio.run(biz.market_kpis("")) == {}, "market_kpis không degrade khi thiếu run_id"
+
+
 def test_intake_suggest_degrades_without_llm():
     """D-032: thiếu context → {} ; không raise."""
     assert asyncio.run(biz.intake_suggestions({})) == {}

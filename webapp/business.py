@@ -188,6 +188,51 @@ async def biz_data(user_id=None) -> dict:
     return out
 
 
+_market_kpi_cache: dict = {}
+
+
+async def market_kpis(run_id: str = "") -> dict:
+    """D-034 #2: trích TAM/SAM/SOM số THẬT từ output market_research (web-side, cache theo run).
+    Thiếu/lỗi → {} (UI ẩn card, không bao giờ hiện số bịa)."""
+    if not run_id:
+        return {}
+    if run_id in _market_kpi_cache:
+        return _market_kpi_cache[run_id]
+    run = await skill_run_content(run_id)
+    content = (run or {}).get("content") or ""
+    if not content.strip():
+        return {}
+    try:
+        from tools.llm_router import call as router_call, TaskType
+        import json as _json
+        system = (
+            "Trích TAM/SAM/SOM từ báo cáo nghiên cứu thị trường dưới đây. "
+            'Output JSON: {"tam":{"value":"","unit":"","note":""},"sam":{...},"som":{...}}. '
+            "value = con số/khoảng ĐÚNG như báo cáo (vd '20-30' hoặc '5.700'); unit = đơn vị "
+            "(vd 'tỷ USD/năm', 'tỷ VND'); note = cụm ngắn nếu có (vd 'ước tính'). "
+            "🔴 CHỐNG BỊA: nếu báo cáo KHÔNG nêu số rõ cho mục nào → để value RỖNG. "
+            "TUYỆT ĐỐI không tự tính/bịa số ngoài báo cáo. KHÔNG markdown wrapper."
+        )
+        res = await router_call(task_type=TaskType.INTAKE_JSON, system=system, user=content[:6000], max_tokens=400)
+        raw = (res or {}).get("output", "").strip()
+        raw = re.sub(r'^```(?:json)?\s*', '', raw)
+        raw = re.sub(r'\s*```\s*$', '', raw).strip()
+        data = _json.loads(raw)
+        out = {}
+        for k in ("tam", "sam", "som"):
+            v = data.get(k) or {}
+            if isinstance(v, dict) and str(v.get("value", "")).strip():
+                out[k] = {"value": str(v.get("value", "")).strip(),
+                          "unit": str(v.get("unit", "")).strip(),
+                          "note": str(v.get("note", "")).strip()}
+        if out:
+            _market_kpi_cache[run_id] = out
+        return out
+    except Exception as e:
+        logger.warning("biz.market_kpis failed (non-fatal): %s", e)
+        return {}
+
+
 async def skill_run_content(run_id: str) -> dict:
     """Lấy full content 1 skill_run (cho modal xem chi tiết)."""
     try:

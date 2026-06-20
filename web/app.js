@@ -817,11 +817,28 @@
     title: 'Nghiên cứu thị trường', sub: 'TAM / SAM / SOM + động lực thị trường',
     actions: `<a class="ghost-line" href="#dossier">← Hồ sơ</a>`,
     render: () => `
+      <div id="marketKpis"></div>
       <section class="grid">
         ${agentSection('market','market_research')}
       </section>`,
-    mount: () => {},
+    mount: () => { loadMarketKpis(); },
   };
+  // D-034 #2: card TAM/SAM/SOM số THẬT (trích từ output market, thiếu→ẩn card)
+  async function loadMarketKpis() {
+    const run = (M.bizLatest || {}).market_research;
+    const host = document.getElementById('marketKpis');
+    if (!host || !run || !apiAvailable) return;
+    try {
+      const r = await API.get('api/biz/market-kpis?run_id=' + run.id);
+      const k = (r && r.kpis) || {};
+      const L = { tam: ['TAM', 'Thị trường tối đa'], sam: ['SAM', 'Có thể phục vụ'], som: ['SOM', 'Có thể đạt được'] };
+      const cards = ['tam', 'sam', 'som'].filter(x => k[x]).map(x => {
+        const d = k[x], val = d.value + (d.unit ? ' ' + d.unit : '');
+        return miniStat(L[x][0], val, L[x][1] + (d.note ? ' (' + d.note + ')' : ''));
+      }).join('');
+      if (cards) host.innerHTML = `<section class="kpis kpis-3">${cards}</section>`;
+    } catch (e) { /* thiếu → ẩn card */ }
+  }
 
   /* ---- Competitor ---- */
   P.competitor = {
