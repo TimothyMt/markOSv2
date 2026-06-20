@@ -330,9 +330,17 @@
           plot.appendChild(d);
         });
       });
-      if (map.yTop) w.appendChild(mk('div', 'mq-yt', '▲ ' + short(map.yTop, 40)));
-      w.appendChild(plot);
-      if (map.yBottom) w.appendChild(mk('div', 'mq-yb', '▼ ' + short(map.yBottom, 40)));
+      // Trục Y dọc bên TRÁI + trục X dưới đáy (chuẩn Magic Quadrant — hết chồng hàng)
+      const endWord = s => { const m = (s || '').match(/(cao|thấp|high|low)\s*$/i); return (m ? m[1] : ((s || '').split(/\s+/).pop() || '')).toUpperCase(); };
+      const yDim = (map.yTop || map.yBottom || '').replace(/\s*(cao|thấp|high|low)\s*$/i, '').trim();
+      const body = mk('div', 'mq-body');
+      const ya = mk('div', 'mq-yaxis');
+      if (map.yTop) ya.appendChild(mk('span', 'mq-ya-end', '▲ ' + endWord(map.yTop)));
+      if (yDim) ya.appendChild(mk('span', 'mq-ya-dim', yDim));
+      if (map.yBottom) ya.appendChild(mk('span', 'mq-ya-end', endWord(map.yBottom) + ' ▼'));
+      body.appendChild(ya);
+      body.appendChild(plot);
+      w.appendChild(body);
       const xa = mk('div', 'mq-x');
       xa.appendChild(mk('span', '', map.xLeft ? '← ' + map.xLeft : ''));
       xa.appendChild(mk('span', '', map.xRight ? map.xRight + ' →' : ''));

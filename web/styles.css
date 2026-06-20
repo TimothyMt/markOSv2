@@ -548,11 +548,15 @@ code { background: var(--panel); border: 1px solid var(--stroke); border-radius:
 /* D-034 #4: Positioning Map visual (ASCII → 4 góc) — dark theme */
 /* ── Positioning Map = Gartner Magic Quadrant (chấm trong mặt phẳng 2 trục) ── */
 .mq { margin:22px 0; padding:16px 16px 12px; background:var(--panel-2); border:1px solid var(--stroke); border-radius:14px; }
-.mq-title { font-size:14px; font-weight:700; color:var(--txt); margin-bottom:8px; }
-.mq-yt, .mq-yb { text-align:center; font-size:10px; font-weight:700; text-transform:uppercase;
-  letter-spacing:.06em; color:var(--txt-2); padding:5px 0; }
-.mq-yt::first-letter, .mq-yb::first-letter { color:var(--primary); }
-.mq-plot { position:relative; height:360px; border:1px solid var(--stroke-2); border-radius:12px; overflow:hidden;
+.mq-title { font-size:14px; font-weight:700; color:var(--txt); margin-bottom:10px; }
+/* trục Y dọc bên trái */
+.mq-body { display:flex; gap:8px; align-items:stretch; }
+.mq-yaxis { display:flex; flex-direction:column; justify-content:space-between; align-items:center;
+  width:26px; flex-shrink:0; padding:4px 0; }
+.mq-ya-end { font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.03em; color:var(--primary); text-align:center; }
+.mq-ya-dim { writing-mode:vertical-rl; transform:rotate(180deg); white-space:nowrap;
+  font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--txt-2); }
+.mq-plot { position:relative; flex:1; height:360px; border:1px solid var(--stroke-2); border-radius:12px; overflow:hidden;
   background:radial-gradient(130% 130% at 72% 28%, rgba(45,200,140,.07), transparent 52%), var(--panel); }
 .mq-plot::before, .mq-plot::after { content:''; position:absolute; background:var(--stroke-2); z-index:1; }
 .mq-plot::before { left:50%; top:0; bottom:0; width:1px; }
@@ -579,7 +583,7 @@ code { background: var(--panel); border: 1px solid var(--stroke); border-radius:
   line-height:1; filter:drop-shadow(0 0 6px rgba(255,210,74,.7)); }
 .mq-dot.self .mq-name { background:linear-gradient(135deg,var(--primary),var(--primary-2)); color:#fff; border:none;
   font-weight:700; box-shadow:0 2px 14px rgba(91,140,255,.55); }
-.mq-x { display:flex; justify-content:space-between; gap:10px; margin-top:9px; padding:0 4px;
+.mq-x { display:flex; justify-content:space-between; gap:10px; margin-top:9px; padding-left:34px; padding-right:4px;
   font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--txt-2); }
 @media (max-width:640px){ .mq-plot { height:300px; } .mq-corner-d { display:none; } .mq-name { font-size:10.5px; padding:1px 6px; } }
 
