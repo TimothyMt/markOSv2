@@ -300,12 +300,21 @@
       w.appendChild(mk('div', 'pos-map-title', '📍 Bản đồ Định vị Cạnh tranh'));
       if (map.yTop) w.appendChild(mk('div', 'pos-y-lbl', '↑ ' + map.yTop));
       const qg = mk('div', 'pos-quads');
+      // góc nào chứa SẾP / có chữ "TRỐNG" = góc cơ hội → highlight
+      const isOpp = qn => map.items[qn].some(it => /SếP|sếp|★/.test(it)) || /TRỐNG/i.test(map.qdesc[qn] || '');
       [[2, 'pq2'], [1, 'pq1'], [3, 'pq3'], [4, 'pq4']].forEach(p => {
-        const q = mk('div', 'pos-q ' + p[1]);
-        q.appendChild(mk('div', 'pos-q-lbl', 'GÓC ' + roman(p[0])));
+        const opp = isOpp(p[0]);
+        const q = mk('div', 'pos-q ' + p[1] + (opp ? ' opportunity' : ''));
+        const head = mk('div', 'pos-q-head');
+        head.appendChild(mk('span', 'pos-q-lbl', 'GÓC ' + roman(p[0])));
+        if (opp) head.appendChild(mk('span', 'pos-q-badge', '🎯 Cơ hội'));
+        q.appendChild(head);
         if (map.qdesc[p[0]]) q.appendChild(mk('div', 'pos-q-desc', map.qdesc[p[0]]));
         const qi = mk('div', 'pos-q-items');
-        map.items[p[0]].forEach(it => { const self = /SếP|sếp|★|self/.test(it); qi.appendChild(mk('span', 'pos-item' + (self ? ' pos-item-self' : ''), self ? '★ ' + it.replace(/^★\s*/, '') + ' (Bạn ở đây)' : it)); });
+        map.items[p[0]].forEach(it => {
+          const self = /SếP|sếp|★|self/.test(it);
+          qi.appendChild(mk('span', 'pos-item' + (self ? ' pos-item-self' : ''), self ? '★ Bạn ở đây' : it));
+        });
         q.appendChild(qi); qg.appendChild(q);
       });
       w.appendChild(qg);
