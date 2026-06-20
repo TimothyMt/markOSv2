@@ -901,6 +901,9 @@ async def run_full_pipeline(  # kept for backwards compatibility — use run_tar
 
 TASK_PIPELINE_MAP: dict[str, list] = {
     "full":       PIPELINE_SEQUENCE,
+    # D-041: web 2-phase — research (T1-T3) → GATE → strategize (T4-T5)
+    "research":   [(d.stage, d.runner, d.result_key) for d in PIPELINE_DEF if d.phase == "research"],
+    "strategize": [(d.stage, d.runner, d.result_key) for d in PIPELINE_DEF if d.phase == "synthesis"],
     "market":     [(PipelineStage.MARKET_RESEARCH, run_market_research, "market_research")],
     "competitor": [(PipelineStage.COMPETITOR, run_competitor_analysis, "competitor")],
     "customer":   [(PipelineStage.CUSTOMER_INSIGHT, run_customer_insight, "customer_insight")],

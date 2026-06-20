@@ -43,6 +43,18 @@ def test_market_kpis_route_and_degrade():
     assert asyncio.run(biz.market_kpis("")) == {}, "market_kpis không degrade khi thiếu run_id"
 
 
+def test_gate_2phase():
+    """D-041: web 2-phase — route gate; task research/strategize; FE có GATE."""
+    assert "/api/biz/gate" in _paths(), "Thiếu route /api/biz/gate"
+    pipe = _read("agents/pipeline.py")
+    assert '"research":' in pipe and '"strategize":' in pipe, "Thiếu task group research/strategize"
+    app = _read("web/app.js")
+    assert "run-strategize" in app and "gateWedge" in app, "FE chưa có GATE chọn wedge/USP"
+    # gate degrade an toàn (không Supabase)
+    g = asyncio.run(biz.save_gate(None, "x", "draft", ""))
+    assert isinstance(g, dict) and "error" in g
+
+
 def test_intake_suggest_degrades_without_llm():
     """D-032: thiếu context → {} ; không raise."""
     assert asyncio.run(biz.intake_suggestions({})) == {}

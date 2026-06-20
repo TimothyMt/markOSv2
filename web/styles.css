@@ -846,6 +846,10 @@ textarea.intake-input { resize:none; overflow:hidden; min-height:48px; line-heig
 .intake-sug-chip:hover { border-color:var(--primary); border-style:solid; background:rgba(91,140,255,.12); }
 .infer-banner { padding:10px 14px; font-size:13px; line-height:1.5; background:rgba(245,180,90,.10);
   border:1px solid rgba(245,180,90,.35); border-radius:10px; }
+/* D-041: GATE chọn wedge + USP */
+.gate-usp { display:flex; flex-direction:column; gap:8px; margin-top:6px; }
+.radio-row { display:flex; align-items:center; gap:8px; font-size:14px; color:var(--txt); cursor:pointer; }
+.radio-row input { accent-color:var(--primary); }
 .intake-nav { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:16px; }
 .intake-note { font-size:12px; margin-top:12px; }
 

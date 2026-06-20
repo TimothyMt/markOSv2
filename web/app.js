@@ -566,7 +566,7 @@
         ? `<div class="sel" data-act="switch-user" title="Đổi người dùng đang xem">${
             (M.bizUser && (M.bizUser.name || M.bizUser.user_id)) || M.bizUserId || 'Chọn user'} ▾</div>`
         : '';
-      return sel + runBtn('full', '▶ Chạy phân tích toàn diện', 'primary-btn');
+      return sel + runBtn('research', '🔬 Chạy nghiên cứu (T1-T3)', 'primary-btn');
     },
     render: () => {
       const p = M.bizProfile || {};
@@ -615,6 +615,8 @@
         const act = running ? badge('Đang chạy', 'amber')
           : run ? `<a class="primary-btn sm" href="#${task}">Xem & sửa</a>
                    <button class="icon-btn" data-act="run-agent" data-task="${task}" title="Chạy lại bản mới">↻</button>`
+          // D-041: synthesis pending → dẫn tới GATE (chọn wedge+USP) thay vì chạy thẳng
+          : k === 'synthesis' ? `<a class="ghost-line sm" href="#strategy">🎯 Lập chiến lược</a>`
           : `<button class="ghost-line sm" data-act="run-agent" data-task="${task}">▶ Chạy</button>`;
         return `<div class="diag-row ${st}">
           <span class="diag-ic">${st === 'done' ? '✓' : ic}</span>
@@ -940,14 +942,34 @@
         </section>`;
       }
       if (M.bizEnabled) {
+        // D-041: research xong (T1-T3) → hiện GATE (chọn wedge + USP) trước khi lập chiến lược
+        const researchDone = ['market_research', 'competitor', 'customer_insight', 'swot']
+          .every(k => (M.bizSkillRuns || []).some(r => r.skill_name === k));
+        if (researchDone) {
+          const running = (M.agentJobs || []).some(j => j.status === 'running' && (j.task === 'strategize' || j.task === 'full'));
+          return `<section class="grid">
+            <div class="card span-12 dir-banner">🚪 <b>Nghiên cứu xong (T1-T3).</b> Trước khi Max lập chiến lược, chốt 2 lựa chọn dưới đây trên dữ liệu THẬT — Max sẽ bám đúng ý bạn (đọc kỹ Đối thủ / Customer / USP ở các tab nếu cần).</div>
+            ${card('🎯 Chốt hướng đánh trước khi lập chiến lược', `
+              <label class="fld"><span>① Bạn muốn đánh vào (các) phân khúc nào TRƯỚC? <span class="muted">— để trống thì Max tự chọn theo research</span></span>
+                <input id="gateWedge" placeholder="vd: mẹ bỉm plus-size sau sinh; hoặc chủ shop Amazon nhỏ"></label>
+              <div class="fld"><span>② Định vị / USP:</span>
+                <div class="gate-usp">
+                  <label class="radio-row"><input type="radio" name="uspStance" value="draft" checked> Để Max đề xuất & làm sắc <span class="muted">(khuyến nghị)</span></label>
+                  <label class="radio-row"><input type="radio" name="uspStance" value="clear"> Tôi đã có định vị riêng →</label>
+                  <input id="gateUsp" placeholder="Nhập câu định vị của bạn (nếu chọn dòng trên)">
+                </div></div>
+              <button class="primary-btn full" data-act="run-strategize" ${running ? 'disabled' : ''} style="margin-top:10px">${running ? '⏳ Đang lập chiến lược…' : '🎯 Lập chiến lược (T4 Synthesis + T5 Playbook)'}</button>
+            `, {cls:'span-12'})}
+          </section>`;
+        }
         return `<section class="grid">
           ${card('', `<div class="empty-cta">
-            <div class="empty-ic">🎯</div>
-            <h3>Chưa có chiến lược cho doanh nghiệp này</h3>
-            <p class="muted">Điền Hồ sơ doanh nghiệp rồi chạy chẩn đoán — Max sẽ tổng hợp <b>định hướng</b> chiến lược 90 ngày (định vị, trục nội dung, kênh, ưu tiên từng giai đoạn).</p>
+            <div class="empty-ic">🔬</div>
+            <h3>Chưa có nghiên cứu cho doanh nghiệp này</h3>
+            <p class="muted">Quy trình 2 bước: <b>① Chạy nghiên cứu</b> (thị trường, đối thủ, khách, SWOT) → <b>② chọn hướng đánh</b> → Max lập chiến lược + playbook.</p>
             <div class="empty-actions">
               <a class="primary-btn" href="#dossier">📋 Điền Hồ sơ doanh nghiệp</a>
-              <button class="ghost-line" data-act="run-agent" data-task="full">🚀 Chạy chẩn đoán ngay</button>
+              <button class="ghost-line" data-act="run-agent" data-task="research">🔬 Chạy nghiên cứu ngay</button>
             </div></div>`, {cls:'span-12'})}
         </section>`;
       }
@@ -1969,6 +1991,20 @@
         toast('Đã khởi chạy AI agent — theo dõi tiến trình realtime');
         await refreshBiz(); renderRail(); renderTopbar(); route();
       } catch (e) { toast('Không khởi chạy được agent'); }
+      return;
+    }
+    if (act === 'run-strategize') {   // D-041: lưu GATE (wedge + USP) rồi chạy T4-T5
+      try {
+        const wedge = (document.getElementById('gateWedge') || {}).value || '';
+        const stance = (document.querySelector('input[name="uspStance"]:checked') || {}).value || 'draft';
+        const uspText = (document.getElementById('gateUsp') || {}).value || '';
+        const g = await API.post('api/biz/gate', { wedge, usp_stance: stance, usp_text: uspText, user_id: _bizUserId });
+        if (g.error) { toast(g.error); return; }
+        const r = await API.post('api/biz/agent', { task: 'strategize', user_id: _bizUserId });
+        if (r.error) { toast(r.error); return; }
+        toast('Đã chốt hướng — Max đang lập chiến lược + playbook…');
+        await refreshBiz(); renderRail(); renderTopbar(); route();
+      } catch (e) { toast('Không lập được chiến lược'); }
       return;
     }
     if (act === 'rate-skillrun') {

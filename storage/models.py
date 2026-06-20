@@ -196,6 +196,13 @@ class BusinessProfile:
             v = answers.get(k)
             if v:
                 lines.append(f"- **{lbl}**: {v}")
+        # D-041 — lựa chọn GATE của founder (sau khi xem research): wedge phải được TÔN TRỌNG
+        wedge = extra.get("wedge")
+        if wedge:
+            lines.append(
+                f"\n> 🎯 **WEDGE FOUNDER CHỌN (BẮT BUỘC tôn trọng):** ưu tiên đánh phân khúc → **{wedge}**. "
+                "Synthesis lấy đây làm trục chính; Tactical Playbook viết đầy đủ nhất cho tệp này."
+            )
         # Field founder BỎ QUA → AI tự suy → liệt kê để analyses gắn nhãn "(giả định)"
         inferred = [_LBL.get(k, k) for k, src in prov.items() if src == "inferred"]
         if inferred:

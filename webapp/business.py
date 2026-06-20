@@ -27,6 +27,8 @@ _JOB_LIMIT = 30
 # task → nhãn hiển thị + skill key tương ứng trong skill_runs/results
 TASK_LABELS = {
     "full":       "Phân tích toàn diện",
+    "research":   "Nghiên cứu (T1-T3)",
+    "strategize": "Lập chiến lược (T4-T5)",
     "market":     "Nghiên cứu thị trường",
     "competitor": "Phân tích đối thủ",
     "customer":   "Customer Insight",
@@ -186,6 +188,35 @@ async def biz_data(user_id=None) -> dict:
     out["bizLatest"]     = latest
     out["bizBrandVoice"] = _bv_dict(bv)
     return out
+
+
+async def save_gate(user_id=None, wedge: str = "", usp_stance: str = "", usp_text: str = "") -> dict:
+    """D-041: lưu lựa chọn GATE (phân khúc=wedge + định vị USP) trước khi lập chiến lược (T4-T5)."""
+    if not available():
+        return {"error": "Chưa cấu hình Supabase."}
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {"error": "Chưa có user."}
+        from storage.v2 import profiles
+        cur = await profiles.get_profile(uid) or {}
+        extra = cur.get("intake_extra") or {}
+        if not isinstance(extra, dict):
+            extra = {}
+        if (wedge or "").strip():
+            extra["wedge"] = wedge.strip()
+        fields = {"intake_extra": extra}
+        if usp_stance in ("clear", "draft", "missing"):
+            extra["usp_stance"] = usp_stance
+            fields["usp_confidence"] = usp_stance
+            if usp_stance == "clear" and (usp_text or "").strip():
+                fields["usp"] = usp_text.strip()
+        row = await profiles.upsert_profile(uid, **fields)
+        return {"ok": True, "profile": row}
+    except Exception as e:
+        logger.warning("biz.save_gate failed: %s", e)
+        return {"error": str(e)}
 
 
 _market_kpi_cache: dict = {}

@@ -104,6 +104,14 @@ async def biz_market_kpis(request):
     return JSONResponse({"kpis": res})
 
 
+async def biz_save_gate(request):
+    """D-041 — lưu lựa chọn GATE (phân khúc + định vị) trước khi lập chiến lược."""
+    data = await request.json()
+    res = await biz.save_gate(data.get("user_id"), data.get("wedge", ""),
+                              data.get("usp_stance", ""), data.get("usp_text", ""))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
 async def biz_skillrun_rate(request):
     """Chấm điểm 1 output research (👍/👎 → 5/1)."""
     data = await request.json()
@@ -292,6 +300,7 @@ def api_routes() -> list:
         Route("/api/biz/intake",                   biz_intake,         methods=["POST"]),
         Route("/api/biz/intake/suggest",           biz_intake_suggest, methods=["POST"]),
         Route("/api/biz/market-kpis",              biz_market_kpis,    methods=["GET"]),
+        Route("/api/biz/gate",                     biz_save_gate,      methods=["POST"]),
         Route("/api/biz/skillrun/{id:str}/rate",   biz_skillrun_rate,  methods=["POST"]),
         Route("/api/biz/skillrun/save",            biz_skillrun_save,  methods=["POST"]),
         Route("/api/biz/skillruns",                biz_skill_versions, methods=["GET"]),
