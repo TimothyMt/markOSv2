@@ -1005,9 +1005,9 @@
             <h3>Chưa có Tactical Playbook</h3>
             <p class="muted">Đây là <b>bản đồ chi tiết</b> đi sau Chiến lược (la bàn): với từng phân khúc ưu tiên,
             Max viết cách đánh theo phễu (TOFU/MOFU/BOFU) — copy mẫu, kênh, khung thử nghiệm, KPI cần theo dõi.
-            Nó được tạo cùng lượt "Chạy phân tích toàn diện".</p>
+            Nó được tạo cùng lượt "Lập chiến lược" (sau khi chọn hướng đánh).</p>
             <div class="empty-actions">
-              <button class="ghost-line" data-act="run-agent" data-task="full">🚀 Chạy phân tích toàn diện</button>
+              <a class="primary-btn" href="#strategy">🎯 Tới bước Lập chiến lược</a>
             </div></div>`, {cls:'span-12'})}
         </section>`;
       }
