@@ -178,7 +178,10 @@
     const raw = (txt || '').trim();
     if (raw.startsWith('<')) return raw;          // skill xuất HTML → render trực tiếp
     const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    const inline = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\*(.+?)\*/g, '<i>$1</i>');
+    const inline = s => esc(s)
+      .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
+      .replace(/\*(.+?)\*/g, '<i>$1</i>')
+      .replace(/(^|[\s(>])_([^_\n]+?)_(?=[\s).,;:!?]|$)/g, '$1<i>$2</i>');   // _nghiêng_ (không đụng snake_case)
     const isRow = l => /^\s*\|.*\|\s*$/.test(l);
     const isSep = l => /^\s*\|?[\s:|-]*-[\s:|-]*\|?\s*$/.test(l) && l.includes('-');
     const cells = l => l.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map(c => c.trim());
@@ -302,7 +305,7 @@
         q.appendChild(mk('div', 'pos-q-lbl', 'GÓC ' + roman(p[0])));
         if (map.qdesc[p[0]]) q.appendChild(mk('div', 'pos-q-desc', map.qdesc[p[0]]));
         const qi = mk('div', 'pos-q-items');
-        map.items[p[0]].forEach(it => { const self = /SếP|sếp|★|self/.test(it); qi.appendChild(mk('span', 'pos-item' + (self ? ' pos-item-self' : ''), it)); });
+        map.items[p[0]].forEach(it => { const self = /SếP|sếp|★|self/.test(it); qi.appendChild(mk('span', 'pos-item' + (self ? ' pos-item-self' : ''), self ? '★ ' + it.replace(/^★\s*/, '') + ' (Bạn ở đây)' : it)); });
         q.appendChild(qi); qg.appendChild(q);
       });
       w.appendChild(qg);
