@@ -6,6 +6,7 @@ window.MOCK = {
     ]},
     { group: '② Chiến lược', items: [
       { id: 'strategy',   label: 'Chiến lược tổng hợp',   icon: '🎯' },
+      { id: 'tactical',   label: 'Tactical Playbook',     icon: '🔨' },
       { id: 'brief',      label: 'Campaign Brief',        icon: '📋' },
     ]},
     { group: '③ Sản xuất', items: [

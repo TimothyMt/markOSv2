@@ -191,6 +191,18 @@ def test_intake_uses_textarea():
     assert 'textarea id="intakeBox"' in app, "Ô intake chưa đổi sang textarea"
 
 
+def test_tactical_page_and_mock_cleaned():
+    """D-038A + D-034 #3: có trang Tactical Playbook; dọn mock F&B ở trang phân tích."""
+    app = _read("web/app.js")
+    data = _read("web/data.js")
+    assert "P.tactical" in app and "tactical_playbook" in app, "Thiếu trang Tactical Playbook"
+    assert "id: 'tactical'" in data, "Sidebar chưa có mục Tactical Playbook"
+    # mock F&B ở trang phân tích đã gỡ
+    assert "Benchmark ngành F&B" not in app, "Còn mock Benchmark F&B ở trang market"
+    assert "Tactical plays (SO/WO/ST/WT)" not in app, "Còn mock Tactical plays ở SWOT"
+    assert "miniStat('TAM','2.400 tỷ'" not in app, "Còn mock TAM/SAM/SOM cứng"
+
+
 def test_posmap_converter_and_rail_removed():
     """D-034 #4 + rail: ASCII map → visual; bỏ rail phải (main rộng hơn)."""
     app = _read("web/app.js")

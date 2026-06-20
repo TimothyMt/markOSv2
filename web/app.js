@@ -787,52 +787,22 @@
   /* ---- Market research ---- */
   P.market = {
     title: 'Nghiên cứu thị trường', sub: 'TAM / SAM / SOM + động lực thị trường',
+    actions: `<a class="ghost-line" href="#dossier">← Hồ sơ</a>`,
     render: () => `
-      <section class="kpis kpis-3">
-        ${miniStat('TAM','2.400 tỷ','Tổng thị trường VN')}
-        ${miniStat('SAM','480 tỷ','Phân khúc khả dụng')}
-        ${miniStat('SOM','24 tỷ','Khả năng chiếm 90 ngày')}
-      </section>
       <section class="grid">
         ${agentSection('market','market_research')}
-        ${card('Quy mô thị trường (TAM/SAM/SOM)', cv('tamChart',230), {cls:'span-7'})}
-        ${card('Động lực tăng trưởng', `
-          <ul class="bullet">
-            <li>📈 Tăng trưởng <b>14%/năm</b>, cao hơn TB ngành</li>
-            <li>☕ Xu hướng specialty & local brand lên ngôi</li>
-            <li>📱 65% khách Gen Z đặt qua app / giao hàng</li>
-            <li>⚠️ Rào cản: chi phí mặt bằng & cạnh tranh giá</li>
-          </ul>`, {cls:'span-5'})}
-        ${card('Benchmark ngành F&B', table(
-          ['Chỉ số','Trung bình','Tốt','Của bạn'],
-          [['AOV','45.000₫','60.000₫','52.000₫'],
-           ['Repeat 30d','22%','35%','28%'],
-           ['COGS %','35%','28%','33%'],
-           ['ROAS','2,5x','4,0x','3,1x']]), {cls:'span-12'})}
       </section>`,
-    mount: () => {
-      if (!hasChart) return;
-      reg(new Chart(byId('tamChart'), { type:'bar',
-        data:{ labels:['TAM','SAM','SOM'], datasets:[{ data:[2400,480,24],
-          backgroundColor:[PRIMARY+'55',PRIMARY2+'88',CYAN], borderRadius:10, maxBarThickness:60 }]},
-        options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
-          scales:{ x:{grid:noGrid}, y:{grid, ticks:{callback:v=>v>=1000?v/1000+'k tỷ':v+' tỷ'}} } }}));
-    },
+    mount: () => {},
   };
 
   /* ---- Competitor ---- */
   P.competitor = {
     title: 'Phân tích đối thủ', sub: '8 chiều cạnh tranh + theo dõi Ads Library',
-    actions: `<button class="primary-btn" data-act="add-tracked">＋ Thêm đối thủ theo dõi</button>`,
+    actions: `<a class="ghost-line" href="#dossier">← Hồ sơ</a> <button class="primary-btn" data-act="add-tracked">＋ Thêm đối thủ theo dõi</button>`,
     render: () => `
       <section class="grid">
         ${agentSection('competitor','competitor')}
-        ${card('Ma trận cạnh tranh', table(
-          ['Đối thủ','Định vị','Giá','USP','Thị phần','Mức đe dọa'],
-          M.competitors.map(c=>[c.name,c.pos,c.price,c.usp,c.share+'%',
-            badge(c.threat, c.threat==='Cao'?'red':c.threat==='Thấp'?'green':'amber')])), {cls:'span-8'})}
-        ${card('Bản đồ định vị', cv('posChart',260), {cls:'span-4'})}
-        ${card('Đối thủ đang theo dõi', `
+        ${(M.tracked||[]).length ? card('Đối thủ đang theo dõi (Ads Library)', `
           <ul class="rows">
             ${M.tracked.map(t=>`
               <li class="row">
@@ -841,39 +811,18 @@
                 <span class="tag">${t.ads} ads</span>
                 ${t.id?`<button class="icon-btn" data-act="del-tracked" data-id="${t.id}" title="Bỏ theo dõi">✕</button>`:''}
               </li>`).join('')}
-          </ul>`, {cls:'span-12'})}
+          </ul>`, {cls:'span-12'}) : ''}
       </section>`,
-    mount: () => {
-      if (!hasChart) return;
-      reg(new Chart(byId('posChart'), { type:'scatter',
-        data:{ datasets:[{ data:[{x:8,y:9},{x:5,y:6},{x:7,y:4},{x:3,y:3},{x:6,y:7}],
-          backgroundColor:[PRIMARY,PRIMARY2,CYAN,RED,GREEN], pointRadius:9, pointHoverRadius:11 }]},
-        options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
-          scales:{ x:{grid, title:{display:true,text:'Giá →'}, min:0,max:10},
-                   y:{grid, title:{display:true,text:'Chất lượng cảm nhận →'}, min:0,max:10} } }}));
-    },
+    mount: () => {},
   };
 
   /* ---- Customer insight ---- */
   P.customer = {
     title: 'Customer Insight', sub: 'ICP · Jobs-to-be-Done · Pain / Gain / Motivation',
+    actions: `<a class="ghost-line" href="#dossier">← Hồ sơ</a>`,
     render: () => `
       <section class="grid">
         ${agentSection('customer','customer_insight')}
-        ${M.personas.map(p=>`
-          ${card('', `
-            <div class="persona">
-              <div class="persona-top"><div class="avatar lg">${p.name[0]}</div>
-                <div><p class="persona-name">${p.name}</p><span class="muted">${p.age} tuổi</span></div></div>
-              <div class="kv"><span>JTBD</span><b>${p.job}</b></div>
-              <div class="kv"><span>Pain</span><b>${p.pain}</b></div>
-              <div class="kv"><span>Động lực</span><b>${p.motiv}</b></div>
-            </div>`, {cls:'span-4'})}`).join('')}
-        ${card('Bản đồ Pain → Gain', `
-          <div class="paingain">
-            <div class="pg-col"><h4>😣 Pain</h4><ul class="bullet"><li>Xếp hàng lâu giờ cao điểm</li><li>Chất lượng không ổn định</li><li>Giá tăng nhưng trải nghiệm giảm</li></ul></div>
-            <div class="pg-col"><h4>😄 Gain</h4><ul class="bullet"><li>Đặt trước, lấy nhanh</li><li>Chất lượng đồng nhất</li><li>Tích điểm & ưu đãi thành viên</li></ul></div>
-          </div>`, {cls:'span-12'})}
       </section>`,
     mount: () => {},
   };
@@ -881,54 +830,21 @@
   /* ---- Pricing ---- */
   P.pricing = {
     title: 'Định giá & Tâm lý', sub: 'Mô hình giá theo phân khúc + chiến thuật tâm lý',
+    actions: `<a class="ghost-line" href="#dossier">← Hồ sơ</a>`,
     render: () => `
       <section class="grid">
         ${agentSection('pricing','psychology_pricing')}
-        ${M.pricingTiers.map(t=>`
-          ${card('', `
-            <div class="tier ${t.hot?'hot':''}">
-              ${t.hot?'<span class="ribbon">Phổ biến</span>':''}
-              <p class="tier-name">${t.name}</p><span class="tag">${t.tag}</span>
-              <p class="tier-price">${t.price}</p>
-              <ul class="bullet">${t.items.map(i=>`<li>${i}</li>`).join('')}</ul>
-            </div>`, {cls:'span-4'})}`).join('')}
-        ${card('Chiến thuật tâm lý giá', `
-          <ul class="bullet two">
-            <li>🎯 <b>Charm pricing</b>: 49.000₫ thay vì 50.000₫</li>
-            <li>⚓ <b>Anchoring</b>: đặt Premium cạnh Standard</li>
-            <li>📦 <b>Bundling</b>: combo đôi tăng AOV 18%</li>
-            <li>⏳ <b>Khan hiếm</b>: ưu đãi giới hạn khung giờ</li>
-          </ul>`, {cls:'span-7'})}
-        ${card('Độ co giãn theo phân khúc', cv('elastChart',180), {cls:'span-5'})}
       </section>`,
-    mount: () => {
-      if (!hasChart) return;
-      reg(new Chart(byId('elastChart'), { type:'line',
-        data:{ labels:['-20%','-10%','Giá','+10%','+20%'], datasets:[{ data:[140,118,100,78,52],
-          borderColor:PRIMARY, backgroundColor:fill(PRIMARY), fill:true, tension:.4, borderWidth:2.5, pointRadius:0 }]},
-        options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
-          scales:{ x:{grid:noGrid}, y:{grid, ticks:{callback:v=>v+'%'}} } }}));
-    },
+    mount: () => {},
   };
 
   /* ---- SWOT ---- */
   P.swot = {
-    title: 'SWOT', sub: 'Ma trận chiến lược — calibrate theo ngành F&B',
+    title: 'SWOT', sub: 'Ma trận chiến lược + TOWS (SO/ST/WO/WT)',
+    actions: `<a class="ghost-line" href="#dossier">← Hồ sơ</a>`,
     render: () => `
-      <section class="swot">
-        ${swotCell('S','Điểm mạnh','green',['Cà phê specialty chất lượng','Vị trí trung tâm','Khách trung thành'])}
-        ${swotCell('W','Điểm yếu','red',['Chi phí mặt bằng cao','Phụ thuộc giờ cao điểm','Ít kênh online'])}
-        ${swotCell('O','Cơ hội','primary',['Gen Z chuộng local brand','Tăng trưởng delivery','UGC lan tỏa'])}
-        ${swotCell('T','Thách thức','amber',['Chuỗi lớn cạnh tranh giá','Chi phí ads tăng','Trung thành thấp'])}
-      </section>
       <section class="grid">
         ${agentSection('swot','swot')}
-        ${card('Tactical plays (SO/WO/ST/WT)', table(
-          ['Nhóm','Chiến thuật','KPI'],
-          [['SO','Đẩy specialty qua UGC + KOL local','Reach, Repeat'],
-           ['WO','Mở kênh đặt trước online','Đơn online'],
-           ['ST','Loyalty giữ chân vs chuỗi lớn','Repeat 30d'],
-           ['WT','Tối ưu ngân sách giờ thấp điểm','CPA']]), {cls:'span-12'})}
       </section>`,
     mount: () => {},
   };
@@ -963,7 +879,7 @@
   }
   P.strategy = {
     title: 'Chiến lược tổng hợp', sub: 'Định vị · SAVE · Định hướng 90 ngày · KPI cần theo dõi',
-    actions: `<a class="primary-btn" href="#occasion">→ Lập chiến dịch theo dịp</a>`,
+    actions: `<a class="ghost-line" href="#tactical">🔨 Tactical Playbook</a> <a class="primary-btn" href="#occasion">→ Lập chiến dịch theo dịp</a>`,
     render: () => {
       const latest = (M.bizLatest || {}).synthesis;
       if (M.bizEnabled && latest) {
@@ -995,6 +911,34 @@
           <span class="muted"> Bản minh hoạ — chạy server thật (Supabase + LLM) để Max lập chiến lược cho bạn.</span></div>
         ${directionalBanner}
         ${strategyMock()}
+      </section>`;
+    },
+    mount: () => {},
+  };
+
+  /* ---- Tactical Playbook (T5 — cách đánh chi tiết theo từng tệp) ---- */
+  P.tactical = {
+    title: 'Tactical Playbook', sub: 'Cách đánh chi tiết theo từng phân khúc — copy, kênh, khung test, KPI',
+    actions: `<a class="ghost-line" href="#strategy">← Về Chiến lược</a>`,
+    render: () => {
+      const has = (M.bizSkillRuns || []).some(r => r.skill_name === 'tactical_playbook');
+      if (M.bizEnabled && !has) {
+        return `<section class="grid">
+          ${card('', `<div class="empty-cta">
+            <div class="empty-ic">🔨</div>
+            <h3>Chưa có Tactical Playbook</h3>
+            <p class="muted">Đây là <b>bản đồ chi tiết</b> đi sau Chiến lược (la bàn): với từng phân khúc ưu tiên,
+            Max viết cách đánh theo phễu (TOFU/MOFU/BOFU) — copy mẫu, kênh, khung thử nghiệm, KPI cần theo dõi.
+            Nó được tạo cùng lượt "Chạy phân tích toàn diện".</p>
+            <div class="empty-actions">
+              <button class="ghost-line" data-act="run-agent" data-task="full">🚀 Chạy phân tích toàn diện</button>
+            </div></div>`, {cls:'span-12'})}
+        </section>`;
+      }
+      return `<section class="grid">
+        <div class="card span-12 dir-banner">🔨 Đây là <b>cách đánh chi tiết</b> (bản đồ) — đi sau <b>Chiến lược định hướng</b> (la bàn).
+          Mỗi phân khúc có copy mẫu, kênh, khung thử nghiệm, KPI. Con số/ngân sách thật chốt khi lập chiến dịch theo dịp.</div>
+        ${agentSection('full','tactical_playbook')}
       </section>`;
     },
     mount: () => {},
