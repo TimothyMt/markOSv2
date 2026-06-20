@@ -172,19 +172,73 @@
   }
 
   // Đổ full content của skill_run vào các slot .ai-output (gọi sau mỗi route)
+  // D-034 #1: render markdown block-aware — hỗ trợ BẢNG + blockquote + list (trước
+  // đây thiếu bảng → output competitor/SWOT/pricing hiện pipe thô).
   function renderAIContent(txt) {
-    const t = (txt || '').trim();
-    if (t.startsWith('<')) return t;             // skill xuất HTML → render trực tiếp
-    const esc = t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    return '<p>' + esc
-      .replace(/^#### (.*)$/gm,'</p><h5>$1</h5><p>')
-      .replace(/^### (.*)$/gm,'</p><h4>$1</h4><p>')
-      .replace(/^## (.*)$/gm,'</p><h3>$1</h3><p>')
-      .replace(/^# (.*)$/gm,'</p><h2>$1</h2><p>')
-      .replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')
-      .replace(/^[-*] (.*)$/gm,'• $1')
-      .replace(/\n{2,}/g,'</p><p>')
-      .replace(/\n/g,'<br>') + '</p>';
+    const raw = (txt || '').trim();
+    if (raw.startsWith('<')) return raw;          // skill xuất HTML → render trực tiếp
+    const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const inline = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\*(.+?)\*/g, '<i>$1</i>');
+    const isRow = l => /^\s*\|.*\|\s*$/.test(l);
+    const isSep = l => /^\s*\|?[\s:|-]*-[\s:|-]*\|?\s*$/.test(l) && l.includes('-');
+    const cells = l => l.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map(c => c.trim());
+    const lines = raw.split('\n');
+    const out = [];
+    let i = 0;
+    while (i < lines.length) {
+      const line = lines[i];
+      // Bảng: hàng | … | + hàng phân cách |---|
+      if (isRow(line) && i + 1 < lines.length && isSep(lines[i + 1])) {
+        const head = cells(line); i += 2;
+        const rows = [];
+        while (i < lines.length && isRow(lines[i])) { rows.push(cells(lines[i])); i++; }
+        out.push('<div class="tbl-wrap"><table class="tbl"><thead><tr>' +
+          head.map(h => `<th>${inline(h)}</th>`).join('') + '</tr></thead><tbody>' +
+          rows.map(r => `<tr>${r.map(c => `<td>${inline(c)}</td>`).join('')}</tr>`).join('') +
+          '</tbody></table></div>');
+        continue;
+      }
+      // Blockquote
+      if (/^\s*>\s?/.test(line)) {
+        const buf = [];
+        while (i < lines.length && /^\s*>\s?/.test(lines[i])) { buf.push(lines[i].replace(/^\s*>\s?/, '')); i++; }
+        out.push('<blockquote>' + buf.map(inline).join('<br>') + '</blockquote>');
+        continue;
+      }
+      // Heading
+      let m;
+      if ((m = line.match(/^####\s+(.*)/))) { out.push(`<h5>${inline(m[1])}</h5>`); i++; continue; }
+      if ((m = line.match(/^###\s+(.*)/)))  { out.push(`<h4>${inline(m[1])}</h4>`); i++; continue; }
+      if ((m = line.match(/^##\s+(.*)/)))   { out.push(`<h3>${inline(m[1])}</h3>`); i++; continue; }
+      if ((m = line.match(/^#\s+(.*)/)))    { out.push(`<h2>${inline(m[1])}</h2>`); i++; continue; }
+      // Horizontal rule
+      if (/^\s*---+\s*$/.test(line)) { out.push('<hr>'); i++; continue; }
+      // Bullet list
+      if (/^\s*[-*]\s+/.test(line)) {
+        const buf = [];
+        while (i < lines.length && /^\s*[-*]\s+/.test(lines[i])) { buf.push(lines[i].replace(/^\s*[-*]\s+/, '')); i++; }
+        out.push('<ul>' + buf.map(b => `<li>${inline(b)}</li>`).join('') + '</ul>');
+        continue;
+      }
+      // Numbered list
+      if (/^\s*\d+\.\s+/.test(line)) {
+        const buf = [];
+        while (i < lines.length && /^\s*\d+\.\s+/.test(lines[i])) { buf.push(lines[i].replace(/^\s*\d+\.\s+/, '')); i++; }
+        out.push('<ol>' + buf.map(b => `<li>${inline(b)}</li>`).join('') + '</ol>');
+        continue;
+      }
+      // Dòng trống
+      if (!line.trim()) { i++; continue; }
+      // Đoạn văn (gom các dòng thường liên tiếp)
+      const buf = [];
+      while (i < lines.length && lines[i].trim() && !isRow(lines[i]) && !/^\s*>/.test(lines[i])
+             && !/^#{1,4}\s/.test(lines[i]) && !/^\s*[-*]\s/.test(lines[i])
+             && !/^\s*\d+\.\s/.test(lines[i]) && !/^\s*---+\s*$/.test(lines[i])) {
+        buf.push(lines[i]); i++;
+      }
+      out.push('<p>' + buf.map(inline).join('<br>') + '</p>');
+    }
+    return out.join('\n');
   }
   // Đổ trình đọc/sửa vào ô nhúng #docView.doc-embed trên trang chi tiết (gọi sau route)
   async function fillDocEmbeds() {
@@ -241,7 +295,7 @@
     { key: 'differentiation', tier: 'strategic', strategic: true,
       q: 'Điểm khác biệt bền vững của bạn là gì, và bằng chứng cho điều đó?',
       helper: 'Khách hay khen bạn điểm gì nhất? Vì sao họ quay lại?',
-      ph: 'vd: hạt tự rang theo mẻ nhỏ — khách khen "thơm, không gắt"' },
+      note: 'Nếu chưa biết thì ghi "chưa biết" — Max sẽ tự tìm/đề xuất định vị giúp bạn.' },
     { key: 'objection', tier: 'strategic', strategic: true,
       q: 'Rào cản / nỗi sợ lớn nhất khiến khách chần chừ là gì?',
       helper: 'Khách hay lo gì, hay hỏi gì, hay từ chối vì lý do nào trước khi mua?',
@@ -321,13 +375,14 @@
     const n = INTAKE_STEPS.length;
     const i = Math.min(_intakeStep, n - 1);
     const st = INTAKE_STEPS[i];
-    const val = (_intakeData[st.key] || '').replace(/"/g, '&quot;');
+    // textarea content cần escape & < > (D-032 §11)
+    const val = (_intakeData[st.key] || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     const preview = (!apiAvailable || !M.bizEnabled);
     const canSkip = st.optional || st.strategic;   // strategic skip → AI suy (giả định)
     const body = st.choices
       ? `<div class="intake-choices">${st.choices.map(c =>
           `<button class="intake-choice${_intakeData[st.key] === c || (c === 'Không tiện chia sẻ' && _intakeData[st.key] === 'chưa rõ') ? ' on' : ''}" data-act="intake-choice" data-val="${c.replace(/"/g, '&quot;')}">${c}</button>`).join('')}</div>`
-      : `<input id="intakeBox" class="intake-input" value="${val}" placeholder="${st.ph}" autocomplete="off">`;
+      : `<textarea id="intakeBox" class="intake-input" rows="1" placeholder="${st.strategic ? 'Trả lời, hoặc bấm gợi ý bên dưới…' : 'Nhập câu trả lời…'}">${val}</textarea>`;
     // D-032 step 2: câu chiến lược → fetch + render chip gợi ý (recognition, chọn nhiều được)
     let chips = '';
     if (st.strategic) {
@@ -497,8 +552,12 @@
       const box = document.getElementById('intakeBox');
       if (box) {
         box.focus();
+        // D-032 §11: textarea tự giãn cao + Enter=Tiếp, Shift+Enter=xuống dòng
+        const grow = () => { if (box.tagName === 'TEXTAREA') { box.style.height = 'auto'; box.style.height = box.scrollHeight + 'px'; } };
+        grow();
+        box.oninput = grow;
         box.onkeydown = (e) => {
-          if (e.key === 'Enter') { e.preventDefault(); aiMode ? aiIntakeSend() : handleIntake('next'); }
+          if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); aiMode ? aiIntakeSend() : handleIntake('next'); }
         };
       }
     },
@@ -528,11 +587,11 @@
       _intakeData[st.key] = (choiceVal === 'Không tiện chia sẻ') ? 'chưa rõ' : choiceVal;
       _intakeProv[st.key] = 'typed';
     }
-    if (action === 'suggest') {        // bấm chip gợi ý → thêm vào câu trả lời (chọn nhiều)
+    if (action === 'suggest') {        // bấm chip gợi ý → thêm vào câu trả lời (chọn nhiều, MỖI dòng 1 ý)
       const cur = (_intakeData[st.key] || '').trim();
       const add = (choiceVal || '').trim();
-      const has = cur.split(/[,;]\s*/).some(p => p.trim() === add);
-      _intakeData[st.key] = has ? cur : (cur ? cur + ', ' + add : add);
+      const has = cur.split(/\n/).some(p => p.trim() === add);
+      _intakeData[st.key] = has ? cur : (cur ? cur + '\n' + add : add);
       _intakeProv[st.key] = 'suggested';
       route(); return;
     }
@@ -821,14 +880,15 @@
     render: () => {
       const latest = (M.bizLatest || {}).synthesis;
       if (M.bizEnabled && latest) {
+        // D-037a: 1 card duy nhất (bỏ agentBar trùng "Xem output") — output inline + nút rerun
+        const running = (M.agentJobs || []).some(j => j.status === 'running' && (j.task === 'strategy' || j.task === 'full'));
         return `<section class="grid">
           ${directionalBanner}
           ${inferredMeter()}
-          ${agentBar('strategy','synthesis')}
           ${card('Chiến lược 90 ngày — do Max lập', `
             <div class="ai-output collapsible" data-skill-run="${latest.id}">Đang tải chiến lược…</div>
             <button class="ghost-line full collapse-toggle" data-act="toggle-collapse" style="margin-top:12px">Xem đầy đủ ▾</button>`,
-            {cls:'span-12', action:`<span class="muted">v${latest.version} · ${(latest.created_at||'').slice(0,10)}</span>`})}
+            {cls:'span-12', action:`<span class="muted">v${latest.version} · ${(latest.created_at||'').slice(0,10)}</span> ${runBtn('strategy', running ? '↻ Đang chạy' : '↻ Tạo lại bản mới', 'ghost-line sm')}`})}
         </section>`;
       }
       if (M.bizEnabled) {

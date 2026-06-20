@@ -167,6 +167,30 @@ def test_archetype_banner_has_antifabrication_guard():
         "Không có guard bỏ LLM khi thiếu context (dễ bịa nhất)"
 
 
+def test_ai_renderer_supports_tables():
+    """D-034 #1: renderAIContent render bảng markdown (không còn pipe thô)."""
+    app = _read("web/app.js")
+    assert "tbl-wrap" in app and "isRow" in app and "isSep" in app, \
+        "renderAIContent chưa có parser bảng"
+    assert "blockquote" in app, "renderAIContent chưa hỗ trợ blockquote"
+
+
+def test_strategy_single_output_card():
+    """D-037a: trang strategy không còn agentBar trùng (gộp 1 card)."""
+    import re
+    app = _read("web/app.js")
+    m = re.search(r"P\.strategy\s*=\s*\{.*?\n  \};", app, re.S)
+    assert m, "Không tìm thấy P.strategy"
+    assert "agentBar('strategy'" not in m.group(0), \
+        "P.strategy còn agentBar (output hiện 2 chỗ)"
+
+
+def test_intake_uses_textarea():
+    """D-032 §11: ô gõ intake là textarea (tự giãn/wrap), không phải input 1 dòng."""
+    app = _read("web/app.js")
+    assert 'textarea id="intakeBox"' in app, "Ô intake chưa đổi sang textarea"
+
+
 if __name__ == "__main__":
     failed = 0
     for name, fn in sorted(globals().items()):

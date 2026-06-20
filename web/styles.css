@@ -708,6 +708,13 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 .doc-body table { width:100%; border-collapse:collapse; margin:12px 0; }
 .doc-body th, .doc-body td { border:1px solid var(--stroke); padding:7px 11px; text-align:left; font-size:13px; }
 .doc-body ul, .doc-body ol { margin:10px 0; padding-left:22px; }
+/* D-034 #1: blockquote / hr / li cho output AI (renderer block-aware) */
+.ai-output li, .doc-body li { margin:4px 0; }
+.ai-output hr, .doc-body hr { border:none; border-top:1px solid var(--stroke); margin:16px 0; }
+.ai-output blockquote, .doc-body blockquote {
+  margin:12px 0; padding:10px 14px; border-left:3px solid var(--primary);
+  background:rgba(91,140,255,.08); border-radius:0 8px 8px 0; color:var(--txt); }
+.ai-output th, .doc-body th { background:var(--panel-2); font-weight:700; }
 
 /* ── Doc page: editor + nhờ Max chỉnh + lịch sử version ── */
 .doc-grid { display:grid; grid-template-columns: 1fr; gap:20px; }
@@ -760,6 +767,9 @@ body.chat-mode #view { height: calc(100vh - 64px); }
   padding:8px 12px; background:var(--panel-2); border-radius:8px; border-left:2px solid var(--primary); }
 .intake-input { width:100%; background:var(--panel-2); border:1px solid var(--stroke-2); border-radius:12px;
   padding:12px 14px; color:var(--txt); font-size:15px; font-family:inherit; }
+/* D-032 §11: textarea tự giãn, wrap, không kéo tay */
+textarea.intake-input { resize:none; overflow:hidden; min-height:48px; line-height:1.5;
+  white-space:pre-wrap; word-break:break-word; }
 .intake-input:focus { outline:none; border-color:var(--primary); }
 /* D-032 step 2: chip gợi ý câu chiến lược */
 .intake-sug { margin:12px 0 0; font-size:13px; }
@@ -768,7 +778,7 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 .intake-sug-chips { display:flex; flex-wrap:wrap; gap:8px; }
 .intake-sug-chip { background:var(--panel-2); border:1px dashed var(--stroke-2); border-radius:16px;
   padding:6px 12px; color:var(--txt); font-size:13px; font-family:inherit; cursor:pointer;
-  transition:all .15s; }
+  transition:all .15s; white-space:normal; word-break:break-word; max-width:100%; min-width:0; text-align:left; }
 .intake-sug-chip:hover { border-color:var(--primary); border-style:solid; background:rgba(91,140,255,.12); }
 .infer-banner { padding:10px 14px; font-size:13px; line-height:1.5; background:rgba(245,180,90,.10);
   border:1px solid rgba(245,180,90,.35); border-radius:10px; }
