@@ -433,11 +433,14 @@
     { key: 'primary_goal', tier: 'context', q: '90 ngày tới bạn muốn ưu tiên điều gì nhất?',
       choices: ['Tăng nhận diện thương hiệu', 'Ra nhiều đơn / doanh thu', 'Giữ chân & chăm khách cũ', 'Ra mắt sản phẩm mới'],
       note: 'Chọn hướng ưu tiên — con số cụ thể sẽ chốt khi bạn lập từng chiến dịch theo dịp.' },
+    { key: 'usp', tier: 'context', optional: true,
+      q: 'Bạn đã có CÂU ĐỊNH VỊ / slogan / USP chốt chưa?',
+      note: 'Có rồi thì nhập — Max sẽ LÀM SẮC THÊM (không vứt đi). Chưa có thì để trống — Max tự đề xuất. Bước Chiến lược sẽ cho bạn chọn lại.' },
   ];
   // Field nào có cột riêng trong profile; còn lại gói vào intake_extra.answers (D-032)
   const PROFILE_COLUMN_KEYS = new Set(['business_name', 'industry', 'location', 'product_service',
     'target_customer', 'main_challenge', 'competitors', 'monthly_revenue',
-    'monthly_marketing_budget', 'current_channels', 'primary_goal']);
+    'monthly_marketing_budget', 'current_channels', 'primary_goal', 'usp']);
   // AI-adaptive intake (Max phỏng vấn thông minh) — dùng khi có backend thật
   let _aiQ = '', _aiBusy = false, _aiStarted = false, _aiFailed = false;
   function aiIntakeView() {
@@ -692,6 +695,7 @@
     if (Object.keys(answers).length) extra.answers = answers;
     if (Object.keys(_intakeProv).length) extra.provenance = _intakeProv;
     if (Object.keys(extra).length) cols.intake_extra = extra;
+    if (cols.usp) cols.usp_confidence = 'clear';   // founder có USP → Max REFINE, không đẻ mới
     return cols;
   }
   async function handleIntake(action, choiceVal) {
@@ -952,11 +956,16 @@
             ${card('🎯 Chốt hướng đánh trước khi lập chiến lược', `
               <label class="fld"><span>① Bạn muốn đánh vào (các) phân khúc nào TRƯỚC? <span class="muted">— để trống thì Max tự chọn theo research</span></span>
                 <input id="gateWedge" placeholder="vd: mẹ bỉm plus-size sau sinh; hoặc chủ shop Amazon nhỏ"></label>
-              <div class="fld"><span>② Định vị / USP:</span>
+              <div class="fld"><span>② Định vị (USP) — chọn cái Max bám khi lập chiến lược:</span>
                 <div class="gate-usp">
-                  <label class="radio-row"><input type="radio" name="uspStance" value="draft" checked> Để Max đề xuất & làm sắc <span class="muted">(khuyến nghị)</span></label>
-                  <label class="radio-row"><input type="radio" name="uspStance" value="clear"> Tôi đã có định vị riêng →</label>
-                  <input id="gateUsp" placeholder="Nhập câu định vị của bạn (nếu chọn dòng trên)">
+                  ${(M.bizProfile && M.bizProfile.usp) ? `
+                  <label class="radio-row"><input type="radio" name="uspStance" value="own" checked> Dùng <b>USP của bạn</b>: <span class="muted">"${(M.bizProfile.usp || '').replace(/"/g, '&quot;')}"</span></label>
+                  <label class="radio-row"><input type="radio" name="uspStance" value="draft"> Dùng <b>USP Max gợi ý</b> <span class="muted">(xem ở tab USP — Max đã làm sắc từ USP của bạn)</span></label>
+                  ` : `
+                  <label class="radio-row"><input type="radio" name="uspStance" value="draft" checked> Để <b>Max đề xuất & làm sắc</b> <span class="muted">(khuyến nghị)</span></label>
+                  `}
+                  <label class="radio-row"><input type="radio" name="uspStance" value="edit"> Tôi muốn sửa/nhập lại →</label>
+                  <input id="gateUsp" placeholder="Nhập câu định vị (nếu chọn 'sửa/nhập lại')">
                 </div></div>
               <button class="primary-btn full" data-act="run-strategize" ${running ? 'disabled' : ''} style="margin-top:10px">${running ? '⏳ Đang lập chiến lược…' : '🎯 Lập chiến lược (T4 Synthesis + T5 Playbook)'}</button>
             `, {cls:'span-12'})}
@@ -1996,9 +2005,12 @@
     if (act === 'run-strategize') {   // D-041: lưu GATE (wedge + USP) rồi chạy T4-T5
       try {
         const wedge = (document.getElementById('gateWedge') || {}).value || '';
-        const stance = (document.querySelector('input[name="uspStance"]:checked') || {}).value || 'draft';
+        const pick = (document.querySelector('input[name="uspStance"]:checked') || {}).value || 'draft';
         const uspText = (document.getElementById('gateUsp') || {}).value || '';
-        const g = await API.post('api/biz/gate', { wedge, usp_stance: stance, usp_text: uspText, user_id: _bizUserId });
+        // own=giữ USP founder (clear), draft=dùng USP Max, edit=nhập mới (clear)
+        const usp_stance = pick === 'draft' ? 'draft' : 'clear';
+        const usp_text = pick === 'edit' ? uspText : '';
+        const g = await API.post('api/biz/gate', { wedge, usp_stance, usp_text, user_id: _bizUserId });
         if (g.error) { toast(g.error); return; }
         const r = await API.post('api/biz/agent', { task: 'strategize', user_id: _bizUserId });
         if (r.error) { toast(r.error); return; }
