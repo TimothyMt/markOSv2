@@ -140,3 +140,22 @@ Khối bối cảnh **optional** (chọn khoảng / chip):
 3. Thanh minh bạch (D1) + test + nghiệm thu trên Railway.
 
 > Bỏ bước "build static bundle / parity demo tĩnh" (GitHub Pages đã bỏ — D-033).
+
+## 11. UX polish intake (phát hiện khi dùng thật — CHỜ SỬA, chưa làm)
+Sau khi build step 1-3 và test trên Railway, founder phát hiện 4 điểm cần chỉnh
+(chỉ `web/app.js` + `web/styles.css`, không đụng backend/engine):
+
+- **A — Ô gõ câu trả lời `<input>` → `<textarea>` tự giãn cao + wrap.** Hiện `<input>`
+  1 dòng → câu dài trượt ngang, không đọc lại được. Đổi sang `<textarea>` auto-grow
+  (nghe `input` → `height=scrollHeight`), `word-break` wrap.
+  **Phím Enter (CHỐT — option b): Enter = sang câu (Tiếp), Shift+Enter = xuống dòng.**
+- **B — Chip gợi ý dài không tràn mép.** `.intake-sug-chip` thêm `white-space:normal;
+  word-break:break-word; max-width:100%; text-align:left;` + `min-width:0` flex item.
+  (Thực tế đa số đã wrap — làm chắc, phòng hờ chip dài.)
+- **C — Chọn nhiều chip → MỖI lựa chọn 1 DÒNG riêng.** Đổi nối `", "` → xuống dòng
+  `\n` trong `handleIntake('suggest')` (dedupe theo dòng). Hợp với textarea đa dòng (A).
+- **D — Bỏ ví dụ "vd: ..." (placeholder) trong ô type ở câu chiến lược.** Placeholder
+  dài nhìn lệch; câu chiến lược đã có helper + chip làm ví dụ rồi → placeholder để
+  trống/ngắn gọn. (Câu nền giữ placeholder ngắn vì không có chip.)
+
+> Tất cả là polish frontend, không đổi logic provenance/suggest/label đã build.
