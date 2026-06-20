@@ -371,6 +371,12 @@ Template (thay nội dung trong ngoặc, GIỮ NGUYÊN cấu trúc ký tự):
                           <Nhãn trục tung THẤP>
 ```
 
+🔢 **KÈM block dữ liệu máy-đọc (BẮT BUỘC — để render chính xác, không lệ thuộc ASCII):** ngay sau sơ đồ trên, thêm 1 fenced code block chứa JSON 1 dòng đúng schema (q=1..4 theo góc; self=true cho vị trí business mình):
+
+```
+{"yTop":"<nhãn tung CAO>","yBottom":"<nhãn tung THẤP>","xLeft":"<nhãn hoành TRÁI>","xRight":"<nhãn hoành PHẢI>","q1":"<mô tả GÓC I>","q2":"<mô tả GÓC II>","q3":"<mô tả GÓC III>","q4":"<mô tả GÓC IV>","items":[{"name":"SẾP","q":1,"self":true},{"name":"<đối thủ>","q":4}]}
+```
+
 **Strategic Implication (so-what — mức INSIGHT, KHÔNG phải kế hoạch):** 2-3 câu chốt: phát hiện về đối thủ này NGHĨA LÀ GÌ cho định vị của business (khoảng trống nào đáng chiếm + vì sao). ⚠️ KHÔNG xếp roadmap Quick-win/Medium/Long-term, KHÔNG ra action plan — việc tổng hợp ưu tiên + lộ trình là của Synthesis (T4) + Tactical (T5), nơi thấy ĐỦ research cùng lúc.
 
 Format: Markdown đẹp, dùng `####` cho sub-heading trong Gap Analysis và Positioning Map, dùng bảng cho comparison, dùng `>` blockquote cho key takeaway. Nếu không biết tên đối thủ cụ thể, phân tích dựa trên pattern chung của ngành tại VN nhưng vẫn phải đủ chiều sâu."""

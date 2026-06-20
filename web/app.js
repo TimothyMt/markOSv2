@@ -347,10 +347,25 @@
       w.appendChild(xa);
       return w;
     }
+    // D-034 #5: ưu tiên block JSON máy-đọc (chính xác); fallback parse ASCII
+    function fromJson(j) {
+      const items = { 1: [], 2: [], 3: [], 4: [] };
+      (j.items || []).forEach(it => {
+        const q = Math.max(1, Math.min(4, +it.q || 1));
+        items[q].push(it.self ? '★ ' + (it.name || 'SẾP') : (it.name || ''));
+      });
+      return { yTop: j.yTop || '', yBottom: j.yBottom || '', xLeft: j.xLeft || '', xRight: j.xRight || '',
+        qdesc: { 1: j.q1 || '', 2: j.q2 || '', 3: j.q3 || '', 4: j.q4 || '' }, items };
+    }
     root.querySelectorAll('pre').forEach(pre => {
       const text = pre.textContent || '';
-      if (!isMap(text)) return;
-      const map = parseMap(text); if (!map) return;
+      let map = null;
+      const ts = text.trim();
+      if (ts.startsWith('{') && ts.indexOf('"items"') >= 0) {
+        try { const j = JSON.parse(ts); if (Array.isArray(j.items) && j.items.length) map = fromJson(j); } catch (e) { /* fallback ASCII */ }
+      }
+      if (!map && isMap(text)) map = parseMap(text);
+      if (!map) return;
       pre.parentNode.replaceChild(buildEl(map), pre);
     });
   }
