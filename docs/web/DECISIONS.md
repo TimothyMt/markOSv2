@@ -60,3 +60,7 @@ Q-A→D-011 · Q-B→D-012 · Q-C→D-013 · Q-D→D-014.
 - ⏳ Còn lại: D-034#2 (TAM/SAM/SOM card số thật) · D-034#5 (pos-map structured) · D-041 (web 2-phase gate) · D-040 (campaign 2-track M1).
 - ✅ **D-034 #2** (TAM/SAM/SOM card số thật, web trích từ output) + **D-041** (web 2-phase có GATE: research T1-T3 → chọn wedge+USP trên data thật → strategize T4-T5; wedge inject vào context, synthesis tôn trọng). Đổi nút chính → "Chạy nghiên cứu". Sửa D-015.
 - ⏳ Còn lại: D-034#5 (pos-map structured) · D-040 (campaign 2-track M1).
+- ✅ **D-040** (campaign 2-tuyến entry + logic): spec M1-campaign-2track.md (Byron Sharp + Binet&Field, industry-aware 15 ngành); endpoint campaign_plan sinh content pillars (always-on) + gợi ý occasion theo ngành; hub UI 2 thẻ. Occasion creation đầy đủ (SMART) = M1 lớn, để sau.
+- ✅ **D-034 #5** (pos-map structured): model xuất JSON posmap; enhancePosMaps ưu tiên JSON → render thẳng, fallback ASCII.
+- ✅ Nợ kỹ thuật #1: nút full bỏ qua gate (Tactical empty-state) → trỏ #strategy.
+- ⏳ Còn: luồng tạo Occasion đầy đủ (M1 lớn) · dọn code chết nhẹ · GitHub Pages/bot cleanup.
