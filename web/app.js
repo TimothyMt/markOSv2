@@ -187,6 +187,15 @@
     let i = 0;
     while (i < lines.length) {
       const line = lines[i];
+      // Code fence ``` … ``` (giữ nguyên ASCII, vd Positioning Map) → <pre>
+      if (/^\s*```/.test(line)) {
+        const buf = [];
+        i++;
+        while (i < lines.length && !/^\s*```/.test(lines[i])) { buf.push(lines[i]); i++; }
+        i++; // bỏ dòng ``` đóng
+        out.push('<pre class="ai-pre">' + esc(buf.join('\n')) + '</pre>');
+        continue;
+      }
       // Bảng: hàng | … | + hàng phân cách |---|
       if (isRow(line) && i + 1 < lines.length && isSep(lines[i + 1])) {
         const head = cells(line); i += 2;
