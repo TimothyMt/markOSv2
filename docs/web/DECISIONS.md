@@ -56,3 +56,5 @@ Q-A→D-011 · Q-B→D-012 · Q-C→D-013 · Q-D→D-014.
 - ⏳ **Còn web-only:** D-034#2 (TAM/SAM/SOM số thật qua LLM — cần endpoint).
 - ⏳ **Đợt engine (gom):** D-035 (psychology scope) · D-036 (research implications) · D-037b (SWOT truncation) · D-038B (synthesis mạch tích hợp + 4b USP/SAVE) · D-034#5 (pos-map structured).
 - ⏳ **Flow lớn:** D-041 (web 2-phase gate) · D-039a-sidebar mobile · D-040 (campaign 2-track, M1).
+- ✅ **Đợt engine** (prompt): D-038B synthesis mạch tích hợp (cascade + 4b USP/SAVE) · D-035A psychology cắt scope T2 · D-035B pricing tách B2B/B2C · D-036 research bỏ roadmap (giữ insight) · D-037b SWOT 22k token + ép cô đọng (hết cụt TOWS). ⏳ Nghiệm thu = chạy lại pipeline thật.
+- ⏳ Còn lại: D-034#2 (TAM/SAM/SOM card số thật) · D-034#5 (pos-map structured) · D-041 (web 2-phase gate) · D-040 (campaign 2-track M1).
