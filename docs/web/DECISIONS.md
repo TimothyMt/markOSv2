@@ -64,3 +64,8 @@ Q-A→D-011 · Q-B→D-012 · Q-C→D-013 · Q-D→D-014.
 - ✅ **D-034 #5** (pos-map structured): model xuất JSON posmap; enhancePosMaps ưu tiên JSON → render thẳng, fallback ASCII.
 - ✅ Nợ kỹ thuật #1: nút full bỏ qua gate (Tactical empty-state) → trỏ #strategy.
 - ⏳ Còn: luồng tạo Occasion đầy đủ (M1 lớn) · dọn code chết nhẹ · GitHub Pages/bot cleanup.
+- 📝 **D-042 (nợ dọn dẹp — defer, làm khi rảnh):**
+  - **Code chết web/app.js:** `SKILL_TO_TASK` (không index ở đâu), `swotCell` (đã gỡ khỏi SWOT), `ph` trong INTAKE_STEPS (textarea bỏ qua placeholder).
+  - **Mock thừa web/data.js:** `M.personas`, `M.pricingTiers`, `M.competitors` (đã gỡ card ở D-034#3) → không còn dùng. Giữ `M.saveFramework`/`M.directionalGoals` (strategyMock fallback no-backend còn dùng).
+  - **Tàn dư GitHub Pages (D-033):** root `index.html` bundle inline + `webapp/build_standalone.py` parity — không maintain nữa, xoá khi tiện. `bot/` xoá khi bỏ tele (D1 archetype-fix trong đó moot với web).
+  - Nguyên tắc: dọn theo từng đợt nhỏ, có test chặn; KHÔNG đập `strategyMock`/degrade-no-backend (còn dùng cho local dev).
