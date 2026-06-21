@@ -23,20 +23,25 @@ thì KHÔNG** — vì nó **kích hoạt bởi HÀNH VI khách**, không phải 
 
 → Gộp vào occasion sẽ méo cả 2. Tách riêng, nhưng **cùng hệ** (vẫn kế thừa Synthesis là bàn).
 
-## 1. Phụ thuộc dữ liệu — và cách KHÔNG bị chặn vì thiếu data
-Retention "đúng bài" cần dữ liệu đơn hàng/khách (RFM: Recency–Frequency–Monetary).
-markOS web **chưa chắc có** order data. Giải pháp 2 mức (degrade, không chặn):
+## 1. KHÔNG cần order data — M2.1 là CẨM NANG if-then (Founder quyết 2026-06-21)
+> 🔴 **Quyết định chốt:** M2.1 làm được **HOÀN TOÀN KHÔNG cần dữ liệu đơn hàng.** Tách 2 việc:
+> - **Biết phải làm gì** trong mỗi tình huống khách → **KHÔNG cần data** (Max sinh playbook). ✅ M2.1
+> - **Tự phát hiện** khách nào đang ở tình huống nào → cần RFM data. ⏳ để Mức B sau.
 
-- **Mức A — Strategy-only (làm ngay, không cần data):** engine skill `retention_strategy`
-  dùng `ContextStrategy.PROFILE_PLUS_STRATEGY` → sinh **hệ thống retention 3 giai đoạn**
-  + `winback_campaign` → **sequence 3 bước** từ profile + Synthesis. Đây là *playbook*
-  (khung + nội dung mẫu + nhịp), founder tự áp khi có khách. **MVP của M2 = mức này.**
-- **Mức B — Data-driven (sau, khi có order data):** phân tệp RFM thật → cá nhân hoá
-  trigger/threshold (vd "im ắng > 2× chu kỳ mua TB"). Cần nguồn đơn hàng (Sheet/Pancake/
-  Sapo/Haravan…) — **để pha sau**, KHÔNG nằm trong M2.1.
+Không có data thì Max **không tự dò** "khách nào sắp rời bỏ" — nhưng **founder tự nhìn ra được**
+("chị này 3 tuần không quay lại"). Việc của Max = đưa **cẩm nang if-then**: *tình huống (dấu
+hiệu nhận biết) → nên làm gì → kênh → mẫu tin*. Founder đối chiếu khách của mình rồi áp tay.
 
-> 🔴 Nguyên tắc D-008: ở mức A KHÔNG bịa số RFM/threshold tuyệt đối. Threshold để dạng
-> "≈ X× chu kỳ mua trung bình ngành" + nhãn (ước tính), founder chỉnh khi có data.
+- **Mức A — Playbook if-then (M2.1, MVP):** engine skill `retention_strategy`
+  (`PROFILE_PLUS_STRATEGY`) + `winback_campaign` từ profile + Synthesis → **bảng cẩm nang**
+  theo lifecycle stage: dấu hiệu nhận biết + hành động + kênh owned + tin mẫu + KPI. Founder
+  tự nhận diện & gửi thủ công. **Không cần 1 dòng data.**
+- **Mức B — Data-driven (sau):** kết nối nguồn đơn hàng → tự phân tệp RFM → tự phát hiện +
+  cá nhân hoá threshold. Cần Sheet/Pancake/Sapo/Haravan — **ngoài M2.1.**
+
+> 🔴 D-008: threshold thời gian ("im ắng ~3 tuần", "lapsed > 2 tháng") để dạng "≈ X× chu kỳ
+> mua trung bình NGÀNH" + nhãn **(ước tính)** — founder chỉnh khi thấy thực tế khác. KHÔNG bịa
+> số đo lường. Thành thật về giới hạn: gửi tin THỦ CÔNG (founder tự chọn ai, tự gửi) ở M2.1.
 
 ## 2. Lifecycle stages (khung chuẩn, industry-aware)
 `Khách mới → Active/Repeat → At-risk (chậm lại) → Churned/Lapsed → Win-back`.
@@ -83,6 +88,7 @@ Occasion **đổ khách mới vào** → Retention **giữ & tăng giá trị**.
 1 đợt occasion mục đích=`retention` (D-044) là *spike ngắn* nhắm khách cũ; còn M2 là
 *flow liên tục theo hành vi*. Bổ sung nhau, không trùng.
 
-## 8. Mở (cần Founder quyết khi build M2)
-- Nguồn order data cho mức B: Google Sheet upload? hay tích hợp Pancake/Sapo/Haravan? (ưu tiên Sheet — rẻ, phổ biến VN).
-- Winback nên là tuyến riêng hay 1 stage trong retention playbook? (nghiêng: gộp 1 module, 2 chế độ — như spec này).
+## 8. Quyết định đã chốt + còn mở
+- ✅ **Founder (2026-06-21):** M2.1 = **playbook if-then, KHÔNG cần order data** (mục 1). Data-driven (Mức B) để sau.
+- (mở) Winback: tuyến riêng hay 1 stage trong retention playbook? → nghiêng gộp 1 module, 2 chế độ.
+- (mở, cho Mức B sau) Nguồn order data: ưu tiên Google Sheet upload (rẻ, phổ biến VN) hơn tích hợp Pancake/Sapo/Haravan.
