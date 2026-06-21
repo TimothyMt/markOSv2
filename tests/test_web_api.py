@@ -70,6 +70,20 @@ def test_occasion_m1():
     assert "OCC_OBJECTIVES" in app and "occ-obj" in app, "FE chưa có selector mục đích đợt"
 
 
+def test_retention_m2():
+    """M2.1 (D-045): retention/winback cẩm nang — route + degrade + FE wizard, KHÔNG cần order data."""
+    p = _paths()
+    assert "/api/biz/retention" in p and "/api/biz/retention/save" in p, "Thiếu route retention"
+    assert set(biz.RETENTION_MODES) == {"retention", "winback"}, "Thiếu chế độ retention/winback"
+    # degrade an toàn khi thiếu backend / thiếu brief
+    assert asyncio.run(biz.retention_draft(None)) == {}, "retention_draft không degrade khi thiếu backend"
+    s = asyncio.run(biz.save_retention(None, "retention", brief=""))
+    assert isinstance(s, dict) and "error" in s, "save_retention phải báo lỗi khi thiếu cẩm nang"
+    app = _read("web/app.js")
+    assert "openLifecycleWizard" in app and "lifecycleGenerate" in app and "lifecycleSave" in app, \
+        "FE chưa có wizard retention/winback"
+
+
 def test_gate_2phase():
     """D-041: web 2-phase — route gate; task research/strategize; FE có GATE."""
     assert "/api/biz/gate" in _paths(), "Thiếu route /api/biz/gate"

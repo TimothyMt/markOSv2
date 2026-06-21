@@ -1086,6 +1086,12 @@
           <p class="muted" style="margin-bottom:12px">Đợt có window — nơi <b>chốt SMART thật</b> (số, ngân sách đợt, deadline). Hợp mùa vụ ngành:</p>
           <ul class="rows">${occRows || '<li class="muted">—</li>'}</ul>
           <button class="primary-btn full" data-act="new-occasion" style="margin-top:14px">＋ Tạo chiến dịch theo dịp</button>`, { cls: 'span-5' })}
+        ${card('🔁 Giữ chân khách cũ — Retention (behavior-triggered)', `
+          <p class="muted" style="margin-bottom:12px">Khác 2 tuyến trên (theo lịch): đây là tuyến theo <b>HÀNH VI khách</b> (vừa mua / im ắng / đã rời bỏ). <b>Không cần dữ liệu đơn hàng</b> — Max đưa <b>cẩm nang</b>: tình huống nào → làm gì → tin nhắn mẫu, bạn tự áp.</p>
+          <div class="occ-row" style="gap:10px">
+            <button class="primary-btn" style="flex:1" data-act="new-lifecycle" data-mode="retention">🔁 Cẩm nang giữ chân</button>
+            <button class="ghost-line" style="flex:1" data-act="new-lifecycle" data-mode="winback">↩️ Kéo khách cũ quay lại</button>
+          </div>`, { cls: 'span-12' })}
       </section>`;
     } catch (e) { host.innerHTML = `<div class="card"><p class="muted">Không lập được kế hoạch — thử lại sau.</p></div>`; }
   }
@@ -2002,6 +2008,93 @@
     } catch (e) { toast('Không lưu được chiến dịch'); }
   }
 
+  /* ── M2.1 (D-045): Wizard Retention/Winback — cẩm nang if-then, KHÔNG cần order data ── */
+  const LIFE_MODES = {
+    retention: { ic: '🔁', title: 'Cẩm nang giữ chân khách',
+      sub: 'Tình huống khách (bạn tự nhìn ra) → nên làm gì → tin nhắn mẫu. Không cần dữ liệu đơn hàng.' },
+    winback:   { ic: '↩️', title: 'Kéo khách cũ quay lại',
+      sub: 'Khách đã lâu không mua → chuỗi chạm kéo về. Không cần dữ liệu đơn hàng.' },
+  };
+  let _lifeState = { mode: 'retention', cycle: '', channels: '', offer: '', brief: '', busy: false };
+
+  function openLifecycleWizard(mode) {
+    _lifeState = { mode: (LIFE_MODES[mode] ? mode : 'retention'), cycle: '', channels: '', offer: '', brief: '', busy: false };
+    let ov = document.getElementById('lifeWizard');
+    if (!ov) {
+      ov = document.createElement('div');
+      ov.id = 'lifeWizard'; ov.className = 'modal-ov';
+      ov.innerHTML = `<div class="modal"><div class="modal-head"><h3></h3>
+        <button class="icon-btn" data-act="life-close">✕</button></div>
+        <div class="modal-body" id="lifeBody"></div></div>`;
+      document.body.appendChild(ov);
+      ov.addEventListener('click', (e) => { if (e.target === ov) ov.classList.remove('show'); });
+      ov.addEventListener('input', (e) => {
+        const k = e.target.dataset.lifefield; if (k) _lifeState[k] = e.target.value;
+      });
+    }
+    ov.querySelector('h3').textContent = LIFE_MODES[_lifeState.mode].title;
+    renderLifeWizard();
+    ov.classList.add('show');
+  }
+
+  function renderLifeWizard() {
+    const body = document.getElementById('lifeBody'); if (!body) return;
+    const S = _lifeState, MD = LIFE_MODES[S.mode];
+    const E = s => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    if (S.brief) {
+      body.innerHTML = `
+        <div class="dir-banner" style="margin-bottom:14px">✅ <b>${MD.ic} ${E(MD.title)}</b>.
+          Đây là <b>cẩm nang</b> — bạn tự đối chiếu khách của mình rồi áp. Ngưỡng thời gian là <b>ước tính theo ngành</b>, chỉnh thoải mái.</div>
+        <div class="ai-output expanded">${renderAIContent(S.brief)}</div>
+        <div class="occ-foot">
+          <button class="ghost-line" data-act="life-back">← Chỉnh lever</button>
+          <button class="primary-btn" data-act="life-save">💾 Lưu cẩm nang</button>
+        </div>`;
+      enhancePosMaps(body);
+      return;
+    }
+    body.innerHTML = `
+      <div class="dir-banner" style="margin-bottom:14px">${MD.ic} ${E(MD.sub)}
+        Kế thừa la bàn (Synthesis) + đặc thù ngành. Vài thông tin dưới đây giúp cẩm nang sát hơn — <b>để trống cũng được</b>.</div>
+      <div class="occ-step"><label class="occ-lbl">Chu kỳ mua điển hình</label>
+        <input class="occ-inp" data-lifefield="cycle" placeholder="vd: khách hay mua lại mỗi ~30 ngày (trống = Max suy theo ngành)" value="${E(S.cycle)}"></div>
+      <div class="occ-step"><label class="occ-lbl">Kênh liên hệ đang có (owned)</label>
+        <input class="occ-inp" data-lifefield="channels" placeholder="vd: Zalo OA, SMS, gọi điện, email…" value="${E(S.channels)}"></div>
+      <div class="occ-step"><label class="occ-lbl">Ưu đãi loyalty sẵn có (nếu có)</label>
+        <input class="occ-inp" data-lifefield="offer" placeholder="vd: tích 10 ly tặng 1, thẻ thành viên… (trống = Max gợi ý)" value="${E(S.offer)}">
+        <p class="muted occ-hint">Max sẽ đưa bảng: <b>tình huống → hành động → kênh → tin nhắn mẫu</b> để bạn dùng ngay.</p></div>
+      <div class="occ-foot">
+        <button class="ghost-line" data-act="life-close">Huỷ</button>
+        <button class="primary-btn" data-act="life-gen" ${S.busy ? 'disabled' : ''}>${S.busy ? '⏳ Max đang soạn cẩm nang…' : '✨ Max soạn cẩm nang'}</button>
+      </div>`;
+  }
+
+  async function lifecycleGenerate() {
+    const S = _lifeState;
+    S.busy = true; renderLifeWizard();
+    try {
+      const r = await API.post('api/biz/retention', {
+        user_id: _bizUserId, mode: S.mode, cycle: S.cycle, channels: S.channels, offer: S.offer });
+      const d = (r && r.draft) || {};
+      S.busy = false;
+      if (!d.brief) { renderLifeWizard(); toast('Chưa soạn được — cần có Chiến lược (T4) trước, hoặc thử lại.'); return; }
+      S.brief = d.brief; renderLifeWizard();
+    } catch (e) { S.busy = false; renderLifeWizard(); toast('Không soạn được cẩm nang — thử lại sau.'); }
+  }
+
+  async function lifecycleSave() {
+    const S = _lifeState;
+    if (!S.brief) return;
+    try {
+      const r = await API.post('api/biz/retention/save', {
+        user_id: _bizUserId, mode: S.mode, cycle: S.cycle, channels: S.channels, offer: S.offer, brief: S.brief });
+      if (r.error) { toast(r.error); return; }
+      const ov = document.getElementById('lifeWizard'); if (ov) ov.classList.remove('show');
+      toast('✅ Đã lưu cẩm nang giữ chân khách');
+      await refreshBiz(); route();
+    } catch (e) { toast('Không lưu được cẩm nang'); }
+  }
+
   /* ── Max chat ── */
   function chatBubble(m) {
     const who = m.role === 'user' ? 'me' : 'max';
@@ -2208,6 +2301,14 @@
     if (act === 'occ-back') { _occState.brief = ''; renderOccWizard(); return; }
     if (act === 'occ-close') {
       const ov = document.getElementById('occWizard'); if (ov) ov.classList.remove('show');
+      return;
+    }
+    if (act === 'new-lifecycle') { openLifecycleWizard(el.dataset.mode || 'retention'); return; }
+    if (act === 'life-gen') { await lifecycleGenerate(); return; }
+    if (act === 'life-save') { await lifecycleSave(); return; }
+    if (act === 'life-back') { _lifeState.brief = ''; renderLifeWizard(); return; }
+    if (act === 'life-close') {
+      const ov = document.getElementById('lifeWizard'); if (ov) ov.classList.remove('show');
       return;
     }
     if (act === 'rate-skillrun') {

@@ -138,6 +138,23 @@ async def biz_occasion_save(request):
     return JSONResponse(res, status_code=400 if "error" in res else 200)
 
 
+async def biz_retention_draft(request):
+    """M2.1 (D-045) — sinh cẩm nang if-then giữ chân/winback (không cần order data)."""
+    d = await request.json()
+    res = await biz.retention_draft(d.get("user_id"), d.get("mode", "retention"),
+                                    d.get("cycle", ""), d.get("channels", ""), d.get("offer", ""))
+    return JSONResponse({"draft": res})
+
+
+async def biz_retention_save(request):
+    """M2.1 — lưu cẩm nang → skill_runs + campaigns."""
+    d = await request.json()
+    res = await biz.save_retention(d.get("user_id"), d.get("mode", "retention"),
+                                   d.get("cycle", ""), d.get("channels", ""),
+                                   d.get("offer", ""), d.get("brief", ""))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
 async def biz_skillrun_rate(request):
     """Chấm điểm 1 output research (👍/👎 → 5/1)."""
     data = await request.json()
@@ -330,6 +347,8 @@ def api_routes() -> list:
         Route("/api/biz/campaign-plan",            biz_campaign_plan,  methods=["GET"]),
         Route("/api/biz/occasion",                 biz_occasion_draft, methods=["POST"]),
         Route("/api/biz/occasion/save",            biz_occasion_save,  methods=["POST"]),
+        Route("/api/biz/retention",                biz_retention_draft, methods=["POST"]),
+        Route("/api/biz/retention/save",           biz_retention_save, methods=["POST"]),
         Route("/api/biz/skillrun/{id:str}/rate",   biz_skillrun_rate,  methods=["POST"]),
         Route("/api/biz/skillrun/save",            biz_skillrun_save,  methods=["POST"]),
         Route("/api/biz/skillruns",                biz_skill_versions, methods=["GET"]),

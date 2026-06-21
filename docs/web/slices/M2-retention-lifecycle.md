@@ -77,7 +77,11 @@ Tương tự wizard occasion (D-043), nhưng "lever" là **lifecycle** thay vì 
 - Lưu: skill_runs + campaigns (KHÔNG migration), giống M1.
 
 ## 6. Ranh giới / phân kỳ
-- **M2.1 (MVP, mức A):** wizard retention + winback playbook strategy-only. KHÔNG cần order data.
+- **M2.1 — ✅ ĐÃ BUILD (2026-06-21):** wizard retention + winback **cẩm nang if-then**
+  strategy-only, KHÔNG cần order data. `business.retention_draft`/`save_retention`
+  (OPS_BRIEF, cache, degrade {}) + route `/api/biz/retention`(+`/save`) + FE
+  `openLifecycleWizard` (2 chế độ) trong hub Lập chiến dịch. Lưu = skill_run
+  `retention_playbook`/`winback_playbook` + record `campaigns` (primary_goal=mode).
 - **M2.2 (data-driven, mức B):** kết nối nguồn đơn hàng → phân tệp RFM thật → threshold cá nhân hoá.
 - **M2.3 (automation):** trigger flow tự chạy (gửi qua Zalo/email khi khách chạm điều kiện) —
   cần tích hợp gửi tin; xa, chỉ ghi nhận tầm nhìn.

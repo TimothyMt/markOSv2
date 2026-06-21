@@ -47,6 +47,8 @@ SKILL_TO_PAGE = {
     "synthesis":          "strategy",
     "tactical_playbook":  "strategy",
     "occasion_brief":     "occasion",
+    "retention_playbook": "occasion",
+    "winback_playbook":   "occasion",
 }
 
 _EXCERPT = 600
@@ -447,6 +449,137 @@ async def save_occasion(user_id=None, occasion: str = "", window_start: str = ""
         return {"ok": True, "campaign": camp, "run_id": run_id}
     except Exception as e:
         logger.warning("biz.save_occasion failed: %s", e)
+        return {"error": str(e)}
+
+
+# ── M2.1 (D-045): Retention/Lifecycle — cẩm nang if-then, KHÔNG cần order data ──
+_retention_cache: dict = {}
+
+# 2 chế độ cùng 1 module (D-045 mục 8). retention = full lifecycle giữ chân;
+# winback = chuyên kéo khách đã rời bỏ quay lại.
+RETENTION_MODES = {
+    "retention": ("Giữ chân & tăng tần suất",
+                  "Cẩm nang theo VÒNG ĐỜI khách (mới → active/repeat → at-risk chậm lại). "
+                  "Mục tiêu tăng repeat rate / AOV / CLV. Ưu tiên owned media (rẻ), KHÔNG đốt ads acquisition."),
+    "winback":   ("Kéo khách cũ quay lại",
+                  "Cẩm nang WIN-BACK khách đã rời bỏ (lapsed/churned). Sequence chạm tăng dần "
+                  "(nhắc nhẹ → lý do quay lại → ưu đãi mạnh có hạn). Mục tiêu reactivation rate."),
+}
+
+
+async def retention_draft(user_id=None, mode: str = "retention", cycle: str = "",
+                          channels: str = "", offer: str = "") -> dict:
+    """M2.1 (D-045): sinh CẨM NANG if-then giữ chân/winback — web-side 1 LLM call.
+
+    KHÔNG cần order data: Max đưa bảng 'dấu hiệu nhận biết → hành động → kênh → tin mẫu',
+    founder tự đối chiếu khách rồi áp tay. Ngưỡng thời gian = ước tính theo chu kỳ NGÀNH
+    + nhãn (founder chỉnh). Kế thừa Synthesis + industry archetype. Degrade {}.
+    """
+    if not available():
+        return {}
+    m = (mode or "retention").strip().lower()
+    if m not in RETENTION_MODES:
+        m = "retention"
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {}
+        synth = await _latest_content(uid, "synthesis")
+        if not synth.strip():
+            return {}   # cần Chiến lược (T4) trước
+        from storage.v2 import profiles
+        prof = await profiles.get_profile(uid) or {}
+        industry = prof.get("industry") or ""
+        extra = prof.get("intake_extra") or {}
+        wedge = (extra.get("wedge") if isinstance(extra, dict) else "") or ""
+        usp = prof.get("usp") or ""
+        cache_key = f"{uid}:{m}:{hash((cycle, channels, offer, hash(synth[:200])))}"
+        if cache_key in _retention_cache:
+            return _retention_cache[cache_key]
+        ictx = ""
+        try:
+            from frameworks.industry_context import INDUSTRY_CONTEXT
+            ic = INDUSTRY_CONTEXT.get((industry or "").lower())
+            if ic:
+                ictx = (f"Archetype mua hàng: {ic.purchase_archetype}. "
+                        f"Động lực/chu kỳ ngành: {ic.market_dynamics[:400]}")
+        except Exception:
+            pass
+        label, mode_hint = RETENTION_MODES[m]
+        from tools.llm_router import call as router_call, TaskType
+        system = (
+            f"Bạn là CMO lập CẨM NANG {label.upper()} cho founder Việt Nam — "
+            "tuyến RETENTION (behavior-triggered, KHÁC occasion theo lịch). "
+            f"{mode_hint}\n\n"
+            "🔴 RÀNG BUỘC CỐT LÕI: founder KHÔNG có dữ liệu đơn hàng. Đừng yêu cầu data, đừng "
+            "giả định có hệ thống. Thay vào đó đưa cẩm nang FOUNDER TỰ NHÌN RA & ÁP TAY:\n"
+            "Xuất MARKDOWN:\n"
+            "## 1. Bảng cẩm nang theo tình huống\n"
+            "Bảng cột: Tình huống khách (DẤU HIỆU founder tự nhận biết bằng mắt) | Nên làm gì | "
+            "Kênh (owned: Zalo/SMS/gọi/email) | Tin nhắn mẫu (copy sẵn dùng được, đúng giọng ngành)\n"
+            "→ phủ các giai đoạn vòng đời hợp mode. Dấu hiệu phải CỤ THỂ, đời thường "
+            "(vd 'mua đều rồi ~3 tuần không quay lại'), KHÔNG phải thuật ngữ RFM.\n"
+            "## 2. KPI tự theo dõi thủ công (repeat/AOV/tỉ lệ quay lại — cách đếm mộc, không cần phần mềm)\n"
+            "## 3. Mẹo nhịp & ưu tiên (làm gì trước với nguồn lực nhỏ)\n\n"
+            "🔴 Ngưỡng thời gian (vd '3 tuần', '2 tháng') để dạng '≈ X× chu kỳ mua TB của ngành' "
+            "+ nhãn '(ước tính — chỉnh theo thực tế)'. TUYỆT ĐỐI không bịa số đo lường chắc nịch.\n"
+            "🔴 Bám USP/wedge + archetype ngành. Tin mẫu đúng văn hoá VN, ngắn, gửi được ngay."
+        )
+        user = (
+            f"# Ngành\n{industry}\n{ictx}\n\n"
+            f"# Wedge (tệp ưu tiên)\n{wedge or '(chưa chọn)'}\n# USP\n{usp or '(chưa rõ)'}\n\n"
+            f"# Lever (founder cung cấp — đều optional)\n"
+            f"- Chu kỳ mua điển hình: {cycle or '(chưa rõ — tự suy theo ngành)'}\n"
+            f"- Kênh owned đang có: {channels or '(chưa rõ — gợi ý kênh phổ biến VN)'}\n"
+            f"- Ưu đãi loyalty sẵn có: {offer or '(chưa có — gợi ý loại phù hợp)'}\n\n"
+            f"# Chiến lược (Synthesis — la bàn)\n{synth[:2800]}"
+        )
+        res = await router_call(task_type=TaskType.OPS_BRIEF, system=system, user=user, max_tokens=2600)
+        brief = (res or {}).get("output", "").strip()
+        if not brief:
+            return {}
+        out = {"brief": brief, "mode": m, "label": label,
+               "cycle": cycle, "channels": channels, "offer": offer}
+        _retention_cache[cache_key] = out
+        return out
+    except Exception as e:
+        logger.warning("biz.retention_draft failed (non-fatal): %s", e)
+        return {}
+
+
+async def save_retention(user_id=None, mode: str = "retention", cycle: str = "",
+                         channels: str = "", offer: str = "", brief: str = "") -> dict:
+    """M2.1: lưu cẩm nang → skill_runs (retention_playbook/winback_playbook) + campaigns."""
+    if not available():
+        return {"error": "Chưa cấu hình Supabase."}
+    if not (brief or "").strip():
+        return {"error": "Thiếu cẩm nang để lưu."}
+    m = (mode or "retention").strip().lower()
+    if m not in RETENTION_MODES:
+        m = "retention"
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {"error": "Chưa có user."}
+        from storage.v2 import skill_runs, profiles, campaigns_v2
+        skill_name = "winback_playbook" if m == "winback" else "retention_playbook"
+        run = await skill_runs.insert_skill_run(uid, skill_name, brief, model_used="web-retention")
+        run_id = (run or {}).get("id")
+        prof = await profiles.get_profile(uid) or {}
+        camp = await campaigns_v2.create_campaign(
+            uid,
+            name=RETENTION_MODES[m][0],
+            industry=prof.get("industry"),
+            primary_goal=m,                      # WHY tag: retention / winback
+            offer_lever=(offer or "").strip() or None,
+            summary=brief[:500],
+            brief_skill_run_id=run_id,
+        )
+        return {"ok": True, "campaign": camp, "run_id": run_id}
+    except Exception as e:
+        logger.warning("biz.save_retention failed: %s", e)
         return {"error": str(e)}
 
 
