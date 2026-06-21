@@ -170,6 +170,13 @@ async def biz_calendar_gen(request):
     return JSONResponse(res, status_code=400 if "error" in res else 200)
 
 
+async def biz_content_derive(request):
+    """M3.1 — sinh biến thể từ 1 bài gốc (đa kênh/video/UGC), lưu skill_run."""
+    d = await request.json()
+    res = await biz.gen_derivative(d.get("user_id"), d.get("kind", "channels"), d.get("source", ""))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
 async def biz_skillrun_rate(request):
     """Chấm điểm 1 output research (👍/👎 → 5/1)."""
     data = await request.json()
@@ -366,6 +373,7 @@ def api_routes() -> list:
         Route("/api/biz/retention/save",           biz_retention_save, methods=["POST"]),
         Route("/api/biz/calendar",                 biz_calendar,       methods=["GET"]),
         Route("/api/biz/calendar/gen",             biz_calendar_gen,   methods=["POST"]),
+        Route("/api/biz/content/derive",           biz_content_derive, methods=["POST"]),
         Route("/api/biz/skillrun/{id:str}/rate",   biz_skillrun_rate,  methods=["POST"]),
         Route("/api/biz/skillrun/save",            biz_skillrun_save,  methods=["POST"]),
         Route("/api/biz/skillruns",                biz_skill_versions, methods=["GET"]),

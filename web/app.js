@@ -1081,7 +1081,7 @@
         ${card('🟢 Always-on — tuyến NỀN (content pillars)', `
           <p class="muted" style="margin-bottom:12px">Chạy đều quanh năm để thương hiệu được nhớ. Bám USP + JTBD + archetype ngành. <b>Không chốt số</b> — đây là nền (D-029).</p>
           <div class="pillars">${pillarCards || '<p class="muted">—</p>'}</div>
-          <a class="ghost-line full" href="#content" style="margin-top:14px">→ Đưa vào Lịch nội dung</a>`, { cls: 'span-7' })}
+          <a class="ghost-line full" href="#calendar" style="margin-top:14px">→ Đưa vào Lịch nội dung</a>`, { cls: 'span-7' })}
         ${card('🔴 Theo dịp — Occasion (gợi ý theo ngành)', `
           <p class="muted" style="margin-bottom:12px">Đợt có window — nơi <b>chốt SMART thật</b> (số, ngân sách đợt, deadline). Hợp mùa vụ ngành:</p>
           <ul class="rows">${occRows || '<li class="muted">—</li>'}</ul>
@@ -1211,58 +1211,9 @@
   };
 
   /* ---- Content generator ---- */
-  P.content = {
-    title: 'Trình tạo nội dung', sub: 'Sản xuất hàng loạt: bài viết + video + UGC + ads',
-    actions: `<button class="primary-btn" data-act="gen-content">⚡ Tạo gói nội dung</button>`,
-    render: () => `
-      <section class="grid">
-        ${card('Cấu hình', `
-          <div class="form">
-            ${field('Chủ đề','Khuyến mãi mùa hè')}
-            ${field('Số bài/tuần','7 bài')}
-            ${selectField('Kênh','Facebook + TikTok + Zalo')}
-            ${selectField('Tông giọng','Thân thiện, trẻ trung')}
-          </div>
-          <button class="primary-btn full" data-act="gen-content" style="margin-top:14px">⚡ Tạo gói nội dung</button>`, {cls:'span-4'})}
-        ${card(`Kết quả tạo (${(M.contentItems||[]).length} mục)`, `
-          ${table(['#','Hook','Định dạng','Trạng thái'],
-            (M.contentItems||[]).map(it=>[String(it.idx).padStart(2,'0'), it.hook, it.format,
-              it.status==='ready'?badge('Sẵn sàng','green'):badge('Đang tạo','amber')]))}
-        `, {cls:'span-8'})}
-      </section>`,
-    mount: () => {},
-  };
-
-  /* ---- Video scripts ---- */
-  P.video = {
-    title: 'Kịch bản video', sub: 'TikTok / Reels / Shorts từ slot lịch nội dung',
-    render: () => `
-      <section class="grid">
-        ${card('Reel — “Hậu trường pha chế” (0:30)', `
-          <div class="script">
-            ${scene('0:00–0:03','HOOK','Cận tay rót cà phê — “Bạn có biết 90% quán pha sai bước này?”')}
-            ${scene('0:03–0:12','BODY','Quay quy trình 3 bước, text overlay từng bước')}
-            ${scene('0:12–0:24','PROOF','Khách thử + biểu cảm “wow”')}
-            ${scene('0:24–0:30','CTA','“Ghé thử hôm nay — giảm 20% cho đơn đầu”')}
-          </div>`, {cls:'span-7'})}
-        ${card('Gợi ý sản xuất', `
-          <ul class="bullet"><li>🎵 Nhạc trend: “summer vibe”</li><li>📐 Tỉ lệ 9:16, 1080×1920</li>
-          <li>💡 Ánh sáng tự nhiên buổi sáng</li><li>⏱️ Hook < 3 giây giữ chân</li></ul>`, {cls:'span-5'})}
-      </section>`,
-    mount: () => {},
-  };
-
-  /* ---- UGC briefs ---- */
-  P.ugc = {
-    title: 'UGC Brief', sub: 'Brief cho creator: Micro / Mid / KOL',
-    render: () => `
-      <section class="grid">
-        ${ugcCard('Micro (5–20k)','3 creator','Trải nghiệm thật, quay tại quán','120.000₫/video')}
-        ${ugcCard('Mid (20–100k)','2 creator','Review chi tiết + so sánh','650.000₫/video')}
-        ${ugcCard('KOL (100k+)','1 creator','Câu chuyện thương hiệu','5.000.000₫/video')}
-      </section>`,
-    mount: () => {},
-  };
+  // M3.1 (hybrid): "Trình tạo nội dung", "Kịch bản video", "UGC Brief" đã GỠ khỏi trang riêng.
+  // Bài gốc tạo trong Lịch nội dung; video/UGC/đa-kênh là biến thể phái sinh ngay trên 1 bài
+  // (modal "⚡ Tạo bài" → 📱/🎬/📸). Xem docs/web/slices/M3-content-suite.md.
 
   /* ---- Ads copy ---- */
   P.adscopy = {
@@ -1646,9 +1597,6 @@
   const calPosts = (i) => M.calendarPosts
     ? M.calendarPosts.filter(p => p.day === i)
     : (M.calendar.posts[i] || []).map(p => ({ pillar: p.p, title: p.t }));
-  const scene = (t,tag,txt) => `<div class="scene"><span class="scene-t">${t}</span><span class="tag">${tag}</span><p>${txt}</p></div>`;
-  const ugcCard = (lvl,n,brief,price) => card('', `<div class="ugc"><p class="ugc-lvl">${lvl}</p><span class="tag">${n}</span>
-    <p class="muted" style="margin:8px 0">${brief}</p><p class="ugc-price">${price}</p></div>`, {cls:'span-4'});
   const bubble = (dir,txt) => `<div class="bubble ${dir}">${txt}</div>`;
   const field = (l,v) => `<label class="fld"><span>${l}</span><input value="${v}"></label>`;
   const selectField = (l,v) => `<label class="fld"><span>${l}</span><div class="sel">${v} ▾</div></label>`;
@@ -1757,6 +1705,7 @@
     // pivot: bỏ Max chat → mọi thứ bắt đầu từ Hồ sơ doanh nghiệp
     if (id === 'pipeline' || id === 'agents' || id === 'home' || id === 'chat') id = 'dossier';
     if (id === 'brief') id = 'occasion';   // gỡ trang Campaign Brief mock → hub Lập chiến dịch thật
+    if (id === 'content' || id === 'video' || id === 'ugc') id = 'calendar';   // M3.1: gộp vào Lịch (bài + biến thể)
     if (id === 'doc') _docId = seg1 || null;                    // trang đọc output: #doc/<id>
     const page = P[id] || P.dossier;
     killCharts();
@@ -1842,6 +1791,7 @@
   const SKILL_TO_TASK = { market_research:'market', competitor:'competitor', customer_insight:'customer',
     psychology_pricing:'pricing', swot:'swot', synthesis:'strategy', tactical_playbook:'strategy' };
   let _modalRun = null;
+  let _postBase = null;   // M3.1: bài gốc đang mở (để bung biến thể / quay lại)
   function showModal(title, content, meta) {
     _modalRun = meta ? { ...meta, title, content } : null;
     let ov = document.getElementById('bizModal');
@@ -1872,6 +1822,22 @@
           <button class="ghost-line sm" data-act="copy-skillrun">📋 Copy</button>
           ${meta.task?`<button class="primary-btn sm" data-act="regen-skillrun" data-task="${meta.task}">🔄 Tạo lại bản mới</button>`:''}
         </div>`;
+    } else if (meta && meta.derive) {
+      // M3.1: bài gốc trong Lịch → bung biến thể phái sinh (đa kênh/video/UGC)
+      foot.style.display = 'flex';
+      foot.innerHTML = `
+        <div class="rate-group"><span class="muted">Bung biến thể:</span>
+          <button class="ghost-line sm" data-act="post-derive" data-kind="channels">📱 Đa kênh</button>
+          <button class="ghost-line sm" data-act="post-derive" data-kind="video">🎬 Video</button>
+          <button class="ghost-line sm" data-act="post-derive" data-kind="ugc">📸 UGC brief</button>
+        </div>
+        <div class="modal-foot-r"><button class="ghost-line sm" data-act="copy-skillrun">📋 Copy</button></div>`;
+    } else if (meta && meta.back) {
+      // M3.1: kết quả biến thể → quay lại bài gốc
+      foot.style.display = 'flex';
+      foot.innerHTML = `
+        <div class="rate-group"><button class="ghost-line sm" data-act="post-back">← Bài gốc</button></div>
+        <div class="modal-foot-r"><button class="ghost-line sm" data-act="copy-skillrun">📋 Copy</button></div>`;
     } else { foot.style.display = 'none'; foot.innerHTML = ''; }
     ov.classList.add('show');
   }
@@ -2200,7 +2166,8 @@
           pillar: el.dataset.pillar || '', campaign_id: el.dataset.campId || el.dataset.campaignId || el.getAttribute('data-camp-id') || '',
           week: w || '', day: day || '' });
         if (r.error) { toast(r.error); return; }
-        showModal(`Bài cho ${what}`, r.content || '(trống)');
+        _postBase = { title: `Bài cho ${what}`, content: r.content || '' };
+        showModal(_postBase.title, _postBase.content || '(trống)', { derive: true });
         toast('✅ Đã sinh & lưu bài');
         refreshBiz();
       } catch (e) { toast('Không sinh được bài — thử lại sau.'); }
@@ -2239,7 +2206,29 @@
     if (act === 'doc-edit') { _docEdit = true; renderDoc(); return; }
     if (act === 'doc-edit-cancel') { _docEdit = false; renderDoc(); return; }
     if (act === 'copy-skillrun') {
-      if (_docRun && navigator.clipboard) navigator.clipboard.writeText(_docRun.content || '').then(() => toast('Đã copy nội dung'));
+      // M3.1: ưu tiên nội dung trong modal (bài/biến thể) nếu đang mở, ngược lại là doc
+      const src = (_modalRun && _modalRun.content) || (_docRun && _docRun.content) || '';
+      if (src && navigator.clipboard) navigator.clipboard.writeText(src).then(() => toast('Đã copy nội dung'));
+      return;
+    }
+    if (act === 'post-derive') {
+      // M3.1: bung biến thể PHÁI SINH từ bài gốc (đa kênh/video/UGC) — sinh thật, lưu skill_run
+      const kind = el.dataset.kind;
+      const labels = { channels: '📱 Đa kênh', video: '🎬 Kịch bản video', ugc: '📸 UGC brief' };
+      const src = (_postBase && _postBase.content) || (_modalRun && _modalRun.content) || '';
+      if (!src) { toast('Chưa có bài gốc'); return; }
+      const orig = el.textContent; el.disabled = true; el.textContent = '⏳…';
+      try {
+        const r = await API.post('api/biz/content/derive', { user_id: _bizUserId, kind, source: src });
+        if (r.error) { toast(r.error); return; }
+        showModal(labels[kind] || 'Biến thể', r.content || '(trống)', { back: true });
+        toast('✅ Đã sinh & lưu biến thể'); refreshBiz();
+      } catch (e) { toast('Không sinh được biến thể — thử lại.'); }
+      finally { el.disabled = false; el.textContent = orig; }
+      return;
+    }
+    if (act === 'post-back') {   // M3.1: quay lại bài gốc để bung biến thể khác
+      if (_postBase) showModal(_postBase.title, _postBase.content || '(trống)', { derive: true });
       return;
     }
     if (!apiAvailable) { toast('Tính năng này cần backend — chạy: python run_web.py'); if (el.type === 'checkbox') el.checked = !el.checked; return; }
@@ -2419,9 +2408,6 @@
         res = await API.post('api/calendar', { day: +el.dataset.day, pillar: 'Educate', title: title.trim() }); toast('Đã thêm bài');
       } else if (act === 'del-calendar') {
         res = await API.del('api/calendar/' + el.dataset.id);
-      } else if (act === 'gen-content') {
-        const topic = prompt('Chủ đề nội dung:', 'Khuyến mãi mùa hè'); if (topic === null) return;
-        res = await API.post('api/content/generate', { topic: topic.trim() || 'Khuyến mãi' }); toast('Đã tạo gói nội dung');
       } else if (act === 'add-report') {
         const name = prompt('Tên báo cáo:'); if (!name || !name.trim()) return;
         res = await API.post('api/reports', { name: name.trim(), type: 'Tuần' }); toast('Đã tạo báo cáo');

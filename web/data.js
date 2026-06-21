@@ -11,9 +11,6 @@ window.MOCK = {
     { group: '③ Sản xuất', items: [
       { id: 'occasion', label: 'Lập chiến dịch',     icon: '🎯' },
       { id: 'calendar', label: 'Lịch nội dung',      icon: '🗓️' },
-      { id: 'content',  label: 'Trình tạo nội dung', icon: '✍️' },
-      { id: 'video',    label: 'Kịch bản video',     icon: '🎬' },
-      { id: 'ugc',      label: 'UGC Brief',          icon: '📸' },
       { id: 'adscopy',  label: 'Quảng cáo (copy)',   icon: '🧲' },
       { id: 'inbox',    label: 'Sales Inbox Script', icon: '💬' },
       { id: 'sequence', label: 'Email / Zalo chuỗi', icon: '✉️' },
@@ -232,12 +229,6 @@ window.MOCK = {
   campaigns: [
     { name: 'Mùa hè rực rỡ', status: 'running', budget: '6.5tr/ngày', objective: 'Chuyển đổi' },
     { name: 'Re-targeting Q2', status: 'running', budget: '3tr/ngày', objective: 'Doanh số' },
-  ],
-  contentItems: [
-    { idx: 1, hook: '“Buổi sáng cần một lý do…”', format: 'FB Post', status: 'ready' },
-    { idx: 2, hook: '“3 lý do khách quay lại”', format: 'Carousel', status: 'ready' },
-    { idx: 3, hook: '“Hậu trường pha chế”', format: 'Reel 9:16', status: 'generating' },
-    { idx: 4, hook: '“Mua 1 tặng 1 hôm nay”', format: 'Ad BOFU', status: 'ready' },
   ],
   calendarPosts: null,
 };

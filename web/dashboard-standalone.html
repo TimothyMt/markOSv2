@@ -43,10 +43,11 @@ body {
 body { overflow-x: hidden; }
 .app {
   display: grid;
-  grid-template-columns: 248px 1fr 320px;
+  grid-template-columns: 248px 1fr;   /* bỏ rail phải — main rộng hơn (đọc output thoáng) */
   min-height: 100vh;
   max-width: 100%;
 }
+.rail { display: none; }   /* rail phải gỡ: token đã ở topbar, alert là mock */
 
 /* ── Sidebar ─────────────────────────────────────────── */
 .sidebar {
@@ -284,7 +285,17 @@ body { overflow-x: hidden; }
 .kv:last-child { border-bottom: none; } .kv b { color: var(--txt); }
 
 /* tables */
-.tbl-wrap { overflow-x: auto; }
+.tbl-wrap { overflow-x: auto; max-width: 100%; -webkit-overflow-scrolling: touch; }
+/* scrollbar bảng gọn hơn (đỡ thô) */
+.tbl-wrap::-webkit-scrollbar { height: 8px; }
+.tbl-wrap::-webkit-scrollbar-track { background: transparent; }
+.tbl-wrap::-webkit-scrollbar-thumb { background: var(--stroke-2); border-radius: 8px; }
+.tbl-wrap::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+.tbl-wrap { scrollbar-width: thin; scrollbar-color: var(--stroke-2) transparent; }
+/* nút chuyển tab trước/sau (chuỗi phân tích T1→T5) */
+.page-nav { display:flex; justify-content:space-between; align-items:center; gap:12px;
+  margin-top:22px; padding-top:16px; border-top:1px solid var(--stroke); }
+.page-nav-pos { color:var(--muted); font-size:13px; flex-shrink:0; }
 .tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 .tbl th { text-align: left; color: var(--muted); font-weight: 600; font-size: 11.5px;
   text-transform: uppercase; letter-spacing: .04em; padding: 8px 12px; border-bottom: 1px solid var(--stroke); }
@@ -522,7 +533,7 @@ code { background: var(--panel); border: 1px solid var(--stroke); border-radius:
   font-size:13px; line-height:1.6; color:var(--txt); font-family:'Inter',sans-serif; }
 
 /* ── Output AI render inline trong trang phân tích ────── */
-.ai-output { font-size:13.5px; line-height:1.7; color:var(--txt); max-height:560px; overflow:auto; }
+.ai-output { font-size:13.5px; line-height:1.7; color:var(--txt); max-height:560px; overflow:auto; min-width:0; }
 .ai-output h2 { font-size:17px; margin:16px 0 8px; color:var(--txt); }
 .ai-output h3 { font-size:15px; margin:14px 0 6px; color:var(--txt); }
 .ai-output h4, .ai-output h5 { font-size:13.5px; margin:12px 0 4px; color:var(--primary-2); }
@@ -531,6 +542,59 @@ code { background: var(--panel); border: 1px solid var(--stroke); border-radius:
 .ai-output table { width:100%; border-collapse:collapse; margin:10px 0; }
 .ai-output th, .ai-output td { border:1px solid var(--stroke); padding:6px 10px; text-align:left; font-size:12.5px; }
 .ai-output ul, .ai-output ol { margin:8px 0; padding-left:20px; }
+/* D-034 fix: bảng rộng CUỘN trong wrap (không tràn/cắt — mobile+web); pre code-block */
+.ai-output, .doc-body { min-width:0; max-width:100%; }
+.tbl-wrap table, .tbl-wrap .tbl { width:auto; min-width:100%; }
+/* cột đủ rộng để chữ không bị dồn/cắt giữa từ; wrap ở khoảng trắng, cuộn nếu rộng quá */
+.tbl-wrap td, .tbl-wrap th { white-space:normal; overflow-wrap:break-word; word-break:normal;
+  min-width:140px; max-width:280px; vertical-align:top; }
+/* bảng content (markdown) — header KHÔNG uppercase/letter-spacing (đỡ rộng + dễ đọc) */
+.ai-output .tbl th, .doc-body .tbl th { text-transform:none; letter-spacing:normal; font-size:12px; }
+.ai-pre { background:var(--panel-2); border:1px solid var(--stroke); border-radius:8px;
+  padding:12px 14px; margin:12px 0; overflow-x:auto; -webkit-overflow-scrolling:touch;
+  font-family:ui-monospace,Menlo,Consolas,monospace; font-size:12px; line-height:1.45;
+  white-space:pre; color:var(--txt-2); max-width:100%; }
+/* D-034 #4: Positioning Map visual (ASCII → 4 góc) — dark theme */
+/* ── Positioning Map = Gartner Magic Quadrant (chấm trong mặt phẳng 2 trục) ── */
+.mq { margin:22px 0; padding:16px 16px 12px; background:var(--panel-2); border:1px solid var(--stroke); border-radius:14px; }
+.mq-title { font-size:14px; font-weight:700; color:var(--txt); margin-bottom:10px; }
+/* trục Y dọc bên trái */
+.mq-body { display:flex; gap:8px; align-items:stretch; }
+.mq-yaxis { display:flex; flex-direction:column; justify-content:space-between; align-items:center;
+  width:26px; flex-shrink:0; padding:4px 0; }
+.mq-ya-end { font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.03em; color:var(--primary); text-align:center; }
+.mq-ya-dim { writing-mode:vertical-rl; transform:rotate(180deg); white-space:nowrap;
+  font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--txt-2); }
+.mq-plot { position:relative; flex:1; height:360px; border:1px solid var(--stroke-2); border-radius:12px; overflow:hidden;
+  background:radial-gradient(130% 130% at 72% 28%, rgba(45,200,140,.07), transparent 52%), var(--panel); }
+.mq-plot::before, .mq-plot::after { content:''; position:absolute; background:var(--stroke-2); z-index:1; }
+.mq-plot::before { left:50%; top:0; bottom:0; width:1px; }
+.mq-plot::after { top:50%; left:0; right:0; height:1px; }
+/* nhãn 4 góc — mờ, làm nền */
+.mq-corner { position:absolute; max-width:42%; display:flex; flex-direction:column; gap:3px; pointer-events:none; z-index:2; }
+.mq-c1 { top:24px; right:14px; align-items:flex-end; text-align:right; }
+.mq-c2 { top:24px; left:14px; }
+.mq-c3 { bottom:24px; left:14px; }
+.mq-c4 { bottom:24px; right:14px; align-items:flex-end; text-align:right; }
+.mq-corner-h { display:flex; align-items:center; gap:6px; }
+.mq-corner-q { font-size:10px; font-weight:800; letter-spacing:.1em; color:var(--muted); opacity:.6; }
+.mq-badge { font-size:9px; font-weight:700; color:#16c784; background:rgba(45,200,140,.18); padding:1px 7px; border-radius:9px; }
+.mq-corner-d { font-size:11px; color:var(--txt-2); opacity:.5; line-height:1.3; }
+.mq-corner.opp .mq-corner-d { color:#16c784; opacity:.85; }
+/* chấm đối thủ */
+.mq-dot { position:absolute; transform:translate(-50%,-50%); display:flex; align-items:center; gap:7px; z-index:4; }
+.mq-dot.rt { flex-direction:row-reverse; }
+.mq-pt { width:12px; height:12px; border-radius:50%; background:var(--primary-2); flex-shrink:0; box-shadow:0 0 0 4px var(--panel); }
+.mq-name { font-size:11.5px; font-weight:600; color:var(--txt); white-space:nowrap; background:var(--panel);
+  padding:2px 8px; border-radius:7px; border:1px solid var(--stroke); }
+.mq-dot.self { z-index:6; }
+.mq-dot.self .mq-pt { width:auto; height:auto; background:none; box-shadow:none; color:#ffd24a; font-size:20px;
+  line-height:1; filter:drop-shadow(0 0 6px rgba(255,210,74,.7)); }
+.mq-dot.self .mq-name { background:linear-gradient(135deg,var(--primary),var(--primary-2)); color:#fff; border:none;
+  font-weight:700; box-shadow:0 2px 14px rgba(91,140,255,.55); }
+.mq-x { display:flex; justify-content:space-between; gap:10px; margin-top:9px; padding-left:34px; padding-right:4px;
+  font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--txt-2); }
+@media (max-width:640px){ .mq-plot { height:300px; } .mq-corner-d { display:none; } .mq-name { font-size:10.5px; padding:1px 6px; } }
 
 /* ════════ Max — conversation-first co-pilot ════════ */
 /* Chat mode: ẩn rail, mở rộng vùng chính, bỏ chrome thừa */
@@ -692,6 +756,32 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 .chip-btn.sm { margin-left:auto; }
 .trk.sm { font-size:9px; }
 
+/* ── M1.1: Wizard tạo Campaign Occasion ── */
+.occ-step { margin-bottom:18px; }
+.occ-lbl { display:block; font-weight:600; font-size:13px; margin-bottom:8px; color:var(--text); }
+.occ-inp { width:100%; box-sizing:border-box; background:var(--panel-2); border:1px solid var(--stroke);
+  border-radius:10px; padding:10px 12px; color:var(--text); font-size:14px; margin-bottom:8px; font-family:inherit; }
+.occ-inp:focus { outline:none; border-color:var(--primary); }
+.occ-row { display:flex; align-items:center; gap:10px; }
+.occ-row .occ-inp { margin-bottom:0; }
+.occ-hint { font-size:12px; margin:2px 0 0; }
+.occ-chips { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px; }
+.occ-chip { background:var(--panel-2); border:1px dashed var(--stroke-2); border-radius:16px;
+  padding:6px 12px; font-size:12.5px; color:var(--text); cursor:pointer; transition:.15s; }
+.occ-chip:hover { border-color:var(--primary); border-style:solid; }
+.occ-chip.on { background:rgba(91,140,255,.16); border-color:var(--primary); border-style:solid; }
+.occ-objs { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.occ-obj { display:flex; align-items:center; gap:10px; text-align:left; background:var(--panel-2);
+  border:1px solid var(--stroke); border-radius:10px; padding:10px 12px; cursor:pointer; transition:.15s; }
+.occ-obj:hover { border-color:var(--primary); }
+.occ-obj.on { background:rgba(91,140,255,.16); border-color:var(--primary); }
+.occ-obj-ic { font-size:18px; line-height:1; }
+.occ-obj-main { display:flex; flex-direction:column; gap:1px; }
+.occ-obj-main b { font-size:13px; color:var(--text); }
+.occ-obj-main small { font-size:11px; color:var(--muted); }
+.occ-foot { display:flex; justify-content:space-between; gap:12px; margin-top:18px;
+  padding-top:14px; border-top:1px solid var(--stroke); }
+
 /* ── Modal footer: đánh giá + tương tác output research ── */
 .modal-foot { display:flex; align-items:center; justify-content:space-between; gap:12px;
   padding:12px 18px; border-top:1px solid var(--stroke); flex-wrap:wrap; }
@@ -717,6 +807,13 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 .doc-body table { width:100%; border-collapse:collapse; margin:12px 0; }
 .doc-body th, .doc-body td { border:1px solid var(--stroke); padding:7px 11px; text-align:left; font-size:13px; }
 .doc-body ul, .doc-body ol { margin:10px 0; padding-left:22px; }
+/* D-034 #1: blockquote / hr / li cho output AI (renderer block-aware) */
+.ai-output li, .doc-body li { margin:4px 0; }
+.ai-output hr, .doc-body hr { border:none; border-top:1px solid var(--stroke); margin:16px 0; }
+.ai-output blockquote, .doc-body blockquote {
+  margin:12px 0; padding:10px 14px; border-left:3px solid var(--primary);
+  background:rgba(91,140,255,.08); border-radius:0 8px 8px 0; color:var(--txt); }
+.ai-output th, .doc-body th { background:var(--panel-2); font-weight:700; }
 
 /* ── Doc page: editor + nhờ Max chỉnh + lịch sử version ── */
 .doc-grid { display:grid; grid-template-columns: 1fr; gap:20px; }
@@ -764,10 +861,36 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 .intake-prog { height:5px; background:var(--panel-2); border-radius:999px; overflow:hidden; margin-bottom:10px; }
 .intake-bar { height:100%; background:linear-gradient(90deg,var(--primary),var(--primary-2)); transition:width .25s; }
 .intake-count { font-size:12px; color:var(--muted); margin:0 0 6px; }
-.intake-q { font-size:18px; margin:0 0 14px; line-height:1.35; color:var(--txt); }
+.intake-q { font-size:18px; margin:0 0 8px; line-height:1.35; color:var(--txt); }
+.intake-helper { font-size:13px; color:var(--muted); margin:0 0 14px; line-height:1.45;
+  padding:8px 12px; background:var(--panel-2); border-radius:8px; border-left:2px solid var(--primary); }
 .intake-input { width:100%; background:var(--panel-2); border:1px solid var(--stroke-2); border-radius:12px;
   padding:12px 14px; color:var(--txt); font-size:15px; font-family:inherit; }
+/* D-032 §11: textarea tự giãn, wrap, không kéo tay */
+textarea.intake-input { resize:none; overflow:hidden; min-height:48px; line-height:1.5;
+  white-space:pre-wrap; word-break:break-word; }
 .intake-input:focus { outline:none; border-color:var(--primary); }
+/* D-032 step 2: chip gợi ý câu chiến lược */
+.intake-sug { margin:12px 0 0; font-size:13px; }
+.intake-sug.muted { color:var(--muted); }
+.intake-sug-lbl { display:block; color:var(--muted); margin-bottom:8px; }
+.intake-sug-chips { display:flex; flex-wrap:wrap; gap:8px; }
+.intake-sug-chip { background:var(--panel-2); border:1px dashed var(--stroke-2); border-radius:16px;
+  padding:6px 12px; color:var(--txt); font-size:13px; font-family:inherit; cursor:pointer;
+  transition:all .15s; white-space:normal; word-break:break-word; max-width:100%; min-width:0; text-align:left; }
+.intake-sug-chip:hover { border-color:var(--primary); border-style:solid; background:rgba(91,140,255,.12); }
+.infer-banner { padding:10px 14px; font-size:13px; line-height:1.5; background:rgba(245,180,90,.10);
+  border:1px solid rgba(245,180,90,.35); border-radius:10px; }
+/* D-041: GATE chọn wedge + USP */
+.gate-usp { display:flex; flex-direction:column; gap:8px; margin-top:6px; }
+.radio-row { display:flex; align-items:center; gap:8px; font-size:14px; color:var(--txt); cursor:pointer; }
+.radio-row input { accent-color:var(--primary); }
+/* D-040: content pillars (always-on) */
+.pillars { display:flex; flex-direction:column; gap:12px; }
+.pillar { background:var(--panel-2); border:1px solid var(--stroke); border-left:3px solid var(--primary);
+  border-radius:10px; padding:12px 14px; }
+.pillar-head { display:flex; align-items:center; gap:8px; margin-bottom:4px; font-size:14px; }
+.pillar-cad { font-size:12px; color:var(--primary-2); margin:6px 0 4px; }
 .intake-nav { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:16px; }
 .intake-note { font-size:12px; margin-top:12px; }
 
@@ -817,13 +940,11 @@ window.MOCK = {
     ]},
     { group: '② Chiến lược', items: [
       { id: 'strategy',   label: 'Chiến lược tổng hợp',   icon: '🎯' },
-      { id: 'brief',      label: 'Campaign Brief',        icon: '📋' },
+      { id: 'tactical',   label: 'Tactical Playbook',     icon: '🔨' },
     ]},
     { group: '③ Sản xuất', items: [
+      { id: 'occasion', label: 'Lập chiến dịch',     icon: '🎯' },
       { id: 'calendar', label: 'Lịch nội dung',      icon: '🗓️' },
-      { id: 'content',  label: 'Trình tạo nội dung', icon: '✍️' },
-      { id: 'video',    label: 'Kịch bản video',     icon: '🎬' },
-      { id: 'ugc',      label: 'UGC Brief',          icon: '📸' },
       { id: 'adscopy',  label: 'Quảng cáo (copy)',   icon: '🧲' },
       { id: 'inbox',    label: 'Sales Inbox Script', icon: '💬' },
       { id: 'sequence', label: 'Email / Zalo chuỗi', icon: '✉️' },
@@ -1043,12 +1164,6 @@ window.MOCK = {
     { name: 'Mùa hè rực rỡ', status: 'running', budget: '6.5tr/ngày', objective: 'Chuyển đổi' },
     { name: 'Re-targeting Q2', status: 'running', budget: '3tr/ngày', objective: 'Doanh số' },
   ],
-  contentItems: [
-    { idx: 1, hook: '“Buổi sáng cần một lý do…”', format: 'FB Post', status: 'ready' },
-    { idx: 2, hook: '“3 lý do khách quay lại”', format: 'Carousel', status: 'ready' },
-    { idx: 3, hook: '“Hậu trường pha chế”', format: 'Reel 9:16', status: 'generating' },
-    { idx: 4, hook: '“Mua 1 tặng 1 hôm nay”', format: 'Ad BOFU', status: 'ready' },
-  ],
   calendarPosts: null,
 };
 
@@ -1228,19 +1343,202 @@ window.MOCK = {
   }
 
   // Đổ full content của skill_run vào các slot .ai-output (gọi sau mỗi route)
+  // D-034 #1: render markdown block-aware — hỗ trợ BẢNG + blockquote + list (trước
+  // đây thiếu bảng → output competitor/SWOT/pricing hiện pipe thô).
   function renderAIContent(txt) {
-    const t = (txt || '').trim();
-    if (t.startsWith('<')) return t;             // skill xuất HTML → render trực tiếp
-    const esc = t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    return '<p>' + esc
-      .replace(/^#### (.*)$/gm,'</p><h5>$1</h5><p>')
-      .replace(/^### (.*)$/gm,'</p><h4>$1</h4><p>')
-      .replace(/^## (.*)$/gm,'</p><h3>$1</h3><p>')
-      .replace(/^# (.*)$/gm,'</p><h2>$1</h2><p>')
-      .replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')
-      .replace(/^[-*] (.*)$/gm,'• $1')
-      .replace(/\n{2,}/g,'</p><p>')
-      .replace(/\n/g,'<br>') + '</p>';
+    const raw = (txt || '').trim();
+    if (raw.startsWith('<')) return raw;          // skill xuất HTML → render trực tiếp
+    const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const inline = s => esc(s)
+      .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
+      .replace(/\*(.+?)\*/g, '<i>$1</i>')
+      .replace(/(^|[\s(>])_([^_\n]+?)_(?=[\s).,;:!?]|$)/g, '$1<i>$2</i>');   // _nghiêng_ (không đụng snake_case)
+    const isRow = l => /^\s*\|.*\|\s*$/.test(l);
+    const isSep = l => /^\s*\|?[\s:|-]*-[\s:|-]*\|?\s*$/.test(l) && l.includes('-');
+    const cells = l => l.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map(c => c.trim());
+    const lines = raw.split('\n');
+    const out = [];
+    let i = 0;
+    while (i < lines.length) {
+      const line = lines[i];
+      // Code fence ``` … ``` (giữ nguyên ASCII, vd Positioning Map) → <pre>
+      if (/^\s*```/.test(line)) {
+        const buf = [];
+        i++;
+        while (i < lines.length && !/^\s*```/.test(lines[i])) { buf.push(lines[i]); i++; }
+        i++; // bỏ dòng ``` đóng
+        out.push('<pre class="ai-pre">' + esc(buf.join('\n')) + '</pre>');
+        continue;
+      }
+      // Bảng: hàng | … | + hàng phân cách |---|
+      if (isRow(line) && i + 1 < lines.length && isSep(lines[i + 1])) {
+        const head = cells(line); i += 2;
+        const rows = [];
+        while (i < lines.length && isRow(lines[i])) { rows.push(cells(lines[i])); i++; }
+        out.push('<div class="tbl-wrap"><table class="tbl"><thead><tr>' +
+          head.map(h => `<th>${inline(h)}</th>`).join('') + '</tr></thead><tbody>' +
+          rows.map(r => `<tr>${r.map(c => `<td>${inline(c)}</td>`).join('')}</tr>`).join('') +
+          '</tbody></table></div>');
+        continue;
+      }
+      // Blockquote
+      if (/^\s*>\s?/.test(line)) {
+        const buf = [];
+        while (i < lines.length && /^\s*>\s?/.test(lines[i])) { buf.push(lines[i].replace(/^\s*>\s?/, '')); i++; }
+        out.push('<blockquote>' + buf.map(inline).join('<br>') + '</blockquote>');
+        continue;
+      }
+      // Heading
+      let m;
+      if ((m = line.match(/^####\s+(.*)/))) { out.push(`<h5>${inline(m[1])}</h5>`); i++; continue; }
+      if ((m = line.match(/^###\s+(.*)/)))  { out.push(`<h4>${inline(m[1])}</h4>`); i++; continue; }
+      if ((m = line.match(/^##\s+(.*)/)))   { out.push(`<h3>${inline(m[1])}</h3>`); i++; continue; }
+      if ((m = line.match(/^#\s+(.*)/)))    { out.push(`<h2>${inline(m[1])}</h2>`); i++; continue; }
+      // Horizontal rule
+      if (/^\s*---+\s*$/.test(line)) { out.push('<hr>'); i++; continue; }
+      // Bullet list
+      if (/^\s*[-*]\s+/.test(line)) {
+        const buf = [];
+        while (i < lines.length && /^\s*[-*]\s+/.test(lines[i])) { buf.push(lines[i].replace(/^\s*[-*]\s+/, '')); i++; }
+        out.push('<ul>' + buf.map(b => `<li>${inline(b)}</li>`).join('') + '</ul>');
+        continue;
+      }
+      // Numbered list
+      if (/^\s*\d+\.\s+/.test(line)) {
+        const buf = [];
+        while (i < lines.length && /^\s*\d+\.\s+/.test(lines[i])) { buf.push(lines[i].replace(/^\s*\d+\.\s+/, '')); i++; }
+        out.push('<ol>' + buf.map(b => `<li>${inline(b)}</li>`).join('') + '</ol>');
+        continue;
+      }
+      // Dòng trống
+      if (!line.trim()) { i++; continue; }
+      // Đoạn văn (gom các dòng thường liên tiếp)
+      const buf = [];
+      while (i < lines.length && lines[i].trim() && !isRow(lines[i]) && !/^\s*>/.test(lines[i])
+             && !/^#{1,4}\s/.test(lines[i]) && !/^\s*[-*]\s/.test(lines[i])
+             && !/^\s*\d+\.\s/.test(lines[i]) && !/^\s*---+\s*$/.test(lines[i])) {
+        buf.push(lines[i]); i++;
+      }
+      out.push('<p>' + buf.map(inline).join('<br>') + '</p>');
+    }
+    return out.join('\n');
+  }
+  // D-034 #4: chuyển ASCII Positioning Map (trong <pre>) → visual 4 góc (port từ bot)
+  function enhancePosMaps(root) {
+    if (!root) return;
+    const isMap = t => t.indexOf('^') >= 0 && /GÓC/i.test(t);
+    const roman = n => ['I', 'II', 'III', 'IV'][n - 1] || String(n);
+    const fromRoman = s => ({ I: 1, II: 2, III: 3, IV: 4 }[(s || '').toUpperCase().trim()] || 0);
+    const mk = (tag, cls, text) => { const el = document.createElement(tag); if (cls) el.className = cls; if (text !== undefined) el.textContent = text; return el; };
+    function parseMap(text) {
+      const lines = text.split('\n'), n = lines.length;
+      let hIdx = -1;
+      for (let i = 0; i < n; i++) { if (/[-─]{4,}/.test(lines[i])) { hIdx = i; break; } }
+      if (hIdx < 0) return null;
+      const cols = {}; let vCol = 0, mx = 0;
+      lines.forEach(l => { for (let j = 0; j < l.length; j++) if (l[j] === '|') cols[j] = (cols[j] || 0) + 1; });
+      Object.keys(cols).forEach(j => { if (cols[j] > mx) { mx = cols[j]; vCol = +j; } });
+      if (!mx) vCol = Math.floor((lines[hIdx] || '').length / 2);
+      let yTop = '', yBottom = '', xRight = '', xLeft = '';
+      for (let i = 0; i < hIdx; i++) {
+        if (lines[i].indexOf('^') >= 0) { const t = lines[i].replace(/\^/g, '').replace(/\|/g, '').trim(); yTop = t || (i > 0 ? lines[i - 1].replace(/\|/g, '').trim() : ''); break; }
+      }
+      for (let i = hIdx + 1; i < n; i++) {
+        if (/^\s*v\s*$/.test(lines[i]) || lines[i].trim() === 'v') { yBottom = (i + 1 < n ? lines[i + 1] : '').replace(/\|/g, '').trim(); break; }
+      }
+      const axL = lines[hIdx] || '';
+      const ar = axL.match(/[-─>]+\s*(.+)$/); if (ar) xRight = ar[1].trim();
+      const lr = axL.match(/^([^─\-|+]+)[-─]/); if (lr) xLeft = lr[1].trim();
+      const qdesc = { 1: '', 2: '', 3: '', 4: '' };
+      const gr = /GÓC\s*(IV|III|II|I)\s*[:\-—(]?\s*([^\n|)]{0,60})/gi; let gm;
+      while ((gm = gr.exec(text)) !== null) { const num = fromRoman(gm[1]); if (num >= 1 && num <= 4) qdesc[num] = gm[2].replace(/[)\]]/g, '').trim(); }
+      const items = { 1: [], 2: [], 3: [], 4: [] }, seen = { 1: [], 2: [], 3: [], 4: [] };
+      for (let row = 0; row < n; row++) {
+        if (row === hIdx) continue;
+        const line = lines[row], isTop = row < hIdx;
+        const ir = /(?:[•·●♦★→]|\[)([^\]•·●♦★→\n|]{2,35})(?:\])?/g; let im;
+        while ((im = ir.exec(line)) !== null) {
+          const item = im[1].trim().replace(/[[\]()]/g, '');
+          if (!item || /GÓC|TRỐNG/i.test(item)) continue;
+          const q = isTop ? (im.index >= vCol ? 1 : 2) : (im.index >= vCol ? 4 : 3);
+          if (seen[q].indexOf(item) < 0) { seen[q].push(item); items[q].push(item); }
+        }
+      }
+      return { yTop, yBottom, xRight, xLeft, qdesc, items };
+    }
+    // Magic Quadrant: đối thủ = chấm có tên rải trong mặt phẳng 2 trục; mình = ★ sáng
+    function buildEl(map) {
+      const short = (s, n) => { s = (s || '').replace(/—.*$/, '').trim(); return s.length > n ? s.slice(0, n - 1) + '…' : s; };
+      const isOpp = qn => map.items[qn].some(it => /SếP|sếp|★/.test(it)) || /TRỐNG/i.test(map.qdesc[qn] || '');
+      const w = mk('div', 'mq');
+      w.appendChild(mk('div', 'mq-title', '📍 Bản đồ Định vị Cạnh tranh'));
+      const plot = mk('div', 'mq-plot');
+      // nhãn góc mờ ở 4 corner
+      const CMAP = { 1: 'mq-c1', 2: 'mq-c2', 3: 'mq-c3', 4: 'mq-c4' };
+      [1, 2, 3, 4].forEach(qn => {
+        const c = mk('div', 'mq-corner ' + CMAP[qn] + (isOpp(qn) ? ' opp' : ''));
+        const h = mk('div', 'mq-corner-h');
+        h.appendChild(mk('span', 'mq-corner-q', 'GÓC ' + roman(qn)));
+        if (isOpp(qn)) h.appendChild(mk('span', 'mq-badge', '🎯 Cơ hội'));
+        c.appendChild(h);
+        if (map.qdesc[qn]) c.appendChild(mk('span', 'mq-corner-d', short(map.qdesc[qn], 30)));
+        plot.appendChild(c);
+      });
+      // chấm đối thủ — rải trong vùng góc của nó
+      const QP = { 1: [60, 84, 16, 40], 2: [16, 40, 16, 40], 3: [16, 40, 60, 84], 4: [60, 84, 60, 84] };
+      [1, 2, 3, 4].forEach(qn => {
+        const its = map.items[qn], n = its.length;
+        its.forEach((it, i) => {
+          const [x0, x1, y0, y1] = QP[qn];
+          const t = n === 1 ? 0.5 : i / (n - 1);
+          const x = x0 + (x1 - x0) * t;
+          const y = (y0 + y1) / 2 + (n > 1 ? (i % 2 ? 11 : -11) : 0);
+          const self = /SếP|sếp|★/.test(it);
+          const d = mk('div', 'mq-dot' + (self ? ' self' : '') + (x >= 50 ? ' rt' : ''));
+          d.style.left = x + '%'; d.style.top = Math.max(10, Math.min(90, y)) + '%';
+          d.appendChild(mk('span', 'mq-pt', self ? '★' : ''));
+          d.appendChild(mk('span', 'mq-name', self ? 'Bạn ở đây' : it));
+          plot.appendChild(d);
+        });
+      });
+      // Trục Y dọc bên TRÁI + trục X dưới đáy (chuẩn Magic Quadrant — hết chồng hàng)
+      const endWord = s => { const m = (s || '').match(/(cao|thấp|high|low)\s*$/i); return (m ? m[1] : ((s || '').split(/\s+/).pop() || '')).toUpperCase(); };
+      const yDim = (map.yTop || map.yBottom || '').replace(/\s*(cao|thấp|high|low)\s*$/i, '').trim();
+      const body = mk('div', 'mq-body');
+      const ya = mk('div', 'mq-yaxis');
+      if (map.yTop) ya.appendChild(mk('span', 'mq-ya-end', '▲ ' + endWord(map.yTop)));
+      if (yDim) ya.appendChild(mk('span', 'mq-ya-dim', yDim));
+      if (map.yBottom) ya.appendChild(mk('span', 'mq-ya-end', endWord(map.yBottom) + ' ▼'));
+      body.appendChild(ya);
+      body.appendChild(plot);
+      w.appendChild(body);
+      const xa = mk('div', 'mq-x');
+      xa.appendChild(mk('span', '', map.xLeft ? '← ' + map.xLeft : ''));
+      xa.appendChild(mk('span', '', map.xRight ? map.xRight + ' →' : ''));
+      w.appendChild(xa);
+      return w;
+    }
+    // D-034 #5: ưu tiên block JSON máy-đọc (chính xác); fallback parse ASCII
+    function fromJson(j) {
+      const items = { 1: [], 2: [], 3: [], 4: [] };
+      (j.items || []).forEach(it => {
+        const q = Math.max(1, Math.min(4, +it.q || 1));
+        items[q].push(it.self ? '★ ' + (it.name || 'SẾP') : (it.name || ''));
+      });
+      return { yTop: j.yTop || '', yBottom: j.yBottom || '', xLeft: j.xLeft || '', xRight: j.xRight || '',
+        qdesc: { 1: j.q1 || '', 2: j.q2 || '', 3: j.q3 || '', 4: j.q4 || '' }, items };
+    }
+    root.querySelectorAll('pre').forEach(pre => {
+      const text = pre.textContent || '';
+      let map = null;
+      const ts = text.trim();
+      if (ts.startsWith('{') && ts.indexOf('"items"') >= 0) {
+        try { const j = JSON.parse(ts); if (Array.isArray(j.items) && j.items.length) map = fromJson(j); } catch (e) { /* fallback ASCII */ }
+      }
+      if (!map && isMap(text)) map = parseMap(text);
+      if (!map) return;
+      pre.parentNode.replaceChild(buildEl(map), pre);
+    });
   }
   // Đổ trình đọc/sửa vào ô nhúng #docView.doc-embed trên trang chi tiết (gọi sau route)
   async function fillDocEmbeds() {
@@ -1256,23 +1554,79 @@ window.MOCK = {
   // Form nhập hồ sơ doanh nghiệp — điểm khởi đầu cho user mới (thay ô chat)
   let _editProfile = false;
   // Onboarding wizard — hỏi từng câu một (kiểu Typeform), thân thiện với user mới
-  let _intakeStep = 0, _intakeData = {};
+  let _intakeStep = 0, _intakeData = {}, _intakeProv = {};
+  let _intakeSuggest = {}, _intakeSuggestBusy = false, _intakeSuggestDone = false;
+  // D-032 step 2: sinh chip gợi ý cho câu chiến lược, bám ngành/sản phẩm/khách đã nhập
+  async function fetchIntakeSuggestions() {
+    if (_intakeSuggestDone || _intakeSuggestBusy || !apiAvailable) return;
+    _intakeSuggestBusy = true;
+    try {
+      const core = {};
+      ['business_name', 'industry', 'location', 'product_service', 'target_customer'].forEach(k => {
+        if (_intakeData[k]) core[k] = _intakeData[k];
+      });
+      const r = await API.post('api/biz/intake/suggest', { fields: core, user_id: _bizUserId });
+      _intakeSuggest = (r && r.suggestions) || {};
+    } catch (e) { _intakeSuggest = {}; }
+    _intakeSuggestBusy = false; _intakeSuggestDone = true;
+    route();
+  }
+  // D-032: intake web đa-level. tier: core (bắt buộc) | strategic (tầng CMO,
+  // skip→AI suy, có chip gợi ý) | context (optional, chọn khoảng).
+  // strategic=true → hiện helper bình dân + nút "để Max đoán"; skip = field giả định.
   const INTAKE_STEPS = [
-    { key: 'business_name', q: 'Doanh nghiệp của bạn tên là gì?', ph: 'vd: Cà phê An' },
-    { key: 'industry', q: 'Bạn kinh doanh trong ngành nào?', ph: 'vd: F&B — Quán cà phê' },
-    { key: 'product_service', q: 'Sản phẩm / dịch vụ chính là gì?', ph: 'vd: Cà phê specialty' },
-    { key: 'target_customer', q: 'Khách hàng mục tiêu của bạn là ai?', ph: 'vd: Dân văn phòng 25–34, Q.1' },
-    { key: 'location', q: 'Bạn kinh doanh ở khu vực nào?', ph: 'vd: TP.HCM, Quận 1', optional: true },
-    { key: 'monthly_revenue', q: 'Doanh thu mỗi tháng khoảng bao nhiêu?', optional: true,
+    // ── Khối nền (bắt buộc) ──
+    { key: 'business_name', tier: 'core', q: 'Doanh nghiệp của bạn tên là gì?', ph: 'vd: Cà phê An' },
+    { key: 'industry', tier: 'core', q: 'Bạn kinh doanh trong ngành nào?', ph: 'vd: F&B — Quán cà phê' },
+    { key: 'location', tier: 'core', q: 'Bạn kinh doanh ở khu vực nào?', ph: 'vd: TP.HCM, Quận 1', optional: true },
+    { key: 'product_service', tier: 'core', q: 'Bạn bán sản phẩm/dịch vụ gì, và nó giải quyết vấn đề gì cho khách?', ph: 'vd: Cà phê specialty — đồ uống chất cho dân văn phòng cần tỉnh táo' },
+    { key: 'target_customer', tier: 'core', q: 'Khách hàng mục tiêu của bạn là ai?', ph: 'vd: Dân văn phòng 25–34, Q.1' },
+    { key: 'main_challenge', tier: 'core', q: 'Thách thức lớn nhất hiện tại của bạn là gì?', ph: 'vd: cạnh tranh chuỗi lớn, chi phí ads cao' },
+
+    // ── Khối chiến lược (tầng CMO — skip→AI suy, sẽ có chip gợi ý) ──
+    { key: 'jtbd', tier: 'strategic', strategic: true,
+      q: 'Khách hàng "thuê" sản phẩm của bạn để hoàn thành việc gì?',
+      helper: 'Tức là: họ mua vào lúc/dịp nào, để giải quyết chuyện gì trong cuộc sống của họ?',
+      ph: 'vd: cần ly cà phê ngon để tỉnh táo & "thưởng" cho buổi sáng bận rộn' },
+    { key: 'competitive_alternative', tier: 'strategic', strategic: true,
+      q: 'Nếu không có bạn, khách sẽ dùng giải pháp thay thế nào?',
+      helper: 'Họ hay so sánh bạn với ai, hoặc trước khi biết bạn họ mua ở đâu?',
+      ph: 'vd: Highlands, cà phê pha sẵn ở nhà, hoặc trà sữa' },
+    { key: 'differentiation', tier: 'strategic', strategic: true,
+      q: 'Điểm khác biệt bền vững của bạn là gì, và bằng chứng cho điều đó?',
+      helper: 'Khách hay khen bạn điểm gì nhất? Vì sao họ quay lại?',
+      note: 'Nếu chưa biết thì ghi "chưa biết" — Max sẽ tự tìm/đề xuất định vị giúp bạn.' },
+    { key: 'objection', tier: 'strategic', strategic: true,
+      q: 'Rào cản / nỗi sợ lớn nhất khiến khách chần chừ là gì?',
+      helper: 'Khách hay lo gì, hay hỏi gì, hay từ chối vì lý do nào trước khi mua?',
+      ph: 'vd: "giá cao hơn cà phê thường", "sợ đặt online nguội"' },
+    { key: 'competitors', tier: 'strategic', strategic: true, optional: true,
+      q: 'Có đối thủ nào bạn đang để ý không? (tên cụ thể nếu có)',
+      helper: 'Nêu tên giúp Max nghiên cứu đúng đối thủ đó — không có thì để trống.',
+      ph: 'vd: Highlands, Phúc Long, The Coffee House' },
+
+    // ── Khối bối cảnh (optional — chọn khoảng) ──
+    { key: 'price_point', tier: 'context', optional: true, q: 'Giá bán / giá trị đơn hàng trung bình tầm bao nhiêu?',
+      choices: ['Dưới 100k', '100–300k', '300k–1 triệu', '1–5 triệu', 'Trên 5 triệu', 'Chưa rõ'],
+      note: 'Giúp Max tư vấn giá & ước lượng đúng — chọn khoảng gần đúng là được.' },
+    { key: 'monthly_revenue', tier: 'context', optional: true, q: 'Doanh thu mỗi tháng khoảng bao nhiêu?',
       choices: ['Mới mở, chưa có doanh thu', 'Dưới 50 triệu', '50–200 triệu', '200 triệu–1 tỷ', 'Trên 1 tỷ', 'Không tiện chia sẻ'],
       note: 'Giúp Max ước lượng giai đoạn doanh nghiệp. Không tiện thì cứ bỏ qua.' },
-    { key: 'monthly_marketing_budget', q: 'Ngân sách marketing mỗi tháng khoảng bao nhiêu?', ph: 'vd: 15 triệu', optional: true },
-    { key: 'primary_goal', q: '90 ngày tới bạn muốn ưu tiên điều gì nhất?',
+    { key: 'monthly_marketing_budget', tier: 'context', optional: true, q: 'Ngân sách marketing mỗi tháng khoảng bao nhiêu?',
+      choices: ['Chưa chạy quảng cáo', 'Dưới 5 triệu', '5–20 triệu', '20–50 triệu', 'Trên 50 triệu', 'Không tiện chia sẻ'],
+      note: 'Để Max đề xuất kênh & phân bổ khả thi với túi tiền của bạn.' },
+    { key: 'current_channels', tier: 'context', optional: true, q: 'Hiện bạn đang dùng kênh marketing nào?', ph: 'vd: Facebook, TikTok, Zalo OA' },
+    { key: 'primary_goal', tier: 'context', q: '90 ngày tới bạn muốn ưu tiên điều gì nhất?',
       choices: ['Tăng nhận diện thương hiệu', 'Ra nhiều đơn / doanh thu', 'Giữ chân & chăm khách cũ', 'Ra mắt sản phẩm mới'],
       note: 'Chọn hướng ưu tiên — con số cụ thể sẽ chốt khi bạn lập từng chiến dịch theo dịp.' },
-    { key: 'current_channels', q: 'Hiện bạn đang dùng kênh marketing nào?', ph: 'vd: Facebook, TikTok, Zalo OA', optional: true },
-    { key: 'main_challenge', q: 'Thách thức lớn nhất hiện tại là gì?', ph: 'vd: cạnh tranh chuỗi lớn', optional: true },
+    { key: 'usp', tier: 'context', optional: true,
+      q: 'Bạn đã có CÂU ĐỊNH VỊ / slogan / USP chốt chưa?',
+      note: 'Có rồi thì nhập — Max sẽ LÀM SẮC THÊM (không vứt đi). Chưa có thì để trống — Max tự đề xuất. Bước Chiến lược sẽ cho bạn chọn lại.' },
   ];
+  // Field nào có cột riêng trong profile; còn lại gói vào intake_extra.answers (D-032)
+  const PROFILE_COLUMN_KEYS = new Set(['business_name', 'industry', 'location', 'product_service',
+    'target_customer', 'main_challenge', 'competitors', 'monthly_revenue',
+    'monthly_marketing_budget', 'current_channels', 'primary_goal', 'usp']);
   // AI-adaptive intake (Max phỏng vấn thông minh) — dùng khi có backend thật
   let _aiQ = '', _aiBusy = false, _aiStarted = false, _aiFailed = false;
   function aiIntakeView() {
@@ -1316,32 +1670,49 @@ window.MOCK = {
   }
 
   function intakeWizard() {
-    // Có backend thật → Max phỏng vấn AI; chưa có → wizard tĩnh (xem trước)
-    if (apiAvailable && M.bizEnabled && !_aiFailed) return aiIntakeView();
+    // D-032: wizard có bước là luồng CHÍNH (kể cả khi có backend) — để gắn được
+    // chip gợi ý + skip + provenance per-câu. AI-hội-thoại để dành/bỏ sau.
     return staticWizard();
   }
   function staticWizard() {
     const n = INTAKE_STEPS.length;
     const i = Math.min(_intakeStep, n - 1);
     const st = INTAKE_STEPS[i];
-    const val = (_intakeData[st.key] || '').replace(/"/g, '&quot;');
+    // textarea content cần escape & < > (D-032 §11)
+    const val = (_intakeData[st.key] || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     const preview = (!apiAvailable || !M.bizEnabled);
-    // Bước dạng chọn khoảng / chọn hướng (A1b doanh thu, A2 mục tiêu) — không nhập số
+    const canSkip = st.optional || st.strategic;   // strategic skip → AI suy (giả định)
     const body = st.choices
       ? `<div class="intake-choices">${st.choices.map(c =>
           `<button class="intake-choice${_intakeData[st.key] === c || (c === 'Không tiện chia sẻ' && _intakeData[st.key] === 'chưa rõ') ? ' on' : ''}" data-act="intake-choice" data-val="${c.replace(/"/g, '&quot;')}">${c}</button>`).join('')}</div>`
-      : `<input id="intakeBox" class="intake-input" value="${val}" placeholder="${st.ph}" autocomplete="off">`;
+      : `<textarea id="intakeBox" class="intake-input" rows="1" placeholder="${st.strategic ? 'Trả lời, hoặc bấm gợi ý bên dưới…' : 'Nhập câu trả lời…'}">${val}</textarea>`;
+    // D-032 step 2: câu chiến lược → fetch + render chip gợi ý (recognition, chọn nhiều được)
+    let chips = '';
+    if (st.strategic) {
+      if (!_intakeSuggestDone && apiAvailable) fetchIntakeSuggestions();
+      const sug = _intakeSuggest[st.key] || [];
+      if (sug.length) {
+        chips = `<div class="intake-sug"><span class="intake-sug-lbl">Gợi ý phổ biến trong ngành — bấm để chọn (chọn nhiều được):</span>
+          <div class="intake-sug-chips">${sug.map(s =>
+            `<button class="intake-sug-chip" data-act="intake-suggest" data-val="${s.replace(/"/g, '&quot;')}">+ ${s}</button>`).join('')}</div></div>`;
+      } else if (_intakeSuggestBusy) {
+        chips = `<div class="intake-sug muted">💡 Đang gợi ý theo ngành của bạn…</div>`;
+      }
+    }
+    const tag = st.strategic ? ' · để Max đoán nếu chưa chắc' : (st.optional ? ' · không bắt buộc' : '');
     return `
       <div class="intake">
         <div class="intake-prog"><div class="intake-bar" style="width:${Math.round(i / n * 100)}%"></div></div>
-        <p class="intake-count">Câu ${i + 1}/${n}${st.optional ? ' · không bắt buộc' : ''}</p>
+        <p class="intake-count">Câu ${i + 1}/${n}${tag}</p>
         <h3 class="intake-q">${st.q}</h3>
+        ${st.helper ? `<p class="intake-helper">💬 ${st.helper}</p>` : ''}
         ${body}
+        ${chips}
         ${st.note ? `<p class="muted intake-note">${st.note}</p>` : ''}
         <div class="intake-nav">
           ${i > 0 ? '<button class="ghost-line" data-act="intake-back">← Quay lại</button>' : '<span></span>'}
           <div style="display:flex;gap:8px">
-            ${st.optional ? '<button class="ghost-line" data-act="intake-skip">Bỏ qua</button>' : ''}
+            ${canSkip ? `<button class="ghost-line" data-act="intake-skip">${st.strategic ? '🤖 Để Max đoán' : 'Bỏ qua'}</button>` : ''}
             ${st.choices ? '' : `<button class="primary-btn" data-act="intake-next">${i === n - 1 ? '✓ Hoàn tất' : 'Tiếp →'}</button>`}
           </div>
         </div>
@@ -1384,7 +1755,7 @@ window.MOCK = {
         ? `<div class="sel" data-act="switch-user" title="Đổi người dùng đang xem">${
             (M.bizUser && (M.bizUser.name || M.bizUser.user_id)) || M.bizUserId || 'Chọn user'} ▾</div>`
         : '';
-      return sel + runBtn('full', '▶ Chạy phân tích toàn diện', 'primary-btn');
+      return sel + runBtn('research', '🔬 Chạy nghiên cứu (T1-T3)', 'primary-btn');
     },
     render: () => {
       const p = M.bizProfile || {};
@@ -1433,6 +1804,8 @@ window.MOCK = {
         const act = running ? badge('Đang chạy', 'amber')
           : run ? `<a class="primary-btn sm" href="#${task}">Xem & sửa</a>
                    <button class="icon-btn" data-act="run-agent" data-task="${task}" title="Chạy lại bản mới">↻</button>`
+          // D-041: synthesis pending → dẫn tới GATE (chọn wedge+USP) thay vì chạy thẳng
+          : k === 'synthesis' ? `<a class="ghost-line sm" href="#strategy">🎯 Lập chiến lược</a>`
           : `<button class="ghost-line sm" data-act="run-agent" data-task="${task}">▶ Chạy</button>`;
         return `<div class="diag-row ${st}">
           <span class="diag-ic">${st === 'done' ? '✓' : ic}</span>
@@ -1484,33 +1857,71 @@ window.MOCK = {
       const box = document.getElementById('intakeBox');
       if (box) {
         box.focus();
+        // D-032 §11: textarea tự giãn cao + Enter=Tiếp, Shift+Enter=xuống dòng
+        const grow = () => { if (box.tagName === 'TEXTAREA') { box.style.height = 'auto'; box.style.height = box.scrollHeight + 'px'; } };
+        grow();
+        box.oninput = grow;
         box.onkeydown = (e) => {
-          if (e.key === 'Enter') { e.preventDefault(); aiMode ? aiIntakeSend() : handleIntake('next'); }
+          if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); aiMode ? aiIntakeSend() : handleIntake('next'); }
         };
       }
     },
   };
 
   // điều khiển wizard intake (giữ giá trị ô đang gõ trước khi chuyển bước)
+  // D-032: gói _intakeData → field cột + intake_extra{answers, provenance}
+  function buildProfilePayload() {
+    const cols = {}, answers = {};
+    for (const k in _intakeData) {
+      const v = _intakeData[k];
+      if (v == null || v === '') continue;
+      if (PROFILE_COLUMN_KEYS.has(k)) cols[k] = v; else answers[k] = v;
+    }
+    const extra = {};
+    if (Object.keys(answers).length) extra.answers = answers;
+    if (Object.keys(_intakeProv).length) extra.provenance = _intakeProv;
+    if (Object.keys(extra).length) cols.intake_extra = extra;
+    if (cols.usp) cols.usp_confidence = 'clear';   // founder có USP → Max REFINE, không đẻ mới
+    return cols;
+  }
   async function handleIntake(action, choiceVal) {
     const box = document.getElementById('intakeBox');
     const st = INTAKE_STEPS[Math.min(_intakeStep, INTAKE_STEPS.length - 1)];
     if (box) _intakeData[st.key] = box.value.trim();
     // Chọn khoảng/hướng: "Không tiện chia sẻ" → lưu "chưa rõ" (khớp AI-adaptive mode)
-    if (action === 'choice') { _intakeData[st.key] = (choiceVal === 'Không tiện chia sẻ') ? 'chưa rõ' : choiceVal; }
+    if (action === 'choice') {
+      _intakeData[st.key] = (choiceVal === 'Không tiện chia sẻ') ? 'chưa rõ' : choiceVal;
+      _intakeProv[st.key] = 'typed';
+    }
+    if (action === 'suggest') {        // bấm chip gợi ý → thêm vào câu trả lời (chọn nhiều, MỖI dòng 1 ý)
+      const cur = (_intakeData[st.key] || '').trim();
+      const add = (choiceVal || '').trim();
+      const has = cur.split(/\n/).some(p => p.trim() === add);
+      _intakeData[st.key] = has ? cur : (cur ? cur + '\n' + add : add);
+      _intakeProv[st.key] = 'suggested';
+      route(); return;
+    }
     if (action === 'back') { _intakeStep = Math.max(0, _intakeStep - 1); route(); return; }
     if (action === 'skip') {
-      // doanh thu bỏ qua → "chưa rõ" để không bao giờ rỗng/undefined (A1b)
-      if (st.key === 'monthly_revenue') _intakeData[st.key] = 'chưa rõ';
+      if (st.strategic) {            // tầng CMO bỏ qua → AI suy → gắn nhãn "(giả định)"
+        _intakeProv[st.key] = 'inferred'; delete _intakeData[st.key];
+      } else if (st.key === 'monthly_revenue') {
+        _intakeData[st.key] = 'chưa rõ';   // không bao giờ rỗng (A1b)
+      }
       _intakeStep++; route(); return;
     }
-    if (!st.optional && !(_intakeData[st.key])) { toast('Vui lòng nhập, hoặc chọn câu không bắt buộc'); return; }
+    // action === 'next'
+    const v = _intakeData[st.key];
+    if (st.strategic) _intakeProv[st.key] = v ? 'typed' : 'inferred';  // empty → AI suy
+    else if (v) _intakeProv[st.key] = 'typed';
+    // Bắt buộc: core không-optional, không-strategic phải có giá trị
+    if (!st.optional && !st.strategic && !v) { toast('Vui lòng nhập, hoặc bấm "Để Max đoán/Bỏ qua"'); return; }
     if (_intakeStep < INTAKE_STEPS.length - 1) { _intakeStep++; route(); return; }
     if (!apiAvailable) { toast('Đây là bản xem trước — cần backend + Supabase để lưu'); return; }
     try {
-      const r = await API.post('api/biz/profile', { fields: _intakeData, user_id: _bizUserId });
+      const r = await API.post('api/biz/profile', { fields: buildProfilePayload(), user_id: _bizUserId });
       if (r.error) { toast(r.error); return; }
-      _intakeStep = 0; _intakeData = {};
+      _intakeStep = 0; _intakeData = {}; _intakeProv = {};
       toast('Đã tạo hồ sơ — giờ chạy chẩn đoán được rồi');
       await refreshBiz(); renderRail(); renderTopbar(); route();
     } catch (e) { toast('Lưu hồ sơ thất bại'); }
@@ -1590,57 +2001,45 @@ window.MOCK = {
       </div>
       ${_docAsk ? `<p class="doc-ask">🤖 Max cần rõ thêm: ${_docAsk}</p>` : ''}`}
       <div class="doc-grid">${bodyOrEditor}${versions}</div>`;
+    enhancePosMaps(el);   // D-034 #4: ASCII map → visual
   }
 
   /* ---- Market research ---- */
   P.market = {
     title: 'Nghiên cứu thị trường', sub: 'TAM / SAM / SOM + động lực thị trường',
+    actions: `<a class="ghost-line" href="#dossier">← Hồ sơ</a>`,
     render: () => `
-      <section class="kpis kpis-3">
-        ${miniStat('TAM','2.400 tỷ','Tổng thị trường VN')}
-        ${miniStat('SAM','480 tỷ','Phân khúc khả dụng')}
-        ${miniStat('SOM','24 tỷ','Khả năng chiếm 90 ngày')}
-      </section>
+      <div id="marketKpis"></div>
       <section class="grid">
         ${agentSection('market','market_research')}
-        ${card('Quy mô thị trường (TAM/SAM/SOM)', cv('tamChart',230), {cls:'span-7'})}
-        ${card('Động lực tăng trưởng', `
-          <ul class="bullet">
-            <li>📈 Tăng trưởng <b>14%/năm</b>, cao hơn TB ngành</li>
-            <li>☕ Xu hướng specialty & local brand lên ngôi</li>
-            <li>📱 65% khách Gen Z đặt qua app / giao hàng</li>
-            <li>⚠️ Rào cản: chi phí mặt bằng & cạnh tranh giá</li>
-          </ul>`, {cls:'span-5'})}
-        ${card('Benchmark ngành F&B', table(
-          ['Chỉ số','Trung bình','Tốt','Của bạn'],
-          [['AOV','45.000₫','60.000₫','52.000₫'],
-           ['Repeat 30d','22%','35%','28%'],
-           ['COGS %','35%','28%','33%'],
-           ['ROAS','2,5x','4,0x','3,1x']]), {cls:'span-12'})}
       </section>`,
-    mount: () => {
-      if (!hasChart) return;
-      reg(new Chart(byId('tamChart'), { type:'bar',
-        data:{ labels:['TAM','SAM','SOM'], datasets:[{ data:[2400,480,24],
-          backgroundColor:[PRIMARY+'55',PRIMARY2+'88',CYAN], borderRadius:10, maxBarThickness:60 }]},
-        options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
-          scales:{ x:{grid:noGrid}, y:{grid, ticks:{callback:v=>v>=1000?v/1000+'k tỷ':v+' tỷ'}} } }}));
-    },
+    mount: () => { loadMarketKpis(); },
   };
+  // D-034 #2: card TAM/SAM/SOM số THẬT (trích từ output market, thiếu→ẩn card)
+  async function loadMarketKpis() {
+    const run = (M.bizLatest || {}).market_research;
+    const host = document.getElementById('marketKpis');
+    if (!host || !run || !apiAvailable) return;
+    try {
+      const r = await API.get('api/biz/market-kpis?run_id=' + run.id);
+      const k = (r && r.kpis) || {};
+      const L = { tam: ['TAM', 'Thị trường tối đa'], sam: ['SAM', 'Có thể phục vụ'], som: ['SOM', 'Có thể đạt được'] };
+      const cards = ['tam', 'sam', 'som'].filter(x => k[x]).map(x => {
+        const d = k[x], val = d.value + (d.unit ? ' ' + d.unit : '');
+        return miniStat(L[x][0], val, L[x][1] + (d.note ? ' (' + d.note + ')' : ''));
+      }).join('');
+      if (cards) host.innerHTML = `<section class="kpis kpis-3">${cards}</section>`;
+    } catch (e) { /* thiếu → ẩn card */ }
+  }
 
   /* ---- Competitor ---- */
   P.competitor = {
     title: 'Phân tích đối thủ', sub: '8 chiều cạnh tranh + theo dõi Ads Library',
-    actions: `<button class="primary-btn" data-act="add-tracked">＋ Thêm đối thủ theo dõi</button>`,
+    actions: `<a class="ghost-line" href="#dossier">← Hồ sơ</a> <button class="primary-btn" data-act="add-tracked">＋ Thêm đối thủ theo dõi</button>`,
     render: () => `
       <section class="grid">
         ${agentSection('competitor','competitor')}
-        ${card('Ma trận cạnh tranh', table(
-          ['Đối thủ','Định vị','Giá','USP','Thị phần','Mức đe dọa'],
-          M.competitors.map(c=>[c.name,c.pos,c.price,c.usp,c.share+'%',
-            badge(c.threat, c.threat==='Cao'?'red':c.threat==='Thấp'?'green':'amber')])), {cls:'span-8'})}
-        ${card('Bản đồ định vị', cv('posChart',260), {cls:'span-4'})}
-        ${card('Đối thủ đang theo dõi', `
+        ${(M.tracked||[]).length ? card('Đối thủ đang theo dõi (Ads Library)', `
           <ul class="rows">
             ${M.tracked.map(t=>`
               <li class="row">
@@ -1649,39 +2048,18 @@ window.MOCK = {
                 <span class="tag">${t.ads} ads</span>
                 ${t.id?`<button class="icon-btn" data-act="del-tracked" data-id="${t.id}" title="Bỏ theo dõi">✕</button>`:''}
               </li>`).join('')}
-          </ul>`, {cls:'span-12'})}
+          </ul>`, {cls:'span-12'}) : ''}
       </section>`,
-    mount: () => {
-      if (!hasChart) return;
-      reg(new Chart(byId('posChart'), { type:'scatter',
-        data:{ datasets:[{ data:[{x:8,y:9},{x:5,y:6},{x:7,y:4},{x:3,y:3},{x:6,y:7}],
-          backgroundColor:[PRIMARY,PRIMARY2,CYAN,RED,GREEN], pointRadius:9, pointHoverRadius:11 }]},
-        options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
-          scales:{ x:{grid, title:{display:true,text:'Giá →'}, min:0,max:10},
-                   y:{grid, title:{display:true,text:'Chất lượng cảm nhận →'}, min:0,max:10} } }}));
-    },
+    mount: () => {},
   };
 
   /* ---- Customer insight ---- */
   P.customer = {
     title: 'Customer Insight', sub: 'ICP · Jobs-to-be-Done · Pain / Gain / Motivation',
+    actions: `<a class="ghost-line" href="#dossier">← Hồ sơ</a>`,
     render: () => `
       <section class="grid">
         ${agentSection('customer','customer_insight')}
-        ${M.personas.map(p=>`
-          ${card('', `
-            <div class="persona">
-              <div class="persona-top"><div class="avatar lg">${p.name[0]}</div>
-                <div><p class="persona-name">${p.name}</p><span class="muted">${p.age} tuổi</span></div></div>
-              <div class="kv"><span>JTBD</span><b>${p.job}</b></div>
-              <div class="kv"><span>Pain</span><b>${p.pain}</b></div>
-              <div class="kv"><span>Động lực</span><b>${p.motiv}</b></div>
-            </div>`, {cls:'span-4'})}`).join('')}
-        ${card('Bản đồ Pain → Gain', `
-          <div class="paingain">
-            <div class="pg-col"><h4>😣 Pain</h4><ul class="bullet"><li>Xếp hàng lâu giờ cao điểm</li><li>Chất lượng không ổn định</li><li>Giá tăng nhưng trải nghiệm giảm</li></ul></div>
-            <div class="pg-col"><h4>😄 Gain</h4><ul class="bullet"><li>Đặt trước, lấy nhanh</li><li>Chất lượng đồng nhất</li><li>Tích điểm & ưu đãi thành viên</li></ul></div>
-          </div>`, {cls:'span-12'})}
       </section>`,
     mount: () => {},
   };
@@ -1689,54 +2067,21 @@ window.MOCK = {
   /* ---- Pricing ---- */
   P.pricing = {
     title: 'Định giá & Tâm lý', sub: 'Mô hình giá theo phân khúc + chiến thuật tâm lý',
+    actions: `<a class="ghost-line" href="#dossier">← Hồ sơ</a>`,
     render: () => `
       <section class="grid">
         ${agentSection('pricing','psychology_pricing')}
-        ${M.pricingTiers.map(t=>`
-          ${card('', `
-            <div class="tier ${t.hot?'hot':''}">
-              ${t.hot?'<span class="ribbon">Phổ biến</span>':''}
-              <p class="tier-name">${t.name}</p><span class="tag">${t.tag}</span>
-              <p class="tier-price">${t.price}</p>
-              <ul class="bullet">${t.items.map(i=>`<li>${i}</li>`).join('')}</ul>
-            </div>`, {cls:'span-4'})}`).join('')}
-        ${card('Chiến thuật tâm lý giá', `
-          <ul class="bullet two">
-            <li>🎯 <b>Charm pricing</b>: 49.000₫ thay vì 50.000₫</li>
-            <li>⚓ <b>Anchoring</b>: đặt Premium cạnh Standard</li>
-            <li>📦 <b>Bundling</b>: combo đôi tăng AOV 18%</li>
-            <li>⏳ <b>Khan hiếm</b>: ưu đãi giới hạn khung giờ</li>
-          </ul>`, {cls:'span-7'})}
-        ${card('Độ co giãn theo phân khúc', cv('elastChart',180), {cls:'span-5'})}
       </section>`,
-    mount: () => {
-      if (!hasChart) return;
-      reg(new Chart(byId('elastChart'), { type:'line',
-        data:{ labels:['-20%','-10%','Giá','+10%','+20%'], datasets:[{ data:[140,118,100,78,52],
-          borderColor:PRIMARY, backgroundColor:fill(PRIMARY), fill:true, tension:.4, borderWidth:2.5, pointRadius:0 }]},
-        options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
-          scales:{ x:{grid:noGrid}, y:{grid, ticks:{callback:v=>v+'%'}} } }}));
-    },
+    mount: () => {},
   };
 
   /* ---- SWOT ---- */
   P.swot = {
-    title: 'SWOT', sub: 'Ma trận chiến lược — calibrate theo ngành F&B',
+    title: 'SWOT', sub: 'Ma trận chiến lược + TOWS (SO/ST/WO/WT)',
+    actions: `<a class="ghost-line" href="#dossier">← Hồ sơ</a>`,
     render: () => `
-      <section class="swot">
-        ${swotCell('S','Điểm mạnh','green',['Cà phê specialty chất lượng','Vị trí trung tâm','Khách trung thành'])}
-        ${swotCell('W','Điểm yếu','red',['Chi phí mặt bằng cao','Phụ thuộc giờ cao điểm','Ít kênh online'])}
-        ${swotCell('O','Cơ hội','primary',['Gen Z chuộng local brand','Tăng trưởng delivery','UGC lan tỏa'])}
-        ${swotCell('T','Thách thức','amber',['Chuỗi lớn cạnh tranh giá','Chi phí ads tăng','Trung thành thấp'])}
-      </section>
       <section class="grid">
         ${agentSection('swot','swot')}
-        ${card('Tactical plays (SO/WO/ST/WT)', table(
-          ['Nhóm','Chiến thuật','KPI'],
-          [['SO','Đẩy specialty qua UGC + KOL local','Reach, Repeat'],
-           ['WO','Mở kênh đặt trước online','Đơn online'],
-           ['ST','Loyalty giữ chân vs chuỗi lớn','Repeat 30d'],
-           ['WT','Tối ưu ngân sách giờ thấp điểm','CPA']]), {cls:'span-12'})}
       </section>`,
     mount: () => {},
   };
@@ -1760,30 +2105,66 @@ window.MOCK = {
           kênh, ưu tiên từng giai đoạn. Con số cụ thể — SMART, ngân sách đợt, deadline —
           sẽ được <b>chốt khi bạn lập từng chiến dịch theo dịp</b>.
         </div>`;
+  // D-032 step 3: thanh minh bạch — Max tự suy bao nhiêu mục chiến lược (founder bỏ trống)
+  const _STRAT_KEYS = ['jtbd', 'competitive_alternative', 'differentiation', 'objection', 'competitors'];
+  function inferredMeter() {
+    const prov = ((M.bizProfile || {}).intake_extra || {}).provenance || {};
+    const inferred = _STRAT_KEYS.filter(k => prov[k] === 'inferred');
+    if (!inferred.length) return '';
+    return `<div class="card span-12 infer-banner">🤖 Max đã <b>tự suy ${inferred.length}/${_STRAT_KEYS.length} mục chiến lược</b> (bạn để trống) —
+      phần phân tích dựa vào chúng được đánh dấu <b>(giả định — cần kiểm chứng)</b>. Bổ sung ở Hồ sơ doanh nghiệp để sắc hơn.</div>`;
+  }
   P.strategy = {
     title: 'Chiến lược tổng hợp', sub: 'Định vị · SAVE · Định hướng 90 ngày · KPI cần theo dõi',
-    actions: `<a class="primary-btn" href="#occasion">→ Lập chiến dịch theo dịp</a>`,
+    actions: `<a class="ghost-line" href="#tactical">🔨 Tactical Playbook</a> <a class="primary-btn" href="#occasion">→ Lập chiến dịch</a>`,
     render: () => {
       const latest = (M.bizLatest || {}).synthesis;
       if (M.bizEnabled && latest) {
+        // D-037a: 1 card duy nhất (bỏ agentBar trùng "Xem output") — output inline + nút rerun
+        const running = (M.agentJobs || []).some(j => j.status === 'running' && (j.task === 'strategy' || j.task === 'full'));
         return `<section class="grid">
           ${directionalBanner}
-          ${agentBar('strategy','synthesis')}
+          ${inferredMeter()}
           ${card('Chiến lược 90 ngày — do Max lập', `
             <div class="ai-output collapsible" data-skill-run="${latest.id}">Đang tải chiến lược…</div>
             <button class="ghost-line full collapse-toggle" data-act="toggle-collapse" style="margin-top:12px">Xem đầy đủ ▾</button>`,
-            {cls:'span-12', action:`<span class="muted">v${latest.version} · ${(latest.created_at||'').slice(0,10)}</span>`})}
+            {cls:'span-12', action:`<span class="muted">v${latest.version} · ${(latest.created_at||'').slice(0,10)}</span> ${runBtn('strategy', running ? '↻ Đang chạy' : '↻ Tạo lại bản mới', 'ghost-line sm')}`})}
         </section>`;
       }
       if (M.bizEnabled) {
+        // D-041: research xong (T1-T3) → hiện GATE (chọn wedge + USP) trước khi lập chiến lược
+        const researchDone = ['market_research', 'competitor', 'customer_insight', 'swot']
+          .every(k => (M.bizSkillRuns || []).some(r => r.skill_name === k));
+        if (researchDone) {
+          const running = (M.agentJobs || []).some(j => j.status === 'running' && (j.task === 'strategize' || j.task === 'full'));
+          return `<section class="grid">
+            <div class="card span-12 dir-banner">🚪 <b>Nghiên cứu xong (T1-T3).</b> Trước khi Max lập chiến lược, chốt 2 lựa chọn dưới đây trên dữ liệu THẬT — Max sẽ bám đúng ý bạn (đọc kỹ Đối thủ / Customer / USP ở các tab nếu cần).</div>
+            ${card('🎯 Chốt hướng đánh trước khi lập chiến lược', `
+              <label class="fld"><span>① Bạn muốn đánh vào (các) phân khúc nào TRƯỚC? <span class="muted">— để trống thì Max tự chọn theo research</span></span>
+                <input id="gateWedge" placeholder="vd: mẹ bỉm plus-size sau sinh; hoặc chủ shop Amazon nhỏ"></label>
+              <div class="fld"><span>② Định vị (USP) — chọn cái Max bám khi lập chiến lược:</span>
+                <div class="gate-usp">
+                  ${(M.bizProfile && M.bizProfile.usp) ? `
+                  <label class="radio-row"><input type="radio" name="uspStance" value="own" checked> Dùng <b>USP của bạn</b>: <span class="muted">"${(M.bizProfile.usp || '').replace(/"/g, '&quot;')}"</span></label>
+                  <label class="radio-row"><input type="radio" name="uspStance" value="draft"> Dùng <b>USP Max gợi ý</b> <span class="muted">(xem ở tab USP — Max đã làm sắc từ USP của bạn)</span></label>
+                  ` : `
+                  <label class="radio-row"><input type="radio" name="uspStance" value="draft" checked> Để <b>Max đề xuất & làm sắc</b> <span class="muted">(khuyến nghị)</span></label>
+                  `}
+                  <label class="radio-row"><input type="radio" name="uspStance" value="edit"> Tôi muốn sửa/nhập lại →</label>
+                  <input id="gateUsp" placeholder="Nhập câu định vị (nếu chọn 'sửa/nhập lại')">
+                </div></div>
+              <button class="primary-btn full" data-act="run-strategize" ${running ? 'disabled' : ''} style="margin-top:10px">${running ? '⏳ Đang lập chiến lược…' : '🎯 Lập chiến lược (T4 Synthesis + T5 Playbook)'}</button>
+            `, {cls:'span-12'})}
+          </section>`;
+        }
         return `<section class="grid">
           ${card('', `<div class="empty-cta">
-            <div class="empty-ic">🎯</div>
-            <h3>Chưa có chiến lược cho doanh nghiệp này</h3>
-            <p class="muted">Điền Hồ sơ doanh nghiệp rồi chạy chẩn đoán — Max sẽ tổng hợp <b>định hướng</b> chiến lược 90 ngày (định vị, trục nội dung, kênh, ưu tiên từng giai đoạn).</p>
+            <div class="empty-ic">🔬</div>
+            <h3>Chưa có nghiên cứu cho doanh nghiệp này</h3>
+            <p class="muted">Quy trình 2 bước: <b>① Chạy nghiên cứu</b> (thị trường, đối thủ, khách, SWOT) → <b>② chọn hướng đánh</b> → Max lập chiến lược + playbook.</p>
             <div class="empty-actions">
               <a class="primary-btn" href="#dossier">📋 Điền Hồ sơ doanh nghiệp</a>
-              <button class="ghost-line" data-act="run-agent" data-task="full">🚀 Chạy chẩn đoán ngay</button>
+              <button class="ghost-line" data-act="run-agent" data-task="research">🔬 Chạy nghiên cứu ngay</button>
             </div></div>`, {cls:'span-12'})}
         </section>`;
       }
@@ -1797,52 +2178,112 @@ window.MOCK = {
     mount: () => {},
   };
 
-  /* ---- Cầu nối: Lập chiến dịch theo dịp (M1 — đang phát triển) ---- */
-  P.occasion = {
-    title: 'Lập chiến dịch theo dịp', sub: 'Nơi chốt SMART thật — kế thừa định hướng từ Chiến lược',
+  /* ---- Tactical Playbook (T5 — cách đánh chi tiết theo từng tệp) ---- */
+  P.tactical = {
+    title: 'Tactical Playbook', sub: 'Cách đánh chi tiết theo từng phân khúc — copy, kênh, khung test, KPI',
     actions: `<a class="ghost-line" href="#strategy">← Về Chiến lược</a>`,
-    render: () => `<section class="grid">
-        ${card('', `<div class="empty-cta">
-          <div class="empty-ic">🗓️</div>
-          <h3>Đang phát triển — sắp ra mắt</h3>
-          <p class="muted">Đây là chặng <b>M1</b>: từ một dịp cụ thể (Tết, ra mắt, Black Friday…) Max sẽ
-          kế thừa <b>định hướng</b> ở Chiến lược 90 ngày rồi giúp bạn <b>chốt SMART thật</b> —
-          mục tiêu có số, ngân sách đợt, deadline, theo đúng giai đoạn roadmap hiện tại.</p>
-          <p class="muted">Chiến lược (la bàn) đã có. Bước này (bản đồ chi tiết) đang được xây.</p>
-          <div class="empty-actions">
-            <a class="ghost-line" href="#strategy">← Xem lại Chiến lược định hướng</a>
-          </div></div>`, {cls:'span-12'})}
-      </section>`,
+    render: () => {
+      const has = (M.bizSkillRuns || []).some(r => r.skill_name === 'tactical_playbook');
+      if (M.bizEnabled && !has) {
+        return `<section class="grid">
+          ${card('', `<div class="empty-cta">
+            <div class="empty-ic">🔨</div>
+            <h3>Chưa có Tactical Playbook</h3>
+            <p class="muted">Đây là <b>bản đồ chi tiết</b> đi sau Chiến lược (la bàn): với từng phân khúc ưu tiên,
+            Max viết cách đánh theo phễu (TOFU/MOFU/BOFU) — copy mẫu, kênh, khung thử nghiệm, KPI cần theo dõi.
+            Nó được tạo cùng lượt "Lập chiến lược" (sau khi chọn hướng đánh).</p>
+            <div class="empty-actions">
+              <a class="primary-btn" href="#strategy">🎯 Tới bước Lập chiến lược</a>
+            </div></div>`, {cls:'span-12'})}
+        </section>`;
+      }
+      return `<section class="grid">
+        <div class="card span-12 dir-banner">🔨 Đây là <b>cách đánh chi tiết</b> (bản đồ) — đi sau <b>Chiến lược định hướng</b> (la bàn).
+          Mỗi phân khúc có copy mẫu, kênh, khung thử nghiệm, KPI. Con số/ngân sách thật chốt khi lập chiến dịch theo dịp.</div>
+        ${agentSection('full','tactical_playbook')}
+      </section>`;
+    },
     mount: () => {},
   };
 
-  /* ---- Campaign Brief ---- */
-  P.brief = {
-    title: 'Campaign Brief', sub: 'Tài liệu chiến dịch 10 phần — tự prefill từ chiến lược',
-    actions: `<a class="primary-btn" href="#content">→ Tạo nội dung</a>`,
-    render: () => `
-      <section class="grid">
-        ${card('Chiến dịch “Mùa hè rực rỡ”', `
-          <div class="brief">
-            ${briefRow('🎯 Mục tiêu','Tăng 50% đơn online trong 90 ngày')}
-            ${briefRow('👥 Đối tượng','Gen Z & văn phòng 22–34, TP.HCM')}
-            ${briefRow('💰 Ngân sách','195.000.000₫ (6,5tr/ngày)')}
-            ${briefRow('📣 Kênh','Facebook · TikTok · Zalo OA')}
-            ${briefRow('🧲 Thông điệp','“Cà phê thật, giá thật, lấy nhanh”')}
-            ${briefRow('📊 KPI','ROAS 4,0x · CPA < 25.000₫ · 1.600 đơn')}
-            ${briefRow('🗓️ Thời gian','01/07 → 30/09/2026')}
-            ${briefRow('🎬 Định dạng','Video 9:16, Carousel, UGC')}
-          </div>`, {cls:'span-8'})}
-        ${card('Pillar mix', donut('pillarChart','100%','Phân bổ',
-          M.pillars.map(p=>[p.name,p.pct+'%'])), {cls:'span-4'})}
-      </section>`,
-    mount: () => { doughnut('pillarChart', M.pillars.map(p=>p.pct), M.pillars.map(p=>p.color)); },
+  /* ---- Cầu nối: Lập chiến dịch theo dịp (M1 — đang phát triển) ---- */
+  // D-040: hub 2-tuyến — Always-on (nền) + Occasion (theo dịp). Industry-aware.
+  P.occasion = {
+    title: 'Lập chiến dịch', sub: '2 tuyến chạy song song: Always-on (nền) + Theo dịp (occasion)',
+    actions: `<a class="ghost-line" href="#strategy">← Về Chiến lược</a>`,
+    render: () => {
+      if (M.bizEnabled && !(M.bizLatest || {}).synthesis) {
+        return `<section class="grid">${card('', `<div class="empty-cta">
+          <div class="empty-ic">🗓️</div><h3>Cần có Chiến lược trước</h3>
+          <p class="muted">2 tuyến chiến dịch kế thừa từ Chiến lược (la bàn) + Tactical Playbook. Hãy lập chiến lược trước.</p>
+          <div class="empty-actions"><a class="primary-btn" href="#strategy">🎯 Tới bước Lập chiến lược</a></div></div>`, {cls:'span-12'})}</section>`;
+      }
+      return `<section class="grid">
+        <div class="card span-12 dir-banner">🧭 <b>Synthesis = la bàn TRÊN cả 2 tuyến.</b> <b>Always-on</b> chạy nền liên tục để được nhớ (Byron Sharp); <b>Occasion</b> là đợt theo dịp tạo spike (Binet&Field). 2 tuyến SONG SONG — occasion cộng thêm, không tắt nền.</div>
+        <div id="campaignPlan" class="span-12"><div class="card"><p class="muted">⏳ Đang lập 2 tuyến theo ngành của bạn…</p></div></div>
+      </section>`;
+    },
+    mount: () => { loadCampaignPlan(); },
   };
+  // D-040: nạp content pillars (always-on) + gợi ý occasion theo ngành
+  let _lastOccasions = [];   // M1.1: gợi ý dịp để pre-fill wizard tạo occasion
+  async function loadCampaignPlan() {
+    const host = document.getElementById('campaignPlan');
+    if (!host || !apiAvailable || !M.bizEnabled) return;
+    const E = s => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    try {
+      const r = await API.get('api/biz/campaign-plan' + bizQuery());
+      const p = (r && r.plan) || {};
+      const pillars = p.pillars || [], occ = p.occasions || [];
+      _lastOccasions = occ;
+      if (!pillars.length && !occ.length) {
+        host.innerHTML = `<div class="card"><p class="muted">Chưa lập được 2 tuyến — chạy lại Chiến lược (T4) rồi quay lại.</p></div>`; return;
+      }
+      const pillarCards = pillars.map(x => `
+        <div class="pillar">
+          <div class="pillar-head"><b>${E(x.name)}</b> ${x.funnel ? `<span class="tag">${E(x.funnel)}</span>` : ''}</div>
+          ${x.role ? `<p class="muted">${E(x.role)}</p>` : ''}
+          ${x.cadence ? `<p class="pillar-cad">🔁 ${E(x.cadence)}</p>` : ''}
+          ${(x.angles || []).length ? `<ul class="bullet">${x.angles.map(a => `<li>${E(a)}</li>`).join('')}</ul>` : ''}
+        </div>`).join('');
+      const occRows = occ.map(o => `
+        <li class="row"><div class="row-main"><p>🔴 ${E(o.name)} ${o.when ? `<span class="muted">· ${E(o.when)}</span>` : ''}</p>${o.why ? `<span class="muted">${E(o.why)}</span>` : ''}</div></li>`).join('');
+      host.innerHTML = `<section class="grid" style="margin:0">
+        ${card('🟢 Always-on — tuyến NỀN (content pillars)', `
+          <p class="muted" style="margin-bottom:12px">Chạy đều quanh năm để thương hiệu được nhớ. Bám USP + JTBD + archetype ngành. <b>Không chốt số</b> — đây là nền (D-029).</p>
+          <div class="pillars">${pillarCards || '<p class="muted">—</p>'}</div>
+          <a class="ghost-line full" href="#calendar" style="margin-top:14px">→ Đưa vào Lịch nội dung</a>`, { cls: 'span-7' })}
+        ${card('🔴 Theo dịp — Occasion (gợi ý theo ngành)', `
+          <p class="muted" style="margin-bottom:12px">Đợt có window — nơi <b>chốt SMART thật</b> (số, ngân sách đợt, deadline). Hợp mùa vụ ngành:</p>
+          <ul class="rows">${occRows || '<li class="muted">—</li>'}</ul>
+          <button class="primary-btn full" data-act="new-occasion" style="margin-top:14px">＋ Tạo chiến dịch theo dịp</button>`, { cls: 'span-5' })}
+        ${card('🔁 Giữ chân khách cũ — Retention (behavior-triggered)', `
+          <p class="muted" style="margin-bottom:12px">Khác 2 tuyến trên (theo lịch): đây là tuyến theo <b>HÀNH VI khách</b> (vừa mua / im ắng / đã rời bỏ). <b>Không cần dữ liệu đơn hàng</b> — Max đưa <b>cẩm nang</b>: tình huống nào → làm gì → tin nhắn mẫu, bạn tự áp.</p>
+          <div class="occ-row" style="gap:10px">
+            <button class="primary-btn" style="flex:1" data-act="new-lifecycle" data-mode="retention">🔁 Cẩm nang giữ chân</button>
+            <button class="ghost-line" style="flex:1" data-act="new-lifecycle" data-mode="winback">↩️ Kéo khách cũ quay lại</button>
+          </div>`, { cls: 'span-12' })}
+      </section>`;
+    } catch (e) { host.innerHTML = `<div class="card"><p class="muted">Không lập được kế hoạch — thử lại sau.</p></div>`; }
+  }
+
+  /* ---- (gỡ) Campaign Brief mock — thay bằng Occasion brief thật (M1.1).
+     Route #brief redirect → #occasion (xem route()). ---- */
 
   /* ---- Lịch nội dung — Kế hoạch: Always-on (nền, LUÔN chạy) + Campaign theo dịp (cộng thêm) ---- */
   let _calView = 'plan';   // 'plan' (tháng) | 'week' (chi tiết tuần)
   let _calWeek = 1;        // tuần đang xem ở chế độ week
-  const calPlan = () => M.calendarPlan || { days: [], weeks: 0, alwaysOn: [], campaigns: [] };
+  let _realCal = null;     // M1.2: lịch THẬT (occasion bands + pillars) khi bizEnabled
+  const calPlan = () => _realCal || M.calendarPlan || { days: [], weeks: 0, alwaysOn: [], campaigns: [] };
+  async function loadRealCalendar() {
+    if (!apiAvailable || !M.bizEnabled) { _realCal = null; return; }
+    try {
+      const r = await API.get('api/biz/calendar' + bizQuery());
+      const c = r && r.calendar;
+      _realCal = (c && (c.campaigns || c.alwaysOn)) ? c : null;
+      if (_realCal) route();   // re-render với dữ liệu thật
+    } catch (e) { _realCal = null; }
+  }
   const campActiveWeek = (w) => (calPlan().campaigns || []).filter(c => w >= c.fromWeek && w <= c.toWeek);
   // Bài campaign cộng thêm trong 1 (tuần, ngày)
   const campPostsAt = (w, d) => {
@@ -1873,10 +2314,10 @@ window.MOCK = {
           <button class="ghost-line sm" data-act="cal-open-week" data-week="${w}">Mở chi tiết →</button></div>
         <div class="pw-tracks">
           <div class="pw-track on"><span class="trk on">🟢 Always-on</span> ${P0.alwaysOn.length} bài brand
-            <button class="chip-btn sm" data-act="cal-gen" data-week="${w}" data-track="always">⚡ Tạo bài tuần ${w}</button></div>
+            <button class="chip-btn sm" data-act="cal-gen" data-week="${w}" data-track="always" data-pillar="${((P0.alwaysOn[0]||{}).pillar||'').replace(/"/g,'&quot;')}">⚡ Tạo bài tuần ${w}</button></div>
           ${camps.length ? camps.map(c => `<div class="pw-track camp" style="--c:${c.color}">
             <span class="trk camp" style="--c:${c.color}">🔴 ${c.name}</span> ${campCount} bài đẩy offer
-            <button class="chip-btn sm" data-act="cal-gen" data-week="${w}" data-track="camp">⚡ Tạo bài campaign</button></div>`).join('')
+            <button class="chip-btn sm" data-act="cal-gen" data-week="${w}" data-track="camp" data-camp-id="${c.campaignId||''}">⚡ Tạo bài campaign</button></div>`).join('')
           : `<div class="pw-track muted">Không có campaign — chỉ chạy nền Always-on</div>`}
         </div></div>`;
     }).join('');
@@ -1905,11 +2346,15 @@ window.MOCK = {
         ${days.map((d, i) => {
           const cps = campPostsAt(w, i);
           const inCamp = cps.length > 0;
+          const slotPillar = (P0.alwaysOn[i] || {}).pillar || '';
+          const genAttrs = inCamp
+            ? `data-track="camp" data-camp-id="${cps[0].camp.campaignId || ''}"`
+            : `data-track="always" data-pillar="${slotPillar.replace(/"/g, '&quot;')}"`;
           return `<div class="cal-col ${inCamp ? 'in-camp' : ''}" ${inCamp ? `style="--c:${cps[0].camp.color}"` : ''}>
             <div class="cal-colhead">${d}${inCamp ? `<span class="col-dot" style="background:${cps[0].camp.color}"></span>` : ''}</div>
             ${alwaysCard(P0.alwaysOn[i] || { pillar: 'Educate', title: 'Bài brand' })}
             ${cps.map(campCard).join('')}
-            <button class="cal-add" data-act="cal-gen" data-week="${w}" data-day="${i}">⚡ Tạo bài</button></div>`;
+            <button class="cal-add" data-act="cal-gen" data-week="${w}" data-day="${i}" ${genAttrs}>⚡ Tạo bài</button></div>`;
         }).join('')}
       </div>`;
   }
@@ -1925,68 +2370,21 @@ window.MOCK = {
         <button class="ghost-line" data-act="add-campaign-occasion">🎯 Tạo campaign theo dịp</button>`;
     },
     render: () => `
-      ${M.bizEnabled ? '' : `<div class="cal-note">${badge('Bản thiết kế UX','amber')} <span class="muted"> Mô hình kế hoạch — dữ liệu mẫu, nối thật ở M1.</span></div>`}
+      ${_realCal ? '' : (M.bizEnabled
+        ? `<div class="cal-note">${badge('Chưa có dữ liệu thật','amber')} <span class="muted"> Lập Chiến lược + tạo campaign theo dịp để lịch hiện thật. Đang xem mẫu.</span></div>`
+        : `<div class="cal-note">${badge('Bản thiết kế UX','amber')} <span class="muted"> Mô hình kế hoạch — dữ liệu mẫu, nối thật khi bật backend.</span></div>`)}
       <div class="cal-legend">
-        <span><i class="lg on"></i> 🟢 Always-on — bài brand chạy đều mỗi tuần (Educate/Trust/Engage), KHÔNG tắt khi có campaign</span>
+        <span><i class="lg on"></i> 🟢 Always-on — bài brand chạy đều mỗi tuần (content pillars), KHÔNG tắt khi có campaign</span>
         <span><i class="lg camp"></i> 🔴 Campaign theo dịp — bài đẩy offer, CỘNG THÊM lên nền trong đúng đợt</span>
       </div>
       ${_calView === 'plan' ? calPlanView() : calWeekView()}`,
-    mount: () => {},
+    mount: () => { loadRealCalendar(); },
   };
 
   /* ---- Content generator ---- */
-  P.content = {
-    title: 'Trình tạo nội dung', sub: 'Sản xuất hàng loạt: bài viết + video + UGC + ads',
-    actions: `<button class="primary-btn" data-act="gen-content">⚡ Tạo gói nội dung</button>`,
-    render: () => `
-      <section class="grid">
-        ${card('Cấu hình', `
-          <div class="form">
-            ${field('Chủ đề','Khuyến mãi mùa hè')}
-            ${field('Số bài/tuần','7 bài')}
-            ${selectField('Kênh','Facebook + TikTok + Zalo')}
-            ${selectField('Tông giọng','Thân thiện, trẻ trung')}
-          </div>
-          <button class="primary-btn full" data-act="gen-content" style="margin-top:14px">⚡ Tạo gói nội dung</button>`, {cls:'span-4'})}
-        ${card(`Kết quả tạo (${(M.contentItems||[]).length} mục)`, `
-          ${table(['#','Hook','Định dạng','Trạng thái'],
-            (M.contentItems||[]).map(it=>[String(it.idx).padStart(2,'0'), it.hook, it.format,
-              it.status==='ready'?badge('Sẵn sàng','green'):badge('Đang tạo','amber')]))}
-        `, {cls:'span-8'})}
-      </section>`,
-    mount: () => {},
-  };
-
-  /* ---- Video scripts ---- */
-  P.video = {
-    title: 'Kịch bản video', sub: 'TikTok / Reels / Shorts từ slot lịch nội dung',
-    render: () => `
-      <section class="grid">
-        ${card('Reel — “Hậu trường pha chế” (0:30)', `
-          <div class="script">
-            ${scene('0:00–0:03','HOOK','Cận tay rót cà phê — “Bạn có biết 90% quán pha sai bước này?”')}
-            ${scene('0:03–0:12','BODY','Quay quy trình 3 bước, text overlay từng bước')}
-            ${scene('0:12–0:24','PROOF','Khách thử + biểu cảm “wow”')}
-            ${scene('0:24–0:30','CTA','“Ghé thử hôm nay — giảm 20% cho đơn đầu”')}
-          </div>`, {cls:'span-7'})}
-        ${card('Gợi ý sản xuất', `
-          <ul class="bullet"><li>🎵 Nhạc trend: “summer vibe”</li><li>📐 Tỉ lệ 9:16, 1080×1920</li>
-          <li>💡 Ánh sáng tự nhiên buổi sáng</li><li>⏱️ Hook < 3 giây giữ chân</li></ul>`, {cls:'span-5'})}
-      </section>`,
-    mount: () => {},
-  };
-
-  /* ---- UGC briefs ---- */
-  P.ugc = {
-    title: 'UGC Brief', sub: 'Brief cho creator: Micro / Mid / KOL',
-    render: () => `
-      <section class="grid">
-        ${ugcCard('Micro (5–20k)','3 creator','Trải nghiệm thật, quay tại quán','120.000₫/video')}
-        ${ugcCard('Mid (20–100k)','2 creator','Review chi tiết + so sánh','650.000₫/video')}
-        ${ugcCard('KOL (100k+)','1 creator','Câu chuyện thương hiệu','5.000.000₫/video')}
-      </section>`,
-    mount: () => {},
-  };
+  // M3.1 (hybrid): "Trình tạo nội dung", "Kịch bản video", "UGC Brief" đã GỠ khỏi trang riêng.
+  // Bài gốc tạo trong Lịch nội dung; video/UGC/đa-kênh là biến thể phái sinh ngay trên 1 bài
+  // (modal "⚡ Tạo bài" → 📱/🎬/📸). Xem docs/web/slices/M3-content-suite.md.
 
   /* ---- Ads copy ---- */
   P.adscopy = {
@@ -2370,9 +2768,6 @@ window.MOCK = {
   const calPosts = (i) => M.calendarPosts
     ? M.calendarPosts.filter(p => p.day === i)
     : (M.calendar.posts[i] || []).map(p => ({ pillar: p.p, title: p.t }));
-  const scene = (t,tag,txt) => `<div class="scene"><span class="scene-t">${t}</span><span class="tag">${tag}</span><p>${txt}</p></div>`;
-  const ugcCard = (lvl,n,brief,price) => card('', `<div class="ugc"><p class="ugc-lvl">${lvl}</p><span class="tag">${n}</span>
-    <p class="muted" style="margin:8px 0">${brief}</p><p class="ugc-price">${price}</p></div>`, {cls:'span-4'});
   const bubble = (dir,txt) => `<div class="bubble ${dir}">${txt}</div>`;
   const field = (l,v) => `<label class="fld"><span>${l}</span><input value="${v}"></label>`;
   const selectField = (l,v) => `<label class="fld"><span>${l}</span><div class="sel">${v} ▾</div></label>`;
@@ -2480,6 +2875,8 @@ window.MOCK = {
     let id = seg0;
     // pivot: bỏ Max chat → mọi thứ bắt đầu từ Hồ sơ doanh nghiệp
     if (id === 'pipeline' || id === 'agents' || id === 'home' || id === 'chat') id = 'dossier';
+    if (id === 'brief') id = 'occasion';   // gỡ trang Campaign Brief mock → hub Lập chiến dịch thật
+    if (id === 'content' || id === 'video' || id === 'ugc') id = 'calendar';   // M3.1: gộp vào Lịch (bài + biến thể)
     if (id === 'doc') _docId = seg1 || null;                    // trang đọc output: #doc/<id>
     const page = P[id] || P.dossier;
     killCharts();
@@ -2490,8 +2887,43 @@ window.MOCK = {
       pageHead(page.title, page.sub, actions) + page.render();
     if (page.mount) page.mount();
     fillDocEmbeds();   // nhúng trình đọc/sửa text vào trang chi tiết (demo + thật)
+    fillSkillRunSlots();   // nạp nội dung slot .ai-output[data-skill-run] (synthesis collapsible)
+    injectPageNav(id);     // nút chuyển tab trước/sau cho chuỗi phân tích
     document.querySelector('.main').scrollTo(0,0);
     document.body.classList.remove('nav-open');
+  }
+  // Nạp nội dung skill_run vào slot .ai-output[data-skill-run] (vd synthesis collapsible)
+  async function fillSkillRunSlots() {
+    const slots = document.querySelectorAll('.ai-output[data-skill-run]');
+    for (const slot of slots) {
+      const id = slot.dataset.skillRun;
+      if (!id || slot.dataset.loaded) continue;
+      try {
+        const r = await API.get('api/biz/skillrun/' + id);
+        slot.innerHTML = renderAIContent(r.content || '(trống)');
+        enhancePosMaps(slot);
+        slot.dataset.loaded = '1';
+      } catch (e) { slot.innerHTML = '<p class="muted">Không tải được nội dung — thử lại sau.</p>'; }
+    }
+  }
+  // Nút chuyển tab trước/sau cho chuỗi phân tích T1→T5 (đọc theo trình tự)
+  const PAGE_SEQ = [
+    ['market', 'Nghiên cứu thị trường'], ['competitor', 'Phân tích đối thủ'],
+    ['customer', 'Customer Insight'], ['pricing', 'Định giá & Tâm lý'],
+    ['swot', 'SWOT'], ['strategy', 'Chiến lược tổng hợp'], ['tactical', 'Tactical Playbook'],
+  ];
+  function injectPageNav(id) {
+    const i = PAGE_SEQ.findIndex(p => p[0] === id);
+    if (i < 0) return;
+    const prev = i > 0 ? PAGE_SEQ[i - 1] : null;
+    const next = i < PAGE_SEQ.length - 1 ? PAGE_SEQ[i + 1] : null;
+    const bar = document.createElement('div');
+    bar.className = 'page-nav';
+    bar.innerHTML =
+      (prev ? `<a class="ghost-line" href="#${prev[0]}">← ${prev[1]}</a>` : '<span></span>') +
+      `<span class="page-nav-pos">${i + 1}/${PAGE_SEQ.length}</span>` +
+      (next ? `<a class="ghost-line" href="#${next[0]}">${next[1]} →</a>` : '<span></span>');
+    document.getElementById('view').appendChild(bar);
   }
   /* ════════════ backend API + actions ════════════ */
   let apiAvailable = false;
@@ -2530,6 +2962,7 @@ window.MOCK = {
   const SKILL_TO_TASK = { market_research:'market', competitor:'competitor', customer_insight:'customer',
     psychology_pricing:'pricing', swot:'swot', synthesis:'strategy', tactical_playbook:'strategy' };
   let _modalRun = null;
+  let _postBase = null;   // M3.1: bài gốc đang mở (để bung biến thể / quay lại)
   function showModal(title, content, meta) {
     _modalRun = meta ? { ...meta, title, content } : null;
     let ov = document.getElementById('bizModal');
@@ -2545,6 +2978,7 @@ window.MOCK = {
     }
     ov.querySelector('h3').textContent = title;
     ov.querySelector('.modal-body').innerHTML = renderAIContent(content || '(trống)');
+    enhancePosMaps(ov.querySelector('.modal-body'));   // D-034 #4: ASCII map → visual
     const foot = ov.querySelector('.modal-foot');
     if (meta && meta.id) {
       foot.style.display = 'flex';
@@ -2559,8 +2993,240 @@ window.MOCK = {
           <button class="ghost-line sm" data-act="copy-skillrun">📋 Copy</button>
           ${meta.task?`<button class="primary-btn sm" data-act="regen-skillrun" data-task="${meta.task}">🔄 Tạo lại bản mới</button>`:''}
         </div>`;
+    } else if (meta && meta.derive) {
+      // M3.1: bài gốc trong Lịch → bung biến thể phái sinh (đa kênh/video/UGC)
+      foot.style.display = 'flex';
+      foot.innerHTML = `
+        <div class="rate-group"><span class="muted">Bung biến thể:</span>
+          <button class="ghost-line sm" data-act="post-derive" data-kind="channels">📱 Đa kênh</button>
+          <button class="ghost-line sm" data-act="post-derive" data-kind="video">🎬 Video</button>
+          <button class="ghost-line sm" data-act="post-derive" data-kind="ugc">📸 UGC brief</button>
+        </div>
+        <div class="modal-foot-r"><button class="ghost-line sm" data-act="copy-skillrun">📋 Copy</button></div>`;
+    } else if (meta && meta.back) {
+      // M3.1: kết quả biến thể → quay lại bài gốc
+      foot.style.display = 'flex';
+      foot.innerHTML = `
+        <div class="rate-group"><button class="ghost-line sm" data-act="post-back">← Bài gốc</button></div>
+        <div class="modal-foot-r"><button class="ghost-line sm" data-act="copy-skillrun">📋 Copy</button></div>`;
     } else { foot.style.display = 'none'; foot.innerHTML = ''; }
     ov.classList.add('show');
+  }
+
+  /* ── M1.1 (D-043/044): Wizard tạo Campaign Occasion (chốt SMART thật) ── */
+  // D-044: "mục đích đợt" = trục WHY (định hình brief), KHÁC trục WHEN. Founder chọn; trống = Max tự suy.
+  const OCC_OBJECTIVES = [
+    { k: 'acquisition', ic: '🧲', label: 'Kéo khách mới', desc: 'demand-gen · reach · lead' },
+    { k: 'conversion',  ic: '💰', label: 'Chốt đơn',      desc: 'activation · ROAS/CPA · offer mạnh' },
+    { k: 'brand',       ic: '📣', label: 'Đẩy nhận biết', desc: 'the long · nhớ thương hiệu' },
+    { k: 'retention',   ic: '🔁', label: 'Giữ khách cũ',  desc: 'repeat · AOV/CLV · loyalty' },
+  ];
+  let _occState = { occasion: '', ws: '', we: '', budget: '', baseline: '', goal: '', objective: '', brief: '', busy: false };
+
+  function openOccasionWizard(preset) {
+    _occState = { occasion: preset || '', ws: '', we: '', budget: '', baseline: '', goal: '', objective: '', brief: '', busy: false };
+    let ov = document.getElementById('occWizard');
+    if (!ov) {
+      ov = document.createElement('div');
+      ov.id = 'occWizard'; ov.className = 'modal-ov';
+      ov.innerHTML = `<div class="modal"><div class="modal-head"><h3>Tạo chiến dịch theo dịp</h3>
+        <button class="icon-btn" data-act="occ-close">✕</button></div>
+        <div class="modal-body" id="occBody"></div></div>`;
+      document.body.appendChild(ov);
+      ov.addEventListener('click', (e) => { if (e.target === ov) ov.classList.remove('show'); });
+      // bắt input động trong wizard (lưu state, không re-render để giữ con trỏ)
+      ov.addEventListener('input', (e) => {
+        const k = e.target.dataset.occfield; if (k) _occState[k] = e.target.value;
+      });
+      ov.addEventListener('click', (e) => {
+        const chip = e.target.closest('[data-act="occ-chip"]');
+        if (chip) {
+          _occState.occasion = chip.dataset.occ || '';
+          const inp = document.getElementById('occName'); if (inp) inp.value = _occState.occasion;
+          ov.querySelectorAll('[data-act="occ-chip"]').forEach(c => c.classList.toggle('on', c === chip));
+          return;
+        }
+        const obj = e.target.closest('[data-act="occ-obj"]');
+        if (obj) {   // toggle mục đích (chọn lại = bỏ → Max tự suy)
+          const k = obj.dataset.obj;
+          _occState.objective = (_occState.objective === k) ? '' : k;
+          ov.querySelectorAll('[data-act="occ-obj"]').forEach(c =>
+            c.classList.toggle('on', c.dataset.obj === _occState.objective));
+        }
+      });
+    }
+    renderOccWizard();
+    ov.classList.add('show');
+  }
+
+  function renderOccWizard() {
+    const body = document.getElementById('occBody'); if (!body) return;
+    const S = _occState;
+    const E = s => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    if (S.brief) {   // Bước 3-4: review brief đã sinh
+      body.innerHTML = `
+        <div class="dir-banner" style="margin-bottom:14px">✅ <b>Campaign Brief — ${E(S.occasion)}</b>.
+          Mọi số là <b>gợi ý của Max</b> — bạn chốt lại được. Xem kỹ rồi lưu, hoặc quay lại chỉnh lever.</div>
+        <div class="ai-output expanded">${renderAIContent(S.brief)}</div>
+        <div class="occ-foot">
+          <button class="ghost-line" data-act="occ-back">← Chỉnh lever</button>
+          <button class="primary-btn" data-act="occ-save">💾 Lưu chiến dịch</button>
+        </div>`;
+      enhancePosMaps(body);
+      return;
+    }
+    const chips = (_lastOccasions || []).map(o =>
+      `<button class="occ-chip ${S.occasion === o.name ? 'on' : ''}" data-act="occ-chip" data-occ="${E(o.name)}">${E(o.name)}${o.when ? ` · ${E(o.when)}` : ''}</button>`).join('');
+    body.innerHTML = `
+      <div class="dir-banner" style="margin-bottom:14px">🧭 Đợt này <b>kế thừa la bàn + cách đánh</b> (pre-fill).
+        Bạn nhập <b>lever</b> (dịp, window, ngân sách, baseline) — đây là cái khoá để chốt <b>SMART thật</b>. Mọi giá trị <b>bạn quyết</b>.</div>
+
+      <div class="occ-step"><label class="occ-lbl">1 · Chọn dịp</label>
+        ${chips ? `<div class="occ-chips">${chips}</div>` : ''}
+        <input id="occName" class="occ-inp" data-occfield="occasion" placeholder="vd: Tết Nguyên Đán, 20/10, Mừng khai trương…" value="${E(S.occasion)}">
+      </div>
+
+      <div class="occ-step"><label class="occ-lbl">Window (ngày chạy)</label>
+        <div class="occ-row">
+          <input type="date" class="occ-inp" data-occfield="ws" value="${E(S.ws)}">
+          <span class="muted">→</span>
+          <input type="date" class="occ-inp" data-occfield="we" value="${E(S.we)}">
+        </div></div>
+
+      <div class="occ-step"><label class="occ-lbl">2 · Mục đích đợt <span class="muted" style="font-weight:400">(định hình brief — trống thì Max tự suy)</span></label>
+        <div class="occ-objs">${OCC_OBJECTIVES.map(o => `
+          <button class="occ-obj ${S.objective === o.k ? 'on' : ''}" data-act="occ-obj" data-obj="${o.k}">
+            <span class="occ-obj-ic">${o.ic}</span>
+            <span class="occ-obj-main"><b>${o.label}</b><small>${o.desc}</small></span>
+          </button>`).join('')}</div></div>
+
+      <div class="occ-step"><label class="occ-lbl">3 · Lever (khoá SMART)</label>
+        <input class="occ-inp" data-occfield="budget" placeholder="Ngân sách đợt (vd 30 triệu) — gợi ý từ % burst" value="${E(S.budget)}">
+        <input class="occ-inp" data-occfield="baseline" placeholder="Baseline hiện tại (vd 200 đơn/tháng, AOV 350k) — chưa rõ thì để trống" value="${E(S.baseline)}">
+        <input class="occ-inp" data-occfield="goal" placeholder="Mục tiêu chính đợt (để trống = theo giai đoạn roadmap)" value="${E(S.goal)}">
+        <p class="muted occ-hint">Chưa có baseline cũng được — Max sẽ để mục tiêu dạng <b>khoảng + nhãn (ước tính)</b>.</p>
+      </div>
+
+      <div class="occ-foot">
+        <button class="ghost-line" data-act="occ-close">Huỷ</button>
+        <button class="primary-btn" data-act="occ-gen" ${S.busy ? 'disabled' : ''}>${S.busy ? '⏳ Max đang lập brief…' : '✨ Max sinh Campaign Brief'}</button>
+      </div>`;
+  }
+
+  async function occasionGenerate() {
+    const S = _occState;
+    if (!(S.occasion || '').trim()) { toast('Hãy chọn hoặc nhập dịp trước'); return; }
+    S.busy = true; renderOccWizard();
+    try {
+      const r = await API.post('api/biz/occasion', {
+        user_id: _bizUserId, occasion: S.occasion, window_start: S.ws, window_end: S.we,
+        budget: S.budget, baseline: S.baseline, goal: S.goal, objective: S.objective });
+      const d = (r && r.draft) || {};
+      S.busy = false;
+      if (!d.brief) { renderOccWizard(); toast('Chưa lập được brief — cần có Chiến lược (T4) trước, hoặc thử lại.'); return; }
+      S.brief = d.brief; renderOccWizard();
+    } catch (e) { S.busy = false; renderOccWizard(); toast('Không lập được brief — thử lại sau.'); }
+  }
+
+  async function occasionSave() {
+    const S = _occState;
+    if (!S.brief) return;
+    try {
+      const r = await API.post('api/biz/occasion/save', {
+        user_id: _bizUserId, occasion: S.occasion, window_start: S.ws, window_end: S.we,
+        budget: S.budget, goal: S.goal, brief: S.brief, objective: S.objective });
+      if (r.error) { toast(r.error); return; }
+      const ov = document.getElementById('occWizard'); if (ov) ov.classList.remove('show');
+      toast('✅ Đã lưu chiến dịch theo dịp');
+      await refreshBiz(); route();
+    } catch (e) { toast('Không lưu được chiến dịch'); }
+  }
+
+  /* ── M2.1 (D-045): Wizard Retention/Winback — cẩm nang if-then, KHÔNG cần order data ── */
+  const LIFE_MODES = {
+    retention: { ic: '🔁', title: 'Cẩm nang giữ chân khách',
+      sub: 'Tình huống khách (bạn tự nhìn ra) → nên làm gì → tin nhắn mẫu. Không cần dữ liệu đơn hàng.' },
+    winback:   { ic: '↩️', title: 'Kéo khách cũ quay lại',
+      sub: 'Khách đã lâu không mua → chuỗi chạm kéo về. Không cần dữ liệu đơn hàng.' },
+  };
+  let _lifeState = { mode: 'retention', cycle: '', channels: '', offer: '', brief: '', busy: false };
+
+  function openLifecycleWizard(mode) {
+    _lifeState = { mode: (LIFE_MODES[mode] ? mode : 'retention'), cycle: '', channels: '', offer: '', brief: '', busy: false };
+    let ov = document.getElementById('lifeWizard');
+    if (!ov) {
+      ov = document.createElement('div');
+      ov.id = 'lifeWizard'; ov.className = 'modal-ov';
+      ov.innerHTML = `<div class="modal"><div class="modal-head"><h3></h3>
+        <button class="icon-btn" data-act="life-close">✕</button></div>
+        <div class="modal-body" id="lifeBody"></div></div>`;
+      document.body.appendChild(ov);
+      ov.addEventListener('click', (e) => { if (e.target === ov) ov.classList.remove('show'); });
+      ov.addEventListener('input', (e) => {
+        const k = e.target.dataset.lifefield; if (k) _lifeState[k] = e.target.value;
+      });
+    }
+    ov.querySelector('h3').textContent = LIFE_MODES[_lifeState.mode].title;
+    renderLifeWizard();
+    ov.classList.add('show');
+  }
+
+  function renderLifeWizard() {
+    const body = document.getElementById('lifeBody'); if (!body) return;
+    const S = _lifeState, MD = LIFE_MODES[S.mode];
+    const E = s => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    if (S.brief) {
+      body.innerHTML = `
+        <div class="dir-banner" style="margin-bottom:14px">✅ <b>${MD.ic} ${E(MD.title)}</b>.
+          Đây là <b>cẩm nang</b> — bạn tự đối chiếu khách của mình rồi áp. Ngưỡng thời gian là <b>ước tính theo ngành</b>, chỉnh thoải mái.</div>
+        <div class="ai-output expanded">${renderAIContent(S.brief)}</div>
+        <div class="occ-foot">
+          <button class="ghost-line" data-act="life-back">← Chỉnh lever</button>
+          <button class="primary-btn" data-act="life-save">💾 Lưu cẩm nang</button>
+        </div>`;
+      enhancePosMaps(body);
+      return;
+    }
+    body.innerHTML = `
+      <div class="dir-banner" style="margin-bottom:14px">${MD.ic} ${E(MD.sub)}
+        Kế thừa la bàn (Synthesis) + đặc thù ngành. Vài thông tin dưới đây giúp cẩm nang sát hơn — <b>để trống cũng được</b>.</div>
+      <div class="occ-step"><label class="occ-lbl">Chu kỳ mua điển hình</label>
+        <input class="occ-inp" data-lifefield="cycle" placeholder="vd: khách hay mua lại mỗi ~30 ngày (trống = Max suy theo ngành)" value="${E(S.cycle)}"></div>
+      <div class="occ-step"><label class="occ-lbl">Kênh liên hệ đang có (owned)</label>
+        <input class="occ-inp" data-lifefield="channels" placeholder="vd: Zalo OA, SMS, gọi điện, email…" value="${E(S.channels)}"></div>
+      <div class="occ-step"><label class="occ-lbl">Ưu đãi loyalty sẵn có (nếu có)</label>
+        <input class="occ-inp" data-lifefield="offer" placeholder="vd: tích 10 ly tặng 1, thẻ thành viên… (trống = Max gợi ý)" value="${E(S.offer)}">
+        <p class="muted occ-hint">Max sẽ đưa bảng: <b>tình huống → hành động → kênh → tin nhắn mẫu</b> để bạn dùng ngay.</p></div>
+      <div class="occ-foot">
+        <button class="ghost-line" data-act="life-close">Huỷ</button>
+        <button class="primary-btn" data-act="life-gen" ${S.busy ? 'disabled' : ''}>${S.busy ? '⏳ Max đang soạn cẩm nang…' : '✨ Max soạn cẩm nang'}</button>
+      </div>`;
+  }
+
+  async function lifecycleGenerate() {
+    const S = _lifeState;
+    S.busy = true; renderLifeWizard();
+    try {
+      const r = await API.post('api/biz/retention', {
+        user_id: _bizUserId, mode: S.mode, cycle: S.cycle, channels: S.channels, offer: S.offer });
+      const d = (r && r.draft) || {};
+      S.busy = false;
+      if (!d.brief) { renderLifeWizard(); toast('Chưa soạn được — cần có Chiến lược (T4) trước, hoặc thử lại.'); return; }
+      S.brief = d.brief; renderLifeWizard();
+    } catch (e) { S.busy = false; renderLifeWizard(); toast('Không soạn được cẩm nang — thử lại sau.'); }
+  }
+
+  async function lifecycleSave() {
+    const S = _lifeState;
+    if (!S.brief) return;
+    try {
+      const r = await API.post('api/biz/retention/save', {
+        user_id: _bizUserId, mode: S.mode, cycle: S.cycle, channels: S.channels, offer: S.offer, brief: S.brief });
+      if (r.error) { toast(r.error); return; }
+      const ov = document.getElementById('lifeWizard'); if (ov) ov.classList.remove('show');
+      toast('✅ Đã lưu cẩm nang giữ chân khách');
+      await refreshBiz(); route();
+    } catch (e) { toast('Không lưu được cẩm nang'); }
   }
 
   /* ── Max chat ── */
@@ -2660,33 +3326,29 @@ window.MOCK = {
     if (act === 'cal-view') { _calView = el.dataset.view; route(); return; }
     if (act === 'cal-open-week') { _calWeek = parseInt(el.dataset.week) || 1; _calView = 'week'; route(); return; }
     if (act === 'cal-gen') {
-      // Prototype: sinh bài THEO TUẦN/SLOT (nhẹ, đúng ngữ cảnh) — M1 nối skill thật
+      // M1.2b: sinh bài THẬT cho slot (bám pillar always-on / brief campaign), lưu skill_run
       const w = el.dataset.week, track = el.dataset.track, day = el.dataset.day;
       const what = day != null ? `ngày ${+day + 1} tuần ${w}` : (track === 'camp' ? `bài campaign tuần ${w}` : `bài Always-on tuần ${w}`);
-      if (!apiAvailable || !M.bizEnabled) { toast(`(Mẫu) Sẽ sinh ${what} bằng AI ở M1`); return; }
+      if (!apiAvailable || !M.bizEnabled) { toast(`(Mẫu) Bật backend để Max sinh ${what} thật`); return; }
+      const orig = el.textContent; el.disabled = true; el.textContent = '⏳ Đang sinh…';
       try {
-        await API.post('api/biz/agent', { task: 'full', user_id: _bizUserId }); // tạm map; M1 có task 'content' theo tuần
-        toast(`Đang sinh ${what}…`);
-      } catch (e) { toast('Không khởi chạy được'); }
+        const r = await API.post('api/biz/calendar/gen', {
+          user_id: _bizUserId, track: track || 'always',
+          pillar: el.dataset.pillar || '', campaign_id: el.dataset.campId || el.dataset.campaignId || el.getAttribute('data-camp-id') || '',
+          week: w || '', day: day || '' });
+        if (r.error) { toast(r.error); return; }
+        _postBase = { title: `Bài cho ${what}`, content: r.content || '' };
+        showModal(_postBase.title, _postBase.content || '(trống)', { derive: true });
+        toast('✅ Đã sinh & lưu bài');
+        refreshBiz();
+      } catch (e) { toast('Không sinh được bài — thử lại sau.'); }
+      finally { el.disabled = false; el.textContent = orig; }
       return;
     }
     if (act === 'add-campaign-occasion') {
-      // Prototype client-side: tạo campaign theo dịp (window theo TUẦN). M1 nối backend.
-      const P0 = M.calendarPlan; if (!P0) return;
-      const name = prompt('Tên campaign (vd: Sale Tết):'); if (!name) return;
-      const occasion = prompt('Dịp / mùa vụ (vd: Tết Nguyên Đán):', 'Dịp đặc biệt') || '';
-      const offer = prompt('Offer (vd: Giảm 30%):', 'Ưu đãi đặc biệt') || '';
-      const fromWeek = Math.max(1, Math.min(P0.weeks, parseInt(prompt(`Bắt đầu từ tuần nào? (1–${P0.weeks}):`, '1')) || 1));
-      const toWeek = Math.max(fromWeek, Math.min(P0.weeks, parseInt(prompt(`Kết thúc tuần nào? (1–${P0.weeks}):`, String(fromWeek))) || fromWeek));
-      const colors = ['#f59e0b', '#ef4444', '#ec4899', '#8b5cf6'];
-      const color = colors[(P0.campaigns || []).length % colors.length];
-      // sinh sẵn 2 bài/đợt làm mẫu (đầu & cuối window)
-      const posts = [
-        { week: fromWeek, day: 2, title: `Khởi động ${name} — ${offer}` },
-        { week: toWeek, day: 4, title: `Ngày cuối ${name}` },
-      ];
-      (P0.campaigns = P0.campaigns || []).push({ name, occasion, offer, color, fromWeek, toWeek, posts });
-      route(); toast('Đã thêm campaign theo dịp (mẫu) — Always-on vẫn chạy song song');
+      // M1.2: nối nút này vào wizard occasion THẬT (M1.1) thay prototype prompt()
+      if (apiAvailable && M.bizEnabled) { openOccasionWizard(''); return; }
+      toast('Bật backend (Supabase + LLM) để tạo campaign theo dịp thật.');
       return;
     }
     if (act === 'chat-suggest') {
@@ -2707,6 +3369,7 @@ window.MOCK = {
     if (act === 'intake-back') { handleIntake('back'); return; }
     if (act === 'intake-skip') { handleIntake('skip'); return; }
     if (act === 'intake-choice') { handleIntake('choice', el.dataset.val); return; }
+    if (act === 'intake-suggest') { handleIntake('suggest', el.dataset.val); return; }
     if (act === 'edit-profile') { _editProfile = true; route(); return; }
     if (act === 'cancel-profile') { _editProfile = false; route(); return; }
     if (act === 'view-skillrun') { location.hash = '#doc/' + el.dataset.id; return; }
@@ -2714,7 +3377,29 @@ window.MOCK = {
     if (act === 'doc-edit') { _docEdit = true; renderDoc(); return; }
     if (act === 'doc-edit-cancel') { _docEdit = false; renderDoc(); return; }
     if (act === 'copy-skillrun') {
-      if (_docRun && navigator.clipboard) navigator.clipboard.writeText(_docRun.content || '').then(() => toast('Đã copy nội dung'));
+      // M3.1: ưu tiên nội dung trong modal (bài/biến thể) nếu đang mở, ngược lại là doc
+      const src = (_modalRun && _modalRun.content) || (_docRun && _docRun.content) || '';
+      if (src && navigator.clipboard) navigator.clipboard.writeText(src).then(() => toast('Đã copy nội dung'));
+      return;
+    }
+    if (act === 'post-derive') {
+      // M3.1: bung biến thể PHÁI SINH từ bài gốc (đa kênh/video/UGC) — sinh thật, lưu skill_run
+      const kind = el.dataset.kind;
+      const labels = { channels: '📱 Đa kênh', video: '🎬 Kịch bản video', ugc: '📸 UGC brief' };
+      const src = (_postBase && _postBase.content) || (_modalRun && _modalRun.content) || '';
+      if (!src) { toast('Chưa có bài gốc'); return; }
+      const orig = el.textContent; el.disabled = true; el.textContent = '⏳…';
+      try {
+        const r = await API.post('api/biz/content/derive', { user_id: _bizUserId, kind, source: src });
+        if (r.error) { toast(r.error); return; }
+        showModal(labels[kind] || 'Biến thể', r.content || '(trống)', { back: true });
+        toast('✅ Đã sinh & lưu biến thể'); refreshBiz();
+      } catch (e) { toast('Không sinh được biến thể — thử lại.'); }
+      finally { el.disabled = false; el.textContent = orig; }
+      return;
+    }
+    if (act === 'post-back') {   // M3.1: quay lại bài gốc để bung biến thể khác
+      if (_postBase) showModal(_postBase.title, _postBase.content || '(trống)', { derive: true });
       return;
     }
     if (!apiAvailable) { toast('Tính năng này cần backend — chạy: python run_web.py'); if (el.type === 'checkbox') el.checked = !el.checked; return; }
@@ -2740,6 +3425,42 @@ window.MOCK = {
         toast('Đã khởi chạy AI agent — theo dõi tiến trình realtime');
         await refreshBiz(); renderRail(); renderTopbar(); route();
       } catch (e) { toast('Không khởi chạy được agent'); }
+      return;
+    }
+    if (act === 'run-strategize') {   // D-041: lưu GATE (wedge + USP) rồi chạy T4-T5
+      try {
+        const wedge = (document.getElementById('gateWedge') || {}).value || '';
+        const pick = (document.querySelector('input[name="uspStance"]:checked') || {}).value || 'draft';
+        const uspText = (document.getElementById('gateUsp') || {}).value || '';
+        // own=giữ USP founder (clear), draft=dùng USP Max, edit=nhập mới (clear)
+        const usp_stance = pick === 'draft' ? 'draft' : 'clear';
+        const usp_text = pick === 'edit' ? uspText : '';
+        const g = await API.post('api/biz/gate', { wedge, usp_stance, usp_text, user_id: _bizUserId });
+        if (g.error) { toast(g.error); return; }
+        const r = await API.post('api/biz/agent', { task: 'strategize', user_id: _bizUserId });
+        if (r.error) { toast(r.error); return; }
+        toast('Đã chốt hướng — Max đang lập chiến lược + playbook…');
+        await refreshBiz(); renderRail(); renderTopbar(); route();
+      } catch (e) { toast('Không lập được chiến lược'); }
+      return;
+    }
+    if (act === 'new-occasion') {   // M1.1 (D-043): luồng tạo occasion đầy đủ (chốt SMART thật)
+      openOccasionWizard(el.dataset.occ || '');
+      return;
+    }
+    if (act === 'occ-gen') { await occasionGenerate(); return; }
+    if (act === 'occ-save') { await occasionSave(); return; }
+    if (act === 'occ-back') { _occState.brief = ''; renderOccWizard(); return; }
+    if (act === 'occ-close') {
+      const ov = document.getElementById('occWizard'); if (ov) ov.classList.remove('show');
+      return;
+    }
+    if (act === 'new-lifecycle') { openLifecycleWizard(el.dataset.mode || 'retention'); return; }
+    if (act === 'life-gen') { await lifecycleGenerate(); return; }
+    if (act === 'life-save') { await lifecycleSave(); return; }
+    if (act === 'life-back') { _lifeState.brief = ''; renderLifeWizard(); return; }
+    if (act === 'life-close') {
+      const ov = document.getElementById('lifeWizard'); if (ov) ov.classList.remove('show');
       return;
     }
     if (act === 'rate-skillrun') {
@@ -2858,9 +3579,6 @@ window.MOCK = {
         res = await API.post('api/calendar', { day: +el.dataset.day, pillar: 'Educate', title: title.trim() }); toast('Đã thêm bài');
       } else if (act === 'del-calendar') {
         res = await API.del('api/calendar/' + el.dataset.id);
-      } else if (act === 'gen-content') {
-        const topic = prompt('Chủ đề nội dung:', 'Khuyến mãi mùa hè'); if (topic === null) return;
-        res = await API.post('api/content/generate', { topic: topic.trim() || 'Khuyến mãi' }); toast('Đã tạo gói nội dung');
       } else if (act === 'add-report') {
         const name = prompt('Tên báo cáo:'); if (!name || !name.trim()) return;
         res = await API.post('api/reports', { name: name.trim(), type: 'Tuần' }); toast('Đã tạo báo cáo');

@@ -50,6 +50,9 @@ SKILL_TO_PAGE = {
     "retention_playbook": "occasion",
     "winback_playbook":   "occasion",
     "calendar_post":      "calendar",
+    "post_channels":      "calendar",
+    "video_script":       "calendar",
+    "ugc_brief":          "calendar",
 }
 
 _EXCERPT = 600
@@ -707,6 +710,55 @@ async def gen_calendar_post(user_id=None, track: str = "always", pillar: str = "
         return {"ok": True, "content": content, "run_id": (run or {}).get("id")}
     except Exception as e:
         logger.warning("biz.gen_calendar_post failed: %s", e)
+        return {"error": str(e)}
+
+
+# M3.1 (hybrid): biến thể PHÁI SINH từ 1 bài — đa kênh / video / UGC (gộp vào Lịch)
+_DERIVATIVES = {
+    "channels": ("post_channels", "CHANNEL_ADAPT",
+                 "Chuyển thể 1 BÀI gốc sang 3 kênh: Facebook, TikTok (script ngắn), Zalo OA. Giữ "
+                 "thông điệp lõi, đổi giọng/định dạng/độ dài hợp từng kênh + gợi ý hashtag/CTA mỗi kênh."),
+    "video":    ("video_script", "OPS_CONTENT_CREATIVE",
+                 "Biến 1 BÀI/ý thành KỊCH BẢN VIDEO ngắn (Reel/TikTok 15-30s): chia cảnh theo timeline "
+                 "(Hook 0-3s → Body → Proof → CTA), gợi ý hình ảnh + text overlay + nhạc trend."),
+    "ugc":      ("ugc_brief", "OPS_BRIEF",
+                 "Biến 1 BÀI/ý thành UGC BRIEF cho creator: concept, thông điệp bắt buộc, do/don't, "
+                 "phân tầng Micro/Mid/KOL (góc quay + CTA), khung nội dung gợi ý."),
+}
+
+
+async def gen_derivative(user_id=None, kind: str = "channels", source: str = "") -> dict:
+    """M3.1: sinh biến thể từ 1 bài gốc (kind: channels/video/ugc). Lưu skill_run. Degrade {error}."""
+    if not available():
+        return {"error": "Chưa cấu hình Supabase."}
+    if not (source or "").strip():
+        return {"error": "Chưa có bài gốc để chuyển thể."}
+    if kind not in _DERIVATIVES:
+        return {"error": f"Loại biến thể không hợp lệ: {kind}"}
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {"error": "Chưa có user."}
+        from storage.v2 import profiles
+        prof = await profiles.get_profile(uid) or {}
+        skill_name, task_name, instruction = _DERIVATIVES[kind]
+        from tools.llm_router import call as router_call, TaskType
+        task = getattr(TaskType, task_name, TaskType.OPS_CONTENT_CREATIVE)
+        system = (
+            "Bạn là copywriter/đạo diễn nội dung Việt Nam. " + instruction + "\n"
+            "🔴 Bám đúng bài gốc + ngành; KHÔNG bịa số/khuyến mãi mới ngoài bài gốc. Trả MARKDOWN gọn, dùng được ngay."
+        )
+        user = f"# Ngành\n{prof.get('industry') or ''}\n# USP\n{prof.get('usp') or '(chưa rõ)'}\n\n# BÀI GỐC\n{source[:2500]}"
+        res = await router_call(task_type=task, system=system, user=user, max_tokens=1200)
+        content = (res or {}).get("output", "").strip()
+        if not content:
+            return {"error": "Chưa sinh được biến thể — thử lại."}
+        from storage.v2 import skill_runs
+        run = await skill_runs.insert_skill_run(uid, skill_name, content, model_used="web-derive")
+        return {"ok": True, "content": content, "run_id": (run or {}).get("id"), "kind": kind}
+    except Exception as e:
+        logger.warning("biz.gen_derivative(%s) failed: %s", kind, e)
         return {"error": str(e)}
 
 
