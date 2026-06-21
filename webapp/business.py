@@ -53,6 +53,9 @@ SKILL_TO_PAGE = {
     "post_channels":      "calendar",
     "video_script":       "calendar",
     "ugc_brief":          "calendar",
+    "ads_copy":           "adscopy",
+    "email_zalo_sequence":"sequence",
+    "sales_inbox_script": "inbox",
 }
 
 _EXCERPT = 600
@@ -759,6 +762,65 @@ async def gen_derivative(user_id=None, kind: str = "channels", source: str = "")
         return {"ok": True, "content": content, "run_id": (run or {}).get("id"), "kind": kind}
     except Exception as e:
         logger.warning("biz.gen_derivative(%s) failed: %s", kind, e)
+        return {"error": str(e)}
+
+
+# M3.2 (hybrid): trang đặc thù — sinh THẬT bám strategy/USP (KHÔNG phái sinh từ 1 bài)
+_ASSETS = {
+    "ads_copy": ("ads_copy", "OPS_CONTENT_CREATIVE", 1300,
+                 "Viết BỘ ADS COPY theo phễu cho chạy quảng cáo. Chia 3 nhóm: "
+                 "TOFU (nhận biết — hook gây chú ý, đánh nỗi đau/khao khát), "
+                 "MOFU (cân nhắc — chứng minh giá trị/khác biệt USP, social proof), "
+                 "BOFU (chốt đơn — offer rõ, CTA mạnh, khử rủi ro). Mỗi nhóm 2-3 mẫu: "
+                 "primary text + headline ngắn. Gợi ý đối tượng nhắm cho mỗi tầng."),
+    "sequence": ("email_zalo_sequence", "OPS_CONTENT_BULK", 1400,
+                 "Viết CHUỖI NURTURE Email/Zalo (4-6 bước) cho lead/khách mới. Mỗi bước: "
+                 "thời điểm gửi (D0/D2/D5…), mục tiêu, tiêu đề/dòng mở, nội dung ngắn, CTA. "
+                 "Đi từ welcome → trao giá trị → social proof → offer → winback. Giọng hợp ngành."),
+    "inbox": ("sales_inbox_script", "OPS_CONTENT_CREATIVE", 1200,
+              "Viết KỊCH BẢN CHAT bán hàng (Messenger/Zalo/IG) xử lý các tình huống: hỏi giá, "
+              "chê đắt, để suy nghĩ, so sánh đối thủ, ở xa/giao hàng. Mỗi tình huống: câu khách "
+              "thường nói → cách phản hồi (công nhận → giá trị/USP → chốt nhẹ). Giọng thân thiện, chuyên nghiệp."),
+}
+
+
+async def gen_content_asset(user_id=None, kind: str = "ads_copy") -> dict:
+    """M3.2: sinh tài sản content đặc thù (ads_copy/sequence/inbox) bám strategy+USP. Lưu skill_run."""
+    if not available():
+        return {"error": "Chưa cấu hình Supabase."}
+    if kind not in _ASSETS:
+        return {"error": f"Loại nội dung không hợp lệ: {kind}"}
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {"error": "Chưa có user."}
+        from storage.v2 import profiles, skill_runs
+        prof = await profiles.get_profile(uid) or {}
+        if not (prof.get("industry") or prof.get("product_service")):
+            return {"error": "Chưa có hồ sơ (ngành/sản phẩm) — hoàn tất Hồ sơ doanh nghiệp trước."}
+        skill_name, task_name, max_tok, instruction = _ASSETS[kind]
+        # bám chiến lược tổng hợp nếu đã chạy (giúp copy đúng định vị/đối tượng)
+        strat = await skill_runs.get_latest_skill_run(uid, "synthesis") or \
+            await skill_runs.get_latest_skill_run(uid, "tactical_playbook") or {}
+        strat_ctx = (strat.get("content") or "")[:1800]
+        from tools.llm_router import call as router_call, TaskType
+        task = getattr(TaskType, task_name, TaskType.OPS_CONTENT_CREATIVE)
+        system = (
+            "Bạn là copywriter/sales trưởng người Việt. " + instruction + "\n"
+            "🔴 Bám USP + ngành + định vị; KHÔNG bịa số/khuyến mãi không có thật. Trả MARKDOWN gọn, dùng được ngay."
+        )
+        user = (f"# Ngành\n{prof.get('industry') or ''}\n# Sản phẩm/Dịch vụ\n{prof.get('product_service') or ''}\n"
+                f"# USP\n{prof.get('usp') or '(chưa rõ)'}\n# Khách mục tiêu\n{prof.get('target_customer') or '(chưa rõ)'}"
+                + (f"\n\n# Chiến lược (tham chiếu)\n{strat_ctx}" if strat_ctx else ""))
+        res = await router_call(task_type=task, system=system, user=user, max_tokens=max_tok)
+        content = (res or {}).get("output", "").strip()
+        if not content:
+            return {"error": "Chưa sinh được nội dung — thử lại."}
+        run = await skill_runs.insert_skill_run(uid, skill_name, content, model_used="web-asset")
+        return {"ok": True, "content": content, "run_id": (run or {}).get("id"), "kind": kind}
+    except Exception as e:
+        logger.warning("biz.gen_content_asset(%s) failed: %s", kind, e)
         return {"error": str(e)}
 
 

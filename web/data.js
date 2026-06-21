@@ -190,18 +190,7 @@ window.MOCK = {
   bizSkillRuns: [],
   sampleDocs: {},
 
-  adsCopy: {
-    TOFU: { title:'Nhận biết', items:['“Buổi sáng cần một lý do để dậy sớm…”','“Cà phê thật, giá thật.”'] },
-    MOFU: { title:'Cân nhắc', items:['“3 lý do khách quay lại mỗi tuần”','So sánh: chúng tôi vs quán thường'] },
-    BOFU: { title:'Chuyển đổi', items:['“Mua 1 tặng 1 — chỉ hôm nay”','Đặt trước, nhận ngay ưu đãi 20%'] },
-  },
-
-  sequence: [
-    { day: 'Ngày 0', subj: 'Chào mừng + ưu đãi đầu tiên', open: '62%' },
-    { day: 'Ngày 2', subj: 'Câu chuyện thương hiệu', open: '48%' },
-    { day: 'Ngày 5', subj: 'Social proof + review', open: '41%' },
-    { day: 'Ngày 9', subj: 'Ưu đãi giới hạn (winback)', open: '38%' },
-  ],
+  // M3.2: adsCopy / sequence mock đã bỏ — Ads copy & Email/Zalo chuỗi nay sinh THẬT (api/biz/content/asset)
 
   voice: {
     do: ['Gần gũi, thân thiện','Dùng “bạn” thay “quý khách”','Câu ngắn, dễ đọc','Có cảm xúc tích cực'],

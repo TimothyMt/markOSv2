@@ -177,6 +177,13 @@ async def biz_content_derive(request):
     return JSONResponse(res, status_code=400 if "error" in res else 200)
 
 
+async def biz_content_asset(request):
+    """M3.2 — sinh tài sản content đặc thù (ads_copy/sequence/inbox) bám strategy/USP."""
+    d = await request.json()
+    res = await biz.gen_content_asset(d.get("user_id"), d.get("kind", "ads_copy"))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
 async def biz_skillrun_rate(request):
     """Chấm điểm 1 output research (👍/👎 → 5/1)."""
     data = await request.json()
@@ -374,6 +381,7 @@ def api_routes() -> list:
         Route("/api/biz/calendar",                 biz_calendar,       methods=["GET"]),
         Route("/api/biz/calendar/gen",             biz_calendar_gen,   methods=["POST"]),
         Route("/api/biz/content/derive",           biz_content_derive, methods=["POST"]),
+        Route("/api/biz/content/asset",            biz_content_asset,  methods=["POST"]),
         Route("/api/biz/skillrun/{id:str}/rate",   biz_skillrun_rate,  methods=["POST"]),
         Route("/api/biz/skillrun/save",            biz_skillrun_save,  methods=["POST"]),
         Route("/api/biz/skillruns",                biz_skill_versions, methods=["GET"]),

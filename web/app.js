@@ -814,7 +814,7 @@
     el.innerHTML = `
       <div class="doc-head">
         <div>
-          <h2 class="doc-title">${r.skill_name || 'Output'} <span class="tag">v${r.version || 1}</span></h2>
+          <h2 class="doc-title">${skillVi(r.skill_name) || 'Output'} <span class="tag">v${r.version || 1}</span></h2>
           <p class="muted">${when}${r.model_used ? ' · ' + r.model_used : ''}</p>
         </div>
         <div class="doc-actions">
@@ -1216,59 +1216,46 @@
   // (modal "⚡ Tạo bài" → 📱/🎬/📸). Xem docs/web/slices/M3-content-suite.md.
 
   /* ---- Ads copy ---- */
-  P.adscopy = {
-    title: 'Quảng cáo (copy)', sub: 'Theo phễu TOFU / MOFU / BOFU',
-    render: () => `
-      <section class="kanban">
-        ${Object.entries(M.adsCopy).map(([k,v])=>`
-          <div class="kan-col"><div class="kan-head"><b>${k}</b><span class="muted">${v.title}</span></div>
-            ${v.items.map(i=>`<div class="kan-card">${i}</div>`).join('')}
-            </div>`).join('')}
-      </section>`,
-    mount: () => {},
-  };
-
-  /* ---- Sales inbox ---- */
-  P.inbox = {
-    title: 'Sales Inbox Script', sub: 'Kịch bản chat Messenger / Zalo / IG — xử lý từ chối',
-    render: () => `
-      <section class="grid">
-        ${card('Kịch bản: Khách hỏi giá', `
-          <div class="chat">
-            ${bubble('in','Quán ơi combo bao nhiêu vậy ạ?')}
-            ${bubble('out','Dạ chào bạn 👋 Combo đôi mùa hè đang ưu đãi 79.000₫ (gồm 2 ly + topping). Bạn muốn vị nào để mình tư vấn nha?')}
-            ${bubble('in','Hơi mắc so với quán gần nhà…')}
-            ${bubble('out','Mình hiểu mà 🙌 Bù lại bạn được size lớn + tích điểm đổi ly miễn phí. Đặt trước giờ này còn được lấy nhanh khỏi xếp hàng nữa ạ!')}
-          </div>`, {cls:'span-8'})}
-        ${card('Thư viện xử lý từ chối', `
-          <ul class="bullet"><li>💸 “Đắt” → nhấn giá trị + ưu đãi</li><li>⏰ “Để suy nghĩ” → tạo khan hiếm nhẹ</li>
-          <li>🤔 “So sánh” → điểm khác biệt USP</li><li>📍 “Xa” → đặt trước / giao hàng</li></ul>`, {cls:'span-4'})}
-      </section>`,
-    mount: () => {},
-  };
-
-  /* ---- Sequence ---- */
-  P.sequence = {
-    title: 'Email / Zalo chuỗi', sub: 'Nurture cho lead / khách / winback',
-    actions: ``,
-    render: () => `
-      <section class="grid">
-        ${card('Chuỗi Welcome (4 bước)', `
-          <div class="seq">${M.sequence.map((s,i)=>`
-            <div class="seq-step"><div class="seq-dot">${i+1}</div>
-              <div class="seq-body"><div class="seq-top"><b>${s.day}</b><span class="tag green">Open ${s.open}</span></div>
-                <p>${s.subj}</p></div></div>`).join('')}</div>`, {cls:'span-8'})}
-        ${card('Hiệu suất chuỗi', cv('seqChart',180), {cls:'span-4'})}
-      </section>`,
-    mount: () => {
-      if (!hasChart) return;
-      reg(new Chart(byId('seqChart'), { type:'line',
-        data:{ labels:M.sequence.map(s=>s.day), datasets:[{ data:[62,48,41,38],
-          borderColor:GREEN, backgroundColor:fill(GREEN), fill:true, tension:.4, borderWidth:2.5, pointRadius:3 }]},
-        options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
-          scales:{ x:{grid:noGrid}, y:{grid, ticks:{callback:v=>v+'%'}} } }}));
-    },
-  };
+  // M3.2 (hybrid): trang đặc thù sinh THẬT bám strategy/USP (lưu vào Tài liệu) — KHÔNG mock.
+  function assetPage(kind, o) {
+    return {
+      title: o.title, sub: o.sub,
+      actions: `<button class="primary-btn" data-act="gen-asset" data-kind="${kind}" data-title="${o.title}">${o.cta}</button>`,
+      render: () => `
+        <section class="grid">
+          ${card(o.title, `
+            <p class="muted" style="margin:0 0 12px">${o.desc}</p>
+            <ul class="bullet" style="margin:0 0 14px">${o.points.map(p=>`<li>${p}</li>`).join('')}</ul>
+            <button class="primary-btn full" data-act="gen-asset" data-kind="${kind}" data-title="${o.title}">${o.cta}</button>
+            <p class="muted" style="margin:12px 0 0;font-size:13px">Max bám hồ sơ + chiến lược tổng hợp của bạn. Bản tạo lưu vào <b>Tài liệu</b> để xem/sửa lại.</p>
+          `, {cls:'span-7'})}
+          ${card('Cần gì để chuẩn?', `
+            <ul class="bullet"><li>✅ Hồ sơ doanh nghiệp (ngành, sản phẩm, USP, khách mục tiêu)</li>
+            <li>✨ Tốt hơn nếu đã chạy <b>Chiến lược tổng hợp</b> — copy bám đúng định vị & đối tượng</li></ul>
+            <a class="ghost-line full" href="#strategy" style="margin-top:12px">→ Xem/chạy Chiến lược</a>`, {cls:'span-5'})}
+        </section>`,
+      mount: () => {},
+    };
+  }
+  P.adscopy = assetPage('ads_copy', {
+    title: 'Quảng cáo (copy)', sub: 'Theo phễu TOFU / MOFU / BOFU', cta: '⚡ Viết bộ copy theo phễu',
+    desc: 'Sinh bộ ads copy 3 tầng phễu — bám USP, định vị và khách mục tiêu thật của bạn.',
+    points: ['🎯 <b>TOFU</b> — hook nhận biết, đánh nỗi đau/khao khát',
+             '🤝 <b>MOFU</b> — chứng minh giá trị, khác biệt USP, social proof',
+             '💰 <b>BOFU</b> — offer rõ, CTA mạnh, khử rủi ro + gợi ý đối tượng nhắm'],
+  });
+  P.inbox = assetPage('inbox', {
+    title: 'Sales Inbox Script', sub: 'Kịch bản chat Messenger / Zalo / IG — xử lý từ chối', cta: '⚡ Tạo kịch bản inbox',
+    desc: 'Sinh kịch bản chat bán hàng cho các tình huống thường gặp — công nhận → giá trị/USP → chốt nhẹ.',
+    points: ['💸 Chê đắt · ⏰ Để suy nghĩ · 🤔 So sánh đối thủ · 📍 Ở xa/giao hàng',
+             '🗣️ Giọng thân thiện, chuyên nghiệp, bám sản phẩm thật'],
+  });
+  P.sequence = assetPage('sequence', {
+    title: 'Email / Zalo chuỗi', sub: 'Nurture cho lead / khách / winback', cta: '⚡ Tạo chuỗi Email/Zalo',
+    desc: 'Sinh chuỗi nurture 4-6 bước cho lead/khách mới — đi từ welcome → trao giá trị → social proof → offer.',
+    points: ['📬 Mỗi bước: thời điểm gửi, mục tiêu, tiêu đề, nội dung ngắn, CTA',
+             '🔁 Kết hợp tốt với <b>Giữ khách</b> (retention) để winback khách cũ'],
+  });
 
   /* ---- Brand voice ---- */
   P.voice = {
@@ -1597,7 +1584,6 @@
   const calPosts = (i) => M.calendarPosts
     ? M.calendarPosts.filter(p => p.day === i)
     : (M.calendar.posts[i] || []).map(p => ({ pillar: p.p, title: p.t }));
-  const bubble = (dir,txt) => `<div class="bubble ${dir}">${txt}</div>`;
   const field = (l,v) => `<label class="fld"><span>${l}</span><input value="${v}"></label>`;
   const selectField = (l,v) => `<label class="fld"><span>${l}</span><div class="sel">${v} ▾</div></label>`;
   const optIcon = (a) => ({scale:'⬆️',pause:'⏸️',dup:'⧉',activate:'▶️'}[a]||'•');
@@ -1790,6 +1776,11 @@
   }
   const SKILL_TO_TASK = { market_research:'market', competitor:'competitor', customer_insight:'customer',
     psychology_pricing:'pricing', swot:'swot', synthesis:'strategy', tactical_playbook:'strategy' };
+  // nhãn tiếng Việt cho tiêu đề Tài liệu (content skills sinh từ Lịch/trang đặc thù)
+  const SKILL_VI = { calendar_post:'Bài đăng (lịch)', post_channels:'Biến thể đa kênh',
+    video_script:'Kịch bản video', ugc_brief:'UGC brief', ads_copy:'Quảng cáo (copy theo phễu)',
+    email_zalo_sequence:'Chuỗi Email/Zalo', sales_inbox_script:'Kịch bản Sales Inbox' };
+  const skillVi = (s) => SKILL_VI[s] || s;
   let _modalRun = null;
   let _postBase = null;   // M3.1: bài gốc đang mở (để bung biến thể / quay lại)
   function showModal(title, content, meta) {
@@ -1837,6 +1828,11 @@
       foot.style.display = 'flex';
       foot.innerHTML = `
         <div class="rate-group"><button class="ghost-line sm" data-act="post-back">← Bài gốc</button></div>
+        <div class="modal-foot-r"><button class="ghost-line sm" data-act="copy-skillrun">📋 Copy</button></div>`;
+    } else if (meta && (meta.copy || meta.run)) {
+      // M3.2: kết quả tài sản content (đã lưu Tài liệu) → chỉ cần Copy
+      foot.style.display = 'flex';
+      foot.innerHTML = `<div class="rate-group"><span class="muted">Đã lưu vào Tài liệu</span></div>
         <div class="modal-foot-r"><button class="ghost-line sm" data-act="copy-skillrun">📋 Copy</button></div>`;
     } else { foot.style.display = 'none'; foot.innerHTML = ''; }
     ov.classList.add('show');
@@ -2171,6 +2167,20 @@
         toast('✅ Đã sinh & lưu bài');
         refreshBiz();
       } catch (e) { toast('Không sinh được bài — thử lại sau.'); }
+      finally { el.disabled = false; el.textContent = orig; }
+      return;
+    }
+    if (act === 'gen-asset') {
+      // M3.2: sinh tài sản content đặc thù THẬT (ads copy/inbox/sequence), lưu skill_run
+      const kind = el.dataset.kind;
+      if (!apiAvailable || !M.bizEnabled) { toast('Bật backend (Supabase + LLM) để Max viết thật.'); return; }
+      const orig = el.textContent; el.disabled = true; el.textContent = '⏳ Đang viết…';
+      try {
+        const r = await API.post('api/biz/content/asset', { user_id: _bizUserId, kind });
+        if (r.error) { toast(r.error); return; }
+        showModal(el.dataset.title || 'Kết quả', r.content || '(trống)', { run: true });
+        toast('✅ Đã viết & lưu vào Tài liệu'); refreshBiz();
+      } catch (e) { toast('Không viết được — thử lại sau.'); }
       finally { el.disabled = false; el.textContent = orig; }
       return;
     }
