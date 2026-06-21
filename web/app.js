@@ -69,6 +69,32 @@
       </a>${i<J.length-1?'<span class="jm-sep">›</span>':''}`).join('')}</div>`;
   }
 
+  /* ── DEMO 🅒 (M4.2 wayfinding): thanh "bạn đang ở đâu" toàn app ──
+     Suy 5 chặng thẳng từ 5 nhóm nav (①→⑤) — mỗi trang thuộc đúng 1 nhóm.
+     done = chặng đã qua · on = chặng hiện tại · pending = chặng sau.
+     Click 1 chặng → nhảy tới trang đầu của nhóm đó. Tái dùng CSS .jmini. */
+  const PHASE_ICON = ['🔍', '🎯', '✍️', '📡', '🎓'];
+  function phaseOfPage(id) {
+    const nav = M.nav || [];
+    for (let i = 0; i < nav.length; i++)
+      if ((nav[i].items || []).some(it => it.id === id)) return i;
+    return -1;
+  }
+  function journeyBar(activeId) {
+    const nav = M.nav || [];
+    const ai = phaseOfPage(activeId);
+    if (ai < 0) return '';   // trang ngoài luồng (vd #doc reader) → ẩn, không gượng ép
+    return `<div class="jbar jmini">${nav.map((g, i) => {
+      const label = (g.group || '').replace(/^[①②③④⑤]\s*/, '');
+      const first = (g.items[0] || {}).id || '';
+      const st = i < ai ? 'done' : i === ai ? 'on' : '';
+      return `<a class="jm ${st}" href="#${first}" title="${label}">
+          <span class="jm-dot">${i < ai ? '✓' : (PHASE_ICON[i] || '•')}</span>
+          <span class="jm-label">${label}</span>
+        </a>${i < nav.length - 1 ? '<span class="jm-sep">›</span>' : ''}`;
+    }).join('')}</div>`;
+  }
+
   P.home = {
     title: 'Max', sub: '',
     render: () => `
@@ -1699,7 +1725,7 @@
     document.body.classList.remove('chat-mode');
     const actions = page.actions || '';
     document.getElementById('view').innerHTML =
-      pageHead(page.title, page.sub, actions) + page.render();
+      pageHead(page.title, page.sub, actions) + journeyBar(id) + page.render();
     if (page.mount) page.mount();
     fillDocEmbeds();   // nhúng trình đọc/sửa text vào trang chi tiết (demo + thật)
     fillSkillRunSlots();   // nạp nội dung slot .ai-output[data-skill-run] (synthesis collapsible)
