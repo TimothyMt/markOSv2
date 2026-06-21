@@ -300,16 +300,26 @@ async def campaign_plan(user_id=None) -> dict:
 
 _occasion_cache: dict = {}
 
+# M1.1+ (D-044): "mục đích đợt" = trục WHY (khác trục WHEN always-on/occasion).
+# Định hình brief — KHÔNG phải loại campaign mới. Founder chọn; mặc định auto (Max suy).
+OCCASION_OBJECTIVES = {
+    "acquisition": "Kéo KHÁCH MỚI (demand-gen): nặng TOFU/MOFU, mở rộng reach, lead/CPL là KPI chính; offer hút thử.",
+    "conversion":  "CHỐT ĐƠN (activation spike): nặng BOFU, ROAS/CPA/doanh số là KPI chính; offer mạnh, deadline gấp.",
+    "brand":       "ĐẨY NHẬN BIẾT (the long): reach/tần suất/nhớ thương hiệu, KHÔNG ép chốt; ưu tiên thông điệp định vị.",
+    "retention":   "GIỮ & TĂNG TẦN SUẤT khách CŨ: nhắm tệp đã mua, tăng repeat/AOV/CLV; ưu đãi loyalty, KHÔNG đốt ngân sách acquisition.",
+}
+
 
 async def occasion_draft(user_id=None, occasion: str = "", window_start: str = "",
                          window_end: str = "", budget: str = "", baseline: str = "",
-                         goal: str = "") -> dict:
-    """M1.1 (D-043): sinh Campaign Brief cho 1 ĐỢT theo dịp — web-side 1 LLM call.
+                         goal: str = "", objective: str = "") -> dict:
+    """M1.1 (D-043/044): sinh Campaign Brief cho 1 ĐỢT theo dịp — web-side 1 LLM call.
 
     Kế thừa Synthesis (la bàn) + Tactical (cách đánh) + industry (mùa vụ/archetype)
-    + wedge/USP đã chọn ở gate, GHÉP lever đợt (dịp/window/ngân sách/baseline) →
-    chốt SMART THẬT (D-029). Baseline 'chưa rõ' → SMART để KHOẢNG + nhãn (ước tính),
-    KHÔNG chặn (quyết định Founder 2026-06-21). Trả Markdown brief; degrade {}.
+    + wedge/USP đã chọn ở gate, GHÉP lever đợt (dịp/window/ngân sách/baseline/MỤC ĐÍCH)
+    → chốt SMART THẬT (D-029). Baseline 'chưa rõ' → SMART để KHOẢNG + nhãn (ước tính),
+    KHÔNG chặn (Founder 2026-06-21). objective = trục WHY (D-044) định hình brief.
+    Trả Markdown brief; degrade {}.
     """
     if not available() or not (occasion or "").strip():
         return {}
@@ -329,7 +339,9 @@ async def occasion_draft(user_id=None, occasion: str = "", window_start: str = "
         wedge = (extra.get("wedge") if isinstance(extra, dict) else "") or ""
         usp = prof.get("usp") or ""
         has_base = bool((baseline or "").strip())
-        cache_key = f"{uid}:{hash((occasion, window_start, window_end, budget, baseline, goal))}"
+        obj_key = (objective or "").strip().lower()
+        obj_hint = OCCASION_OBJECTIVES.get(obj_key, "")
+        cache_key = f"{uid}:{hash((occasion, window_start, window_end, budget, baseline, goal, obj_key))}"
         if cache_key in _occasion_cache:
             return _occasion_cache[cache_key]
         ictx = ""
@@ -363,6 +375,8 @@ async def occasion_draft(user_id=None, occasion: str = "", window_start: str = "
             "## 4. Phân bổ ngân sách đợt (theo pha)\n"
             "## 5. Lưu ý nhất quán (đợt này có lệch wedge/định vị chính không? — nhắc nhẹ nếu có)\n\n"
             f"🔴 SMART: {base_rule}\n"
+            "🔴 MỤC ĐÍCH đợt (nếu founder chọn) định hình TRỌNG TÂM phễu + KPI + loại offer của "
+            "cả arc — bám đúng, đừng lệch sang mục đích khác.\n"
             "🔴 Bám đúng dịp + mùa vụ + văn hoá ngành. Tôn trọng wedge/USP founder đã chọn "
             "(nếu lever cho thấy đợt nhắm tệp khác → vẫn làm theo founder, chỉ NHẮC ở mục 5). "
             "KHÔNG bịa số ngoài lever/baseline."
@@ -373,7 +387,8 @@ async def occasion_draft(user_id=None, occasion: str = "", window_start: str = "
             f"# USP\n{usp or '(chưa rõ)'}\n\n"
             f"# Lever ĐỢT NÀY\n- Dịp: {occasion}\n- Window: {window_start or '?'} → {window_end or '?'}\n"
             f"- Ngân sách đợt: {budget or '(chưa nhập)'}\n- Baseline hiện tại: {baseline or '(chưa rõ)'}\n"
-            f"- Mục tiêu chính founder muốn: {goal or '(theo giai đoạn roadmap)'}\n\n"
+            f"- Mục tiêu chính founder muốn: {goal or '(theo giai đoạn roadmap)'}\n"
+            f"- MỤC ĐÍCH đợt: {obj_hint or '(founder chưa chọn — tự suy mục đích hợp dịp + giai đoạn)'}\n\n"
             f"# Chiến lược (Synthesis — la bàn)\n{synth[:3000]}\n\n"
             f"# Tactical Playbook (cách đánh)\n{(tact or '(chưa có)')[:2000]}"
         )
@@ -384,7 +399,8 @@ async def occasion_draft(user_id=None, occasion: str = "", window_start: str = "
             return {}
         out = {"brief": brief, "occasion": occasion,
                "window_start": window_start, "window_end": window_end,
-               "budget": budget, "baseline": baseline, "has_baseline": has_base}
+               "budget": budget, "baseline": baseline, "has_baseline": has_base,
+               "objective": obj_key}
         _occasion_cache[cache_key] = out
         return out
     except Exception as e:
@@ -394,11 +410,12 @@ async def occasion_draft(user_id=None, occasion: str = "", window_start: str = "
 
 async def save_occasion(user_id=None, occasion: str = "", window_start: str = "",
                         window_end: str = "", budget: str = "", goal: str = "",
-                        brief: str = "") -> dict:
-    """M1.1: lưu Campaign Brief đợt → skill_runs (occasion_brief) + campaigns (record).
+                        brief: str = "", objective: str = "") -> dict:
+    """M1.1 (D-044): lưu Campaign Brief đợt → skill_runs (occasion_brief) + campaigns.
 
     Tái dùng hạ tầng có sẵn (skill_runs cho doc-reader/patch; campaigns cho record),
-    KHÔNG cần migration. Trả {ok, campaign, run_id} | {error}.
+    KHÔNG cần migration. primary_goal = mục đích (WHY tag) → goal cụ thể (fallback).
+    Trả {ok, campaign, run_id} | {error}.
     """
     if not available():
         return {"error": "Chưa cấu hình Supabase."}
@@ -413,11 +430,14 @@ async def save_occasion(user_id=None, occasion: str = "", window_start: str = ""
         run = await skill_runs.insert_skill_run(uid, "occasion_brief", brief, model_used="web-occasion")
         run_id = (run or {}).get("id")
         prof = await profiles.get_profile(uid) or {}
+        obj = (objective or "").strip().lower()
+        # primary_goal = WHY tag (mục đích) nếu founder chọn, fallback goal cụ thể
+        primary_goal = (obj if obj in OCCASION_OBJECTIVES else "") or (goal or "").strip() or None
         camp = await campaigns_v2.create_campaign(
             uid,
             name=occasion.strip(),
             industry=prof.get("industry"),
-            primary_goal=(goal or "").strip() or None,
+            primary_goal=primary_goal,
             offer_lever=(budget or "").strip() or None,
             start_date=(window_start or "").strip() or None,
             end_date=(window_end or "").strip() or None,

@@ -64,6 +64,10 @@ def test_occasion_m1():
     app = _read("web/app.js")
     assert "openOccasionWizard" in app and "occasionGenerate" in app and "occasionSave" in app, \
         "FE chưa có wizard tạo occasion (chốt SMART)"
+    # D-044: trục mục đích (WHY) — 4 objective định hình brief, là tag không phải tuyến mới
+    assert set(biz.OCCASION_OBJECTIVES) == {"acquisition", "conversion", "brand", "retention"}, \
+        "Thiếu/lệch bộ mục đích đợt (acquisition/conversion/brand/retention)"
+    assert "OCC_OBJECTIVES" in app and "occ-obj" in app, "FE chưa có selector mục đích đợt"
 
 
 def test_gate_2phase():

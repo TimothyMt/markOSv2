@@ -761,6 +761,15 @@ body.chat-mode #view { height: calc(100vh - 64px); }
   padding:6px 12px; font-size:12.5px; color:var(--text); cursor:pointer; transition:.15s; }
 .occ-chip:hover { border-color:var(--primary); border-style:solid; }
 .occ-chip.on { background:rgba(91,140,255,.16); border-color:var(--primary); border-style:solid; }
+.occ-objs { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.occ-obj { display:flex; align-items:center; gap:10px; text-align:left; background:var(--panel-2);
+  border:1px solid var(--stroke); border-radius:10px; padding:10px 12px; cursor:pointer; transition:.15s; }
+.occ-obj:hover { border-color:var(--primary); }
+.occ-obj.on { background:rgba(91,140,255,.16); border-color:var(--primary); }
+.occ-obj-ic { font-size:18px; line-height:1; }
+.occ-obj-main { display:flex; flex-direction:column; gap:1px; }
+.occ-obj-main b { font-size:13px; color:var(--text); }
+.occ-obj-main small { font-size:11px; color:var(--muted); }
 .occ-foot { display:flex; justify-content:space-between; gap:12px; margin-top:18px;
   padding-top:14px; border-top:1px solid var(--stroke); }
 

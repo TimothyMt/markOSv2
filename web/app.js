@@ -1873,11 +1873,18 @@
     ov.classList.add('show');
   }
 
-  /* ── M1.1 (D-043): Wizard tạo Campaign Occasion (chốt SMART thật) ── */
-  let _occState = { occasion: '', ws: '', we: '', budget: '', baseline: '', goal: '', brief: '', busy: false };
+  /* ── M1.1 (D-043/044): Wizard tạo Campaign Occasion (chốt SMART thật) ── */
+  // D-044: "mục đích đợt" = trục WHY (định hình brief), KHÁC trục WHEN. Founder chọn; trống = Max tự suy.
+  const OCC_OBJECTIVES = [
+    { k: 'acquisition', ic: '🧲', label: 'Kéo khách mới', desc: 'demand-gen · reach · lead' },
+    { k: 'conversion',  ic: '💰', label: 'Chốt đơn',      desc: 'activation · ROAS/CPA · offer mạnh' },
+    { k: 'brand',       ic: '📣', label: 'Đẩy nhận biết', desc: 'the long · nhớ thương hiệu' },
+    { k: 'retention',   ic: '🔁', label: 'Giữ khách cũ',  desc: 'repeat · AOV/CLV · loyalty' },
+  ];
+  let _occState = { occasion: '', ws: '', we: '', budget: '', baseline: '', goal: '', objective: '', brief: '', busy: false };
 
   function openOccasionWizard(preset) {
-    _occState = { occasion: preset || '', ws: '', we: '', budget: '', baseline: '', goal: '', brief: '', busy: false };
+    _occState = { occasion: preset || '', ws: '', we: '', budget: '', baseline: '', goal: '', objective: '', brief: '', busy: false };
     let ov = document.getElementById('occWizard');
     if (!ov) {
       ov = document.createElement('div');
@@ -1892,10 +1899,20 @@
         const k = e.target.dataset.occfield; if (k) _occState[k] = e.target.value;
       });
       ov.addEventListener('click', (e) => {
-        const chip = e.target.closest('[data-act="occ-chip"]'); if (!chip) return;
-        _occState.occasion = chip.dataset.occ || '';
-        const inp = document.getElementById('occName'); if (inp) inp.value = _occState.occasion;
-        ov.querySelectorAll('[data-act="occ-chip"]').forEach(c => c.classList.toggle('on', c === chip));
+        const chip = e.target.closest('[data-act="occ-chip"]');
+        if (chip) {
+          _occState.occasion = chip.dataset.occ || '';
+          const inp = document.getElementById('occName'); if (inp) inp.value = _occState.occasion;
+          ov.querySelectorAll('[data-act="occ-chip"]').forEach(c => c.classList.toggle('on', c === chip));
+          return;
+        }
+        const obj = e.target.closest('[data-act="occ-obj"]');
+        if (obj) {   // toggle mục đích (chọn lại = bỏ → Max tự suy)
+          const k = obj.dataset.obj;
+          _occState.objective = (_occState.objective === k) ? '' : k;
+          ov.querySelectorAll('[data-act="occ-obj"]').forEach(c =>
+            c.classList.toggle('on', c.dataset.obj === _occState.objective));
+        }
       });
     }
     renderOccWizard();
@@ -1936,7 +1953,14 @@
           <input type="date" class="occ-inp" data-occfield="we" value="${E(S.we)}">
         </div></div>
 
-      <div class="occ-step"><label class="occ-lbl">2 · Lever (khoá SMART)</label>
+      <div class="occ-step"><label class="occ-lbl">2 · Mục đích đợt <span class="muted" style="font-weight:400">(định hình brief — trống thì Max tự suy)</span></label>
+        <div class="occ-objs">${OCC_OBJECTIVES.map(o => `
+          <button class="occ-obj ${S.objective === o.k ? 'on' : ''}" data-act="occ-obj" data-obj="${o.k}">
+            <span class="occ-obj-ic">${o.ic}</span>
+            <span class="occ-obj-main"><b>${o.label}</b><small>${o.desc}</small></span>
+          </button>`).join('')}</div></div>
+
+      <div class="occ-step"><label class="occ-lbl">3 · Lever (khoá SMART)</label>
         <input class="occ-inp" data-occfield="budget" placeholder="Ngân sách đợt (vd 30 triệu) — gợi ý từ % burst" value="${E(S.budget)}">
         <input class="occ-inp" data-occfield="baseline" placeholder="Baseline hiện tại (vd 200 đơn/tháng, AOV 350k) — chưa rõ thì để trống" value="${E(S.baseline)}">
         <input class="occ-inp" data-occfield="goal" placeholder="Mục tiêu chính đợt (để trống = theo giai đoạn roadmap)" value="${E(S.goal)}">
@@ -1956,7 +1980,7 @@
     try {
       const r = await API.post('api/biz/occasion', {
         user_id: _bizUserId, occasion: S.occasion, window_start: S.ws, window_end: S.we,
-        budget: S.budget, baseline: S.baseline, goal: S.goal });
+        budget: S.budget, baseline: S.baseline, goal: S.goal, objective: S.objective });
       const d = (r && r.draft) || {};
       S.busy = false;
       if (!d.brief) { renderOccWizard(); toast('Chưa lập được brief — cần có Chiến lược (T4) trước, hoặc thử lại.'); return; }
@@ -1970,7 +1994,7 @@
     try {
       const r = await API.post('api/biz/occasion/save', {
         user_id: _bizUserId, occasion: S.occasion, window_start: S.ws, window_end: S.we,
-        budget: S.budget, goal: S.goal, brief: S.brief });
+        budget: S.budget, goal: S.goal, brief: S.brief, objective: S.objective });
       if (r.error) { toast(r.error); return; }
       const ov = document.getElementById('occWizard'); if (ov) ov.classList.remove('show');
       toast('✅ Đã lưu chiến dịch theo dịp');
