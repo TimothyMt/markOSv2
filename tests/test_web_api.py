@@ -84,6 +84,24 @@ def test_retention_m2():
         "FE chưa có wizard retention/winback"
 
 
+def test_calendar_m12():
+    """M1.2 (D-017/018): lịch 2-track THẬT — route + degrade + FE nối wizard occasion + sinh slot."""
+    p = _paths()
+    assert "/api/biz/calendar" in p and "/api/biz/calendar/gen" in p, "Thiếu route calendar"
+    assert asyncio.run(biz.calendar_plan(None)) == {}, "calendar_plan không degrade khi thiếu backend"
+    g = asyncio.run(biz.gen_calendar_post(None))
+    assert isinstance(g, dict) and "error" in g, "gen_calendar_post phải báo lỗi khi thiếu backend"
+    # _week_of: ánh xạ ngày → tuần so với anchor
+    from datetime import date
+    assert biz._week_of("2026-06-22", date(2026, 6, 22)) == 1, "_week_of sai tuần 1"
+    assert biz._week_of("2026-06-29", date(2026, 6, 22)) == 2, "_week_of sai tuần 2"
+    assert biz._week_of("rác", date(2026, 6, 22)) is None, "_week_of phải None khi parse lỗi"
+    app = _read("web/app.js")
+    assert "loadRealCalendar" in app and "_realCal" in app, "FE chưa có lịch thật"
+    assert "openOccasionWizard('')" in app, "Nút 'tạo campaign theo dịp' chưa nối wizard occasion thật"
+    assert "api/biz/calendar/gen" in app, "FE chưa gọi sinh nội dung slot thật"
+
+
 def test_gate_2phase():
     """D-041: web 2-phase — route gate; task research/strategize; FE có GATE."""
     assert "/api/biz/gate" in _paths(), "Thiếu route /api/biz/gate"

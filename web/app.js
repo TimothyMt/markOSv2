@@ -1122,7 +1122,17 @@
   /* ---- Lịch nội dung — Kế hoạch: Always-on (nền, LUÔN chạy) + Campaign theo dịp (cộng thêm) ---- */
   let _calView = 'plan';   // 'plan' (tháng) | 'week' (chi tiết tuần)
   let _calWeek = 1;        // tuần đang xem ở chế độ week
-  const calPlan = () => M.calendarPlan || { days: [], weeks: 0, alwaysOn: [], campaigns: [] };
+  let _realCal = null;     // M1.2: lịch THẬT (occasion bands + pillars) khi bizEnabled
+  const calPlan = () => _realCal || M.calendarPlan || { days: [], weeks: 0, alwaysOn: [], campaigns: [] };
+  async function loadRealCalendar() {
+    if (!apiAvailable || !M.bizEnabled) { _realCal = null; return; }
+    try {
+      const r = await API.get('api/biz/calendar' + bizQuery());
+      const c = r && r.calendar;
+      _realCal = (c && (c.campaigns || c.alwaysOn)) ? c : null;
+      if (_realCal) route();   // re-render với dữ liệu thật
+    } catch (e) { _realCal = null; }
+  }
   const campActiveWeek = (w) => (calPlan().campaigns || []).filter(c => w >= c.fromWeek && w <= c.toWeek);
   // Bài campaign cộng thêm trong 1 (tuần, ngày)
   const campPostsAt = (w, d) => {
@@ -1153,10 +1163,10 @@
           <button class="ghost-line sm" data-act="cal-open-week" data-week="${w}">Mở chi tiết →</button></div>
         <div class="pw-tracks">
           <div class="pw-track on"><span class="trk on">🟢 Always-on</span> ${P0.alwaysOn.length} bài brand
-            <button class="chip-btn sm" data-act="cal-gen" data-week="${w}" data-track="always">⚡ Tạo bài tuần ${w}</button></div>
+            <button class="chip-btn sm" data-act="cal-gen" data-week="${w}" data-track="always" data-pillar="${((P0.alwaysOn[0]||{}).pillar||'').replace(/"/g,'&quot;')}">⚡ Tạo bài tuần ${w}</button></div>
           ${camps.length ? camps.map(c => `<div class="pw-track camp" style="--c:${c.color}">
             <span class="trk camp" style="--c:${c.color}">🔴 ${c.name}</span> ${campCount} bài đẩy offer
-            <button class="chip-btn sm" data-act="cal-gen" data-week="${w}" data-track="camp">⚡ Tạo bài campaign</button></div>`).join('')
+            <button class="chip-btn sm" data-act="cal-gen" data-week="${w}" data-track="camp" data-camp-id="${c.campaignId||''}">⚡ Tạo bài campaign</button></div>`).join('')
           : `<div class="pw-track muted">Không có campaign — chỉ chạy nền Always-on</div>`}
         </div></div>`;
     }).join('');
@@ -1185,11 +1195,15 @@
         ${days.map((d, i) => {
           const cps = campPostsAt(w, i);
           const inCamp = cps.length > 0;
+          const slotPillar = (P0.alwaysOn[i] || {}).pillar || '';
+          const genAttrs = inCamp
+            ? `data-track="camp" data-camp-id="${cps[0].camp.campaignId || ''}"`
+            : `data-track="always" data-pillar="${slotPillar.replace(/"/g, '&quot;')}"`;
           return `<div class="cal-col ${inCamp ? 'in-camp' : ''}" ${inCamp ? `style="--c:${cps[0].camp.color}"` : ''}>
             <div class="cal-colhead">${d}${inCamp ? `<span class="col-dot" style="background:${cps[0].camp.color}"></span>` : ''}</div>
             ${alwaysCard(P0.alwaysOn[i] || { pillar: 'Educate', title: 'Bài brand' })}
             ${cps.map(campCard).join('')}
-            <button class="cal-add" data-act="cal-gen" data-week="${w}" data-day="${i}">⚡ Tạo bài</button></div>`;
+            <button class="cal-add" data-act="cal-gen" data-week="${w}" data-day="${i}" ${genAttrs}>⚡ Tạo bài</button></div>`;
         }).join('')}
       </div>`;
   }
@@ -1205,13 +1219,15 @@
         <button class="ghost-line" data-act="add-campaign-occasion">🎯 Tạo campaign theo dịp</button>`;
     },
     render: () => `
-      ${M.bizEnabled ? '' : `<div class="cal-note">${badge('Bản thiết kế UX','amber')} <span class="muted"> Mô hình kế hoạch — dữ liệu mẫu, nối thật ở M1.</span></div>`}
+      ${_realCal ? '' : (M.bizEnabled
+        ? `<div class="cal-note">${badge('Chưa có dữ liệu thật','amber')} <span class="muted"> Lập Chiến lược + tạo campaign theo dịp để lịch hiện thật. Đang xem mẫu.</span></div>`
+        : `<div class="cal-note">${badge('Bản thiết kế UX','amber')} <span class="muted"> Mô hình kế hoạch — dữ liệu mẫu, nối thật khi bật backend.</span></div>`)}
       <div class="cal-legend">
-        <span><i class="lg on"></i> 🟢 Always-on — bài brand chạy đều mỗi tuần (Educate/Trust/Engage), KHÔNG tắt khi có campaign</span>
+        <span><i class="lg on"></i> 🟢 Always-on — bài brand chạy đều mỗi tuần (content pillars), KHÔNG tắt khi có campaign</span>
         <span><i class="lg camp"></i> 🔴 Campaign theo dịp — bài đẩy offer, CỘNG THÊM lên nền trong đúng đợt</span>
       </div>
       ${_calView === 'plan' ? calPlanView() : calWeekView()}`,
-    mount: () => {},
+    mount: () => { loadRealCalendar(); },
   };
 
   /* ---- Content generator ---- */
@@ -2192,33 +2208,28 @@
     if (act === 'cal-view') { _calView = el.dataset.view; route(); return; }
     if (act === 'cal-open-week') { _calWeek = parseInt(el.dataset.week) || 1; _calView = 'week'; route(); return; }
     if (act === 'cal-gen') {
-      // Prototype: sinh bài THEO TUẦN/SLOT (nhẹ, đúng ngữ cảnh) — M1 nối skill thật
+      // M1.2b: sinh bài THẬT cho slot (bám pillar always-on / brief campaign), lưu skill_run
       const w = el.dataset.week, track = el.dataset.track, day = el.dataset.day;
       const what = day != null ? `ngày ${+day + 1} tuần ${w}` : (track === 'camp' ? `bài campaign tuần ${w}` : `bài Always-on tuần ${w}`);
-      if (!apiAvailable || !M.bizEnabled) { toast(`(Mẫu) Sẽ sinh ${what} bằng AI ở M1`); return; }
+      if (!apiAvailable || !M.bizEnabled) { toast(`(Mẫu) Bật backend để Max sinh ${what} thật`); return; }
+      const orig = el.textContent; el.disabled = true; el.textContent = '⏳ Đang sinh…';
       try {
-        await API.post('api/biz/agent', { task: 'full', user_id: _bizUserId }); // tạm map; M1 có task 'content' theo tuần
-        toast(`Đang sinh ${what}…`);
-      } catch (e) { toast('Không khởi chạy được'); }
+        const r = await API.post('api/biz/calendar/gen', {
+          user_id: _bizUserId, track: track || 'always',
+          pillar: el.dataset.pillar || '', campaign_id: el.dataset.campId || el.dataset.campaignId || el.getAttribute('data-camp-id') || '',
+          week: w || '', day: day || '' });
+        if (r.error) { toast(r.error); return; }
+        showModal(`Bài cho ${what}`, r.content || '(trống)');
+        toast('✅ Đã sinh & lưu bài');
+        refreshBiz();
+      } catch (e) { toast('Không sinh được bài — thử lại sau.'); }
+      finally { el.disabled = false; el.textContent = orig; }
       return;
     }
     if (act === 'add-campaign-occasion') {
-      // Prototype client-side: tạo campaign theo dịp (window theo TUẦN). M1 nối backend.
-      const P0 = M.calendarPlan; if (!P0) return;
-      const name = prompt('Tên campaign (vd: Sale Tết):'); if (!name) return;
-      const occasion = prompt('Dịp / mùa vụ (vd: Tết Nguyên Đán):', 'Dịp đặc biệt') || '';
-      const offer = prompt('Offer (vd: Giảm 30%):', 'Ưu đãi đặc biệt') || '';
-      const fromWeek = Math.max(1, Math.min(P0.weeks, parseInt(prompt(`Bắt đầu từ tuần nào? (1–${P0.weeks}):`, '1')) || 1));
-      const toWeek = Math.max(fromWeek, Math.min(P0.weeks, parseInt(prompt(`Kết thúc tuần nào? (1–${P0.weeks}):`, String(fromWeek))) || fromWeek));
-      const colors = ['#f59e0b', '#ef4444', '#ec4899', '#8b5cf6'];
-      const color = colors[(P0.campaigns || []).length % colors.length];
-      // sinh sẵn 2 bài/đợt làm mẫu (đầu & cuối window)
-      const posts = [
-        { week: fromWeek, day: 2, title: `Khởi động ${name} — ${offer}` },
-        { week: toWeek, day: 4, title: `Ngày cuối ${name}` },
-      ];
-      (P0.campaigns = P0.campaigns || []).push({ name, occasion, offer, color, fromWeek, toWeek, posts });
-      route(); toast('Đã thêm campaign theo dịp (mẫu) — Always-on vẫn chạy song song');
+      // M1.2: nối nút này vào wizard occasion THẬT (M1.1) thay prototype prompt()
+      if (apiAvailable && M.bizEnabled) { openOccasionWizard(''); return; }
+      toast('Bật backend (Supabase + LLM) để tạo campaign theo dịp thật.');
       return;
     }
     if (act === 'chat-suggest') {

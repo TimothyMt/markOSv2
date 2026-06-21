@@ -49,6 +49,7 @@ SKILL_TO_PAGE = {
     "occasion_brief":     "occasion",
     "retention_playbook": "occasion",
     "winback_playbook":   "occasion",
+    "calendar_post":      "calendar",
 }
 
 _EXCERPT = 600
@@ -580,6 +581,132 @@ async def save_retention(user_id=None, mode: str = "retention", cycle: str = "",
         return {"ok": True, "campaign": camp, "run_id": run_id}
     except Exception as e:
         logger.warning("biz.save_retention failed: %s", e)
+        return {"error": str(e)}
+
+
+# ── M1.2 (D-017/018/019): Lịch nội dung 2-track — nối campaign thật ──
+_CAL_COLORS = ["#f59e0b", "#ef4444", "#ec4899", "#8b5cf6", "#0ea5e9", "#10b981"]
+
+
+def _week_of(date_str: str, anchor):
+    """Tuần (1-based) của 1 ngày so với anchor (đầu tuần hiện tại). None nếu parse lỗi."""
+    from datetime import date
+    try:
+        y, m, d = (int(x) for x in str(date_str)[:10].split("-"))
+        delta = (date(y, m, d) - anchor).days
+        return delta // 7 + 1
+    except Exception:
+        return None
+
+
+async def calendar_plan(user_id=None) -> dict:
+    """M1.2: ghép lịch 2-track THẬT = always-on pillars (D-040) + occasion bands (window thật).
+
+    Anchor = thứ Hai tuần hiện tại; map start/end_date của campaign → tuần. Campaign không
+    window (retention) KHÔNG lên lịch. Degrade {} (FE giữ mock). Tái dùng campaign_plan +
+    list_campaigns_v2 (KHÔNG nhân bản)."""
+    if not available():
+        return {}
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {}
+        from datetime import date, timedelta
+        today = date.today()
+        anchor = today - timedelta(days=today.weekday())   # thứ Hai tuần này
+
+        from storage.v2 import campaigns_v2
+        camps_raw = await campaigns_v2.list_campaigns_v2(uid, limit=30)
+        bands = []
+        max_week = 4
+        for i, c in enumerate(camps_raw or []):
+            sd, ed = c.get("start_date"), c.get("end_date")
+            if not sd or not ed:
+                continue   # retention/winback (không window) → không lên lịch tuần
+            fw, tw = _week_of(sd, anchor), _week_of(ed, anchor)
+            if fw is None or tw is None or tw < 1:
+                continue   # parse lỗi hoặc đã qua hoàn toàn
+            fw = max(1, fw); tw = max(fw, tw)
+            max_week = max(max_week, tw)
+            color = _CAL_COLORS[i % len(_CAL_COLORS)]
+            name = c.get("name") or "Đợt"
+            offer = c.get("offer_lever") or ""
+            mid = (fw + tw) // 2
+            posts = [{"week": fw, "day": 2, "title": f"Khởi động {name}"}]
+            if mid != fw:
+                posts.append({"week": mid, "day": 3, "title": f"Đẩy mạnh {name}"})
+            posts.append({"week": tw, "day": 4, "title": f"Chốt — ngày cuối {name}"})
+            bands.append({"name": name, "occasion": c.get("primary_goal") or "đợt",
+                          "offer": offer or "ưu đãi đợt", "color": color,
+                          "fromWeek": fw, "toWeek": tw, "posts": posts,
+                          "campaignId": c.get("id"), "briefRunId": c.get("brief_skill_run_id")})
+
+        # Always-on từ pillars thật (D-040) — lặp mỗi tuần, phủ 7 slot ngày
+        plan = await campaign_plan(uid)
+        pillars = (plan or {}).get("pillars") or []
+        always = []
+        if pillars:
+            for d in range(7):
+                p = pillars[d % len(pillars)]
+                angles = p.get("angles") or []
+                title = (angles[d % len(angles)] if angles else p.get("role")) or p.get("name") or "Bài brand"
+                always.append({"pillar": p.get("name") or "Pillar", "title": title})
+
+        if not bands and not always:
+            return {}   # chưa có gì thật → FE giữ mock
+        return {"days": ["T2", "T3", "T4", "T5", "T6", "T7", "CN"],
+                "weeks": max_week, "alwaysOn": always, "campaigns": bands}
+    except Exception as e:
+        logger.warning("biz.calendar_plan failed (non-fatal): %s", e)
+        return {}
+
+
+async def gen_calendar_post(user_id=None, track: str = "always", pillar: str = "",
+                            campaign_id: str = "", week: str = "", day: str = "") -> dict:
+    """M1.2b: sinh 1 BÀI cho slot lịch — bám pillar (always-on) hoặc brief occasion (campaign).
+    Lưu skill_run `calendar_post`. Degrade {error}."""
+    if not available():
+        return {"error": "Chưa cấu hình Supabase."}
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {"error": "Chưa có user."}
+        from storage.v2 import profiles
+        prof = await profiles.get_profile(uid) or {}
+        industry = prof.get("industry") or ""
+        usp = prof.get("usp") or ""
+        ctx, kind = "", ""
+        if track == "camp" and campaign_id:
+            from storage.v2 import campaigns_v2
+            c = await campaigns_v2.get_campaign(campaign_id) or {}
+            brief = ""
+            if c.get("brief_skill_run_id"):
+                run = await skill_run_content(c["brief_skill_run_id"])
+                brief = (run or {}).get("content") or c.get("summary") or ""
+            ctx = f"Đợt: {c.get('name','')}. Brief:\n{brief[:1800]}"
+            kind = "1 bài ĐẨY OFFER cho đợt (có CTA, tạo hành động)"
+        else:
+            ctx = f"Content pillar (always-on, nền brand): {pillar or '(brand)'}"
+            kind = "1 bài NỀN brand bám pillar (KHÔNG ép bán, xây nhận biết/niềm tin)"
+        from tools.llm_router import call as router_call, TaskType
+        system = (
+            "Bạn là copywriter mạng xã hội Việt Nam. Viết " + kind + " — đăng được NGAY:\n"
+            "- Hook 1 dòng đầu bắt mắt.\n- Thân bài ngắn (2-4 câu), giọng đời thường, hợp ngành.\n"
+            "- CTA cuối phù hợp.\n- 3-5 hashtag.\n"
+            "🔴 Bám USP + ngành. KHÔNG bịa số/khuyến mãi không có trong brief. Trả MARKDOWN gọn."
+        )
+        user = f"# Ngành\n{industry}\n# USP\n{usp or '(chưa rõ)'}\n\n# Bối cảnh slot\n{ctx}"
+        res = await router_call(task_type=TaskType.OPS_CONTENT_CREATIVE, system=system, user=user, max_tokens=700)
+        content = (res or {}).get("output", "").strip()
+        if not content:
+            return {"error": "Chưa sinh được bài — thử lại."}
+        from storage.v2 import skill_runs
+        run = await skill_runs.insert_skill_run(uid, "calendar_post", content, model_used="web-calendar")
+        return {"ok": True, "content": content, "run_id": (run or {}).get("id")}
+    except Exception as e:
+        logger.warning("biz.gen_calendar_post failed: %s", e)
         return {"error": str(e)}
 
 

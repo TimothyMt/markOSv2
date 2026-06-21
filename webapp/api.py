@@ -155,6 +155,21 @@ async def biz_retention_save(request):
     return JSONResponse(res, status_code=400 if "error" in res else 200)
 
 
+async def biz_calendar(request):
+    """M1.2 (D-017/018) — lịch 2-track THẬT (always-on pillars + occasion bands)."""
+    res = await biz.calendar_plan(request.query_params.get("user_id"))
+    return JSONResponse({"calendar": res})
+
+
+async def biz_calendar_gen(request):
+    """M1.2b — sinh 1 bài cho slot lịch (bám pillar/brief), lưu skill_run."""
+    d = await request.json()
+    res = await biz.gen_calendar_post(d.get("user_id"), d.get("track", "always"),
+                                      d.get("pillar", ""), d.get("campaign_id", ""),
+                                      d.get("week", ""), d.get("day", ""))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
 async def biz_skillrun_rate(request):
     """Chấm điểm 1 output research (👍/👎 → 5/1)."""
     data = await request.json()
@@ -349,6 +364,8 @@ def api_routes() -> list:
         Route("/api/biz/occasion/save",            biz_occasion_save,  methods=["POST"]),
         Route("/api/biz/retention",                biz_retention_draft, methods=["POST"]),
         Route("/api/biz/retention/save",           biz_retention_save, methods=["POST"]),
+        Route("/api/biz/calendar",                 biz_calendar,       methods=["GET"]),
+        Route("/api/biz/calendar/gen",             biz_calendar_gen,   methods=["POST"]),
         Route("/api/biz/skillrun/{id:str}/rate",   biz_skillrun_rate,  methods=["POST"]),
         Route("/api/biz/skillrun/save",            biz_skillrun_save,  methods=["POST"]),
         Route("/api/biz/skillruns",                biz_skill_versions, methods=["GET"]),
