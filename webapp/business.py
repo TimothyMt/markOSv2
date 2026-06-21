@@ -46,6 +46,7 @@ SKILL_TO_PAGE = {
     "swot":               "swot",
     "synthesis":          "strategy",
     "tactical_playbook":  "strategy",
+    "occasion_brief":     "occasion",
 }
 
 _EXCERPT = 600
@@ -295,6 +296,138 @@ async def campaign_plan(user_id=None) -> dict:
     except Exception as e:
         logger.warning("biz.campaign_plan failed (non-fatal): %s", e)
         return {}
+
+
+_occasion_cache: dict = {}
+
+
+async def occasion_draft(user_id=None, occasion: str = "", window_start: str = "",
+                         window_end: str = "", budget: str = "", baseline: str = "",
+                         goal: str = "") -> dict:
+    """M1.1 (D-043): sinh Campaign Brief cho 1 ĐỢT theo dịp — web-side 1 LLM call.
+
+    Kế thừa Synthesis (la bàn) + Tactical (cách đánh) + industry (mùa vụ/archetype)
+    + wedge/USP đã chọn ở gate, GHÉP lever đợt (dịp/window/ngân sách/baseline) →
+    chốt SMART THẬT (D-029). Baseline 'chưa rõ' → SMART để KHOẢNG + nhãn (ước tính),
+    KHÔNG chặn (quyết định Founder 2026-06-21). Trả Markdown brief; degrade {}.
+    """
+    if not available() or not (occasion or "").strip():
+        return {}
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {}
+        synth = await _latest_content(uid, "synthesis")
+        if not synth.strip():
+            return {}   # cần Chiến lược (T4) trước
+        tact = await _latest_content(uid, "tactical_playbook")
+        from storage.v2 import profiles
+        prof = await profiles.get_profile(uid) or {}
+        industry = prof.get("industry") or ""
+        extra = prof.get("intake_extra") or {}
+        wedge = (extra.get("wedge") if isinstance(extra, dict) else "") or ""
+        usp = prof.get("usp") or ""
+        has_base = bool((baseline or "").strip())
+        cache_key = f"{uid}:{hash((occasion, window_start, window_end, budget, baseline, goal))}"
+        if cache_key in _occasion_cache:
+            return _occasion_cache[cache_key]
+        ictx = ""
+        try:
+            from frameworks.industry_context import INDUSTRY_CONTEXT
+            ic = INDUSTRY_CONTEXT.get((industry or "").lower())
+            if ic:
+                ictx = (f"Archetype mua hàng: {ic.purchase_archetype}. "
+                        f"Động lực/mùa vụ ngành: {ic.market_dynamics[:450]}")
+        except Exception:
+            pass
+        from tools.llm_router import call as router_call, TaskType
+        base_rule = (
+            "Founder ĐÃ cung cấp baseline → SMART phải có CON SỐ MỤC TIÊU cụ thể, suy từ baseline."
+            if has_base else
+            "Founder CHƯA có baseline → SMART để dạng KHOẢNG (vd '+15-25%') và gắn nhãn "
+            "'(ước tính — chưa có baseline)'. TUYỆT ĐỐI không bịa con số tuyệt đối chắc nịch."
+        )
+        system = (
+            "Bạn là CMO lập Campaign Brief cho 1 ĐỢT theo dịp (occasion = activation spike "
+            "ngắn hạn, Binet&Field 'the short'), CHỒNG lên always-on (không thay nền). Brief "
+            "kế thừa la bàn (Synthesis) + cách đánh (Tactical) + mùa vụ NGÀNH, GHÉP lever đợt → "
+            "chốt SMART THẬT. Cấu trúc đợt = arc theo thời gian:\n"
+            "Teaser (hé lộ) → Build-up (nuôi) → Peak (ngày dịp, đẩy mạnh) → Last-call (chốt gấp) "
+            "→ After (hậu mãi/winback). Mỗi pha bám archetype ngành + tầng phễu (TOFU hút mới → "
+            "BOFU chốt).\n\n"
+            "Xuất MARKDOWN gồm các mục:\n"
+            "## 1. Mục tiêu SMART (đợt này)\n"
+            "## 2. Arc 5 pha theo timeline (bảng: Pha | Thời gian | Mục tiêu pha | Kênh | Góc copy)\n"
+            "## 3. KPI cần theo dõi (có target nếu có baseline)\n"
+            "## 4. Phân bổ ngân sách đợt (theo pha)\n"
+            "## 5. Lưu ý nhất quán (đợt này có lệch wedge/định vị chính không? — nhắc nhẹ nếu có)\n\n"
+            f"🔴 SMART: {base_rule}\n"
+            "🔴 Bám đúng dịp + mùa vụ + văn hoá ngành. Tôn trọng wedge/USP founder đã chọn "
+            "(nếu lever cho thấy đợt nhắm tệp khác → vẫn làm theo founder, chỉ NHẮC ở mục 5). "
+            "KHÔNG bịa số ngoài lever/baseline."
+        )
+        user = (
+            f"# Ngành\n{industry}\n{ictx}\n\n"
+            f"# Wedge (tệp ưu tiên — la bàn)\n{wedge or '(chưa chọn)'}\n"
+            f"# USP\n{usp or '(chưa rõ)'}\n\n"
+            f"# Lever ĐỢT NÀY\n- Dịp: {occasion}\n- Window: {window_start or '?'} → {window_end or '?'}\n"
+            f"- Ngân sách đợt: {budget or '(chưa nhập)'}\n- Baseline hiện tại: {baseline or '(chưa rõ)'}\n"
+            f"- Mục tiêu chính founder muốn: {goal or '(theo giai đoạn roadmap)'}\n\n"
+            f"# Chiến lược (Synthesis — la bàn)\n{synth[:3000]}\n\n"
+            f"# Tactical Playbook (cách đánh)\n{(tact or '(chưa có)')[:2000]}"
+        )
+        res = await router_call(task_type=TaskType.OPS_BRIEF, system=system,
+                                user=user, max_tokens=2600)
+        brief = (res or {}).get("output", "").strip()
+        if not brief:
+            return {}
+        out = {"brief": brief, "occasion": occasion,
+               "window_start": window_start, "window_end": window_end,
+               "budget": budget, "baseline": baseline, "has_baseline": has_base}
+        _occasion_cache[cache_key] = out
+        return out
+    except Exception as e:
+        logger.warning("biz.occasion_draft failed (non-fatal): %s", e)
+        return {}
+
+
+async def save_occasion(user_id=None, occasion: str = "", window_start: str = "",
+                        window_end: str = "", budget: str = "", goal: str = "",
+                        brief: str = "") -> dict:
+    """M1.1: lưu Campaign Brief đợt → skill_runs (occasion_brief) + campaigns (record).
+
+    Tái dùng hạ tầng có sẵn (skill_runs cho doc-reader/patch; campaigns cho record),
+    KHÔNG cần migration. Trả {ok, campaign, run_id} | {error}.
+    """
+    if not available():
+        return {"error": "Chưa cấu hình Supabase."}
+    if not (occasion or "").strip() or not (brief or "").strip():
+        return {"error": "Thiếu dịp hoặc brief để lưu."}
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {"error": "Chưa có user."}
+        from storage.v2 import skill_runs, profiles, campaigns_v2
+        run = await skill_runs.insert_skill_run(uid, "occasion_brief", brief, model_used="web-occasion")
+        run_id = (run or {}).get("id")
+        prof = await profiles.get_profile(uid) or {}
+        camp = await campaigns_v2.create_campaign(
+            uid,
+            name=occasion.strip(),
+            industry=prof.get("industry"),
+            primary_goal=(goal or "").strip() or None,
+            offer_lever=(budget or "").strip() or None,
+            start_date=(window_start or "").strip() or None,
+            end_date=(window_end or "").strip() or None,
+            summary=brief[:500],
+            brief_skill_run_id=run_id,
+        )
+        return {"ok": True, "campaign": camp, "run_id": run_id}
+    except Exception as e:
+        logger.warning("biz.save_occasion failed: %s", e)
+        return {"error": str(e)}
 
 
 async def market_kpis(run_id: str = "") -> dict:

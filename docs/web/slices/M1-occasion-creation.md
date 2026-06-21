@@ -86,8 +86,10 @@ Từ hub "Lập chiến dịch" (D-040) → thẻ 🔴 Occasion → nút "Tạo 
 - Lưu draft → `campaigns_v2` qua store v2.
 
 ## 7. Phạm vi / phân kỳ
-- **M1.1 (spec này, build sau khi duyệt):** Bước 1-4 (chọn dịp → lever → sinh brief
-  SMART → lưu). Đây là phần "chốt SMART thật" cốt lõi.
+- **M1.1 — ✅ ĐÃ BUILD (2026-06-21):** Bước 1-4 (chọn dịp → lever → sinh brief
+  SMART → lưu). Backend `business.occasion_draft`/`save_occasion` (web-side 1 LLM call,
+  OPS_BRIEF) + route `/api/biz/occasion`(+`/save`) + FE wizard (`openOccasionWizard`).
+  Lưu = skill_run `occasion_brief` + record `campaigns` (KHÔNG cần migration).
 - **M1.2 (kế tiếp):** Bước 5 — Lịch nội dung 2-track (D-019/020), sinh nội dung từng slot.
 - **M1.3:** Always-on activation thành lịch chạy đều (từ pillars D-040).
 
@@ -97,7 +99,8 @@ Từ hub "Lập chiến dịch" (D-040) → thẻ 🔴 Occasion → nút "Tạo 
 - ASK FIRST: thêm cột campaigns; build lịch (M1.2); đụng `CMO_STRATEGY_SYSTEM`.
 - NEVER: chốt SMART ở always-on; tạo SMART rời không từ baseline/roadmap; UI giả.
 
-## 9. Mở (cần Founder quyết khi build)
-- Baseline khi user "chưa rõ": SMART để **khoảng + nhãn (ước tính)** hay **bắt nhập tối thiểu**?
-- Sinh brief: 1 LLM call web-side (như campaign_plan) hay tái dùng nguyên `campaign_intake`
-  của bot (chạy qua engine)? → nghiêng web-side để gọn + đồng bộ 2-phase.
+## 9. Quyết định đã chốt (2026-06-21, Founder)
+- ✅ **Baseline khi "chưa rõ":** SMART **để khoảng + nhãn (ước tính)** — KHÔNG chặn flow.
+  Sinh số dạng khoảng + gắn `(ước tính — chưa có baseline)`, founder chỉnh sau.
+- ✅ **Sinh brief:** **web-side 1 LLM call** (`business.occasion_draft`, giống
+  `market_kpis`/`campaign_plan`) — gọn, đồng bộ 2-phase, KHÔNG kéo dependency bot.

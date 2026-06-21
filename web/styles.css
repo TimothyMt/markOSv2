@@ -747,6 +747,23 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 .chip-btn.sm { margin-left:auto; }
 .trk.sm { font-size:9px; }
 
+/* ── M1.1: Wizard tạo Campaign Occasion ── */
+.occ-step { margin-bottom:18px; }
+.occ-lbl { display:block; font-weight:600; font-size:13px; margin-bottom:8px; color:var(--text); }
+.occ-inp { width:100%; box-sizing:border-box; background:var(--panel-2); border:1px solid var(--stroke);
+  border-radius:10px; padding:10px 12px; color:var(--text); font-size:14px; margin-bottom:8px; font-family:inherit; }
+.occ-inp:focus { outline:none; border-color:var(--primary); }
+.occ-row { display:flex; align-items:center; gap:10px; }
+.occ-row .occ-inp { margin-bottom:0; }
+.occ-hint { font-size:12px; margin:2px 0 0; }
+.occ-chips { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px; }
+.occ-chip { background:var(--panel-2); border:1px dashed var(--stroke-2); border-radius:16px;
+  padding:6px 12px; font-size:12.5px; color:var(--text); cursor:pointer; transition:.15s; }
+.occ-chip:hover { border-color:var(--primary); border-style:solid; }
+.occ-chip.on { background:rgba(91,140,255,.16); border-color:var(--primary); border-style:solid; }
+.occ-foot { display:flex; justify-content:space-between; gap:12px; margin-top:18px;
+  padding-top:14px; border-top:1px solid var(--stroke); }
+
 /* ── Modal footer: đánh giá + tương tác output research ── */
 .modal-foot { display:flex; align-items:center; justify-content:space-between; gap:12px;
   padding:12px 18px; border-top:1px solid var(--stroke); flex-wrap:wrap; }

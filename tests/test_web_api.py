@@ -52,6 +52,20 @@ def test_campaign_2track():
         "FE chưa có hub 2 tuyến (always-on + occasion)"
 
 
+def test_occasion_m1():
+    """M1.1 (D-043): route occasion (draft+save); degrade an toàn; FE có wizard."""
+    p = _paths()
+    assert "/api/biz/occasion" in p, "Thiếu route /api/biz/occasion"
+    assert "/api/biz/occasion/save" in p, "Thiếu route /api/biz/occasion/save"
+    # degrade khi không có Supabase / thiếu input
+    assert asyncio.run(biz.occasion_draft(None, "")) == {}, "occasion_draft không degrade khi thiếu dịp"
+    s = asyncio.run(biz.save_occasion(None, "Tết", brief=""))
+    assert isinstance(s, dict) and "error" in s, "save_occasion phải báo lỗi khi thiếu brief"
+    app = _read("web/app.js")
+    assert "openOccasionWizard" in app and "occasionGenerate" in app and "occasionSave" in app, \
+        "FE chưa có wizard tạo occasion (chốt SMART)"
+
+
 def test_gate_2phase():
     """D-041: web 2-phase — route gate; task research/strategize; FE có GATE."""
     assert "/api/biz/gate" in _paths(), "Thiếu route /api/biz/gate"

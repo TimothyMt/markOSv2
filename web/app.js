@@ -1055,6 +1055,7 @@
     mount: () => { loadCampaignPlan(); },
   };
   // D-040: nạp content pillars (always-on) + gợi ý occasion theo ngành
+  let _lastOccasions = [];   // M1.1: gợi ý dịp để pre-fill wizard tạo occasion
   async function loadCampaignPlan() {
     const host = document.getElementById('campaignPlan');
     if (!host || !apiAvailable || !M.bizEnabled) return;
@@ -1063,6 +1064,7 @@
       const r = await API.get('api/biz/campaign-plan' + bizQuery());
       const p = (r && r.plan) || {};
       const pillars = p.pillars || [], occ = p.occasions || [];
+      _lastOccasions = occ;
       if (!pillars.length && !occ.length) {
         host.innerHTML = `<div class="card"><p class="muted">Chưa lập được 2 tuyến — chạy lại Chiến lược (T4) rồi quay lại.</p></div>`; return;
       }
@@ -1871,6 +1873,111 @@
     ov.classList.add('show');
   }
 
+  /* ── M1.1 (D-043): Wizard tạo Campaign Occasion (chốt SMART thật) ── */
+  let _occState = { occasion: '', ws: '', we: '', budget: '', baseline: '', goal: '', brief: '', busy: false };
+
+  function openOccasionWizard(preset) {
+    _occState = { occasion: preset || '', ws: '', we: '', budget: '', baseline: '', goal: '', brief: '', busy: false };
+    let ov = document.getElementById('occWizard');
+    if (!ov) {
+      ov = document.createElement('div');
+      ov.id = 'occWizard'; ov.className = 'modal-ov';
+      ov.innerHTML = `<div class="modal"><div class="modal-head"><h3>Tạo chiến dịch theo dịp</h3>
+        <button class="icon-btn" data-act="occ-close">✕</button></div>
+        <div class="modal-body" id="occBody"></div></div>`;
+      document.body.appendChild(ov);
+      ov.addEventListener('click', (e) => { if (e.target === ov) ov.classList.remove('show'); });
+      // bắt input động trong wizard (lưu state, không re-render để giữ con trỏ)
+      ov.addEventListener('input', (e) => {
+        const k = e.target.dataset.occfield; if (k) _occState[k] = e.target.value;
+      });
+      ov.addEventListener('click', (e) => {
+        const chip = e.target.closest('[data-act="occ-chip"]'); if (!chip) return;
+        _occState.occasion = chip.dataset.occ || '';
+        const inp = document.getElementById('occName'); if (inp) inp.value = _occState.occasion;
+        ov.querySelectorAll('[data-act="occ-chip"]').forEach(c => c.classList.toggle('on', c === chip));
+      });
+    }
+    renderOccWizard();
+    ov.classList.add('show');
+  }
+
+  function renderOccWizard() {
+    const body = document.getElementById('occBody'); if (!body) return;
+    const S = _occState;
+    const E = s => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    if (S.brief) {   // Bước 3-4: review brief đã sinh
+      body.innerHTML = `
+        <div class="dir-banner" style="margin-bottom:14px">✅ <b>Campaign Brief — ${E(S.occasion)}</b>.
+          Mọi số là <b>gợi ý của Max</b> — bạn chốt lại được. Xem kỹ rồi lưu, hoặc quay lại chỉnh lever.</div>
+        <div class="ai-output expanded">${renderAIContent(S.brief)}</div>
+        <div class="occ-foot">
+          <button class="ghost-line" data-act="occ-back">← Chỉnh lever</button>
+          <button class="primary-btn" data-act="occ-save">💾 Lưu chiến dịch</button>
+        </div>`;
+      enhancePosMaps(body);
+      return;
+    }
+    const chips = (_lastOccasions || []).map(o =>
+      `<button class="occ-chip ${S.occasion === o.name ? 'on' : ''}" data-act="occ-chip" data-occ="${E(o.name)}">${E(o.name)}${o.when ? ` · ${E(o.when)}` : ''}</button>`).join('');
+    body.innerHTML = `
+      <div class="dir-banner" style="margin-bottom:14px">🧭 Đợt này <b>kế thừa la bàn + cách đánh</b> (pre-fill).
+        Bạn nhập <b>lever</b> (dịp, window, ngân sách, baseline) — đây là cái khoá để chốt <b>SMART thật</b>. Mọi giá trị <b>bạn quyết</b>.</div>
+
+      <div class="occ-step"><label class="occ-lbl">1 · Chọn dịp</label>
+        ${chips ? `<div class="occ-chips">${chips}</div>` : ''}
+        <input id="occName" class="occ-inp" data-occfield="occasion" placeholder="vd: Tết Nguyên Đán, 20/10, Mừng khai trương…" value="${E(S.occasion)}">
+      </div>
+
+      <div class="occ-step"><label class="occ-lbl">Window (ngày chạy)</label>
+        <div class="occ-row">
+          <input type="date" class="occ-inp" data-occfield="ws" value="${E(S.ws)}">
+          <span class="muted">→</span>
+          <input type="date" class="occ-inp" data-occfield="we" value="${E(S.we)}">
+        </div></div>
+
+      <div class="occ-step"><label class="occ-lbl">2 · Lever (khoá SMART)</label>
+        <input class="occ-inp" data-occfield="budget" placeholder="Ngân sách đợt (vd 30 triệu) — gợi ý từ % burst" value="${E(S.budget)}">
+        <input class="occ-inp" data-occfield="baseline" placeholder="Baseline hiện tại (vd 200 đơn/tháng, AOV 350k) — chưa rõ thì để trống" value="${E(S.baseline)}">
+        <input class="occ-inp" data-occfield="goal" placeholder="Mục tiêu chính đợt (để trống = theo giai đoạn roadmap)" value="${E(S.goal)}">
+        <p class="muted occ-hint">Chưa có baseline cũng được — Max sẽ để mục tiêu dạng <b>khoảng + nhãn (ước tính)</b>.</p>
+      </div>
+
+      <div class="occ-foot">
+        <button class="ghost-line" data-act="occ-close">Huỷ</button>
+        <button class="primary-btn" data-act="occ-gen" ${S.busy ? 'disabled' : ''}>${S.busy ? '⏳ Max đang lập brief…' : '✨ Max sinh Campaign Brief'}</button>
+      </div>`;
+  }
+
+  async function occasionGenerate() {
+    const S = _occState;
+    if (!(S.occasion || '').trim()) { toast('Hãy chọn hoặc nhập dịp trước'); return; }
+    S.busy = true; renderOccWizard();
+    try {
+      const r = await API.post('api/biz/occasion', {
+        user_id: _bizUserId, occasion: S.occasion, window_start: S.ws, window_end: S.we,
+        budget: S.budget, baseline: S.baseline, goal: S.goal });
+      const d = (r && r.draft) || {};
+      S.busy = false;
+      if (!d.brief) { renderOccWizard(); toast('Chưa lập được brief — cần có Chiến lược (T4) trước, hoặc thử lại.'); return; }
+      S.brief = d.brief; renderOccWizard();
+    } catch (e) { S.busy = false; renderOccWizard(); toast('Không lập được brief — thử lại sau.'); }
+  }
+
+  async function occasionSave() {
+    const S = _occState;
+    if (!S.brief) return;
+    try {
+      const r = await API.post('api/biz/occasion/save', {
+        user_id: _bizUserId, occasion: S.occasion, window_start: S.ws, window_end: S.we,
+        budget: S.budget, goal: S.goal, brief: S.brief });
+      if (r.error) { toast(r.error); return; }
+      const ov = document.getElementById('occWizard'); if (ov) ov.classList.remove('show');
+      toast('✅ Đã lưu chiến dịch theo dịp');
+      await refreshBiz(); route();
+    } catch (e) { toast('Không lưu được chiến dịch'); }
+  }
+
   /* ── Max chat ── */
   function chatBubble(m) {
     const who = m.role === 'user' ? 'me' : 'max';
@@ -2068,8 +2175,15 @@
       } catch (e) { toast('Không lập được chiến lược'); }
       return;
     }
-    if (act === 'new-occasion') {   // D-040: luồng tạo occasion đầy đủ (pre-fill SMART) = M1 lớn
-      toast('Luồng tạo chiến dịch theo dịp (chốt SMART) đang được xây — M1. Always-on đã sẵn sàng dùng.');
+    if (act === 'new-occasion') {   // M1.1 (D-043): luồng tạo occasion đầy đủ (chốt SMART thật)
+      openOccasionWizard(el.dataset.occ || '');
+      return;
+    }
+    if (act === 'occ-gen') { await occasionGenerate(); return; }
+    if (act === 'occ-save') { await occasionSave(); return; }
+    if (act === 'occ-back') { _occState.brief = ''; renderOccWizard(); return; }
+    if (act === 'occ-close') {
+      const ov = document.getElementById('occWizard'); if (ov) ov.classList.remove('show');
       return;
     }
     if (act === 'rate-skillrun') {

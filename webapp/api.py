@@ -118,6 +118,24 @@ async def biz_campaign_plan(request):
     return JSONResponse({"plan": res})
 
 
+async def biz_occasion_draft(request):
+    """M1.1 (D-043) — sinh Campaign Brief đợt theo dịp (chốt SMART thật)."""
+    d = await request.json()
+    res = await biz.occasion_draft(d.get("user_id"), d.get("occasion", ""),
+                                   d.get("window_start", ""), d.get("window_end", ""),
+                                   d.get("budget", ""), d.get("baseline", ""), d.get("goal", ""))
+    return JSONResponse({"draft": res})
+
+
+async def biz_occasion_save(request):
+    """M1.1 — lưu Campaign Brief đợt → skill_runs + campaigns."""
+    d = await request.json()
+    res = await biz.save_occasion(d.get("user_id"), d.get("occasion", ""),
+                                  d.get("window_start", ""), d.get("window_end", ""),
+                                  d.get("budget", ""), d.get("goal", ""), d.get("brief", ""))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
 async def biz_skillrun_rate(request):
     """Chấm điểm 1 output research (👍/👎 → 5/1)."""
     data = await request.json()
@@ -308,6 +326,8 @@ def api_routes() -> list:
         Route("/api/biz/market-kpis",              biz_market_kpis,    methods=["GET"]),
         Route("/api/biz/gate",                     biz_save_gate,      methods=["POST"]),
         Route("/api/biz/campaign-plan",            biz_campaign_plan,  methods=["GET"]),
+        Route("/api/biz/occasion",                 biz_occasion_draft, methods=["POST"]),
+        Route("/api/biz/occasion/save",            biz_occasion_save,  methods=["POST"]),
         Route("/api/biz/skillrun/{id:str}/rate",   biz_skillrun_rate,  methods=["POST"]),
         Route("/api/biz/skillrun/save",            biz_skillrun_save,  methods=["POST"]),
         Route("/api/biz/skillruns",                biz_skill_versions, methods=["GET"]),
