@@ -52,6 +52,16 @@ def test_campaign_2track():
         "FE chưa có hub 2 tuyến (always-on + occasion)"
 
 
+def test_nav_exposes_real_flow():
+    """UX: 'Lập chiến dịch' (occasion) phải có trong nav; trang Campaign Brief mock đã gỡ."""
+    data = _read("web/data.js")
+    assert "id: 'occasion'" in data, "Nav chưa expose hub Lập chiến dịch (occasion)"
+    assert "id: 'brief'" not in data, "Nav vẫn còn trang Campaign Brief mock"
+    app = _read("web/app.js")
+    assert "if (id === 'brief') id = 'occasion'" in app, "Thiếu redirect #brief → #occasion"
+    assert "P.brief = {" not in app, "Trang mock P.brief chưa được gỡ"
+
+
 def test_occasion_m1():
     """M1.1 (D-043): route occasion (draft+save); degrade an toàn; FE có wizard."""
     p = _paths()

@@ -1096,28 +1096,8 @@
     } catch (e) { host.innerHTML = `<div class="card"><p class="muted">Không lập được kế hoạch — thử lại sau.</p></div>`; }
   }
 
-  /* ---- Campaign Brief ---- */
-  P.brief = {
-    title: 'Campaign Brief', sub: 'Tài liệu chiến dịch 10 phần — tự prefill từ chiến lược',
-    actions: `<a class="primary-btn" href="#content">→ Tạo nội dung</a>`,
-    render: () => `
-      <section class="grid">
-        ${card('Chiến dịch “Mùa hè rực rỡ”', `
-          <div class="brief">
-            ${briefRow('🎯 Mục tiêu','Tăng 50% đơn online trong 90 ngày')}
-            ${briefRow('👥 Đối tượng','Gen Z & văn phòng 22–34, TP.HCM')}
-            ${briefRow('💰 Ngân sách','195.000.000₫ (6,5tr/ngày)')}
-            ${briefRow('📣 Kênh','Facebook · TikTok · Zalo OA')}
-            ${briefRow('🧲 Thông điệp','“Cà phê thật, giá thật, lấy nhanh”')}
-            ${briefRow('📊 KPI','ROAS 4,0x · CPA < 25.000₫ · 1.600 đơn')}
-            ${briefRow('🗓️ Thời gian','01/07 → 30/09/2026')}
-            ${briefRow('🎬 Định dạng','Video 9:16, Carousel, UGC')}
-          </div>`, {cls:'span-8'})}
-        ${card('Pillar mix', donut('pillarChart','100%','Phân bổ',
-          M.pillars.map(p=>[p.name,p.pct+'%'])), {cls:'span-4'})}
-      </section>`,
-    mount: () => { doughnut('pillarChart', M.pillars.map(p=>p.pct), M.pillars.map(p=>p.color)); },
-  };
+  /* ---- (gỡ) Campaign Brief mock — thay bằng Occasion brief thật (M1.1).
+     Route #brief redirect → #occasion (xem route()). ---- */
 
   /* ---- Lịch nội dung — Kế hoạch: Always-on (nền, LUÔN chạy) + Campaign theo dịp (cộng thêm) ---- */
   let _calView = 'plan';   // 'plan' (tháng) | 'week' (chi tiết tuần)
@@ -1776,6 +1756,7 @@
     let id = seg0;
     // pivot: bỏ Max chat → mọi thứ bắt đầu từ Hồ sơ doanh nghiệp
     if (id === 'pipeline' || id === 'agents' || id === 'home' || id === 'chat') id = 'dossier';
+    if (id === 'brief') id = 'occasion';   // gỡ trang Campaign Brief mock → hub Lập chiến dịch thật
     if (id === 'doc') _docId = seg1 || null;                    // trang đọc output: #doc/<id>
     const page = P[id] || P.dossier;
     killCharts();

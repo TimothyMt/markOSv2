@@ -7,9 +7,9 @@ window.MOCK = {
     { group: '② Chiến lược', items: [
       { id: 'strategy',   label: 'Chiến lược tổng hợp',   icon: '🎯' },
       { id: 'tactical',   label: 'Tactical Playbook',     icon: '🔨' },
-      { id: 'brief',      label: 'Campaign Brief',        icon: '📋' },
     ]},
     { group: '③ Sản xuất', items: [
+      { id: 'occasion', label: 'Lập chiến dịch',     icon: '🎯' },
       { id: 'calendar', label: 'Lịch nội dung',      icon: '🗓️' },
       { id: 'content',  label: 'Trình tạo nội dung', icon: '✍️' },
       { id: 'video',    label: 'Kịch bản video',     icon: '🎬' },
