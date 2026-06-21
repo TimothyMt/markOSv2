@@ -85,9 +85,18 @@ Ref: HubSpot/Shopify "next best action", Notion nudge cuối trang.
 Ref: Stripe onboarding, Duolingo path. Có sẵn code + CSS → chi phí thấp hơn vẻ ngoài.
 
 ## 4. Khuyến nghị & phân kỳ
-- **M4.1 = 🅐 + 🅑** (trị đúng chỗ nhầm, chi phí thấp). ƯU TIÊN.
-- **M4.2 = 🅒** (bản đồ tổng) — làm sau nếu vẫn cần.
+- **M4.1 = 🅐 + 🅑** (trị đúng chỗ nhầm, chi phí thấp). ƯU TIÊN. → ✅ ĐÃ LÀM (2026-06-21).
+- **M4.2 = 🅒** (bản đồ tổng) — đã demo nhưng founder thấy "thô", **HOÃN**, tìm cách hợp hơn sau.
 - Nguyên tắc: 1 primary CTA/màn; nhãn mô tả VIỆC không mô tả điểm đến; "next step" đặt nơi vừa hoàn thành.
+
+### Đã triển khai M4.1 (🅐+🅑)
+- 🅐 Header phân cấp: nhãn primary đổi `→ Lập chiến dịch` → **`→ Bước tiếp: Lập chiến dịch`**
+  (mô tả BƯỚC, hết nhầm với "tạo lại"). Trang Tactical thêm primary cùng đích.
+  Regenerate giữ nguyên dạng ghost/phụ.
+- 🅑 `nextStepCard()`: thẻ "Bước tiếp theo" cuối **cả** trang Chiến lược (synthesis) và
+  Tactical Playbook — **cùng** trỏ về `#occasion` → nhấn mạnh "1 kế hoạch, không tách lẻ".
+- Áp ở `web/app.js` + `web/styles.css` (.nextstep) và bản gộp `dashboard-standalone.html`.
+- Ảnh xem trước: `M4-ab-preview.png`.
 
 ## 5. Chưa làm / cần chốt
 - [ ] Founder duyệt hướng (spec này) trước khi code.

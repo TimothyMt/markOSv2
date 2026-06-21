@@ -69,32 +69,6 @@
       </a>${i<J.length-1?'<span class="jm-sep">›</span>':''}`).join('')}</div>`;
   }
 
-  /* ── DEMO 🅒 (M4.2 wayfinding): thanh "bạn đang ở đâu" toàn app ──
-     Suy 5 chặng thẳng từ 5 nhóm nav (①→⑤) — mỗi trang thuộc đúng 1 nhóm.
-     done = chặng đã qua · on = chặng hiện tại · pending = chặng sau.
-     Click 1 chặng → nhảy tới trang đầu của nhóm đó. Tái dùng CSS .jmini. */
-  const PHASE_ICON = ['🔍', '🎯', '✍️', '📡', '🎓'];
-  function phaseOfPage(id) {
-    const nav = M.nav || [];
-    for (let i = 0; i < nav.length; i++)
-      if ((nav[i].items || []).some(it => it.id === id)) return i;
-    return -1;
-  }
-  function journeyBar(activeId) {
-    const nav = M.nav || [];
-    const ai = phaseOfPage(activeId);
-    if (ai < 0) return '';   // trang ngoài luồng (vd #doc reader) → ẩn, không gượng ép
-    return `<div class="jbar jmini">${nav.map((g, i) => {
-      const label = (g.group || '').replace(/^[①②③④⑤]\s*/, '');
-      const first = (g.items[0] || {}).id || '';
-      const st = i < ai ? 'done' : i === ai ? 'on' : '';
-      return `<a class="jm ${st}" href="#${first}" title="${label}">
-          <span class="jm-dot">${i < ai ? '✓' : (PHASE_ICON[i] || '•')}</span>
-          <span class="jm-label">${label}</span>
-        </a>${i < nav.length - 1 ? '<span class="jm-sep">›</span>' : ''}`;
-    }).join('')}</div>`;
-  }
-
   P.home = {
     title: 'Max', sub: '',
     render: () => `
@@ -969,9 +943,25 @@
     return `<div class="card span-12 infer-banner">🤖 Max đã <b>tự suy ${inferred.length}/${_STRAT_KEYS.length} mục chiến lược</b> (bạn để trống) —
       phần phân tích dựa vào chúng được đánh dấu <b>(giả định — cần kiểm chứng)</b>. Bổ sung ở Hồ sơ doanh nghiệp để sắc hơn.</div>`;
   }
+  // 🅑 (M4.1 wayfinding): thẻ "Bước tiếp theo" — biển chỉ đường cuối mỗi tài liệu
+  // chiến lược. Cả Chiến lược (la bàn) lẫn Playbook (cách đánh) đều trỏ về CÙNG nút
+  // Lập chiến dịch (#occasion) → 1 kế hoạch duy nhất, KHÔNG nhân bản kế hoạch.
+  function nextStepCard({ done, lead, primary, alts }) {
+    return `<div class="card span-12 nextstep">
+      <div class="ns-body">
+        <p class="ns-done">✓ ${done}</p>
+        <p class="ns-lead">${lead}</p>
+      </div>
+      <div class="ns-actions">
+        <a class="primary-btn" href="#${primary.href}">${primary.label}</a>
+        ${alts ? `<div class="ns-alts">${alts}</div>` : ''}
+      </div>
+    </div>`;
+  }
+
   P.strategy = {
     title: 'Chiến lược tổng hợp', sub: 'Định vị · SAVE · Định hướng 90 ngày · KPI cần theo dõi',
-    actions: `<a class="ghost-line" href="#tactical">🔨 Tactical Playbook</a> <a class="primary-btn" href="#occasion">→ Lập chiến dịch</a>`,
+    actions: `<a class="ghost-line" href="#tactical">🔨 Tactical Playbook</a> <a class="primary-btn" href="#occasion">→ Bước tiếp: Lập chiến dịch</a>`,
     render: () => {
       const latest = (M.bizLatest || {}).synthesis;
       if (M.bizEnabled && latest) {
@@ -984,6 +974,13 @@
             <div class="ai-output collapsible" data-skill-run="${latest.id}">Đang tải chiến lược…</div>
             <button class="ghost-line full collapse-toggle" data-act="toggle-collapse" style="margin-top:12px">Xem đầy đủ ▾</button>`,
             {cls:'span-12', action:`<span class="muted">v${latest.version} · ${(latest.created_at||'').slice(0,10)}</span> ${runBtn('strategy', running ? '↻ Đang chạy' : '↻ Tạo lại bản mới', 'ghost-line sm')}`})}
+          ${nextStepCard({
+            done: 'Đã có Chiến lược 90 ngày — la bàn định hướng.',
+            lead: 'Bước tiếp: biến la bàn thành <b>kế hoạch chạy thật</b> (lịch bài, đợt theo dịp, quảng cáo).',
+            primary: { href: 'occasion', label: '→ Lập chiến dịch' },
+            alts: `<a class="ghost-line sm" href="#tactical">🔨 Chi tiết hoá bằng Tactical Playbook</a>
+                   ${runBtn('strategy', running ? '↻ Đang chạy' : '↻ Tạo lại bản mới', 'ghost-line sm')}`,
+          })}
         </section>`;
       }
       if (M.bizEnabled) {
@@ -1036,7 +1033,7 @@
   /* ---- Tactical Playbook (T5 — cách đánh chi tiết theo từng tệp) ---- */
   P.tactical = {
     title: 'Tactical Playbook', sub: 'Cách đánh chi tiết theo từng phân khúc — copy, kênh, khung test, KPI',
-    actions: `<a class="ghost-line" href="#strategy">← Về Chiến lược</a>`,
+    actions: `<a class="ghost-line" href="#strategy">← Về Chiến lược</a> <a class="primary-btn" href="#occasion">→ Bước tiếp: Lập chiến dịch</a>`,
     render: () => {
       const has = (M.bizSkillRuns || []).some(r => r.skill_name === 'tactical_playbook');
       if (M.bizEnabled && !has) {
@@ -1056,6 +1053,12 @@
         <div class="card span-12 dir-banner">🔨 Đây là <b>cách đánh chi tiết</b> (bản đồ) — đi sau <b>Chiến lược định hướng</b> (la bàn).
           Mỗi phân khúc có copy mẫu, kênh, khung thử nghiệm, KPI. Con số/ngân sách thật chốt khi lập chiến dịch theo dịp.</div>
         ${agentSection('full','tactical_playbook')}
+        ${nextStepCard({
+          done: 'Đã có Tactical Playbook — cách đánh chi tiết theo từng tệp.',
+          lead: 'Bước tiếp: lên <b>kế hoạch chạy</b>. Playbook và Chiến lược cùng đổ về <b>một</b> nơi → <b>một</b> kế hoạch (không tách lẻ).',
+          primary: { href: 'occasion', label: '→ Lập chiến dịch' },
+          alts: `<a class="ghost-line sm" href="#strategy">← Xem lại Chiến lược định hướng</a>`,
+        })}
       </section>`;
     },
     mount: () => {},
@@ -1725,7 +1728,7 @@
     document.body.classList.remove('chat-mode');
     const actions = page.actions || '';
     document.getElementById('view').innerHTML =
-      pageHead(page.title, page.sub, actions) + journeyBar(id) + page.render();
+      pageHead(page.title, page.sub, actions) + page.render();
     if (page.mount) page.mount();
     fillDocEmbeds();   // nhúng trình đọc/sửa text vào trang chi tiết (demo + thật)
     fillSkillRunSlots();   // nạp nội dung slot .ai-output[data-skill-run] (synthesis collapsible)
