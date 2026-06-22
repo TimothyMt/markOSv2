@@ -1194,8 +1194,8 @@
     }));
     return out;
   };
-  const alwaysCard = (p) => `<div class="cal-post clickable" data-act="slot-open" data-slot="${encodeURIComponent(JSON.stringify(p))}" style="--accent:var(--green)" title="Bấm để chọn chủ đề & tạo bài">
-      <div class="cal-post-top"><span class="trk on">Always-on</span><span class="pill-tag ${pillarCls(p.pillar)}">${p.pillar}</span></div>
+  const alwaysCard = (p) => `<div class="cal-post clickable ${p.saved?'saved':''}" data-act="slot-open" data-slot="${encodeURIComponent(JSON.stringify(p))}" style="--accent:var(--green)" title="${p.saved?'Đã duyệt — bấm để xem/sửa':'Bấm để chọn chủ đề & tạo bài'}">
+      <div class="cal-post-top"><span class="trk on">Always-on</span><span class="pill-tag ${pillarCls(p.pillar)}">${p.pillar}</span>${p.saved?'<span class="slot-done">✓ Đã duyệt</span>':''}</div>
       <p class="cal-post-topiclbl">💡 Chủ đề</p>
       <p class="cal-post-title">${p.title}</p></div>`;
   const campCard = (p) => `<div class="cal-post" style="--accent:${p.camp.color}">
@@ -1934,13 +1934,16 @@
   let _slotCtx = null;
   const _DAYNAMES = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
   function _ensureBizModal() { showModal('', '', null); return document.getElementById('bizModal'); }
+  const _slotWhen = (slot) => (slot.day != null && slot.week)
+    ? `${_DAYNAMES[slot.day] || ('Ngày ' + (slot.day + 1))} · Tuần ${slot.week}` : 'Bài Always-on';
   function openSlotModal(slot) {
     _slotCtx = slot;
+    // Đã duyệt trước đó → mở thẳng bài đã lưu (xem/sửa), không bắt chọn lại chủ đề.
+    if (slot.saved && slot.post) { _ensureBizModal(); showSlotResult(slot.post, null, true); return; }
     const E = s => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     const ov = _ensureBizModal();
     const angles = (slot.angles && slot.angles.length) ? slot.angles : [slot.title].filter(Boolean);
-    const when = (slot.day != null && slot.week) ? `${_DAYNAMES[slot.day] || ('Ngày ' + (slot.day + 1))} · Tuần ${slot.week}` : 'Bài Always-on';
-    ov.querySelector('h3').textContent = `${when} — ${slot.pillar || 'Always-on'}`;
+    ov.querySelector('h3').textContent = `${_slotWhen(slot)} — ${slot.pillar || 'Always-on'}`;
     ov.querySelector('.modal-body').innerHTML = `
       <p class="muted" style="margin:0 0 10px">Chọn <b>💡 chủ đề</b> cho bài này, rồi để Max viết:</p>
       <div class="angle-pick">${angles.map((a, i) =>
@@ -1951,18 +1954,25 @@
       <div class="modal-foot-r"><button class="primary-btn sm" data-act="slot-gen">⚡ Tạo bài từ chủ đề này</button></div>`;
     ov.classList.add('show');
   }
-  function showSlotResult(content, runId) {
-    const ov = document.getElementById('bizModal'); if (!ov) return;
+  // Khung TEXT sửa được (t2) + Lưu & Duyệt ngay tại ô (t1). wasSaved=đang xem bài đã lưu.
+  function showSlotResult(content, runId, wasSaved) {
+    const ov = document.getElementById('bizModal'); if (!ov || !_slotCtx) return;
+    const E = s => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     _modalRun = { run: true, title: '', content, id: runId };
-    ov.querySelector('.modal-body').innerHTML = renderAIContent(content || '(trống)');
-    enhancePosMaps(ov.querySelector('.modal-body'));
+    ov.querySelector('h3').textContent = `${_slotWhen(_slotCtx)} — ${_slotCtx.pillar || 'Always-on'}${wasSaved ? ' · ✓ đã duyệt' : ''}`;
+    ov.querySelector('.modal-body').innerHTML =
+      `<p class="muted" style="margin:0 0 8px">Sửa trực tiếp rồi <b>Lưu & Duyệt</b> — bài sẽ ghim tại ô này.</p>
+       <textarea class="slot-edit" id="slotEditBox" rows="14">${E(content)}</textarea>`;
     const foot = ov.querySelector('.modal-foot'); foot.style.display = 'flex';
     foot.innerHTML = `
-      <div class="rate-group"><button class="ghost-line sm" data-act="slot-back">← Đổi chủ đề</button></div>
-      <div class="modal-foot-r">
-        <button class="ghost-line sm" data-act="copy-skillrun">📋 Copy</button>
+      <div class="rate-group">
+        <button class="ghost-line sm" data-act="slot-back">← Đổi chủ đề</button>
         <button class="ghost-line sm" data-act="slot-gen">↻ Tạo lại</button>
-        <button class="primary-btn sm" data-act="slot-approve">✓ Duyệt</button>
+        ${wasSaved ? '<button class="ghost-line sm" data-act="slot-unsave">🗑 Bỏ bài</button>' : ''}
+      </div>
+      <div class="modal-foot-r">
+        <button class="ghost-line sm" data-act="slot-copy">📋 Copy</button>
+        <button class="primary-btn sm" data-act="slot-save">💾 Lưu &amp; Duyệt</button>
       </div>`;
   }
 
@@ -2299,10 +2309,34 @@
       } catch (e) { toast('Không tạo được bài — thử lại sau.'); el.disabled = false; el.textContent = orig; }
       return;
     }
-    if (act === 'slot-back') { if (_slotCtx) openSlotModal(_slotCtx); return; }
-    if (act === 'slot-approve') {
-      const ov = document.getElementById('bizModal'); if (ov) ov.classList.remove('show');
-      toast('✓ Đã duyệt — bài lưu trong Tài liệu');
+    if (act === 'slot-back') { if (_slotCtx) { const s = { ..._slotCtx }; delete s.saved; delete s.post; openSlotModal(s); } return; }
+    if (act === 'slot-copy') {
+      const box = document.getElementById('slotEditBox');
+      if (box) { try { await navigator.clipboard.writeText(box.value); toast('📋 Đã copy'); } catch (e) { toast('Không copy được'); } }
+      return;
+    }
+    if (act === 'slot-save') {   // t1: lưu & duyệt bài (đã sửa) ngay tại ô
+      const box = document.getElementById('slotEditBox');
+      const content = box ? box.value : '';
+      if (!content.trim()) { toast('Bài trống'); return; }
+      if (!_slotCtx || !_slotCtx.key) { toast('Thiếu thông tin ô'); return; }
+      const orig = el.textContent; el.disabled = true; el.textContent = '⏳ Đang lưu…';
+      try {
+        const r = await API.post('api/biz/calendar/post-save', { user_id: _bizUserId, slot_key: _slotCtx.key, content });
+        if (r.error) { toast(r.error); el.disabled = false; el.textContent = orig; return; }
+        const ov = document.getElementById('bizModal'); if (ov) ov.classList.remove('show');
+        toast('✓ Đã lưu & duyệt — ghim tại ô'); await refreshBiz(); route();
+      } catch (e) { toast('Không lưu được — thử lại sau.'); el.disabled = false; el.textContent = orig; }
+      return;
+    }
+    if (act === 'slot-unsave') {   // bỏ bài đã lưu → ô về trạng thái trống
+      if (!_slotCtx || !_slotCtx.key) return;
+      try {
+        const r = await API.post('api/biz/calendar/post-save', { user_id: _bizUserId, slot_key: _slotCtx.key, delete: true });
+        if (r.error) { toast(r.error); return; }
+        const ov = document.getElementById('bizModal'); if (ov) ov.classList.remove('show');
+        toast('Đã bỏ bài — ô về trạng thái gợi ý'); await refreshBiz(); route();
+      } catch (e) { toast('Không bỏ được — thử lại sau.'); }
       return;
     }
     if (act === 'cal-gen') {

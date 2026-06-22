@@ -309,6 +309,41 @@ async def save_pillars(user_id=None, pillars=None) -> dict:
         return {"error": str(e)}
 
 
+async def save_calendar_post(user_id=None, slot_key: str = "", content: str = "",
+                             delete: bool = False) -> dict:
+    """M-C(t1): lưu/duyệt bài ĐÃ SỬA ngay tại ô lịch → intake_extra.calendar_posts[slot_key].
+    delete=True → bỏ bài đã lưu (quay lại trạng thái trống). Bài lưu = nguồn sự thật của ô đó."""
+    if not available():
+        return {"error": "Chưa cấu hình Supabase."}
+    if not (slot_key or "").strip():
+        return {"error": "Thiếu slot_key."}
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {"error": "Chưa có user."}
+        from storage.v2 import profiles
+        cur = await profiles.get_profile(uid) or {}
+        extra = cur.get("intake_extra") or {}
+        if not isinstance(extra, dict):
+            extra = {}
+        posts = extra.get("calendar_posts") or {}
+        if not isinstance(posts, dict):
+            posts = {}
+        if delete:
+            posts.pop(slot_key, None)
+        else:
+            if not (content or "").strip():
+                return {"error": "Bài trống — không lưu."}
+            posts[slot_key] = {"content": content[:6000], "approved": True}
+        extra["calendar_posts"] = posts
+        row = await profiles.upsert_profile(uid, intake_extra=extra)
+        return {"ok": True, "saved": len(posts), "profile": row}
+    except Exception as e:
+        logger.warning("biz.save_calendar_post failed: %s", e)
+        return {"error": str(e)}
+
+
 _market_kpi_cache: dict = {}
 
 
@@ -802,6 +837,9 @@ async def calendar_plan(user_id=None) -> dict:
 
         # Always-on từ pillars đã chốt (M4(2)) — rải theo NHỊP (posts_per_week) suốt HORIZON.
         # Mỗi trụ xuất hiện posts_per_week lần/tuần; angles xoay theo tuần cho đa dạng.
+        saved_posts = (_prof.get("intake_extra") or {}).get("calendar_posts") or {}
+        if not isinstance(saved_posts, dict):
+            saved_posts = {}
         plan = await campaign_plan(uid)
         pillars = (plan or {}).get("pillars") or []
         always = []
@@ -817,10 +855,16 @@ async def calendar_plan(user_id=None) -> dict:
                     angles = p.get("angles") or []
                     title = (angles[(idx + w) % len(angles)] if angles
                              else (p.get("role") or p.get("name") or "Bài brand"))
-                    always.append({"week": w, "day": day_of[idx],
-                                   "pillar": p.get("name") or "Pillar", "title": title,
-                                   "angles": [str(a) for a in (p.get("angles") or [])][:6],
-                                   "track": "always"})
+                    pname = p.get("name") or "Pillar"
+                    key = f"aw|{w}|{day_of[idx]}|{pname}"
+                    slot = {"week": w, "day": day_of[idx], "pillar": pname, "title": title,
+                            "angles": [str(a) for a in (p.get("angles") or [])][:6],
+                            "track": "always", "key": key}
+                    sp = saved_posts.get(key)
+                    if isinstance(sp, dict) and (sp.get("content") or "").strip():
+                        slot["saved"] = True
+                        slot["post"] = sp["content"]
+                    always.append(slot)
 
         if not bands and not always:
             return {}   # chưa có gì thật → FE giữ mock
@@ -849,6 +893,19 @@ async def gen_calendar_post(user_id=None, track: str = "always", pillar: str = "
         prof = await profiles.get_profile(uid) or {}
         industry = prof.get("industry") or ""
         usp = prof.get("usp") or ""
+        target = prof.get("target_customer") or ""
+        product = prof.get("product_service") or ""
+        # Brand voice (nếu có) → giọng nhất quán
+        voice_ctx = ""
+        try:
+            from storage import brand_voice as _bv
+            bv = await _bv.get_brand_voice(uid)
+            if bv:
+                tone = (bv.get("tone") or bv.get("voice") or "") if isinstance(bv, dict) else ""
+                if tone:
+                    voice_ctx = f"\n# Brand voice\n{str(tone)[:300]}"
+        except Exception:
+            pass
         ctx, kind = "", ""
         if track == "camp" and campaign_id:
             from storage.v2 import campaigns_v2
@@ -858,21 +915,30 @@ async def gen_calendar_post(user_id=None, track: str = "always", pillar: str = "
                 run = await skill_run_content(c["brief_skill_run_id"])
                 brief = (run or {}).get("content") or c.get("summary") or ""
             ctx = f"Đợt: {c.get('name','')}. Brief:\n{brief[:1800]}"
-            kind = "1 bài ĐẨY OFFER cho đợt (có CTA, tạo hành động)"
+            kind = "1 bài ĐẨY OFFER cho đợt (có CTA rõ, tạo hành động ngay)"
         else:
-            topic = f"\nChủ đề cụ thể (founder chọn): {angle}" if (angle or "").strip() else ""
+            topic = f"\nChủ đề cụ thể (founder chọn — bám SÁT): {angle}" if (angle or "").strip() else ""
             ctx = f"Content pillar (always-on, nền brand): {pillar or '(brand)'}{topic}"
-            kind = "1 bài NỀN brand bám pillar (KHÔNG ép bán, xây nhận biết/niềm tin)"
+            kind = "1 bài NỀN brand bám pillar (xây nhận biết/niềm tin — KHÔNG ép bán)"
         from tools.llm_router import call as router_call, TaskType
         system = (
-            "Bạn là copywriter mạng xã hội Việt Nam. Viết " + kind + " — đăng được NGAY:\n"
-            "- Hook 1 dòng đầu bắt mắt.\n- Thân bài ngắn (2-4 câu), giọng đời thường, hợp ngành.\n"
-            "- CTA cuối phù hợp.\n- 3-5 hashtag.\n"
-            "🔴 Nếu có 'Chủ đề cụ thể' → bám ĐÚNG chủ đề đó. Bám USP + ngành. KHÔNG bịa số/khuyến mãi "
-            "không có thật. Viết TIẾNG VIỆT. Trả MARKDOWN gọn."
+            "Bạn là copywriter social media Việt Nam giỏi, viết cho founder nhỏ. Viết " + kind + ".\n"
+            "CHẤT LƯỢNG (quan trọng — đừng ra bài chung chung/nhạt):\n"
+            "1. HOOK câu đầu phải CHẠM: nói trúng nỗi đau/khao khát/hiểu lầm CỤ THỂ của khách — "
+            "không mở bài kiểu định nghĩa, không 'Bạn có biết...'.\n"
+            "2. Thân bài 1 ý CHÍNH duy nhất, có chi tiết ĐỜI THỰC/ví dụ cụ thể (con người, tình huống), "
+            "KHÔNG liệt kê khô khan, KHÔNG sáo ngữ marketing ('chất lượng hàng đầu', 'uy tín').\n"
+            "3. Lồng USP một cách tự nhiên qua câu chuyện/bằng chứng, không hô khẩu hiệu.\n"
+            "4. CTA cuối nhẹ, hợp bài nền (mời tương tác/lưu/nhắn) — đừng ép mua.\n"
+            "5. Giọng đời thường, như người thật nói; câu ngắn; emoji vừa phải (2-4).\n"
+            "Cấu trúc: Hook (1-2 dòng) · Thân (3-6 câu) · CTA (1 dòng) · 3-5 hashtag tiếng Việt.\n"
+            "🔴 Nếu có 'Chủ đề cụ thể' → bám ĐÚNG. Bám USP + đúng tệp khách + ngành. KHÔNG bịa số/khuyến mãi "
+            "không có thật. Viết TIẾNG VIỆT tự nhiên (không dịch cứng). Trả MARKDOWN, chỉ NỘI DUNG BÀI."
         )
-        user = f"# Ngành\n{industry}\n# USP\n{usp or '(chưa rõ)'}\n\n# Bối cảnh slot\n{ctx}"
-        res = await router_call(task_type=TaskType.OPS_CONTENT_CREATIVE, system=system, user=user, max_tokens=700)
+        user = (f"# Ngành\n{industry}\n# Sản phẩm/dịch vụ\n{product or '(chưa rõ)'}\n"
+                f"# Khách mục tiêu\n{target or '(chưa rõ)'}\n# USP\n{usp or '(chưa rõ)'}{voice_ctx}\n\n"
+                f"# Bối cảnh slot\n{ctx}")
+        res = await router_call(task_type=TaskType.OPS_CONTENT_CREATIVE, system=system, user=user, max_tokens=900)
         content = (res or {}).get("output", "").strip()
         if not content:
             return {"error": "Chưa sinh được bài — thử lại."}

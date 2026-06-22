@@ -734,6 +734,13 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 .angle-pick .radio-row { font-size:14px; line-height:1.45; padding:8px 10px; border:1px solid var(--stroke);
   border-radius:8px; cursor:pointer; }
 .angle-pick .radio-row:has(input:checked) { border-color:var(--primary); background:rgba(79,70,229,.05); }
+.slot-edit { width:100%; box-sizing:border-box; min-height:220px; resize:vertical; font:inherit;
+  font-size:14px; line-height:1.55; padding:12px 14px; border:1px solid var(--stroke); border-radius:10px;
+  background:var(--panel); color:var(--txt); }
+.slot-edit:focus { outline:none; border-color:var(--primary); }
+.cal-post.saved { border-left-color:var(--green); background:color-mix(in srgb, var(--green) 6%, var(--panel)); }
+.slot-done { font-size:9.5px; font-weight:700; color:var(--green);
+  background:color-mix(in srgb, var(--green) 16%, transparent); padding:1px 6px; border-radius:999px; margin-left:auto; }
 .trk { font-size:10px; font-weight:700; padding:2px 7px; border-radius:999px; }
 .trk.on { background:color-mix(in srgb, var(--green) 18%, transparent); color:var(--green); }
 .trk.camp { background:color-mix(in srgb, var(--c) 20%, transparent); color:var(--c); border:1px solid var(--c); }

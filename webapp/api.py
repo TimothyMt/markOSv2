@@ -187,6 +187,14 @@ async def biz_calendar_gen(request):
     return JSONResponse(res, status_code=400 if "error" in res else 200)
 
 
+async def biz_calendar_post_save(request):
+    """M-C(t1) — lưu/duyệt bài đã sửa tại ô lịch (intake_extra.calendar_posts)."""
+    d = await request.json()
+    res = await biz.save_calendar_post(d.get("user_id"), d.get("slot_key", ""),
+                                       d.get("content", ""), bool(d.get("delete")))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
 async def biz_content_derive(request):
     """M3.1 — sinh biến thể từ 1 bài gốc (đa kênh/video/UGC), lưu skill_run."""
     d = await request.json()
@@ -392,6 +400,7 @@ def api_routes() -> list:
         Route("/api/biz/gate",                     biz_save_gate,      methods=["POST"]),
         Route("/api/biz/synthesis-approve",        biz_synthesis_approve, methods=["POST"]),
         Route("/api/biz/pillars-lock",             biz_pillars_lock,   methods=["POST"]),
+        Route("/api/biz/calendar/post-save",       biz_calendar_post_save, methods=["POST"]),
         Route("/api/biz/campaign-plan",            biz_campaign_plan,  methods=["GET"]),
         Route("/api/biz/occasion",                 biz_occasion_draft, methods=["POST"]),
         Route("/api/biz/occasion/save",            biz_occasion_save,  methods=["POST"]),
