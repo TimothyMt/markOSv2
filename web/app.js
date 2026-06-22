@@ -622,7 +622,7 @@
         ['customer_insight','customer','👤','Customer Insight','ICP + JTBD + tâm lý'],
         ['psychology_pricing','pricing','💲','Định giá & Tâm lý','Mô hình giá + tâm lý'],
         ['swot','swot','⚖️','SWOT','Ma trận chiến lược'],
-        ['synthesis','strategy','🎯','Chiến lược tổng hợp','SAVE + định hướng 90 ngày'],
+        ['synthesis','strategy','🎯','Chiến lược tổng hợp','Định vị (bền) + roadmap theo nhịp'],
       ];
       const isRunning = (t) => jobs.some(j => j.status === 'running' && (j.task === t || j.task === 'full'));
       const diagBody = `<div class="diag-list">${ANALYSES.map(([k, task, ic, name, desc]) => {
@@ -923,15 +923,15 @@
               <div><p>${s.name}</p><span class="muted">${s.text}</span></div></div>`).join('')}</div>`, {cls:'span-6'})}
         ${card('Mục tiêu định hướng theo giai đoạn', `<ul class="bullet">${M.directionalGoals.map(g=>`<li>🧭 ${g}</li>`).join('')}</ul>
           <p class="muted" style="margin-top:8px">Số cụ thể (SMART, deadline) chốt khi lập chiến dịch theo dịp.</p>`, {cls:'span-6'})}
-        ${card('Roadmap 90 ngày', `
+        ${card('Roadmap định hướng', `
           <div class="roadmap">${M.roadmap.map(r=>`
             <div class="rm-phase"><span class="rm-tag">${r.phase}</span><p class="rm-title">${r.title}</p>
               <ul class="bullet">${r.items.map(i=>`<li>${i}</li>`).join('')}</ul></div>`).join('')}</div>`, {cls:'span-12'})}`;
   // Banner 2 tầng: Synthesis = la bàn (định hướng); số cụ thể chốt ở chiến dịch (B1)
   const directionalBanner = `
         <div class="card span-12 dir-banner">
-          🧭 Đây là <b>ĐỊNH HƯỚNG</b> chiến lược 90 ngày (la bàn): định vị, trục nội dung,
-          kênh, ưu tiên từng giai đoạn. Con số cụ thể — SMART, ngân sách đợt, deadline —
+          🧭 Đây là <b>ĐỊNH HƯỚNG</b> chiến lược (la bàn): <b>định vị (bền)</b> + <b>roadmap theo nhịp đã chọn</b>,
+          trục nội dung, kênh, ưu tiên từng giai đoạn. Con số cụ thể — SMART, ngân sách đợt, deadline —
           sẽ được <b>chốt khi bạn lập từng chiến dịch theo dịp</b>.
         </div>`;
   // D-032 step 3: thanh minh bạch — Max tự suy bao nhiêu mục chiến lược (founder bỏ trống)
@@ -960,7 +960,7 @@
   }
 
   P.strategy = {
-    title: 'Chiến lược tổng hợp', sub: 'Định vị · SAVE · Định hướng 90 ngày · KPI cần theo dõi',
+    title: 'Chiến lược tổng hợp', sub: 'Định vị (bền) · SAVE · Roadmap theo nhịp · KPI cần theo dõi',
     actions: `<a class="ghost-line" href="#tactical">🔨 Tactical Playbook</a> <a class="primary-btn" href="#occasion">→ Bước tiếp: Lập chiến dịch</a>`,
     render: () => {
       const latest = (M.bizLatest || {}).synthesis;
@@ -970,12 +970,12 @@
         return `<section class="grid">
           ${directionalBanner}
           ${inferredMeter()}
-          ${card('Chiến lược 90 ngày — do Max lập', `
+          ${card('Chiến lược — do Max lập', `
             <div class="ai-output collapsible" data-skill-run="${latest.id}">Đang tải chiến lược…</div>
             <button class="ghost-line full collapse-toggle" data-act="toggle-collapse" style="margin-top:12px">Xem đầy đủ ▾</button>`,
             {cls:'span-12', action:`<span class="muted">v${latest.version} · ${(latest.created_at||'').slice(0,10)}</span> ${runBtn('strategy', running ? '↻ Đang chạy' : '↻ Tạo lại bản mới', 'ghost-line sm')}`})}
           ${nextStepCard({
-            done: 'Đã có Chiến lược 90 ngày — la bàn định hướng.',
+            done: 'Đã có Chiến lược — la bàn định hướng.',
             lead: 'Bước tiếp: biến la bàn thành <b>kế hoạch chạy thật</b> (lịch bài, đợt theo dịp, quảng cáo).',
             primary: { href: 'occasion', label: '→ Lập chiến dịch' },
             alts: `<a class="ghost-line sm" href="#tactical">🔨 Chi tiết hoá bằng Tactical Playbook</a>
@@ -990,7 +990,7 @@
         if (researchDone) {
           const running = (M.agentJobs || []).some(j => j.status === 'running' && (j.task === 'strategize' || j.task === 'full'));
           return `<section class="grid">
-            <div class="card span-12 dir-banner">🚪 <b>Nghiên cứu xong (T1-T3).</b> Trước khi Max lập chiến lược, chốt 2 lựa chọn dưới đây trên dữ liệu THẬT — Max sẽ bám đúng ý bạn (đọc kỹ Đối thủ / Customer / USP ở các tab nếu cần).</div>
+            <div class="card span-12 dir-banner">🚪 <b>Nghiên cứu xong (T1-T3).</b> Trước khi Max lập chiến lược, chốt vài lựa chọn dưới đây trên dữ liệu THẬT — Max sẽ bám đúng ý bạn (đọc kỹ Đối thủ / Customer / USP ở các tab nếu cần). Mục nào chưa chắc cứ để <b>Tự động</b>.</div>
             ${card('🎯 Chốt hướng đánh trước khi lập chiến lược', `
               <label class="fld"><span>① Bạn muốn đánh vào (các) phân khúc nào TRƯỚC? <span class="muted">— để trống thì Max tự chọn theo research</span></span>
                 <input id="gateWedge" placeholder="vd: mẹ bỉm plus-size sau sinh; hoặc chủ shop Amazon nhỏ"></label>
@@ -1005,7 +1005,21 @@
                   <label class="radio-row"><input type="radio" name="uspStance" value="edit"> Tôi muốn sửa/nhập lại →</label>
                   <input id="gateUsp" placeholder="Nhập câu định vị (nếu chọn 'sửa/nhập lại')">
                 </div></div>
-              <button class="primary-btn full" data-act="run-strategize" ${running ? 'disabled' : ''} style="margin-top:10px">${running ? '⏳ Đang lập chiến lược…' : '🎯 Lập chiến lược (T4 Synthesis + T5 Playbook)'}</button>
+              <div class="fld"><span>③ Nhịp roadmap <span class="muted">— bao lâu cho 1 chu kỳ kế hoạch (để 'Tự động' cho Max chọn theo giai đoạn)</span></span>
+                <div class="gate-usp">
+                  <label class="radio-row"><input type="radio" name="gateHorizon" value="auto" checked> <b>Tự động</b> <span class="muted">(Max cân theo bối cảnh — khuyến nghị)</span></label>
+                  <label class="radio-row"><input type="radio" name="gateHorizon" value="30"> 30 ngày <span class="muted">(nhịp nhanh — shop nhỏ / thử nghiệm)</span></label>
+                  <label class="radio-row"><input type="radio" name="gateHorizon" value="60"> 60 ngày</label>
+                  <label class="radio-row"><input type="radio" name="gateHorizon" value="90"> 90 ngày <span class="muted">(theo quý)</span></label>
+                </div></div>
+              <div class="fld"><span>④ Trọng tâm giai đoạn <span class="muted">— nghiêng xây thương hiệu hay đẩy đơn (để 'Tự động' cho Max cân)</span></span>
+                <div class="gate-usp">
+                  <label class="radio-row"><input type="radio" name="gatePosture" value="auto" checked> <b>Tự động</b> <span class="muted">(Max cân theo giai đoạn + dòng tiền)</span></label>
+                  <label class="radio-row"><input type="radio" name="gatePosture" value="brand"> Thiên <b>xây nhận biết</b> <span class="muted">(the long — chậm thấy đơn hơn)</span></label>
+                  <label class="radio-row"><input type="radio" name="gatePosture" value="balanced"> <b>Cân bằng</b> ~60/40 brand·đơn</label>
+                  <label class="radio-row"><input type="radio" name="gatePosture" value="activation"> Thiên <b>ra đơn ngay</b> <span class="muted">(the short — nền thương hiệu mỏng hơn)</span></label>
+                </div></div>
+              <button class="primary-btn full" data-act="run-strategize" ${running ? 'disabled' : ''} style="margin-top:10px">${running ? '⏳ Đang lập chiến lược…' : '🎯 Lập chiến lược (Synthesis + Playbook)'}</button>
             `, {cls:'span-12'})}
           </section>`;
         }
@@ -2303,7 +2317,9 @@
         // own=giữ USP founder (clear), draft=dùng USP Max, edit=nhập mới (clear)
         const usp_stance = pick === 'draft' ? 'draft' : 'clear';
         const usp_text = pick === 'edit' ? uspText : '';
-        const g = await API.post('api/biz/gate', { wedge, usp_stance, usp_text, user_id: _bizUserId });
+        const horizon = (document.querySelector('input[name="gateHorizon"]:checked') || {}).value || 'auto';
+        const posture = (document.querySelector('input[name="gatePosture"]:checked') || {}).value || 'auto';
+        const g = await API.post('api/biz/gate', { wedge, usp_stance, usp_text, horizon, posture, user_id: _bizUserId });
         if (g.error) { toast(g.error); return; }
         const r = await API.post('api/biz/agent', { task: 'strategize', user_id: _bizUserId });
         if (r.error) { toast(r.error); return; }

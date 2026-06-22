@@ -108,7 +108,8 @@ async def biz_save_gate(request):
     """D-041 — lưu lựa chọn GATE (phân khúc + định vị) trước khi lập chiến lược."""
     data = await request.json()
     res = await biz.save_gate(data.get("user_id"), data.get("wedge", ""),
-                              data.get("usp_stance", ""), data.get("usp_text", ""))
+                              data.get("usp_stance", ""), data.get("usp_text", ""),
+                              data.get("horizon", ""), data.get("posture", ""))
     return JSONResponse(res, status_code=400 if "error" in res else 200)
 
 

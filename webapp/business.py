@@ -200,8 +200,15 @@ async def biz_data(user_id=None) -> dict:
     return out
 
 
-async def save_gate(user_id=None, wedge: str = "", usp_stance: str = "", usp_text: str = "") -> dict:
-    """D-041: lưu lựa chọn GATE (phân khúc=wedge + định vị USP) trước khi lập chiến lược (T4-T5)."""
+async def save_gate(user_id=None, wedge: str = "", usp_stance: str = "", usp_text: str = "",
+                    horizon: str = "", posture: str = "") -> dict:
+    """D-041 + M5-B2: lưu lựa chọn GATE trước khi lập chiến lược.
+
+    Gồm: phân khúc (wedge) + định vị (USP) + horizon (nhịp roadmap) + posture
+    (nghiêng brand/activation). horizon/posture optional — bỏ trống = 'auto'
+    (để Max tự cân theo bối cảnh khi sinh synthesis). Lưu vào intake_extra để
+    strategize_web đọc; cũng nằm trong _strategy_fp nên đổi là cache vô hiệu.
+    """
     if not available():
         return {"error": "Chưa cấu hình Supabase."}
     try:
@@ -216,6 +223,12 @@ async def save_gate(user_id=None, wedge: str = "", usp_stance: str = "", usp_tex
             extra = {}
         if (wedge or "").strip():
             extra["wedge"] = wedge.strip()
+        # horizon: '30' | '60' | '90' | 'auto'(mặc định). posture: 'brand' | 'balanced'
+        # | 'activation' | 'auto'(mặc định). Giá trị lạ → 'auto' (không hardcode hành vi).
+        hz = (horizon or "").strip().lower()
+        extra["horizon"] = hz if hz in ("30", "60", "90") else "auto"
+        ps = (posture or "").strip().lower()
+        extra["posture"] = ps if ps in ("brand", "balanced", "activation") else "auto"
         fields = {"intake_extra": extra}
         if usp_stance in ("clear", "draft", "missing"):
             extra["usp_stance"] = usp_stance
@@ -849,6 +862,180 @@ async def gen_content_asset(user_id=None, kind: str = "ads_copy") -> dict:
         return {"error": str(e)}
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# M5: WEB-OWNED strategy generation (Synthesis + Tactical Playbook)
+# Thay cho synthesis của pipeline bot — bot là tham khảo, sẽ rebuild để hỗ trợ web
+# (không sửa agents/). Điểm khác cốt lõi: horizon LINH HOẠT + tách ĐỊNH VỊ (bền)
+# khỏi ROADMAP (theo kỳ) + nghiêng theo POSTURE; ưu tiên để LLM tự cân, hạn chế hardcode.
+# ─────────────────────────────────────────────────────────────────────────────
+_RESEARCH_SKILLS = ["market_research", "competitor", "customer_insight", "swot"]
+
+
+def _horizon_guide(hz: str) -> str:
+    """Dịch lựa chọn horizon của founder → chỉ dẫn cho LLM (KHÔNG bảng cứng stage→ngày).
+    'auto' = giao LLM tự chọn nhịp hợp bối cảnh."""
+    if hz in ("30", "60", "90"):
+        return (f"Founder CHỌN nhịp roadmap = {hz} NGÀY. Chia pha vừa khít {hz} ngày "
+                f"(số pha hợp lý theo độ dài), không co kéo sang mốc khác.")
+    return ("Founder để 'tự động' → BẠN tự chọn nhịp roadmap hợp giai đoạn doanh nghiệp "
+            "dựa trên research (gợi ý vùng 30/60/90 ngày, hoặc dài hơn nếu thực sự hợp). "
+            "Ghi RÕ ở đầu mục Roadmap: chọn bao nhiêu ngày + 1 câu vì sao (bám stage/dòng tiền/chu kỳ mua).")
+
+
+def _posture_guide(ps: str) -> str:
+    """Dịch posture (cán cân the-long/the-short) → chỉ dẫn nghiêng trọng tâm."""
+    if ps == "brand":
+        return ("Posture: NGHIÊNG XÂY NHẬN BIẾT (the long). Roadmap & trục nội dung ưu tiên "
+                "phủ/được nhớ/định vị; activation (đẩy đơn) là phụ. Nói rõ đánh đổi: chậm thấy đơn hơn.")
+    if ps == "activation":
+        return ("Posture: NGHIÊNG RA ĐƠN NGAY (the short). Roadmap & trục nội dung dồn về chuyển đổi "
+                "/offer/BOFU; xây nhận biết giữ mức tối thiểu. Nói rõ đánh đổi: nền thương hiệu mỏng hơn.")
+    if ps == "balanced":
+        return "Posture: CÂN BẰNG ~60/40 brand/activation (Binet&Field) — vừa xây nhớ vừa có đơn."
+    return ("Posture để 'tự động' → BẠN tự cân the-long/the-short hợp giai đoạn + bối cảnh dòng tiền "
+            "(DN mới/cạn vốn có thể cần đơn sớm; DN có nền nên đầu tư nhận biết). Nêu 1 câu lý do.")
+
+
+async def strategize_web(user_id=None, progress=None) -> dict:
+    """M5 — Web-OWNED: sinh Chiến lược (Synthesis) + Tactical Playbook.
+
+    Đọc research đã có (T1-T3 + SWOT) + gate (wedge/USP/horizon/posture) → 2 LLM call
+    bằng prompt RIÊNG của web:
+      (1) Synthesis (markdown): TÁCH 'Định vị (bền)' khỏi 'Roadmap (theo horizon)',
+          nghiêng theo posture, horizon 'auto' để LLM tự chọn nhịp.
+      (2) Tactical Playbook (markdown): cách đánh per-segment theo phễu, bám synthesis.
+    Lưu skill_run 'synthesis' + 'tactical_playbook'. Degrade {error}.
+    """
+    async def _say(msg):
+        if progress:
+            try:
+                r = progress(msg)
+                if hasattr(r, "__await__"):
+                    await r
+            except Exception:
+                pass
+
+    if not available():
+        return {"error": "Chưa cấu hình Supabase."}
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {"error": "Chưa có user."}
+        from storage.v2 import profiles, skill_runs
+        prof = await profiles.get_profile(uid) or {}
+        # Research là ĐẦU VÀO bắt buộc (web không tự chạy research — pipeline lo phần đó)
+        research = {}
+        for sk in _RESEARCH_SKILLS:
+            research[sk] = await _latest_content(uid, sk)
+        if not (research.get("market_research") or research.get("competitor")
+                or research.get("customer_insight") or research.get("swot")):
+            return {"error": "Chưa có nghiên cứu (T1-T3) — hãy chạy nghiên cứu trước khi lập chiến lược."}
+
+        extra = prof.get("intake_extra") or {}
+        if not isinstance(extra, dict):
+            extra = {}
+        wedge = extra.get("wedge") or ""
+        horizon = (extra.get("horizon") or "auto")
+        posture = (extra.get("posture") or "auto")
+        usp_stance = extra.get("usp_stance") or "draft"
+        usp = prof.get("usp") or ""
+        industry = prof.get("industry") or ""
+
+        ictx = ""
+        try:
+            from frameworks.industry_context import INDUSTRY_CONTEXT
+            ic = INDUSTRY_CONTEXT.get((industry or "").lower())
+            if ic:
+                ictx = (f"Archetype mua hàng: {ic.purchase_archetype}. "
+                        f"Động lực/mùa vụ ngành: {ic.market_dynamics[:500]}")
+        except Exception:
+            pass
+
+        from tools.llm_router import call as router_call, TaskType
+
+        # USP stance: 'clear'=giữ USP founder · 'draft'=Max làm sắc · 'missing'=tự đề xuất
+        usp_rule = {
+            "clear": f"Founder GIỮ USP của họ: \"{usp}\". Bám sát, chỉ tinh chỉnh câu chữ, KHÔNG đổi ý.",
+            "draft": (f"Founder muốn Max LÀM SẮC định vị" + (f" (USP gốc: \"{usp}\")" if usp else "")
+                      + ". Đề xuất câu định vị sắc hơn nhưng trung thành tinh thần gốc."),
+        }.get(usp_stance, "Founder chưa có USP rõ → BẠN đề xuất định vị dựa trên research + khác biệt tìm được.")
+
+        # ───────── (1) SYNTHESIS ─────────
+        await _say("Đang lập Chiến lược (định vị + roadmap)…")
+        syn_system = (
+            "Bạn là CỐ VẤN chiến lược marketing 10 năm cho founder Việt ('sếp') — KHÔNG ra lệnh, "
+            "trình bày khuyến nghị + lý do + đánh đổi để sếp quyết. Từ research (thị trường/đối thủ/"
+            "khách/SWOT) + định hướng founder, viết Chiến lược MARKDOWN, TÁCH RÕ 2 tầng thời gian:\n\n"
+            "## 1. Định vị (BỀN — ít đổi theo thời gian)\n"
+            "Câu định vị 1 dòng (cho ai · là gì · khác vì sao) + SAVE (Solution/Access/Value/Education) "
+            "+ JTBD (khách 'thuê' sản phẩm để làm gì). Đây là LA BÀN sống lâu, KHÔNG gắn mốc thời gian.\n"
+            "## 2. Mũi nhọn (Wedge)\n"
+            "Tệp khách đánh TRƯỚC + tối đa 2 kênh + ≥2 thứ NÊN TẠM GÁC (kèm vì sao) + lý do (bám giả thuyết research).\n"
+            "## 3. Roadmap (theo NHỊP đã chọn — cuốn chiếu, sẽ làm lại mỗi kỳ)\n"
+            "Chia pha theo nhịp; mỗi pha: trọng tâm 1 câu + chỉ số ĐỊNH HƯỚNG cần nhìn (đo gì, KHÔNG target "
+            "số cứng nếu chưa có baseline). Đây là phần NGẮN HẠN, tách khỏi định vị ở mục 1.\n"
+            "## 4. KPI cần theo dõi (3-5, tên KPI hợp ngành, vì sao)\n"
+            "## 5. Tiêu chí đổi hướng (nếu [chỉ số] < [ngưỡng] sau [thời gian] → cân nhắc pivot)\n"
+            "## 6. Tóm tắt khuyến nghị (4-6 câu, giọng em-sếp, đóng khung 'đề xuất — sếp quyết')\n\n"
+            f"🧭 NHỊP ROADMAP: {_horizon_guide(horizon)}\n"
+            f"⚖️ {_posture_guide(posture)}\n"
+            f"🎯 ĐỊNH VỊ: {usp_rule}\n"
+            "🔴 Bám archetype + mùa vụ ngành nếu có. KHÔNG bịa số tuyệt đối. Tệp ưu tiên = wedge founder chọn "
+            "(nếu có). Diễn đạt tự nhiên, đừng quăng thuật ngữ trần (archetype/SAVE) mà không giải thích."
+        )
+        syn_user = (
+            f"# Ngành\n{industry}\n{ictx}\n\n"
+            f"# Định hướng founder\n- Wedge (tệp ưu tiên): {wedge or '(chưa chọn — tự đề xuất theo research)'}\n"
+            f"- Nhịp roadmap: {horizon}\n- Posture: {posture}\n\n"
+            f"# Nghiên cứu thị trường\n{(research.get('market_research') or '(chưa có)')[:3000]}\n\n"
+            f"# Phân tích đối thủ\n{(research.get('competitor') or '(chưa có)')[:2500]}\n\n"
+            f"# Customer Insight\n{(research.get('customer_insight') or '(chưa có)')[:2500]}\n\n"
+            f"# SWOT\n{(research.get('swot') or '(chưa có)')[:2000]}"
+        )
+        syn_res = await router_call(task_type=TaskType.SYNTHESIS_LONG_CONTEXT,
+                                    system=syn_system, user=syn_user, max_tokens=3200)
+        synthesis = (syn_res or {}).get("output", "").strip()
+        if not synthesis:
+            return {"error": "Chưa lập được chiến lược — thử lại."}
+        syn_run = await skill_runs.insert_skill_run(uid, "synthesis", synthesis, model_used="web-strategize")
+
+        # ───────── (2) TACTICAL PLAYBOOK ─────────
+        await _say("Đang viết Tactical Playbook (cách đánh chi tiết)…")
+        tac_system = (
+            "Bạn là CMO senior viết TACTICAL PLAYBOOK — cách đánh CHI TIẾT theo từng tệp khách, bám "
+            "Chiến lược (synthesis) + SWOT đã có. Xương sống: mỗi tệp = phễu TOFU/MOFU/BOFU, mỗi tầng "
+            "vài mũi tactic. Tệp ƯU TIÊN (wedge) viết đầy đủ nhất (đủ 3 tầng); tệp phụ gọn (mỗi tầng 1 mũi). "
+            "Mỗi mũi có: góc/insight, COPY MẪU (quote dùng được), kênh cụ thể, khung THỬ NGHIỆM (cấu trúc test "
+            "+ ngưỡng theo chỉ số TƯƠNG ĐỐI: CTR/ROAS/CVR + thời lượng), KPI cần theo dõi.\n"
+            "🔴 KHÔNG ghi số tiền tuyệt đối (ngân sách thật chốt khi lập chiến dịch). KPI nêu ĐO GÌ, không chốt target.\n"
+            "🔴 Bám archetype ngành; PHỦ HẾT các tệp (đừng cụt). Kết bằng bảng tổng hợp (Tệp|Tầng|Mũi chính|Mức đầu tư định tính).\n"
+            "Xuất MARKDOWN, giọng CMO thẳng thắn."
+        )
+        tac_user = (
+            f"# Ngành\n{industry}\n{ictx}\n\n"
+            f"# Chiến lược (Synthesis — vừa lập)\n{synthesis[:3500]}\n\n"
+            f"# SWOT\n{(research.get('swot') or '(chưa có)')[:2200]}\n\n"
+            f"# Customer Insight (để hiểu tệp)\n{(research.get('customer_insight') or '(chưa có)')[:1800]}"
+        )
+        tac_res = await router_call(task_type=TaskType.OPS_BRIEF,
+                                    system=tac_system, user=tac_user, max_tokens=3600)
+        tactical = (tac_res or {}).get("output", "").strip()
+        tac_run = None
+        if tactical:
+            tac_run = await skill_runs.insert_skill_run(uid, "tactical_playbook", tactical, model_used="web-strategize")
+        else:
+            logger.warning("strategize_web: tactical rỗng (uid=%s) — synthesis vẫn lưu", uid)
+
+        return {"ok": True,
+                "synthesis_run_id": (syn_run or {}).get("id"),
+                "tactical_run_id": (tac_run or {}).get("id"),
+                "horizon": horizon, "posture": posture}
+    except Exception as e:
+        logger.exception("biz.strategize_web failed (uid=%s)", user_id)
+        return {"error": str(e)}
+
+
 async def market_kpis(run_id: str = "") -> dict:
     """D-034 #2: trích TAM/SAM/SOM số THẬT từ output market_research (web-side, cache theo run).
     Thiếu/lỗi → {} (UI ẩn card, không bao giờ hiện số bịa)."""
@@ -1327,41 +1514,57 @@ async def _execute(job: dict):
     task = job["task"]
     try:
         await ensure_client()
-        from storage.session import get_session, save_session
-
-        session = await get_session(uid)
-        session.selected_task = task
-
-        try:
-            from tools.token_tracker import begin_job
-            begin_job(session)
-        except Exception:
-            pass
-
-        from agents.pipeline import run_targeted_pipeline
 
         async def progress(msg):
             job["progress"] = str(msg)[:160]
 
-        # Web chạy NON-INTERACTIVE: dùng run_targeted_pipeline cho mọi task.
-        # task="full" → cả 8 bước (gồm SYNTHESIS) → ra chiến lược, lưu skill_runs.
-        # Multi-agent (research-only + 8 câu hỏi) chỉ hợp luồng chat của bot,
-        # không hợp 1 cú bấm trên web. (DECISIONS D-015)
-        agen = run_targeted_pipeline(session, progress_callback=progress)
+        # M5: Synthesis + Tactical do WEB sở hữu (strategize_web) — horizon linh hoạt,
+        # tách định vị bền/roadmap, posture-aware. KHÔNG qua pipeline bot (bot = tham
+        # khảo, sẽ rebuild). Research (T1-T3) vẫn để pipeline lo.
+        #   • 'strategize'/'strategy' → chỉ lập chiến lược (research phải có sẵn).
+        #   • 'full'                  → research (pipeline) → rồi strategize_web.
+        #   • còn lại (research/market/competitor/swot…) → pipeline như cũ.
+        if task in ("strategize", "strategy"):
+            res = await strategize_web(uid, progress)
+            if res.get("error"):
+                raise RuntimeError(res["error"])
+            job["status"] = "done"
+            job["summary"] = (f"Đã lập Chiến lược + Playbook "
+                              f"(nhịp {res.get('horizon')}, posture {res.get('posture')}).")
+        else:
+            from storage.session import get_session, save_session
+            from agents.pipeline import run_targeted_pipeline
 
-        done: list[str] = []
-        async for stage_key, _result in agen:
-            if stage_key in ("pipeline_abort", "quota_stop"):
-                job["progress"] = f"Dừng: {stage_key}"
-                break
-            done.append(stage_key)
-            job["progress"] = f"Hoàn tất bước: {stage_key}"
+            session = await get_session(uid)
+            # 'full' = research trước rồi web-strategize → pipeline chỉ chạy phần research.
+            session.selected_task = "research" if task == "full" else task
 
-        await save_session(session)
-        job["status"] = "done"
-        job["summary"] = (
-            f"Hoàn tất {len(done)} bước: {', '.join(done)}" if done else "Hoàn tất."
-        )
+            try:
+                from tools.token_tracker import begin_job
+                begin_job(session)
+            except Exception:
+                pass
+
+            agen = run_targeted_pipeline(session, progress_callback=progress)
+            done: list[str] = []
+            async for stage_key, _result in agen:
+                if stage_key in ("pipeline_abort", "quota_stop"):
+                    job["progress"] = f"Dừng: {stage_key}"
+                    break
+                done.append(stage_key)
+                job["progress"] = f"Hoàn tất bước: {stage_key}"
+            await save_session(session)
+
+            if task == "full":
+                res = await strategize_web(uid, progress)
+                if res.get("error"):
+                    raise RuntimeError(res["error"])
+                done.append("strategy_web")
+
+            job["status"] = "done"
+            job["summary"] = (
+                f"Hoàn tất {len(done)} bước: {', '.join(done)}" if done else "Hoàn tất."
+            )
     except Exception as e:
         logger.exception("AI agent job failed (user=%s task=%s)", uid, task)
         job["status"] = "error"

@@ -62,6 +62,31 @@
 
 **B4 — Đồng bộ downstream + nhãn:** campaign_intake/workflow_runner đọc key mới; đổi nhãn UI "Chiến lược 90 ngày".
 
+## 5b. ĐÃ TRIỂN KHAI (2026-06-22)
+Founder chỉ đạo: (i) **chỉ sửa cho web**, KHÔNG động `agents/` — bot là code tham khảo,
+sẽ xoá/rebuild thành "bot hỗ trợ web" chứ không phải nền tảng độc lập; (ii) **bỏ tiền lệ**
+`agents/prompts.py:651` (horizon-theo-stage, founder thấy kém) — thiết kế lại, ưu tiên LLM hơn hardcode.
+
+**Kiến trúc chốt:** Web TỰ SỞ HỮU việc sinh chiến lược (không xuyên pipeline bot cho synthesis).
+- ✅ **B1** — `_strategy_fp()` gộp trọn nguồn; vá 3 cache (`webapp/business.py`). [đã push trước]
+- ✅ **B2/B3** — `webapp/business.py::strategize_web(uid, progress)`: đọc research (T1-T3+SWOT)
+  + gate (wedge/USP/horizon/posture) → 2 LLM call **prompt web tự viết**:
+  - Synthesis (`TaskType.SYNTHESIS_LONG_CONTEXT`) — MARKDOWN tách rõ **## 1 Định vị (BỀN)**
+    khỏi **## 3 Roadmap (theo nhịp)**; horizon `auto` ⇒ LLM tự chọn nhịp (KHÔNG bảng cứng);
+    posture nghiêng the-long/the-short hoặc auto.
+  - Tactical (`TaskType.OPS_BRIEF`) — playbook per-segment theo phễu.
+  - Lưu skill_run `synthesis` + `tactical_playbook` (model_used="web-strategize").
+- ✅ **Định tuyến** `_execute`: `strategize`/`strategy` → `strategize_web`; `full` → research
+  (pipeline) rồi `strategize_web`; còn lại (research/market/…) → pipeline như cũ. **Không gọi
+  synthesis của pipeline nữa** → bot không bị tác động; agents/ giữ nguyên.
+- ✅ **Gate** (`save_gate` + `api/biz/gate` + FE app.js & standalone): thêm ③ horizon
+  (30/60/90/auto) + ④ posture (brand/balanced/activation/auto). Bỏ trống = auto.
+- ✅ **B4 nhãn**: web bỏ "90 ngày" cứng → "Định vị (bền) · Roadmap theo nhịp".
+- ✅ Verify: syntax (node/ast) + import webapp.business + unit-test `_strategy_fp`/guides.
+
+**Lưu ý:** prompt synthesis/tactical bản agent (`agents/strategy_prompts.py`, `roadmap_90d`…)
+GIỮ NGUYÊN làm tham khảo — sẽ dọn khi rebuild bot. Web không phụ thuộc chúng nữa.
+
 ## 6. Mở / cần chốt
 - [ ] Thứ tự: nên làm **B1 (cache) trước** để khoá rủi ro ngay, rồi B2→B4? (khuyến nghị: có)
 - [ ] Có gộp "chốt Synthesis" (M4 1+2) với fingerprint ở B1 không (để "đã chốt" cũng theo chữ ký)?
