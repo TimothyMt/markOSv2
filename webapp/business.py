@@ -246,6 +246,17 @@ async def _latest_content(uid: int, skill_name: str) -> str:
     return ""
 
 
+def _strategy_fp(*parts) -> int:
+    """M5-B1 — chữ ký NGUỒN chiến lược + input, dùng làm khoá cache.
+
+    Mọi downstream (campaign_plan / occasion / retention) đọc Synthesis + Tactical
+    + wedge/USP/ngành (+ horizon/posture sau này). Trước đây các cache chỉ băm 1
+    phần synthesis (hoặc bỏ hẳn) → đổi NGUỒN mà cache giữ output CŨ → lệch. Gộp tất
+    cả nguồn vào 1 chữ ký để đổi bất kỳ nguồn nào là cache tự vô hiệu.
+    """
+    return hash(tuple((p if p is not None else "") for p in parts))
+
+
 _campaign_plan_cache: dict = {}
 
 
@@ -266,8 +277,13 @@ async def campaign_plan(user_id=None) -> dict:
         from storage.v2 import profiles
         prof = await profiles.get_profile(uid) or {}
         industry = prof.get("industry") or ""
-        wedge = ((prof.get("intake_extra") or {}).get("wedge")) or ""
-        cache_key = f"{uid}:{hash(synth[:300])}"
+        _extra = prof.get("intake_extra") or {}
+        wedge = (_extra.get("wedge") if isinstance(_extra, dict) else "") or ""
+        horizon = (_extra.get("horizon") if isinstance(_extra, dict) else "") or ""
+        posture = (_extra.get("posture") if isinstance(_extra, dict) else "") or ""
+        # M5-B1: khoá theo TRỌN nguồn (synth+tact+wedge+industry+horizon+posture),
+        # không chỉ synth[:300] — đổi wedge/định vị/horizon là pillars sinh lại.
+        cache_key = f"{uid}:{_strategy_fp(synth, tact, wedge, industry, horizon, posture)}"
         if cache_key in _campaign_plan_cache:
             return _campaign_plan_cache[cache_key]
         ictx = ""
@@ -350,7 +366,12 @@ async def occasion_draft(user_id=None, occasion: str = "", window_start: str = "
         has_base = bool((baseline or "").strip())
         obj_key = (objective or "").strip().lower()
         obj_hint = OCCASION_OBJECTIVES.get(obj_key, "")
-        cache_key = f"{uid}:{hash((occasion, window_start, window_end, budget, baseline, goal, obj_key))}"
+        horizon = (extra.get("horizon") if isinstance(extra, dict) else "") or ""
+        posture = (extra.get("posture") if isinstance(extra, dict) else "") or ""
+        # M5-B1: trước đây key KHÔNG băm synthesis → đổi chiến lược, brief đợt vẫn cũ.
+        # Thêm chữ ký nguồn (synth+tact+wedge+usp+ngành+horizon+posture) vào key.
+        src_fp = _strategy_fp(synth, tact, wedge, usp, industry, horizon, posture)
+        cache_key = f"{uid}:{src_fp}:{hash((occasion, window_start, window_end, budget, baseline, goal, obj_key))}"
         if cache_key in _occasion_cache:
             return _occasion_cache[cache_key]
         ictx = ""
@@ -501,7 +522,11 @@ async def retention_draft(user_id=None, mode: str = "retention", cycle: str = ""
         extra = prof.get("intake_extra") or {}
         wedge = (extra.get("wedge") if isinstance(extra, dict) else "") or ""
         usp = prof.get("usp") or ""
-        cache_key = f"{uid}:{m}:{hash((cycle, channels, offer, hash(synth[:200])))}"
+        horizon = (extra.get("horizon") if isinstance(extra, dict) else "") or ""
+        posture = (extra.get("posture") if isinstance(extra, dict) else "") or ""
+        # M5-B1: băm TRỌN synthesis (+ wedge/usp/ngành) thay vì synth[:200].
+        src_fp = _strategy_fp(synth, wedge, usp, industry, horizon, posture)
+        cache_key = f"{uid}:{m}:{src_fp}:{hash((cycle, channels, offer))}"
         if cache_key in _retention_cache:
             return _retention_cache[cache_key]
         ictx = ""
