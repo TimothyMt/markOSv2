@@ -901,6 +901,7 @@ textarea.intake-input { resize:none; overflow:hidden; min-height:48px; line-heig
 .pillar-keep input { accent-color:var(--green); }
 .pillar:has(.pillar-chk:not(:checked)) { opacity:.5; border-left-color:var(--stroke-2); }
 .pillar-foot { margin-top:14px; border-top:1px solid var(--stroke); padding-top:12px; }
+.cal-empty { font-size:12px; text-align:center; padding:6px 0; opacity:.6; }
 .intake-nav { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:16px; }
 .intake-note { font-size:12px; margin-top:12px; }
 

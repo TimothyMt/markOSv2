@@ -296,6 +296,7 @@ async def save_pillars(user_id=None, pillars=None) -> dict:
                     "role": str(p.get("role") or "")[:240],
                     "funnel": str(p.get("funnel") or "")[:40],
                     "cadence": str(p.get("cadence") or "")[:120],
+                    "posts_per_week": _ppw(p.get("posts_per_week")),
                     "angles": [str(a)[:200] for a in (p.get("angles") or [])][:6],
                 })
             extra["pillars_locked"] = clean
@@ -395,10 +396,11 @@ async def campaign_plan(user_id=None, steer: str = "") -> dict:
             "hiện diện liên tục để được nhớ; Binet&Field 60/40 brand/activation). Từ Chiến lược + "
             "Tactical + bối cảnh NGÀNH, sinh:\n"
             "(1) 4-6 content PILLARS cho ALWAYS-ON (nền chạy đều, KHÔNG gắn dịp) — bám USP/JTBD/"
-            "archetype/wedge; mỗi pillar có vai + tầng phễu + nhịp đăng + vài góc bài.\n"
+            "archetype/wedge; mỗi pillar có vai + tầng phễu + nhịp đăng + SỐ bài/tuần + vài góc bài.\n"
             "(2) 3-5 gợi ý OCCASION (đợt theo dịp) hợp MÙA VỤ của ngành (đọc kỹ động lực/mùa vụ).\n"
             'Output JSON đúng schema: {"pillars":[{"name":"","role":"","funnel":"TOFU|MOFU|BOFU",'
-            '"cadence":"","angles":["",""]}],"occasions":[{"name":"","when":"","why":""}]}.\n'
+            '"cadence":"","posts_per_week":1,"angles":["",""]}],"occasions":[{"name":"","when":"","why":""}]}.\n'
+            "🔴 posts_per_week = SỐ NGUYÊN bài/tuần hợp lý cho trụ đó (thường 1-3); cadence là mô tả chữ tương ứng.\n"
             "🔴 Bám đúng NGÀNH + wedge; KHÔNG bịa số/ngân sách (always-on KHÔNG chốt SMART). KHÔNG markdown."
         )
         steer_block = (f"\n\n# ĐỊNH HƯỚNG THÊM TỪ FOUNDER (ưu tiên bám)\n{steer}" if steer else "")
@@ -726,6 +728,27 @@ def _week_of(date_str: str, anchor):
         return None
 
 
+def _ppw(v) -> int:
+    """Chuẩn hoá posts_per_week → số nguyên 1..7 (mặc định 1)."""
+    try:
+        n = int(float(v))
+    except (TypeError, ValueError):
+        return 1
+    return max(1, min(n, 7))
+
+
+def _assign_days(k: int) -> list:
+    """Rải k bài/tuần ra 7 thứ (0=T2..6=CN) đều nhau, deterministic."""
+    if k <= 0:
+        return []
+    return [min(6, round(i * 7 / k)) for i in range(k)]
+
+
+# 30/60/90 ngày → số tuần hiển thị (auto/khác → 4 tuần, nhịp tháng).
+_HORIZON_WEEKS = {"30": 4, "60": 9, "90": 13}
+
+
+
 async def calendar_plan(user_id=None) -> dict:
     """M1.2: ghép lịch 2-track THẬT = always-on pillars (D-040) + occasion bands (window thật).
 
@@ -743,10 +766,16 @@ async def calendar_plan(user_id=None) -> dict:
         today = date.today()
         anchor = today - timedelta(days=today.weekday())   # thứ Hai tuần này
 
+        # M-A: span lịch = horizon đã chọn ở gate (30/60/90 ngày → tuần); auto/khác = 4.
+        from storage.v2 import profiles as _profiles
+        _prof = await _profiles.get_profile(uid) or {}
+        _hz = ((_prof.get("intake_extra") or {}).get("horizon")) if isinstance(_prof.get("intake_extra"), dict) else ""
+        horizon_weeks = _HORIZON_WEEKS.get(str(_hz or ""), 4)
+
         from storage.v2 import campaigns_v2
         camps_raw = await campaigns_v2.list_campaigns_v2(uid, limit=30)
         bands = []
-        max_week = 4
+        max_week = horizon_weeks
         for i, c in enumerate(camps_raw or []):
             sd, ed = c.get("start_date"), c.get("end_date")
             if not sd or not ed:
@@ -769,21 +798,31 @@ async def calendar_plan(user_id=None) -> dict:
                           "fromWeek": fw, "toWeek": tw, "posts": posts,
                           "campaignId": c.get("id"), "briefRunId": c.get("brief_skill_run_id")})
 
-        # Always-on từ pillars thật (D-040) — lặp mỗi tuần, phủ 7 slot ngày
+        # Always-on từ pillars đã chốt (M4(2)) — rải theo NHỊP (posts_per_week) suốt HORIZON.
+        # Mỗi trụ xuất hiện posts_per_week lần/tuần; angles xoay theo tuần cho đa dạng.
         plan = await campaign_plan(uid)
         pillars = (plan or {}).get("pillars") or []
         always = []
         if pillars:
-            for d in range(7):
-                p = pillars[d % len(pillars)]
-                angles = p.get("angles") or []
-                title = (angles[d % len(angles)] if angles else p.get("role")) or p.get("name") or "Bài brand"
-                always.append({"pillar": p.get("name") or "Pillar", "title": title})
+            weekly = []                      # 1 phần tử = 1 slot/tuần (lặp theo nhịp trụ)
+            for p in pillars:
+                for _ in range(_ppw(p.get("posts_per_week"))):
+                    weekly.append(p)
+            weekly = weekly[:14]             # trần an toàn ~2 bài/ngày
+            day_of = _assign_days(len(weekly))
+            for w in range(1, max_week + 1):
+                for idx, p in enumerate(weekly):
+                    angles = p.get("angles") or []
+                    title = (angles[(idx + w) % len(angles)] if angles
+                             else (p.get("role") or p.get("name") or "Bài brand"))
+                    always.append({"week": w, "day": day_of[idx],
+                                   "pillar": p.get("name") or "Pillar", "title": title})
 
         if not bands and not always:
             return {}   # chưa có gì thật → FE giữ mock
         return {"days": ["T2", "T3", "T4", "T5", "T6", "T7", "CN"],
-                "weeks": max_week, "alwaysOn": always, "campaigns": bands}
+                "weeks": max_week, "alwaysOn": always, "campaigns": bands,
+                "horizon": str(_hz or "auto")}
     except Exception as e:
         logger.warning("biz.calendar_plan failed (non-fatal): %s", e)
         return {}

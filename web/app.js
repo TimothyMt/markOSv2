@@ -1146,7 +1146,7 @@
           <div class="occ-row" style="gap:8px;margin-top:8px">
             <button class="primary-btn" style="flex:1" data-act="lock-pillars">✅ Chốt tuyến nền (đã chọn)</button>
             ${locked ? `<button class="ghost-line" data-act="unlock-pillars">Bỏ chốt</button>` : ''}
-            <a class="ghost-line" href="#calendar">→ Đưa vào Lịch</a>
+            <a class="ghost-line" href="#calendar">→ Lên lịch nội dung</a>
           </div>
         </div>`;
       host.innerHTML = `<section class="grid" style="margin:0">
@@ -1200,6 +1200,22 @@
   const campCard = (p) => `<div class="cal-post" style="--accent:${p.camp.color}">
       <div class="cal-post-top"><span class="trk camp" style="--c:${p.camp.color}">${p.camp.name}</span><span class="pill-tag c4">Convert</span></div>
       <p class="cal-post-title">${p.title}</p><span class="cal-offer">🎁 ${p.camp.offer}</span></div>`;
+  // M-A: always-on giờ là slot theo (tuần,ngày) khi có dữ liệu thật; mock cũ = mảng phẳng 7 ô.
+  const _alwaysHasWeeks = (a) => a && a.length && a[0] && a[0].week != null;
+  const alwaysAt = (P0, w, d) => {
+    const a = P0.alwaysOn || [];
+    if (_alwaysHasWeeks(a)) return a.filter(s => s.week === w && s.day === d);
+    const one = a[d]; return one ? [one] : [];
+  };
+  const alwaysWeekCount = (P0, w) => {
+    const a = P0.alwaysOn || [];
+    return _alwaysHasWeeks(a) ? a.filter(s => s.week === w).length : a.length;
+  };
+  const alwaysWeekFirstPillar = (P0, w) => {
+    const a = P0.alwaysOn || [];
+    if (_alwaysHasWeeks(a)) { const f = a.find(s => s.week === w); return f ? f.pillar : ''; }
+    return (a[0] || {}).pillar || '';
+  };
 
   // VIEW THÁNG (kế hoạch) — Gantt theo tuần + tóm tắt mỗi tuần
   function calPlanView() {
@@ -1214,8 +1230,8 @@
         <div class="pw-head"><b>Tuần ${w}</b>
           <button class="ghost-line sm" data-act="cal-open-week" data-week="${w}">Mở chi tiết →</button></div>
         <div class="pw-tracks">
-          <div class="pw-track on"><span class="trk on">🟢 Always-on</span> ${P0.alwaysOn.length} bài brand
-            <button class="chip-btn sm" data-act="cal-gen" data-week="${w}" data-track="always" data-pillar="${((P0.alwaysOn[0]||{}).pillar||'').replace(/"/g,'&quot;')}">⚡ Tạo bài tuần ${w}</button></div>
+          <div class="pw-track on"><span class="trk on">🟢 Always-on</span> ${alwaysWeekCount(P0, w)} bài brand
+            <button class="chip-btn sm" data-act="cal-gen" data-week="${w}" data-track="always" data-pillar="${alwaysWeekFirstPillar(P0, w).replace(/"/g,'&quot;')}">⚡ Tạo bài tuần ${w}</button></div>
           ${camps.length ? camps.map(c => `<div class="pw-track camp" style="--c:${c.color}">
             <span class="trk camp" style="--c:${c.color}">🔴 ${c.name}</span> ${campCount} bài đẩy offer
             <button class="chip-btn sm" data-act="cal-gen" data-week="${w}" data-track="camp" data-camp-id="${c.campaignId||''}">⚡ Tạo bài campaign</button></div>`).join('')
@@ -1247,13 +1263,14 @@
         ${days.map((d, i) => {
           const cps = campPostsAt(w, i);
           const inCamp = cps.length > 0;
-          const slotPillar = (P0.alwaysOn[i] || {}).pillar || '';
+          const aSlots = alwaysAt(P0, w, i);
+          const slotPillar = (aSlots[0] || {}).pillar || '';
           const genAttrs = inCamp
             ? `data-track="camp" data-camp-id="${cps[0].camp.campaignId || ''}"`
             : `data-track="always" data-pillar="${slotPillar.replace(/"/g, '&quot;')}"`;
           return `<div class="cal-col ${inCamp ? 'in-camp' : ''}" ${inCamp ? `style="--c:${cps[0].camp.color}"` : ''}>
             <div class="cal-colhead">${d}${inCamp ? `<span class="col-dot" style="background:${cps[0].camp.color}"></span>` : ''}</div>
-            ${alwaysCard(P0.alwaysOn[i] || { pillar: 'Educate', title: 'Bài brand' })}
+            ${aSlots.map(alwaysCard).join('') || (cps.length ? '' : '<p class="muted cal-empty">— nghỉ —</p>')}
             ${cps.map(campCard).join('')}
             <button class="cal-add" data-act="cal-gen" data-week="${w}" data-day="${i}" ${genAttrs}>⚡ Tạo bài</button></div>`;
         }).join('')}
@@ -1271,8 +1288,10 @@
         <button class="ghost-line" data-act="add-campaign-occasion">🎯 Tạo campaign theo dịp</button>`;
     },
     render: () => `
-      ${_realCal ? '' : (M.bizEnabled
-        ? `<div class="cal-note">${badge('Chưa có dữ liệu thật','amber')} <span class="muted"> Lập Chiến lược + tạo campaign theo dịp để lịch hiện thật. Đang xem mẫu.</span></div>`
+      ${_realCal
+        ? `<div class="cal-note">${badge('Dựng từ chiến lược','green')} <span class="muted"> Always-on lấy từ <b>${(_realCal.alwaysOn||[]).length? new Set((_realCal.alwaysOn||[]).map(s=>s.pillar)).size : 0} trụ đã chốt</b>, rải theo nhịp đăng suốt <b>${({'30':'30 ngày','60':'60 ngày','90':'90 ngày'})[_realCal.horizon]||(_realCal.weeks+' tuần')}</b>. Mỗi ô bấm ⚡ để sinh bài thật.</span></div>`
+        : (M.bizEnabled
+        ? `<div class="cal-note">${badge('Chưa có dữ liệu thật','amber')} <span class="muted"> Lập + chốt Chiến lược (và chốt tuyến nền) để lịch hiện thật. Đang xem mẫu.</span></div>`
         : `<div class="cal-note">${badge('Bản thiết kế UX','amber')} <span class="muted"> Mô hình kế hoạch — dữ liệu mẫu, nối thật khi bật backend.</span></div>`)}
       <div class="cal-legend">
         <span><i class="lg on"></i> 🟢 Always-on — bài brand chạy đều mỗi tuần (content pillars), KHÔNG tắt khi có campaign</span>
