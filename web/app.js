@@ -1198,8 +1198,8 @@
       <div class="cal-post-top"><span class="trk on">Always-on</span><span class="pill-tag ${pillarCls(p.pillar)}">${p.pillar}</span>${p.saved?'<span class="slot-done">✓ Đã duyệt</span>':''}</div>
       <p class="cal-post-topiclbl">💡 Chủ đề</p>
       <p class="cal-post-title">${p.title}</p></div>`;
-  const campCard = (p) => `<div class="cal-post" style="--accent:${p.camp.color}">
-      <div class="cal-post-top"><span class="trk camp" style="--c:${p.camp.color}">${p.camp.name}</span><span class="pill-tag c4">Convert</span></div>
+  const campCard = (p) => `<div class="cal-post clickable ${p.saved?'saved':''}" data-act="slot-open" data-slot="${encodeURIComponent(JSON.stringify({track:'camp', campaignId:p.camp.campaignId, phase:p.phase||'', title:p.title, pillar:`${p.icon||'🔴'} ${p.phase||'Đợt'}`, funnel:p.camp.name, week:p.week, day:p.day, key:p.key||'', angles:[p.title], saved:p.saved, post:p.post}))}" style="--accent:${p.camp.color}" title="${p.saved?'Đã duyệt — bấm để xem/sửa':'Bấm để soạn bài đợt'}">
+      <div class="cal-post-top"><span class="trk camp" style="--c:${p.camp.color}">${p.camp.name}</span><span class="pill-tag c4">${p.phase||'Convert'}</span>${p.saved?'<span class="slot-done">✓</span>':''}</div>
       <p class="cal-post-title">${p.title}</p><span class="cal-offer">🎁 ${p.camp.offer}</span></div>`;
   // M-A: always-on giờ là slot theo (tuần,ngày) khi có dữ liệu thật; mock cũ = mảng phẳng 7 ô.
   const _alwaysHasWeeks = (a) => a && a.length && a[0] && a[0].week != null;
@@ -1223,7 +1223,7 @@
     const P0 = calPlan(); const W = P0.weeks || 4;
     const bands = (P0.campaigns || []).map(c =>
       `<div class="band-camp" style="grid-column:${c.fromWeek} / ${c.toWeek + 1}; --c:${c.color}">
-        <b>🔴 ${c.name}</b> · ${c.occasion} · 🎁 ${c.offer}</div>`).join('');
+        <b>🔴 ${c.name}</b> ${(c.posts||[]).map(p=>p.icon||'').join('')} · 🎁 ${c.offer}</div>`).join('');
     const weekRows = Array.from({ length: W }, (_, k) => {
       const w = k + 1; const camps = campActiveWeek(w);
       const campCount = camps.reduce((n, c) => n + (c.posts || []).filter(p => p.week === w).length, 0);
@@ -1297,6 +1297,7 @@
       <div class="cal-legend">
         <span><i class="lg on"></i> 🟢 Always-on — bài brand chạy đều mỗi tuần (content pillars), KHÔNG tắt khi có campaign</span>
         <span><i class="lg camp"></i> 🔴 Campaign theo dịp — bài đẩy offer, CỘNG THÊM lên nền trong đúng đợt</span>
+        <span class="cal-arc-legend">Đợt chạy theo Story Arc: 🌱 Teaser → 🔥 Build-up → 🚀 Peak → ⏰ Last-call → 💌 After (đợt ngắn gộp 3 pha)</span>
       </div>
       ${_calView === 'plan' ? calPlanView() : calWeekView()}`,
     mount: () => { loadRealCalendar(); },
@@ -2318,6 +2319,7 @@
         const r = await API.post('api/biz/calendar/gen', {
           user_id: _bizUserId, track: _slotCtx.track || 'always', pillar: _slotCtx.pillar || '',
           angle, value_lens, hook_style, framework: _slotCtx.framework || '',
+          campaign_id: _slotCtx.campaignId || '', phase: _slotCtx.phase || '',
           week: _slotCtx.week || '', day: _slotCtx.day != null ? _slotCtx.day : '' });
         if (r.error) { toast(r.error); el.disabled = false; el.textContent = orig; return; }
         showSlotResult(r.content, r.run_id); refreshBiz();

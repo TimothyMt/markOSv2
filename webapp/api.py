@@ -185,7 +185,7 @@ async def biz_calendar_gen(request):
                                       d.get("pillar", ""), d.get("campaign_id", ""),
                                       d.get("week", ""), d.get("day", ""), d.get("angle", ""),
                                       d.get("value_lens", ""), d.get("hook_style", ""),
-                                      d.get("framework", ""))
+                                      d.get("framework", ""), d.get("phase", ""))
     return JSONResponse(res, status_code=400 if "error" in res else 200)
 
 

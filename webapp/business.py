@@ -790,6 +790,51 @@ def _assign_days(k: int) -> list:
 # 30/60/90 ngày → số tuần hiển thị (auto/khác → 4 tuần, nhịp tháng).
 _HORIZON_WEEKS = {"30": 4, "60": 9, "90": 13}
 
+# M-D Pha 3: Story Arc của 1 ĐỢT occasion — 5 pha + vị trí (fraction trong window) + hint.
+# Đợt ≤1 tuần dùng bản gộp 3 pha (_OCC_PHASES_SHORT).
+_OCC_PHASES = [
+    ("Teaser",    "🌱", 0.00, 0.18, "hé lộ, gây tò mò — CHƯA lộ offer"),
+    ("Build-up",  "🔥", 0.18, 0.55, "nuôi giá trị, social proof, xử lý phản đối"),
+    ("Peak",      "🚀", 0.55, 0.72, "đẩy mạnh nhất — ngày trọng tâm của đợt"),
+    ("Last-call", "⏰", 0.72, 0.90, "urgency + deadline, chốt gấp"),
+    ("After",     "💌", 0.90, 1.00, "hậu mãi/cảm ơn/upsell + kéo người lỡ"),
+]
+_OCC_PHASES_SHORT = [
+    ("Teaser",    "🌱", 0.00, 0.33, "hé lộ + nuôi nhanh"),
+    ("Peak",      "🚀", 0.33, 0.70, "đẩy mạnh nhất"),
+    ("Last-call", "⏰", 0.70, 1.00, "urgency + deadline + cảm ơn"),
+]
+_OCC_PHASE_HINT = {p[0]: p[4] for p in _OCC_PHASES}
+
+
+def _occasion_beats(sd: str, ed: str, anchor) -> list:
+    """Suy beat theo 5 pha (đợt ≤1 tuần → 3 pha) đặt vào (tuần,ngày) trong window.
+    Mỗi beat: {week, day, phase, icon, hint}. Deterministic — không LLM."""
+    from datetime import date, timedelta
+    try:
+        sy, sm, sdd = (int(x) for x in str(sd)[:10].split("-"))
+        ey, em, edd = (int(x) for x in str(ed)[:10].split("-"))
+        d0, d1 = date(sy, sm, sdd), date(ey, em, edd)
+    except Exception:
+        return []
+    total = max(0, (d1 - d0).days)
+    phases = _OCC_PHASES_SHORT if total <= 7 else _OCC_PHASES
+    beats = []
+    seen = set()
+    for name, icon, a, b, hint in phases:
+        f = (a + b) / 2
+        pt = d0 + timedelta(days=round(f * total))
+        wk = _week_of(pt.strftime("%Y-%m-%d"), anchor)
+        if wk is None:
+            continue
+        wk = max(1, wk)
+        dy = pt.weekday()                 # 0=T2 .. 6=CN
+        if (wk, dy) in seen:              # tránh trùng ô khi window ngắn
+            dy = (dy + 1) % 7
+        seen.add((wk, dy))
+        beats.append({"week": wk, "day": dy, "phase": name, "icon": icon, "hint": hint})
+    return beats
+
 
 
 async def calendar_plan(user_id=None) -> dict:
@@ -814,6 +859,9 @@ async def calendar_plan(user_id=None) -> dict:
         _prof = await _profiles.get_profile(uid) or {}
         _hz = ((_prof.get("intake_extra") or {}).get("horizon")) if isinstance(_prof.get("intake_extra"), dict) else ""
         horizon_weeks = _HORIZON_WEEKS.get(str(_hz or ""), 4)
+        saved_posts = (_prof.get("intake_extra") or {}).get("calendar_posts") or {}
+        if not isinstance(saved_posts, dict):
+            saved_posts = {}
 
         from storage.v2 import campaigns_v2
         camps_raw = await campaigns_v2.list_campaigns_v2(uid, limit=30)
@@ -831,11 +879,22 @@ async def calendar_plan(user_id=None) -> dict:
             color = _CAL_COLORS[i % len(_CAL_COLORS)]
             name = c.get("name") or "Đợt"
             offer = c.get("offer_lever") or ""
-            mid = (fw + tw) // 2
-            posts = [{"week": fw, "day": 2, "title": f"Khởi động {name}"}]
-            if mid != fw:
-                posts.append({"week": mid, "day": 3, "title": f"Đẩy mạnh {name}"})
-            posts.append({"week": tw, "day": 4, "title": f"Chốt — ngày cuối {name}"})
+            cid = c.get("id")
+            # M-D Pha 3: beat theo Story Arc 5 pha (đợt ≤1 tuần → 3 pha) thay vì 3 bài generic.
+            beats = _occasion_beats(sd, ed, anchor)
+            if not beats:                       # fallback an toàn nếu parse lỗi
+                beats = [{"week": fw, "day": 2, "phase": "Peak", "icon": "🚀", "hint": "đẩy mạnh đợt"}]
+            posts = []
+            for bt in beats:
+                key = f"oc|{cid}|{bt['phase']}"
+                post = {"week": bt["week"], "day": bt["day"], "phase": bt["phase"],
+                        "icon": bt["icon"], "hint": bt["hint"],
+                        "title": f"{bt['icon']} {bt['phase']} — {name}", "key": key}
+                sp = saved_posts.get(key)
+                if isinstance(sp, dict) and (sp.get("content") or "").strip():
+                    post["saved"] = True
+                    post["post"] = sp["content"]
+                posts.append(post)
             bands.append({"name": name, "occasion": c.get("primary_goal") or "đợt",
                           "offer": offer or "ưu đãi đợt", "color": color,
                           "fromWeek": fw, "toWeek": tw, "posts": posts,
@@ -843,9 +902,6 @@ async def calendar_plan(user_id=None) -> dict:
 
         # Always-on từ pillars đã chốt (M4(2)) — rải theo NHỊP (posts_per_week) suốt HORIZON.
         # Mỗi trụ xuất hiện posts_per_week lần/tuần; angles xoay theo tuần cho đa dạng.
-        saved_posts = (_prof.get("intake_extra") or {}).get("calendar_posts") or {}
-        if not isinstance(saved_posts, dict):
-            saved_posts = {}
         plan = await campaign_plan(uid)
         pillars = (plan or {}).get("pillars") or []
         always = []
@@ -887,7 +943,7 @@ async def calendar_plan(user_id=None) -> dict:
 async def gen_calendar_post(user_id=None, track: str = "always", pillar: str = "",
                             campaign_id: str = "", week: str = "", day: str = "",
                             angle: str = "", value_lens: str = "", hook_style: str = "",
-                            framework: str = "") -> dict:
+                            framework: str = "", phase: str = "") -> dict:
     """M1.2b + M-D: sinh 1 BÀI cho slot lịch — bám pillar (always-on) hoặc brief occasion.
     angle = CHỦ ĐỀ founder chọn; value_lens = GÓC KHAI THÁC; hook_style = CÁCH MỞ (1/5 nhóm);
     framework = khung copywriting ẩn. Lưu skill_run `calendar_post`. Degrade {error}."""
@@ -915,7 +971,7 @@ async def gen_calendar_post(user_id=None, track: str = "always", pillar: str = "
                     voice_ctx = f"\n# Brand voice\n{str(tone)[:300]}"
         except Exception:
             pass
-        ctx, kind = "", ""
+        ctx, kind, lines = "", "", []
         if track == "camp" and campaign_id:
             from storage.v2 import campaigns_v2
             c = await campaigns_v2.get_campaign(campaign_id) or {}
@@ -923,18 +979,21 @@ async def gen_calendar_post(user_id=None, track: str = "always", pillar: str = "
             if c.get("brief_skill_run_id"):
                 run = await skill_run_content(c["brief_skill_run_id"])
                 brief = (run or {}).get("content") or c.get("summary") or ""
-            ctx = f"Đợt: {c.get('name','')}. Brief:\n{brief[:1800]}"
-            kind = "1 bài ĐẨY OFFER cho đợt (có CTA rõ, tạo hành động ngay)"
+            lines.append(f"Đợt: {c.get('name','')}. Brief:\n{brief[:1800]}")
+            if (phase or "").strip():
+                lines.append(f"Bài thuộc PHA: {phase} — mục tiêu pha: {_OCC_PHASE_HINT.get(phase, '')}")
+            kind = "1 bài cho ĐỢT theo dịp, bám đúng PHA của Story Arc (CTA hợp pha)"
         else:
-            lines = [f"Content pillar (always-on, nền brand): {pillar or '(brand)'}"]
-            if (angle or "").strip():
-                lines.append(f"Chủ đề cụ thể (founder chọn — bám SÁT): {angle}")
-            if (value_lens or "").strip():
-                lines.append(f"Góc khai thác (value lens) BẮT BUỘC bám: {value_lens}")
-            if (framework or "").strip():
-                lines.append(f"Khung copywriting ẩn gợi ý: {framework}")
-            ctx = "\n".join(lines)
+            lines.append(f"Content pillar (always-on, nền brand): {pillar or '(brand)'}")
             kind = "1 bài NỀN brand bám pillar (xây nhận biết/niềm tin — KHÔNG ép bán)"
+        # Trục chung cho cả 2 track (M-D Pha 2): chủ đề + góc khai thác + khung ẩn.
+        if (angle or "").strip():
+            lines.append(f"Chủ đề cụ thể (founder chọn — bám SÁT): {angle}")
+        if (value_lens or "").strip():
+            lines.append(f"Góc khai thác (value lens) BẮT BUỘC bám: {value_lens}")
+        if (framework or "").strip():
+            lines.append(f"Khung copywriting ẩn gợi ý: {framework}")
+        ctx = "\n".join(lines)
         # Cách mở: founder chọn 1 hook style cụ thể → ép dùng; nếu không → để LLM tự chọn trong 5 nhóm.
         hook_rule = (f"\n🔴 CÁCH MỞ bài DÙNG ĐÚNG nhóm hook: {hook_style}." if (hook_style or "").strip()
                      and hook_style.lower() not in ("auto", "tự động") else "")

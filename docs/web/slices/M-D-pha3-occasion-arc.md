@@ -69,6 +69,15 @@ Pha cố định + tỉ lệ vị trí trong window (start→end):
 - KHÔNG đụng always-on (giữ nguyên Pha 1+2).
 - Web-owned; không sửa agents/.
 
+## 5b. ĐÃ TRIỂN KHAI (2026-06-22)
+Founder chốt: tỉ lệ 5 pha OK; đợt ≤1 tuần gộp 5→3; occasion slot ĐẦY ĐỦ 2 trục; theme tháng mềm = ĐỂ SAU.
+- Backend: `_OCC_PHASES`/`_OCC_PHASES_SHORT` + `_occasion_beats(sd,ed,anchor)` (deterministic).
+  `calendar_plan` thay 3 bài generic bằng beat theo pha (mỗi post: week/day/phase/icon/title/key
+  + saved/post). `gen_calendar_post(phase=)` + áp value_lens/framework cho CẢ occasion. API +phase.
+- FE: campCard clickable → openSlotModal (tái dùng M-C + 2 trục Pha 2), gửi campaign_id+phase;
+  band tháng hiện chuỗi icon pha; legend giải thích arc. Lưu-tại-ô tái dùng (key `oc|{campId}|{phase}`).
+- Verify: node/import OK; test _occasion_beats (42d→5 pha, 5d→3 pha) đúng.
+
 ## 6. Mở / cần chốt
 - [ ] Tỉ lệ 5 pha (bảng 3.1) ok chưa, hay cho founder chỉnh?
 - [ ] Window ngắn (≤1 tuần): nén 5→3 pha (Teaser/Peak/Last-call) có hợp không?
