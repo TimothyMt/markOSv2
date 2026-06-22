@@ -1194,8 +1194,9 @@
     }));
     return out;
   };
-  const alwaysCard = (p) => `<div class="cal-post" style="--accent:var(--green)">
+  const alwaysCard = (p) => `<div class="cal-post clickable" data-act="slot-open" data-slot="${encodeURIComponent(JSON.stringify(p))}" style="--accent:var(--green)" title="Bấm để chọn chủ đề & tạo bài">
       <div class="cal-post-top"><span class="trk on">Always-on</span><span class="pill-tag ${pillarCls(p.pillar)}">${p.pillar}</span></div>
+      <p class="cal-post-topiclbl">💡 Chủ đề</p>
       <p class="cal-post-title">${p.title}</p></div>`;
   const campCard = (p) => `<div class="cal-post" style="--accent:${p.camp.color}">
       <div class="cal-post-top"><span class="trk camp" style="--c:${p.camp.color}">${p.camp.name}</span><span class="pill-tag c4">Convert</span></div>
@@ -1929,6 +1930,42 @@
     ov.classList.add('show');
   }
 
+  // ── Lịch: thẻ tương tác — chọn 💡 chủ đề → tạo bài → duyệt ──
+  let _slotCtx = null;
+  const _DAYNAMES = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+  function _ensureBizModal() { showModal('', '', null); return document.getElementById('bizModal'); }
+  function openSlotModal(slot) {
+    _slotCtx = slot;
+    const E = s => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const ov = _ensureBizModal();
+    const angles = (slot.angles && slot.angles.length) ? slot.angles : [slot.title].filter(Boolean);
+    const when = (slot.day != null && slot.week) ? `${_DAYNAMES[slot.day] || ('Ngày ' + (slot.day + 1))} · Tuần ${slot.week}` : 'Bài Always-on';
+    ov.querySelector('h3').textContent = `${when} — ${slot.pillar || 'Always-on'}`;
+    ov.querySelector('.modal-body').innerHTML = `
+      <p class="muted" style="margin:0 0 10px">Chọn <b>💡 chủ đề</b> cho bài này, rồi để Max viết:</p>
+      <div class="angle-pick">${angles.map((a, i) =>
+        `<label class="radio-row"><input type="radio" name="slotAngle" value="${i}" ${i === 0 ? 'checked' : ''}> ${E(a)}</label>`).join('')}
+      </div>`;
+    const foot = ov.querySelector('.modal-foot'); foot.style.display = 'flex';
+    foot.innerHTML = `<div class="rate-group"><span class="muted">${E(slot.pillar || '')}</span></div>
+      <div class="modal-foot-r"><button class="primary-btn sm" data-act="slot-gen">⚡ Tạo bài từ chủ đề này</button></div>`;
+    ov.classList.add('show');
+  }
+  function showSlotResult(content, runId) {
+    const ov = document.getElementById('bizModal'); if (!ov) return;
+    _modalRun = { run: true, title: '', content, id: runId };
+    ov.querySelector('.modal-body').innerHTML = renderAIContent(content || '(trống)');
+    enhancePosMaps(ov.querySelector('.modal-body'));
+    const foot = ov.querySelector('.modal-foot'); foot.style.display = 'flex';
+    foot.innerHTML = `
+      <div class="rate-group"><button class="ghost-line sm" data-act="slot-back">← Đổi chủ đề</button></div>
+      <div class="modal-foot-r">
+        <button class="ghost-line sm" data-act="copy-skillrun">📋 Copy</button>
+        <button class="ghost-line sm" data-act="slot-gen">↻ Tạo lại</button>
+        <button class="primary-btn sm" data-act="slot-approve">✓ Duyệt</button>
+      </div>`;
+  }
+
   /* ── M1.1 (D-043/044): Wizard tạo Campaign Occasion (chốt SMART thật) ── */
   // D-044: "mục đích đợt" = trục WHY (định hình brief), KHÁC trục WHEN. Founder chọn; trống = Max tự suy.
   const OCC_OBJECTIVES = [
@@ -2241,6 +2278,33 @@
     }
     if (act === 'cal-view') { _calView = el.dataset.view; route(); return; }
     if (act === 'cal-open-week') { _calWeek = parseInt(el.dataset.week) || 1; _calView = 'week'; route(); return; }
+    if (act === 'slot-open') {   // M-C: bấm thẻ lịch → chọn chủ đề
+      if (!apiAvailable || !M.bizEnabled) { toast('Bật backend (Supabase + LLM) để tạo bài thật'); return; }
+      try { openSlotModal(JSON.parse(decodeURIComponent(el.dataset.slot || '%7B%7D'))); }
+      catch (e) { toast('Không mở được thẻ'); }
+      return;
+    }
+    if (act === 'slot-gen') {   // tạo bài từ chủ đề đã chọn (gọi được cả khi "Tạo lại")
+      const ov = document.getElementById('bizModal'); if (!ov || !_slotCtx) return;
+      const pick = ov.querySelector('input[name="slotAngle"]:checked');
+      const idx = pick ? (+pick.value || 0) : 0;
+      const angle = (_slotCtx.angles && _slotCtx.angles[idx]) || _slotCtx.title || '';
+      const orig = el.textContent; el.disabled = true; el.textContent = '⏳ Đang viết…';
+      try {
+        const r = await API.post('api/biz/calendar/gen', {
+          user_id: _bizUserId, track: _slotCtx.track || 'always', pillar: _slotCtx.pillar || '',
+          angle, week: _slotCtx.week || '', day: _slotCtx.day != null ? _slotCtx.day : '' });
+        if (r.error) { toast(r.error); el.disabled = false; el.textContent = orig; return; }
+        showSlotResult(r.content, r.run_id); refreshBiz();
+      } catch (e) { toast('Không tạo được bài — thử lại sau.'); el.disabled = false; el.textContent = orig; }
+      return;
+    }
+    if (act === 'slot-back') { if (_slotCtx) openSlotModal(_slotCtx); return; }
+    if (act === 'slot-approve') {
+      const ov = document.getElementById('bizModal'); if (ov) ov.classList.remove('show');
+      toast('✓ Đã duyệt — bài lưu trong Tài liệu');
+      return;
+    }
     if (act === 'cal-gen') {
       // M1.2b: sinh bài THẬT cho slot (bám pillar always-on / brief campaign), lưu skill_run
       const w = el.dataset.week, track = el.dataset.track, day = el.dataset.day;

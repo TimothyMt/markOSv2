@@ -183,7 +183,7 @@ async def biz_calendar_gen(request):
     d = await request.json()
     res = await biz.gen_calendar_post(d.get("user_id"), d.get("track", "always"),
                                       d.get("pillar", ""), d.get("campaign_id", ""),
-                                      d.get("week", ""), d.get("day", ""))
+                                      d.get("week", ""), d.get("day", ""), d.get("angle", ""))
     return JSONResponse(res, status_code=400 if "error" in res else 200)
 
 

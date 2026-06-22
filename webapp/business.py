@@ -401,6 +401,8 @@ async def campaign_plan(user_id=None, steer: str = "") -> dict:
             'Output JSON đúng schema: {"pillars":[{"name":"","role":"","funnel":"TOFU|MOFU|BOFU",'
             '"cadence":"","posts_per_week":1,"angles":["",""]}],"occasions":[{"name":"","when":"","why":""}]}.\n'
             "🔴 posts_per_week = SỐ NGUYÊN bài/tuần hợp lý cho trụ đó (thường 1-3); cadence là mô tả chữ tương ứng.\n"
+            "🔴 TẤT CẢ giá trị chữ (name/role/cadence/angles/occasion name/when/why) viết bằng TIẾNG VIỆT tự nhiên, "
+            "giọng đời thường (angles là gợi ý CHỦ ĐỀ bài, không phải brief ảnh). Giữ NGUYÊN khoá JSON tiếng Anh.\n"
             "🔴 Bám đúng NGÀNH + wedge; KHÔNG bịa số/ngân sách (always-on KHÔNG chốt SMART). KHÔNG markdown."
         )
         steer_block = (f"\n\n# ĐỊNH HƯỚNG THÊM TỪ FOUNDER (ưu tiên bám)\n{steer}" if steer else "")
@@ -816,7 +818,9 @@ async def calendar_plan(user_id=None) -> dict:
                     title = (angles[(idx + w) % len(angles)] if angles
                              else (p.get("role") or p.get("name") or "Bài brand"))
                     always.append({"week": w, "day": day_of[idx],
-                                   "pillar": p.get("name") or "Pillar", "title": title})
+                                   "pillar": p.get("name") or "Pillar", "title": title,
+                                   "angles": [str(a) for a in (p.get("angles") or [])][:6],
+                                   "track": "always"})
 
         if not bands and not always:
             return {}   # chưa có gì thật → FE giữ mock
@@ -829,8 +833,10 @@ async def calendar_plan(user_id=None) -> dict:
 
 
 async def gen_calendar_post(user_id=None, track: str = "always", pillar: str = "",
-                            campaign_id: str = "", week: str = "", day: str = "") -> dict:
+                            campaign_id: str = "", week: str = "", day: str = "",
+                            angle: str = "") -> dict:
     """M1.2b: sinh 1 BÀI cho slot lịch — bám pillar (always-on) hoặc brief occasion (campaign).
+    angle = CHỦ ĐỀ founder chọn cho slot (always-on) → bài viết bám đúng chủ đề đó.
     Lưu skill_run `calendar_post`. Degrade {error}."""
     if not available():
         return {"error": "Chưa cấu hình Supabase."}
@@ -854,14 +860,16 @@ async def gen_calendar_post(user_id=None, track: str = "always", pillar: str = "
             ctx = f"Đợt: {c.get('name','')}. Brief:\n{brief[:1800]}"
             kind = "1 bài ĐẨY OFFER cho đợt (có CTA, tạo hành động)"
         else:
-            ctx = f"Content pillar (always-on, nền brand): {pillar or '(brand)'}"
+            topic = f"\nChủ đề cụ thể (founder chọn): {angle}" if (angle or "").strip() else ""
+            ctx = f"Content pillar (always-on, nền brand): {pillar or '(brand)'}{topic}"
             kind = "1 bài NỀN brand bám pillar (KHÔNG ép bán, xây nhận biết/niềm tin)"
         from tools.llm_router import call as router_call, TaskType
         system = (
             "Bạn là copywriter mạng xã hội Việt Nam. Viết " + kind + " — đăng được NGAY:\n"
             "- Hook 1 dòng đầu bắt mắt.\n- Thân bài ngắn (2-4 câu), giọng đời thường, hợp ngành.\n"
             "- CTA cuối phù hợp.\n- 3-5 hashtag.\n"
-            "🔴 Bám USP + ngành. KHÔNG bịa số/khuyến mãi không có trong brief. Trả MARKDOWN gọn."
+            "🔴 Nếu có 'Chủ đề cụ thể' → bám ĐÚNG chủ đề đó. Bám USP + ngành. KHÔNG bịa số/khuyến mãi "
+            "không có thật. Viết TIẾNG VIỆT. Trả MARKDOWN gọn."
         )
         user = f"# Ngành\n{industry}\n# USP\n{usp or '(chưa rõ)'}\n\n# Bối cảnh slot\n{ctx}"
         res = await router_call(task_type=TaskType.OPS_CONTENT_CREATIVE, system=system, user=user, max_tokens=700)
@@ -1104,7 +1112,8 @@ async def strategize_web(user_id=None, progress=None) -> dict:
             f"⚖️ {_posture_guide(posture)}\n"
             f"🎯 ĐỊNH VỊ: {usp_rule}\n"
             "🔴 Bám archetype + mùa vụ ngành nếu có. KHÔNG bịa số tuyệt đối. Tệp ưu tiên = wedge founder chọn "
-            "(nếu có). Diễn đạt tự nhiên, đừng quăng thuật ngữ trần (archetype/SAVE) mà không giải thích."
+            "(nếu có). Diễn đạt tự nhiên, đừng quăng thuật ngữ trần (archetype/SAVE) mà không giải thích.\n"
+            "🔴 Viết TOÀN BỘ bằng TIẾNG VIỆT."
         )
         syn_user = (
             f"# Ngành\n{industry}\n{ictx}\n\n"
@@ -1132,7 +1141,7 @@ async def strategize_web(user_id=None, progress=None) -> dict:
             "+ ngưỡng theo chỉ số TƯƠNG ĐỐI: CTR/ROAS/CVR + thời lượng), KPI cần theo dõi.\n"
             "🔴 KHÔNG ghi số tiền tuyệt đối (ngân sách thật chốt khi lập chiến dịch). KPI nêu ĐO GÌ, không chốt target.\n"
             "🔴 Bám archetype ngành; PHỦ HẾT các tệp (đừng cụt). Kết bằng bảng tổng hợp (Tệp|Tầng|Mũi chính|Mức đầu tư định tính).\n"
-            "Xuất MARKDOWN, giọng CMO thẳng thắn."
+            "🔴 Viết TOÀN BỘ bằng TIẾNG VIỆT. Xuất MARKDOWN, giọng CMO thẳng thắn."
         )
         tac_user = (
             f"# Ngành\n{industry}\n{ictx}\n\n"
