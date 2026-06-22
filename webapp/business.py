@@ -242,6 +242,72 @@ async def save_gate(user_id=None, wedge: str = "", usp_stance: str = "", usp_tex
         return {"error": str(e)}
 
 
+async def approve_synthesis(user_id=None) -> dict:
+    """M4(1): founder CHỐT bản Chiến lược hiện tại. Lưu version đã duyệt vào
+    intake_extra.synthesis_approved_version. Tạo lại synthesis → version đổi → tự bỏ
+    chốt (FE so version để biết). Là checkpoint chiến lược trước khi xuống chiến dịch."""
+    if not available():
+        return {"error": "Chưa cấu hình Supabase."}
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {"error": "Chưa có user."}
+        from storage.v2 import profiles, skill_runs
+        run = await skill_runs.get_latest_skill_run(uid, "synthesis")
+        if not run or not (run.get("content") or "").strip():
+            return {"error": "Chưa có Chiến lược để chốt."}
+        cur = await profiles.get_profile(uid) or {}
+        extra = cur.get("intake_extra") or {}
+        if not isinstance(extra, dict):
+            extra = {}
+        extra["synthesis_approved_version"] = run.get("version")
+        row = await profiles.upsert_profile(uid, intake_extra=extra)
+        return {"ok": True, "version": run.get("version"), "profile": row}
+    except Exception as e:
+        logger.warning("biz.approve_synthesis failed: %s", e)
+        return {"error": str(e)}
+
+
+async def save_pillars(user_id=None, pillars=None) -> dict:
+    """M4(2): founder CHỐT tuyến nền (curate). Lưu danh sách pillar đã GIỮ vào
+    intake_extra.pillars_locked → campaign_plan/calendar dùng bản này. Gửi list rỗng
+    hoặc None = BỎ chốt (quay lại để Max tự sinh)."""
+    if not available():
+        return {"error": "Chưa cấu hình Supabase."}
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {"error": "Chưa có user."}
+        from storage.v2 import profiles
+        cur = await profiles.get_profile(uid) or {}
+        extra = cur.get("intake_extra") or {}
+        if not isinstance(extra, dict):
+            extra = {}
+        if pillars and isinstance(pillars, list):
+            # chỉ giữ field cần thiết, chặn payload rác
+            clean = []
+            for p in pillars[:12]:
+                if not isinstance(p, dict):
+                    continue
+                clean.append({
+                    "name": str(p.get("name") or "")[:120],
+                    "role": str(p.get("role") or "")[:240],
+                    "funnel": str(p.get("funnel") or "")[:40],
+                    "cadence": str(p.get("cadence") or "")[:120],
+                    "angles": [str(a)[:200] for a in (p.get("angles") or [])][:6],
+                })
+            extra["pillars_locked"] = clean
+        else:
+            extra.pop("pillars_locked", None)   # bỏ chốt
+        row = await profiles.upsert_profile(uid, intake_extra=extra)
+        return {"ok": True, "locked": len(extra.get("pillars_locked") or []), "profile": row}
+    except Exception as e:
+        logger.warning("biz.save_pillars failed: %s", e)
+        return {"error": str(e)}
+
+
 _market_kpi_cache: dict = {}
 
 
@@ -273,9 +339,21 @@ def _strategy_fp(*parts) -> int:
 _campaign_plan_cache: dict = {}
 
 
-async def campaign_plan(user_id=None) -> dict:
+def _apply_pillar_lock(out: dict, locked) -> dict:
+    """M4(2): nếu founder đã CHỐT tuyến nền → trả pillars đã chốt (overlay lên bản
+    sinh), giữ occasions từ bản sinh. Lock đổi KHÔNG cần bust cache generation."""
+    if locked and isinstance(locked, list):
+        return {**out, "pillars": locked, "pillars_locked": True}
+    return out
+
+
+async def campaign_plan(user_id=None, steer: str = "") -> dict:
     """D-040: sinh content PILLARS (Always-on) + gợi ý OCCASION theo ngành — từ
-    Synthesis + Tactical + industry context (Byron Sharp + Binet&Field). Cache; degrade {}."""
+    Synthesis + Tactical + industry context (Byron Sharp + Binet&Field). Cache; degrade {}.
+
+    M4(2): nếu founder đã chốt tuyến nền (intake_extra.pillars_locked) và KHÔNG có
+    steer → trả pillars đã chốt. steer = định hướng thêm khi 'sinh lại có định hướng'
+    (bỏ qua lock, sinh mới để founder curate rồi chốt lại)."""
     if not available():
         return {}
     try:
@@ -294,11 +372,14 @@ async def campaign_plan(user_id=None) -> dict:
         wedge = (_extra.get("wedge") if isinstance(_extra, dict) else "") or ""
         horizon = (_extra.get("horizon") if isinstance(_extra, dict) else "") or ""
         posture = (_extra.get("posture") if isinstance(_extra, dict) else "") or ""
-        # M5-B1: khoá theo TRỌN nguồn (synth+tact+wedge+industry+horizon+posture),
+        locked = (_extra.get("pillars_locked") if isinstance(_extra, dict) else None)
+        steer = (steer or "").strip()
+        # M5-B1: khoá theo TRỌN nguồn (synth+tact+wedge+industry+horizon+posture+steer),
         # không chỉ synth[:300] — đổi wedge/định vị/horizon là pillars sinh lại.
-        cache_key = f"{uid}:{_strategy_fp(synth, tact, wedge, industry, horizon, posture)}"
+        cache_key = f"{uid}:{_strategy_fp(synth, tact, wedge, industry, horizon, posture, steer)}"
         if cache_key in _campaign_plan_cache:
-            return _campaign_plan_cache[cache_key]
+            out = _campaign_plan_cache[cache_key]
+            return out if steer else _apply_pillar_lock(out, locked)
         ictx = ""
         try:
             from frameworks.industry_context import INDUSTRY_CONTEXT
@@ -320,8 +401,10 @@ async def campaign_plan(user_id=None) -> dict:
             '"cadence":"","angles":["",""]}],"occasions":[{"name":"","when":"","why":""}]}.\n'
             "🔴 Bám đúng NGÀNH + wedge; KHÔNG bịa số/ngân sách (always-on KHÔNG chốt SMART). KHÔNG markdown."
         )
+        steer_block = (f"\n\n# ĐỊNH HƯỚNG THÊM TỪ FOUNDER (ưu tiên bám)\n{steer}" if steer else "")
         user = (f"# Ngành\n{industry}\n{ictx}\n\n# Wedge (tệp ưu tiên đã chọn)\n{wedge or '(chưa chọn — tự suy)'}\n\n"
-                f"# Chiến lược (Synthesis)\n{synth[:3500]}\n\n# Tactical Playbook\n{(tact or '(chưa có)')[:2500]}")
+                f"# Chiến lược (Synthesis)\n{synth[:3500]}\n\n# Tactical Playbook\n{(tact or '(chưa có)')[:2500]}"
+                f"{steer_block}")
         res = await router_call(task_type=TaskType.INTAKE_JSON, system=system, user=user, max_tokens=1600)
         raw = (res or {}).get("output", "").strip()
         raw = re.sub(r'^```(?:json)?\s*', '', raw)
@@ -330,7 +413,7 @@ async def campaign_plan(user_id=None) -> dict:
         out = {"pillars": data.get("pillars") or [], "occasions": data.get("occasions") or []}
         if out["pillars"] or out["occasions"]:
             _campaign_plan_cache[cache_key] = out
-        return out
+        return out if steer else _apply_pillar_lock(out, locked)
     except Exception as e:
         logger.warning("biz.campaign_plan failed (non-fatal): %s", e)
         return {}

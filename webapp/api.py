@@ -114,9 +114,25 @@ async def biz_save_gate(request):
 
 
 async def biz_campaign_plan(request):
-    """D-040 — content pillars (always-on) + gợi ý occasion theo ngành."""
-    res = await biz.campaign_plan(request.query_params.get("user_id"))
+    """D-040 — content pillars (always-on) + gợi ý occasion theo ngành.
+    M4(2): ?steer= định hướng thêm khi 'sinh lại có định hướng'."""
+    res = await biz.campaign_plan(request.query_params.get("user_id"),
+                                  request.query_params.get("steer", ""))
     return JSONResponse({"plan": res})
+
+
+async def biz_synthesis_approve(request):
+    """M4(1) — founder chốt bản Chiến lược hiện tại."""
+    data = await request.json()
+    res = await biz.approve_synthesis(data.get("user_id"))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_pillars_lock(request):
+    """M4(2) — chốt tuyến nền (curate pillars). pillars=[] hoặc thiếu = bỏ chốt."""
+    data = await request.json()
+    res = await biz.save_pillars(data.get("user_id"), data.get("pillars"))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
 
 
 async def biz_occasion_draft(request):
@@ -374,6 +390,8 @@ def api_routes() -> list:
         Route("/api/biz/intake/suggest",           biz_intake_suggest, methods=["POST"]),
         Route("/api/biz/market-kpis",              biz_market_kpis,    methods=["GET"]),
         Route("/api/biz/gate",                     biz_save_gate,      methods=["POST"]),
+        Route("/api/biz/synthesis-approve",        biz_synthesis_approve, methods=["POST"]),
+        Route("/api/biz/pillars-lock",             biz_pillars_lock,   methods=["POST"]),
         Route("/api/biz/campaign-plan",            biz_campaign_plan,  methods=["GET"]),
         Route("/api/biz/occasion",                 biz_occasion_draft, methods=["POST"]),
         Route("/api/biz/occasion/save",            biz_occasion_save,  methods=["POST"]),

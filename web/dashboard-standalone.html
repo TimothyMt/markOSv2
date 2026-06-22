@@ -904,6 +904,12 @@ textarea.intake-input { resize:none; overflow:hidden; min-height:48px; line-heig
   border-radius:10px; padding:12px 14px; }
 .pillar-head { display:flex; align-items:center; gap:8px; margin-bottom:4px; font-size:14px; }
 .pillar-cad { font-size:12px; color:var(--primary-2); margin:6px 0 4px; }
+/* M4(2): curate tuyến nền */
+.pillar-keep { float:right; display:inline-flex; align-items:center; gap:5px; font-size:12px;
+  color:var(--muted); cursor:pointer; user-select:none; }
+.pillar-keep input { accent-color:var(--green); }
+.pillar:has(.pillar-chk:not(:checked)) { opacity:.5; border-left-color:var(--stroke-2); }
+.pillar-foot { margin-top:14px; border-top:1px solid var(--stroke); padding-top:12px; }
 .intake-nav { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:16px; }
 .intake-note { font-size:12px; margin-top:12px; }
 
@@ -2120,13 +2126,16 @@ window.MOCK = {
   // chiến lược. Cả Chiến lược (la bàn) lẫn Playbook (cách đánh) đều trỏ về CÙNG nút
   // Lập chiến dịch (#occasion) → 1 kế hoạch duy nhất, KHÔNG nhân bản kế hoạch.
   function nextStepCard({ done, lead, primary, alts }) {
+    const pbtn = primary.act
+      ? `<button class="primary-btn" data-act="${primary.act}">${primary.label}</button>`
+      : `<a class="primary-btn" href="#${primary.href}">${primary.label}</a>`;
     return `<div class="card span-12 nextstep">
       <div class="ns-body">
         <p class="ns-done">✓ ${done}</p>
         <p class="ns-lead">${lead}</p>
       </div>
       <div class="ns-actions">
-        <a class="primary-btn" href="#${primary.href}">${primary.label}</a>
+        ${pbtn}
         ${alts ? `<div class="ns-alts">${alts}</div>` : ''}
       </div>
     </div>`;
@@ -2140,18 +2149,26 @@ window.MOCK = {
       if (M.bizEnabled && latest) {
         // D-037a: 1 card duy nhất (bỏ agentBar trùng "Xem output") — output inline + nút rerun
         const running = (M.agentJobs || []).some(j => j.status === 'running' && (j.task === 'strategy' || j.task === 'full'));
+        // M4(1): chốt chiến lược — so version đã duyệt với bản mới nhất (tạo lại → version đổi → bỏ chốt)
+        const approved = (((M.bizProfile || {}).intake_extra || {}).synthesis_approved_version) === latest.version;
         return `<section class="grid">
           ${directionalBanner}
           ${inferredMeter()}
           ${card('Chiến lược — do Max lập', `
             <div class="ai-output collapsible" data-skill-run="${latest.id}">Đang tải chiến lược…</div>
             <button class="ghost-line full collapse-toggle" data-act="toggle-collapse" style="margin-top:12px">Xem đầy đủ ▾</button>`,
-            {cls:'span-12', action:`<span class="muted">v${latest.version} · ${(latest.created_at||'').slice(0,10)}</span> ${runBtn('strategy', running ? '↻ Đang chạy' : '↻ Tạo lại bản mới', 'ghost-line sm')}`})}
-          ${nextStepCard({
-            done: 'Đã có Chiến lược — la bàn định hướng.',
+            {cls:'span-12', action:`<span class="muted">v${latest.version} · ${(latest.created_at||'').slice(0,10)}</span> ${approved?badge('✓ Đã chốt','green'):''} ${runBtn('strategy', running ? '↻ Đang chạy' : '↻ Tạo lại bản mới', 'ghost-line sm')}`})}
+          ${approved ? nextStepCard({
+            done: 'Đã chốt Chiến lược — sẵn sàng triển khai.',
             lead: 'Bước tiếp: biến la bàn thành <b>kế hoạch chạy thật</b> (lịch bài, đợt theo dịp, quảng cáo).',
             primary: { href: 'occasion', label: '→ Lập chiến dịch' },
             alts: `<a class="ghost-line sm" href="#tactical">🔨 Chi tiết hoá bằng Tactical Playbook</a>
+                   ${runBtn('strategy', running ? '↻ Đang chạy' : '↻ Tạo lại bản mới', 'ghost-line sm')}`,
+          }) : nextStepCard({
+            done: 'Max đã lập xong Chiến lược.',
+            lead: 'Xem kỹ rồi <b>chốt</b> để mở bước Lập chiến dịch. <span class="muted">(Tạo lại bản mới sẽ phải chốt lại.)</span>',
+            primary: { act: 'approve-synthesis', label: '✅ Chốt chiến lược này' },
+            alts: `<a class="ghost-line sm" href="#tactical">🔨 Xem Tactical Playbook</a>
                    ${runBtn('strategy', running ? '↻ Đang chạy' : '↻ Tạo lại bản mới', 'ghost-line sm')}`,
           })}
         </section>`;
@@ -2272,20 +2289,25 @@ window.MOCK = {
   };
   // D-040: nạp content pillars (always-on) + gợi ý occasion theo ngành
   let _lastOccasions = [];   // M1.1: gợi ý dịp để pre-fill wizard tạo occasion
-  async function loadCampaignPlan() {
+  async function loadCampaignPlan(steer = '') {
     const host = document.getElementById('campaignPlan');
     if (!host || !apiAvailable || !M.bizEnabled) return;
     const E = s => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const enc = x => encodeURIComponent(JSON.stringify(x));
+    if (steer) host.innerHTML = `<div class="card"><p class="muted">⏳ Đang sinh lại tuyến nền theo định hướng…</p></div>`;
     try {
-      const r = await API.get('api/biz/campaign-plan' + bizQuery());
+      const q = bizQuery() + (steer ? ((bizQuery() ? '&' : '?') + 'steer=' + encodeURIComponent(steer)) : '');
+      const r = await API.get('api/biz/campaign-plan' + q);
       const p = (r && r.plan) || {};
       const pillars = p.pillars || [], occ = p.occasions || [];
+      const locked = !!p.pillars_locked;
       _lastOccasions = occ;
       if (!pillars.length && !occ.length) {
         host.innerHTML = `<div class="card"><p class="muted">Chưa lập được 2 tuyến — chạy lại Chiến lược (T4) rồi quay lại.</p></div>`; return;
       }
       const pillarCards = pillars.map(x => `
         <div class="pillar">
+          <label class="pillar-keep"><input type="checkbox" class="pillar-chk" data-pillar="${enc(x)}" checked> Giữ</label>
           <div class="pillar-head"><b>${E(x.name)}</b> ${x.funnel ? `<span class="tag">${E(x.funnel)}</span>` : ''}</div>
           ${x.role ? `<p class="muted">${E(x.role)}</p>` : ''}
           ${x.cadence ? `<p class="pillar-cad">🔁 ${E(x.cadence)}</p>` : ''}
@@ -2293,11 +2315,24 @@ window.MOCK = {
         </div>`).join('');
       const occRows = occ.map(o => `
         <li class="row"><div class="row-main"><p>🔴 ${E(o.name)} ${o.when ? `<span class="muted">· ${E(o.when)}</span>` : ''}</p>${o.why ? `<span class="muted">${E(o.why)}</span>` : ''}</div></li>`).join('');
+      const pillarFoot = `
+        <div class="pillar-foot">
+          ${locked ? `<span class="pill green" style="margin-bottom:8px;display:inline-block">✓ Đã chốt tuyến nền</span>` : `<p class="muted" style="margin-bottom:8px">Bỏ tick trụ không muốn chạy, rồi <b>Chốt tuyến nền</b> — bản đã chốt mới chảy vào Lịch.</p>`}
+          <div class="occ-row" style="gap:8px">
+            <input id="pillarSteer" class="occ-inp" style="flex:1" placeholder="↻ Sinh lại có định hướng (vd: nhấn mạnh tin cậy pháp lý hơn)">
+            <button class="ghost-line" data-act="regen-pillars">↻ Sinh lại</button>
+          </div>
+          <div class="occ-row" style="gap:8px;margin-top:8px">
+            <button class="primary-btn" style="flex:1" data-act="lock-pillars">✅ Chốt tuyến nền (đã chọn)</button>
+            ${locked ? `<button class="ghost-line" data-act="unlock-pillars">Bỏ chốt</button>` : ''}
+            <a class="ghost-line" href="#calendar">→ Đưa vào Lịch</a>
+          </div>
+        </div>`;
       host.innerHTML = `<section class="grid" style="margin:0">
         ${card('🟢 Always-on — tuyến NỀN (content pillars)', `
           <p class="muted" style="margin-bottom:12px">Chạy đều quanh năm để thương hiệu được nhớ. Bám USP + JTBD + archetype ngành. <b>Không chốt số</b> — đây là nền (D-029).</p>
           <div class="pillars">${pillarCards || '<p class="muted">—</p>'}</div>
-          <a class="ghost-line full" href="#calendar" style="margin-top:14px">→ Đưa vào Lịch nội dung</a>`, { cls: 'span-7' })}
+          ${pillarFoot}`, { cls: 'span-7' })}
         ${card('🔴 Theo dịp — Occasion (gợi ý theo ngành)', `
           <p class="muted" style="margin-bottom:12px">Đợt có window — nơi <b>chốt SMART thật</b> (số, ngân sách đợt, deadline). Hợp mùa vụ ngành:</p>
           <ul class="rows">${occRows || '<li class="muted">—</li>'}</ul>
@@ -3499,6 +3534,40 @@ window.MOCK = {
         toast('Đã chốt hướng — Max đang lập chiến lược + playbook…');
         await refreshBiz(); renderRail(); renderTopbar(); route();
       } catch (e) { toast('Không lập được chiến lược'); }
+      return;
+    }
+    if (act === 'approve-synthesis') {   // M4(1): chốt bản chiến lược hiện tại
+      try {
+        const r = await API.post('api/biz/synthesis-approve', { user_id: _bizUserId });
+        if (r.error) { toast(r.error); return; }
+        toast('✅ Đã chốt chiến lược — mở bước Lập chiến dịch');
+        await refreshBiz(); route();
+      } catch (e) { toast('Không chốt được chiến lược'); }
+      return;
+    }
+    if (act === 'lock-pillars') {   // M4(2): chốt tuyến nền (các trụ đang chọn "Giữ")
+      try {
+        const picked = [...document.querySelectorAll('.pillar-chk:checked')].map(c => {
+          try { return JSON.parse(decodeURIComponent(c.dataset.pillar)); } catch (e) { return null; }
+        }).filter(Boolean);
+        if (!picked.length) { toast('Chọn ít nhất 1 trụ để chốt'); return; }
+        const r = await API.post('api/biz/pillars-lock', { pillars: picked, user_id: _bizUserId });
+        if (r.error) { toast(r.error); return; }
+        toast('✅ Đã chốt tuyến nền'); await refreshBiz(); route();
+      } catch (e) { toast('Không chốt được tuyến nền'); }
+      return;
+    }
+    if (act === 'unlock-pillars') {   // M4(2): bỏ chốt → Max tự sinh lại
+      try {
+        const r = await API.post('api/biz/pillars-lock', { pillars: [], user_id: _bizUserId });
+        if (r.error) { toast(r.error); return; }
+        toast('Đã bỏ chốt — Max sẽ tự đề xuất lại'); await refreshBiz(); route();
+      } catch (e) { toast('Không bỏ chốt được'); }
+      return;
+    }
+    if (act === 'regen-pillars') {   // M4(2): sinh lại tuyến nền có định hướng
+      const steer = ((document.getElementById('pillarSteer') || {}).value || '').trim();
+      loadCampaignPlan(steer);
       return;
     }
     if (act === 'new-occasion') {   // M1.1 (D-043): luồng tạo occasion đầy đủ (chốt SMART thật)

@@ -895,6 +895,12 @@ textarea.intake-input { resize:none; overflow:hidden; min-height:48px; line-heig
   border-radius:10px; padding:12px 14px; }
 .pillar-head { display:flex; align-items:center; gap:8px; margin-bottom:4px; font-size:14px; }
 .pillar-cad { font-size:12px; color:var(--primary-2); margin:6px 0 4px; }
+/* M4(2): curate tuyến nền */
+.pillar-keep { float:right; display:inline-flex; align-items:center; gap:5px; font-size:12px;
+  color:var(--muted); cursor:pointer; user-select:none; }
+.pillar-keep input { accent-color:var(--green); }
+.pillar:has(.pillar-chk:not(:checked)) { opacity:.5; border-left-color:var(--stroke-2); }
+.pillar-foot { margin-top:14px; border-top:1px solid var(--stroke); padding-top:12px; }
 .intake-nav { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:16px; }
 .intake-note { font-size:12px; margin-top:12px; }
 
