@@ -297,6 +297,8 @@ async def save_pillars(user_id=None, pillars=None) -> dict:
                     "funnel": str(p.get("funnel") or "")[:40],
                     "cadence": str(p.get("cadence") or "")[:120],
                     "posts_per_week": _ppw(p.get("posts_per_week")),
+                    "framework": str(p.get("framework") or "")[:40],
+                    "value_lens": str(p.get("value_lens") or "")[:80],
                     "angles": [str(a)[:200] for a in (p.get("angles") or [])][:6],
                 })
             extra["pillars_locked"] = clean
@@ -434,10 +436,14 @@ async def campaign_plan(user_id=None, steer: str = "") -> dict:
             "archetype/wedge; mỗi pillar có vai + tầng phễu + nhịp đăng + SỐ bài/tuần + vài góc bài.\n"
             "(2) 3-5 gợi ý OCCASION (đợt theo dịp) hợp MÙA VỤ của ngành (đọc kỹ động lực/mùa vụ).\n"
             'Output JSON đúng schema: {"pillars":[{"name":"","role":"","funnel":"TOFU|MOFU|BOFU",'
-            '"cadence":"","posts_per_week":1,"angles":["",""]}],"occasions":[{"name":"","when":"","why":""}]}.\n'
+            '"cadence":"","posts_per_week":1,"framework":"PAS|AIDA|BAB|FAB|Star-Story",'
+            '"value_lens":"","angles":["",""]}],"occasions":[{"name":"","when":"","why":""}]}.\n'
             "🔴 posts_per_week = SỐ NGUYÊN bài/tuần hợp lý cho trụ đó (thường 1-3); cadence là mô tả chữ tương ứng.\n"
-            "🔴 TẤT CẢ giá trị chữ (name/role/cadence/angles/occasion name/when/why) viết bằng TIẾNG VIỆT tự nhiên, "
-            "giọng đời thường (angles là gợi ý CHỦ ĐỀ bài, không phải brief ảnh). Giữ NGUYÊN khoá JSON tiếng Anh.\n"
+            "🔴 framework = khung copywriting ẩn hợp VAI trụ (PAS/AIDA/BAB/FAB/Star-Story). value_lens = "
+            "GÓC KHAI THÁC chính của trụ, chọn 1 trong: Nỗi đau/Vấn đề · Kết quả/Lợi ích · Bằng chứng xã hội · "
+            "Khát vọng/Định vị · Xử lý phản đối · Cơ chế/USP · Khẩn cấp · Uy tín chuyên môn.\n"
+            "🔴 TẤT CẢ giá trị chữ (name/role/cadence/value_lens/angles/occasion name/when/why) viết bằng "
+            "TIẾNG VIỆT tự nhiên (angles là gợi ý CHỦ ĐỀ bài, không phải brief ảnh). Giữ NGUYÊN khoá JSON tiếng Anh.\n"
             "🔴 Bám đúng NGÀNH + wedge; KHÔNG bịa số/ngân sách (always-on KHÔNG chốt SMART). KHÔNG markdown."
         )
         steer_block = (f"\n\n# ĐỊNH HƯỚNG THÊM TỪ FOUNDER (ưu tiên bám)\n{steer}" if steer else "")
@@ -859,6 +865,8 @@ async def calendar_plan(user_id=None) -> dict:
                     key = f"aw|{w}|{day_of[idx]}|{pname}"
                     slot = {"week": w, "day": day_of[idx], "pillar": pname, "title": title,
                             "angles": [str(a) for a in (p.get("angles") or [])][:6],
+                            "funnel": p.get("funnel") or "", "framework": p.get("framework") or "",
+                            "value_lens": p.get("value_lens") or "",
                             "track": "always", "key": key}
                     sp = saved_posts.get(key)
                     if isinstance(sp, dict) and (sp.get("content") or "").strip():
@@ -878,10 +886,11 @@ async def calendar_plan(user_id=None) -> dict:
 
 async def gen_calendar_post(user_id=None, track: str = "always", pillar: str = "",
                             campaign_id: str = "", week: str = "", day: str = "",
-                            angle: str = "") -> dict:
-    """M1.2b: sinh 1 BÀI cho slot lịch — bám pillar (always-on) hoặc brief occasion (campaign).
-    angle = CHỦ ĐỀ founder chọn cho slot (always-on) → bài viết bám đúng chủ đề đó.
-    Lưu skill_run `calendar_post`. Degrade {error}."""
+                            angle: str = "", value_lens: str = "", hook_style: str = "",
+                            framework: str = "") -> dict:
+    """M1.2b + M-D: sinh 1 BÀI cho slot lịch — bám pillar (always-on) hoặc brief occasion.
+    angle = CHỦ ĐỀ founder chọn; value_lens = GÓC KHAI THÁC; hook_style = CÁCH MỞ (1/5 nhóm);
+    framework = khung copywriting ẩn. Lưu skill_run `calendar_post`. Degrade {error}."""
     if not available():
         return {"error": "Chưa cấu hình Supabase."}
     try:
@@ -917,9 +926,18 @@ async def gen_calendar_post(user_id=None, track: str = "always", pillar: str = "
             ctx = f"Đợt: {c.get('name','')}. Brief:\n{brief[:1800]}"
             kind = "1 bài ĐẨY OFFER cho đợt (có CTA rõ, tạo hành động ngay)"
         else:
-            topic = f"\nChủ đề cụ thể (founder chọn — bám SÁT): {angle}" if (angle or "").strip() else ""
-            ctx = f"Content pillar (always-on, nền brand): {pillar or '(brand)'}{topic}"
+            lines = [f"Content pillar (always-on, nền brand): {pillar or '(brand)'}"]
+            if (angle or "").strip():
+                lines.append(f"Chủ đề cụ thể (founder chọn — bám SÁT): {angle}")
+            if (value_lens or "").strip():
+                lines.append(f"Góc khai thác (value lens) BẮT BUỘC bám: {value_lens}")
+            if (framework or "").strip():
+                lines.append(f"Khung copywriting ẩn gợi ý: {framework}")
+            ctx = "\n".join(lines)
             kind = "1 bài NỀN brand bám pillar (xây nhận biết/niềm tin — KHÔNG ép bán)"
+        # Cách mở: founder chọn 1 hook style cụ thể → ép dùng; nếu không → để LLM tự chọn trong 5 nhóm.
+        hook_rule = (f"\n🔴 CÁCH MỞ bài DÙNG ĐÚNG nhóm hook: {hook_style}." if (hook_style or "").strip()
+                     and hook_style.lower() not in ("auto", "tự động") else "")
         from tools.llm_router import call as router_call, TaskType
         system = (
             "Bạn là content writer social media giỏi cho founder Việt. Viết " + kind + ".\n\n"
@@ -937,6 +955,7 @@ async def gen_calendar_post(user_id=None, track: str = "always", pillar: str = "
             "'Problem:', 'Mở:'…) ra bài — bài đọc tự nhiên, copy-paste đăng được ngay.\n"
             "🔴 Trong NỘI DUNG gọi người đọc là 'bạn' hoặc 'anh/chị' (KHÔNG 'sếp'). Nếu có 'Chủ đề cụ thể' "
             "→ bám ĐÚNG. Bám USP + đúng tệp khách + ngành. Viết TIẾNG VIỆT tự nhiên. Trả MARKDOWN gọn."
+            + hook_rule
         )
         user = (f"# Ngành\n{industry}\n# Sản phẩm/dịch vụ\n{product or '(chưa rõ)'}\n"
                 f"# Khách mục tiêu\n{target or '(chưa rõ)'}\n# USP\n{usp or '(chưa rõ)'}{voice_ctx}\n\n"

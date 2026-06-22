@@ -1934,6 +1934,10 @@
   let _slotCtx = null;
   const _DAYNAMES = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
   function _ensureBizModal() { showModal('', '', null); return document.getElementById('bizModal'); }
+  // M-D Pha 2: 2 trục soạn bài — Góc khai thác (value lens) × Cách mở (hook style)
+  const VALUE_LENSES = ['Nỗi đau/Vấn đề', 'Kết quả/Lợi ích', 'Bằng chứng xã hội', 'Khát vọng/Định vị',
+    'Xử lý phản đối', 'Cơ chế/USP', 'Khẩn cấp', 'Uy tín chuyên môn'];
+  const HOOK_STYLES = ['Tự động', 'Tò mò', 'Trái ngược', 'Cảm xúc', 'Góc nhìn chuyên gia', 'Đồng cảm'];
   const _slotWhen = (slot) => (slot.day != null && slot.week)
     ? `${_DAYNAMES[slot.day] || ('Ngày ' + (slot.day + 1))} · Tuần ${slot.week}` : 'Bài Always-on';
   function openSlotModal(slot) {
@@ -1944,14 +1948,22 @@
     const ov = _ensureBizModal();
     const angles = (slot.angles && slot.angles.length) ? slot.angles : [slot.title].filter(Boolean);
     ov.querySelector('h3').textContent = `${_slotWhen(slot)} — ${slot.pillar || 'Always-on'}`;
+    const lensDef = slot.value_lens || '';
+    const lensList = VALUE_LENSES.includes(lensDef) || !lensDef ? VALUE_LENSES : [lensDef, ...VALUE_LENSES];
     ov.querySelector('.modal-body').innerHTML = `
       <p class="muted" style="margin:0 0 10px">Chọn <b>💡 chủ đề</b> cho bài này, rồi để Max viết:</p>
       <div class="angle-pick">${angles.map((a, i) =>
         `<label class="radio-row"><input type="radio" name="slotAngle" value="${i}" ${i === 0 ? 'checked' : ''}> ${E(a)}</label>`).join('')}
+      </div>
+      <div class="slot-axes">
+        <label class="slot-axis"><span>Góc khai thác</span>
+          <select id="slotLens">${lensList.map(l => `<option ${l === lensDef ? 'selected' : ''}>${E(l)}</option>`).join('')}</select></label>
+        <label class="slot-axis"><span>Cách mở (hook)</span>
+          <select id="slotHook">${HOOK_STYLES.map(h => `<option>${E(h)}</option>`).join('')}</select></label>
       </div>`;
     const foot = ov.querySelector('.modal-foot'); foot.style.display = 'flex';
-    foot.innerHTML = `<div class="rate-group"><span class="muted">${E(slot.pillar || '')}</span></div>
-      <div class="modal-foot-r"><button class="primary-btn sm" data-act="slot-gen">⚡ Tạo bài từ chủ đề này</button></div>`;
+    foot.innerHTML = `<div class="rate-group"><span class="muted">${E(slot.pillar || '')}${slot.funnel ? ' · ' + E(slot.funnel) : ''}</span></div>
+      <div class="modal-foot-r"><button class="primary-btn sm" data-act="slot-gen">⚡ Tạo bài</button></div>`;
     ov.classList.add('show');
   }
   // Khung TEXT sửa được (t2) + Lưu & Duyệt ngay tại ô (t1). wasSaved=đang xem bài đã lưu.
@@ -2299,11 +2311,14 @@
       const pick = ov.querySelector('input[name="slotAngle"]:checked');
       const idx = pick ? (+pick.value || 0) : 0;
       const angle = (_slotCtx.angles && _slotCtx.angles[idx]) || _slotCtx.title || '';
+      const value_lens = (ov.querySelector('#slotLens') || {}).value || _slotCtx.value_lens || '';
+      const hook_style = (ov.querySelector('#slotHook') || {}).value || '';
       const orig = el.textContent; el.disabled = true; el.textContent = '⏳ Đang viết…';
       try {
         const r = await API.post('api/biz/calendar/gen', {
           user_id: _bizUserId, track: _slotCtx.track || 'always', pillar: _slotCtx.pillar || '',
-          angle, week: _slotCtx.week || '', day: _slotCtx.day != null ? _slotCtx.day : '' });
+          angle, value_lens, hook_style, framework: _slotCtx.framework || '',
+          week: _slotCtx.week || '', day: _slotCtx.day != null ? _slotCtx.day : '' });
         if (r.error) { toast(r.error); el.disabled = false; el.textContent = orig; return; }
         showSlotResult(r.content, r.run_id); refreshBiz();
       } catch (e) { toast('Không tạo được bài — thử lại sau.'); el.disabled = false; el.textContent = orig; }

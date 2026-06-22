@@ -58,6 +58,15 @@ Pillar (vai + funnel + framework ưu tiên)
 - Đồng bộ thuật ngữ: đổi nhãn web "angle" → **"Chủ đề"** (topic) + thêm **"Góc khai thác"** +
   **"Cách mở"** cho rõ 3 thứ khác nhau.
 
+## 4b. ĐÃ TRIỂN KHAI Pha 1 + 2 (2026-06-22)
+- Pha 1: `campaign_plan` pillar thêm `framework` (PAS/AIDA/BAB/FAB/Star-Story) + `value_lens`
+  (góc khai thác chuẩn); `save_pillars` giữ 2 field; `calendar_plan` slot kế thừa
+  funnel + framework + value_lens.
+- Pha 2: modal slot thêm 2 select **Góc khai thác** (value_lens, mặc định theo trụ) +
+  **Cách mở (hook)** (Tự động + 5 nhóm); `gen_calendar_post(value_lens, hook_style, framework)`
+  ép góc + ép hook (nếu chọn) + khung ẩn. API calendar/gen nhận 3 trường.
+- FE: app.js + standalone + CSS .slot-axes. Verify node/import OK.
+
 ## 5. Mở / cần chốt
 - [ ] Làm Pha 1+2 trước? (khuyến nghị)
 - [ ] Story Arc (Pha 3): deterministic theo posture hay LLM sinh + lưu?
