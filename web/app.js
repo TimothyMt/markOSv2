@@ -1998,6 +1998,16 @@
     { k: 'retention',   ic: '🔁', label: 'Giữ khách cũ',  desc: 'repeat · AOV/CLV · loyalty' },
   ];
   let _occState = { occasion: '', ws: '', we: '', budget: '', baseline: '', goal: '', objective: '', brief: '', busy: false };
+  // D-044b: ví dụ chỉ tiêu khác nhau theo mục đích đã chọn — tránh nhầm "mục đích" với "mục tiêu"
+  const OCC_GOAL_EX = {
+    acquisition: 'vd: 300 lead mới, reach 50.000',
+    conversion:  'vd: 500 đơn, doanh thu 150 triệu',
+    brand:       'vd: 100.000 reach/impression, 5.000 follow mới',
+    retention:   'vd: 200 đơn khách cũ quay lại, CLV +10%',
+  };
+  function _occGoalPlaceholder(obj) {
+    return (OCC_GOAL_EX[obj] || 'vd: 500 đơn, 50 triệu doanh thu, 300 lead') + ' — để trống = theo giai đoạn roadmap';
+  }
 
   function openOccasionWizard(preset) {
     _occState = { occasion: preset || '', ws: '', we: '', budget: '', baseline: '', goal: '', objective: '', brief: '', busy: false };
@@ -2028,6 +2038,8 @@
           _occState.objective = (_occState.objective === k) ? '' : k;
           ov.querySelectorAll('[data-act="occ-obj"]').forEach(c =>
             c.classList.toggle('on', c.dataset.obj === _occState.objective));
+          const goalInp = ov.querySelector('[data-occfield="goal"]');
+          if (goalInp) goalInp.placeholder = _occGoalPlaceholder(_occState.objective);
         }
       });
     }
@@ -2076,11 +2088,14 @@
             <span class="occ-obj-main"><b>${o.label}</b><small>${o.desc}</small></span>
           </button>`).join('')}</div></div>
 
-      <div class="occ-step"><label class="occ-lbl">3 · Lever (khoá SMART)</label>
-        <input class="occ-inp" data-occfield="budget" placeholder="Ngân sách đợt (vd 30 triệu) — gợi ý từ % burst" value="${E(S.budget)}">
-        <input class="occ-inp" data-occfield="baseline" placeholder="Baseline hiện tại (vd 200 đơn/tháng, AOV 350k) — chưa rõ thì để trống" value="${E(S.baseline)}">
-        <input class="occ-inp" data-occfield="goal" placeholder="Mục tiêu chính đợt (để trống = theo giai đoạn roadmap)" value="${E(S.goal)}">
-        <p class="muted occ-hint">Chưa có baseline cũng được — Max sẽ để mục tiêu dạng <b>khoảng + nhãn (ước tính)</b>.</p>
+      <div class="occ-step"><label class="occ-lbl">3 · Lever (khoá SMART) <span class="muted" style="font-weight:400">— mục đích ở trên quyết LOẠI chỉ tiêu, đây là SỐ cụ thể</span></label>
+        <label class="occ-sublbl">Ngân sách đợt</label>
+        <input class="occ-inp" data-occfield="budget" placeholder="vd: 30 triệu — gợi ý từ % burst nếu để trống" value="${E(S.budget)}">
+        <label class="occ-sublbl">Baseline hiện tại (trước đợt)</label>
+        <input class="occ-inp" data-occfield="baseline" placeholder="vd: 200 đơn/tháng, AOV 350k — chưa rõ thì để trống" value="${E(S.baseline)}">
+        <label class="occ-sublbl">Chỉ tiêu cụ thể đợt này <span class="muted" style="font-weight:400">(số liệu — khác mục đích ở trên)</span></label>
+        <input class="occ-inp" data-occfield="goal" placeholder="${E(_occGoalPlaceholder(S.objective))}" value="${E(S.goal)}">
+        <p class="muted occ-hint">Để trống = Max tự suy chỉ tiêu theo <b>mục đích</b> đã chọn + giai đoạn roadmap. Chưa có baseline cũng được — Max sẽ để dạng <b>khoảng + nhãn (ước tính)</b>.</p>
       </div>
 
       <div class="occ-foot">
