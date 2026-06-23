@@ -806,6 +806,10 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 .occ-obj-main { display:flex; flex-direction:column; gap:1px; }
 .occ-obj-main b { font-size:13px; color:var(--text); }
 .occ-obj-main small { font-size:11px; color:var(--muted); }
+.occ-more { background:transparent; border:1px dashed var(--stroke-2); color:var(--muted); border-radius:8px;
+  padding:6px 12px; margin-top:8px; cursor:pointer; font-size:12.5px; }
+.occ-more:hover, .occ-more.on { border-color:var(--primary); color:var(--text); }
+.occ-inp.occ-custom-on { border-color:var(--primary); background:rgba(91,140,255,.10); }
 .occ-foot { display:flex; justify-content:space-between; gap:12px; margin-top:18px;
   padding-top:14px; border-top:1px solid var(--stroke); }
 

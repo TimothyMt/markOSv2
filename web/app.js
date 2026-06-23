@@ -1991,18 +1991,29 @@
 
   /* ── M1.1 (D-043/044): Wizard tạo Campaign Occasion (chốt SMART thật) ── */
   // D-044: "mục đích đợt" = trục WHY (định hình brief), KHÁC trục WHEN. Founder chọn; trống = Max tự suy.
+  // Pha2b: bộ mục đích master 6 (thêm leadgen + engagement; brand đổi nhãn ra-mắt; retention gộp winback)
   const OCC_OBJECTIVES = [
-    { k: 'acquisition', ic: '🧲', label: 'Kéo khách mới', desc: 'demand-gen · reach · lead' },
-    { k: 'conversion',  ic: '💰', label: 'Chốt đơn',      desc: 'activation · ROAS/CPA · offer mạnh' },
-    { k: 'brand',       ic: '📣', label: 'Đẩy nhận biết', desc: 'the long · nhớ thương hiệu' },
-    { k: 'retention',   ic: '🔁', label: 'Giữ khách cũ',  desc: 'repeat · AOV/CLV · loyalty' },
+    { k: 'acquisition', ic: '🧲', label: 'Kéo khách mới',        desc: 'demand-gen · reach · lead' },
+    { k: 'conversion',  ic: '💰', label: 'Chốt đơn',             desc: 'activation · ROAS/CPA · offer mạnh' },
+    { k: 'leadgen',     ic: '📞', label: 'Thu lead / đặt tư vấn', desc: 'form · booking · lịch hẹn · demo' },
+    { k: 'brand',       ic: '📣', label: 'Ra mắt / phủ nhận biết', desc: 'launch · phủ tệp mới · nhớ thương hiệu' },
+    { k: 'engagement',  ic: '✨', label: 'Tương tác & lan toả',  desc: 'UGC · minigame · share · viral' },
+    { k: 'retention',   ic: '🔁', label: 'Giữ & kéo lại khách',  desc: 'repeat · AOV/CLV · winback · loyalty' },
   ];
-  let _occState = { occasion: '', ws: '', we: '', budget: '', baseline: '', goal: '', objective: '', brief: '', busy: false };
+  // Pha2b: lọc "thu gọn" theo archetype ngành — mục hợp hiện nổi bật, còn lại gom dưới "Mục đích khác".
+  const ARCHETYPE_PRIMARY_OBJ = {
+    impulse:        ['conversion', 'engagement', 'acquisition'],
+    demand_gen:     ['engagement', 'acquisition', 'conversion'],
+    trust_building: ['leadgen', 'brand', 'retention'],
+  };
+  let _occState = { occasion: '', ws: '', we: '', budget: '', baseline: '', goal: '', objective: '', objectiveCustom: '', brief: '', busy: false };
   // D-044b: ví dụ chỉ tiêu khác nhau theo mục đích đã chọn — tránh nhầm "mục đích" với "mục tiêu"
   const OCC_GOAL_EX = {
     acquisition: 'vd: 300 lead mới, reach 50.000',
     conversion:  'vd: 500 đơn, doanh thu 150 triệu',
+    leadgen:     'vd: 200 lead, 50 lịch hẹn tư vấn',
     brand:       'vd: 100.000 reach/impression, 5.000 follow mới',
+    engagement:  'vd: 2.000 lượt tương tác, 500 lượt share, 300 người chơi minigame',
     retention:   'vd: 200 đơn khách cũ quay lại, CLV +10%',
   };
   function _occGoalPlaceholder(obj) {
@@ -2010,7 +2021,7 @@
   }
 
   function openOccasionWizard(preset) {
-    _occState = { occasion: preset || '', ws: '', we: '', budget: '', baseline: '', goal: '', objective: '', brief: '', busy: false };
+    _occState = { occasion: preset || '', ws: '', we: '', budget: '', baseline: '', goal: '', objective: '', objectiveCustom: '', brief: '', busy: false };
     let ov = document.getElementById('occWizard');
     if (!ov) {
       ov = document.createElement('div');
@@ -2022,7 +2033,13 @@
       ov.addEventListener('click', (e) => { if (e.target === ov) ov.classList.remove('show'); });
       // bắt input động trong wizard (lưu state, không re-render để giữ con trỏ)
       ov.addEventListener('input', (e) => {
-        const k = e.target.dataset.occfield; if (k) _occState[k] = e.target.value;
+        const k = e.target.dataset.occfield; if (!k) return;
+        _occState[k] = e.target.value;
+        // Pha2b: tự điền mục đích & nút chọn loại trừ nhau — gõ tự điền thì bỏ chọn nút.
+        if (k === 'objectiveCustom' && (e.target.value || '').trim()) {
+          _occState.objective = '';
+          ov.querySelectorAll('[data-act="occ-obj"]').forEach(c => c.classList.remove('on'));
+        }
       });
       ov.addEventListener('click', (e) => {
         const chip = e.target.closest('[data-act="occ-chip"]');
@@ -2032,10 +2049,20 @@
           ov.querySelectorAll('[data-act="occ-chip"]').forEach(c => c.classList.toggle('on', c === chip));
           return;
         }
+        const more = e.target.closest('[data-act="occ-more"]');
+        if (more) {   // bung/thu "Mục đích khác"
+          const box = ov.querySelector('#occObjMore');
+          if (box) { const open = box.style.display !== 'none'; box.style.display = open ? 'none' : ''; more.classList.toggle('on', !open); }
+          return;
+        }
         const obj = e.target.closest('[data-act="occ-obj"]');
-        if (obj) {   // toggle mục đích (chọn lại = bỏ → Max tự suy)
+        if (obj) {   // toggle mục đích (chọn lại = bỏ → Max tự suy); chọn nút thì xoá ô tự điền
           const k = obj.dataset.obj;
           _occState.objective = (_occState.objective === k) ? '' : k;
+          if (_occState.objective) {
+            _occState.objectiveCustom = '';
+            const ci = ov.querySelector('[data-occfield="objectiveCustom"]'); if (ci) ci.value = '';
+          }
           ov.querySelectorAll('[data-act="occ-obj"]').forEach(c =>
             c.classList.toggle('on', c.dataset.obj === _occState.objective));
           const goalInp = ov.querySelector('[data-occfield="goal"]');
@@ -2065,6 +2092,27 @@
     }
     const chips = (_lastOccasions || []).map(o =>
       `<button class="occ-chip ${S.occasion === o.name ? 'on' : ''}" data-act="occ-chip" data-occ="${E(o.name)}">${E(o.name)}${o.when ? ` · ${E(o.when)}` : ''}</button>`).join('');
+    // Pha2b: lọc "thu gọn" mục đích theo archetype ngành
+    const objBtn = (o) => `
+      <button class="occ-obj ${S.objective === o.k ? 'on' : ''}" data-act="occ-obj" data-obj="${o.k}">
+        <span class="occ-obj-ic">${o.ic}</span>
+        <span class="occ-obj-main"><b>${o.label}</b><small>${o.desc}</small></span>
+      </button>`;
+    const arche = (window.MOCK && window.MOCK.bizArchetype) || '';
+    const primKeys = ARCHETYPE_PRIMARY_OBJ[arche] || OCC_OBJECTIVES.map(o => o.k);
+    const primObjs = OCC_OBJECTIVES.filter(o => primKeys.includes(o.k));
+    const moreObjs = OCC_OBJECTIVES.filter(o => !primKeys.includes(o.k));
+    const customOn = !!(S.objectiveCustom || '').trim();
+    const objSection = `
+      <div class="occ-step"><label class="occ-lbl">2 · Mục đích đợt <span class="muted" style="font-weight:400">(định hình brief — trống thì Max tự suy)${arche ? ' · gợi ý hợp ngành bạn' : ''}</span></label>
+        <div class="occ-objs">${primObjs.map(objBtn).join('')}</div>
+        ${moreObjs.length ? `
+          <button class="occ-more" data-act="occ-more">Mục đích khác ▾</button>
+          <div id="occObjMore" class="occ-objs" style="display:none;margin-top:8px">${moreObjs.map(objBtn).join('')}</div>` : ''}
+        <label class="occ-sublbl" style="margin-top:10px">…hoặc tự mô tả mục đích riêng</label>
+        <input class="occ-inp ${customOn ? 'occ-custom-on' : ''}" data-occfield="objectiveCustom"
+          placeholder="vd: tuyển 50 cộng tác viên bán hàng, gom data khách quan tâm khoá học…" value="${E(S.objectiveCustom)}">
+      </div>`;
     body.innerHTML = `
       <div class="dir-banner" style="margin-bottom:14px">🧭 Đợt này <b>kế thừa la bàn + cách đánh</b> (pre-fill).
         Bạn nhập <b>lever</b> (dịp, window, ngân sách, baseline) — đây là cái khoá để chốt <b>SMART thật</b>. Mọi giá trị <b>bạn quyết</b>.</div>
@@ -2081,12 +2129,7 @@
           <input type="date" class="occ-inp" data-occfield="we" value="${E(S.we)}">
         </div></div>
 
-      <div class="occ-step"><label class="occ-lbl">2 · Mục đích đợt <span class="muted" style="font-weight:400">(định hình brief — trống thì Max tự suy)</span></label>
-        <div class="occ-objs">${OCC_OBJECTIVES.map(o => `
-          <button class="occ-obj ${S.objective === o.k ? 'on' : ''}" data-act="occ-obj" data-obj="${o.k}">
-            <span class="occ-obj-ic">${o.ic}</span>
-            <span class="occ-obj-main"><b>${o.label}</b><small>${o.desc}</small></span>
-          </button>`).join('')}</div></div>
+      ${objSection}
 
       <div class="occ-step"><label class="occ-lbl">3 · Lever (khoá SMART) <span class="muted" style="font-weight:400">— mục đích ở trên quyết LOẠI chỉ tiêu, đây là SỐ cụ thể</span></label>
         <label class="occ-sublbl">Ngân sách đợt</label>
@@ -2111,7 +2154,8 @@
     try {
       const r = await API.post('api/biz/occasion', {
         user_id: _bizUserId, occasion: S.occasion, window_start: S.ws, window_end: S.we,
-        budget: S.budget, baseline: S.baseline, goal: S.goal, objective: S.objective });
+        budget: S.budget, baseline: S.baseline, goal: S.goal, objective: S.objective,
+        objective_custom: S.objectiveCustom });
       const d = (r && r.draft) || {};
       S.busy = false;
       if (!d.brief) { renderOccWizard(); toast('Chưa lập được brief — cần có Chiến lược (T4) trước, hoặc thử lại.'); return; }
@@ -2125,7 +2169,8 @@
     try {
       const r = await API.post('api/biz/occasion/save', {
         user_id: _bizUserId, occasion: S.occasion, window_start: S.ws, window_end: S.we,
-        budget: S.budget, goal: S.goal, brief: S.brief, objective: S.objective });
+        budget: S.budget, goal: S.goal, brief: S.brief, objective: S.objective,
+        objective_custom: S.objectiveCustom });
       if (r.error) { toast(r.error); return; }
       const ov = document.getElementById('occWizard'); if (ov) ov.classList.remove('show');
       toast('✅ Đã lưu chiến dịch theo dịp');

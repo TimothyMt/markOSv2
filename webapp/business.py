@@ -197,6 +197,13 @@ async def biz_data(user_id=None) -> dict:
         latest.setdefault(r["skill_name"], r)
     out["bizLatest"]     = latest
     out["bizBrandVoice"] = _bv_dict(bv)
+    # M-D Pha2b: archetype mua hàng của ngành → FE lọc "mục đích đợt" hợp ngành (nguồn duy nhất ở frameworks/).
+    try:
+        from frameworks.industry_context import get_purchase_archetype
+        prof = out.get("bizProfile") or {}
+        out["bizArchetype"] = get_purchase_archetype((prof.get("industry") or "")) or ""
+    except Exception:
+        out["bizArchetype"] = ""
     return out
 
 
@@ -471,14 +478,16 @@ _occasion_cache: dict = {}
 OCCASION_OBJECTIVES = {
     "acquisition": "Kéo KHÁCH MỚI (demand-gen): nặng TOFU/MOFU, mở rộng reach, lead/CPL là KPI chính; offer hút thử.",
     "conversion":  "CHỐT ĐƠN (activation spike): nặng BOFU, ROAS/CPA/doanh số là KPI chính; offer mạnh, deadline gấp.",
-    "brand":       "ĐẨY NHẬN BIẾT (the long): reach/tần suất/nhớ thương hiệu, KHÔNG ép chốt; ưu tiên thông điệp định vị.",
-    "retention":   "GIỮ & TĂNG TẦN SUẤT khách CŨ: nhắm tệp đã mua, tăng repeat/AOV/CLV; ưu đãi loyalty, KHÔNG đốt ngân sách acquisition.",
+    "leadgen":     "THU LEAD / ĐẶT TƯ VẤN (high-consideration): mục tiêu là form/booking/lịch hẹn/demo, KPI = số lead, cost-per-lead, tỉ lệ đặt lịch — KHÔNG ép chốt đơn ngay; nuôi để sales theo sau.",
+    "brand":       "RA MẮT / PHỦ NHẬN BIẾT: launch sản phẩm hoặc phủ tệp mới; KPI = reach/tần suất/nhớ thương hiệu, KHÔNG ép chốt; ưu tiên thông điệp định vị.",
+    "engagement":  "TƯƠNG TÁC & LAN TOẢ (earned/viral): UGC, minigame/giveaway, share/tag bạn, livestream; KPI = reach earned, lượt tương tác/chia sẻ, người tham gia — KHÔNG lấy đơn hàng làm thước đo chính.",
+    "retention":   "GIỮ & KÉO LẠI khách CŨ: nhắm tệp đã mua (giữ active: repeat/AOV/CLV) và kéo lại khách đã rời (winback); ưu đãi loyalty, KHÔNG đốt ngân sách acquisition.",
 }
 
 
 async def occasion_draft(user_id=None, occasion: str = "", window_start: str = "",
                          window_end: str = "", budget: str = "", baseline: str = "",
-                         goal: str = "", objective: str = "") -> dict:
+                         goal: str = "", objective: str = "", objective_custom: str = "") -> dict:
     """M1.1 (D-043/044): sinh Campaign Brief cho 1 ĐỢT theo dịp — web-side 1 LLM call.
 
     Kế thừa Synthesis (la bàn) + Tactical (cách đánh) + industry (mùa vụ/archetype)
@@ -506,13 +515,24 @@ async def occasion_draft(user_id=None, occasion: str = "", window_start: str = "
         usp = prof.get("usp") or ""
         has_base = bool((baseline or "").strip())
         obj_key = (objective or "").strip().lower()
-        obj_hint = OCCASION_OBJECTIVES.get(obj_key, "")
+        obj_custom = (objective_custom or "").strip()
+        # Pha2b: mục đích tự điền ưu tiên > nút chọn. KHÔNG ép phân loại — đưa nguyên văn cho LLM diễn giải.
+        if obj_custom:
+            obj_hint = (f"FOUNDER TỰ MÔ TẢ mục đích đợt: «{obj_custom}». Đây là mục đích chính — "
+                        "tự suy loại KPI/tầng phễu/offer phù hợp với mô tả này + archetype ngành; "
+                        "nếu mô tả mơ hồ thì chọn cách hiểu hợp dịp + giai đoạn roadmap.")
+        else:
+            obj_hint = OCCASION_OBJECTIVES.get(obj_key, "")
+        # Pha2b: archetype ngành → brief bám đúng bản chất mua hàng (vd trust-building KHÔNG flash-chốt-đơn).
+        from frameworks.industry_context import get_purchase_archetype, ARCHETYPE_LABEL
+        arche = get_purchase_archetype(industry) or ""
+        arche_label = ARCHETYPE_LABEL.get(arche, arche)
         horizon = (extra.get("horizon") if isinstance(extra, dict) else "") or ""
         posture = (extra.get("posture") if isinstance(extra, dict) else "") or ""
         # M5-B1: trước đây key KHÔNG băm synthesis → đổi chiến lược, brief đợt vẫn cũ.
         # Thêm chữ ký nguồn (synth+tact+wedge+usp+ngành+horizon+posture) vào key.
         src_fp = _strategy_fp(synth, tact, wedge, usp, industry, horizon, posture)
-        cache_key = f"{uid}:{src_fp}:{hash((occasion, window_start, window_end, budget, baseline, goal, obj_key))}"
+        cache_key = f"{uid}:{src_fp}:{hash((occasion, window_start, window_end, budget, baseline, goal, obj_key, obj_custom))}"
         if cache_key in _occasion_cache:
             return _occasion_cache[cache_key]
         ictx = ""
@@ -546,14 +566,20 @@ async def occasion_draft(user_id=None, occasion: str = "", window_start: str = "
             "## 4. Phân bổ ngân sách đợt (theo pha)\n"
             "## 5. Lưu ý nhất quán (đợt này có lệch wedge/định vị chính không? — nhắc nhẹ nếu có)\n\n"
             f"🔴 SMART: {base_rule}\n"
-            "🔴 MỤC ĐÍCH đợt (nếu founder chọn) định hình TRỌNG TÂM phễu + KPI + loại offer của "
-            "cả arc — bám đúng, đừng lệch sang mục đích khác.\n"
+            "🔴 MỤC ĐÍCH đợt (nếu founder chọn/tự mô tả) định hình TRỌNG TÂM phễu + KPI + loại offer "
+            "của cả arc — bám đúng, đừng lệch sang mục đích khác. KPI ở mục 3 phải ĐÚNG LOẠI với mục "
+            "đích (vd thu lead → số lead/CPL/lịch hẹn; tương tác → reach/share/người tham gia; chốt "
+            "đơn → doanh số/ROAS), KHÔNG mặc định lấy đơn hàng.\n"
+            "🔴 ARCHETYPE ngành quyết bản chất mua: trust_building (ticket lớn, cân nhắc cao) thì đợt "
+            "KHÔNG ép 'flash chốt đơn' — hướng thu lead/đặt tư vấn/nuôi; impulse thì đẩy chốt nhanh "
+            "được; demand_gen thì khơi desire + tương tác. Nếu mục đích founder chọn nghịch archetype "
+            "→ vẫn theo founder nhưng NHẮC ở mục 5.\n"
             "🔴 Bám đúng dịp + mùa vụ + văn hoá ngành. Tôn trọng wedge/USP founder đã chọn "
             "(nếu lever cho thấy đợt nhắm tệp khác → vẫn làm theo founder, chỉ NHẮC ở mục 5). "
             "KHÔNG bịa số ngoài lever/baseline."
         )
         user = (
-            f"# Ngành\n{industry}\n{ictx}\n\n"
+            f"# Ngành\n{industry} — Archetype mua: {arche_label or '(chưa rõ)'}\n{ictx}\n\n"
             f"# Wedge (tệp ưu tiên — la bàn)\n{wedge or '(chưa chọn)'}\n"
             f"# USP\n{usp or '(chưa rõ)'}\n\n"
             f"# Lever ĐỢT NÀY\n- Dịp: {occasion}\n- Window: {window_start or '?'} → {window_end or '?'}\n"
@@ -571,7 +597,7 @@ async def occasion_draft(user_id=None, occasion: str = "", window_start: str = "
         out = {"brief": brief, "occasion": occasion,
                "window_start": window_start, "window_end": window_end,
                "budget": budget, "baseline": baseline, "has_baseline": has_base,
-               "objective": obj_key}
+               "objective": obj_key, "objective_custom": obj_custom}
         _occasion_cache[cache_key] = out
         return out
     except Exception as e:
@@ -581,7 +607,7 @@ async def occasion_draft(user_id=None, occasion: str = "", window_start: str = "
 
 async def save_occasion(user_id=None, occasion: str = "", window_start: str = "",
                         window_end: str = "", budget: str = "", goal: str = "",
-                        brief: str = "", objective: str = "") -> dict:
+                        brief: str = "", objective: str = "", objective_custom: str = "") -> dict:
     """M1.1 (D-044): lưu Campaign Brief đợt → skill_runs (occasion_brief) + campaigns.
 
     Tái dùng hạ tầng có sẵn (skill_runs cho doc-reader/patch; campaigns cho record),
@@ -602,8 +628,10 @@ async def save_occasion(user_id=None, occasion: str = "", window_start: str = ""
         run_id = (run or {}).get("id")
         prof = await profiles.get_profile(uid) or {}
         obj = (objective or "").strip().lower()
-        # primary_goal = WHY tag (mục đích) nếu founder chọn, fallback goal cụ thể
-        primary_goal = (obj if obj in OCCASION_OBJECTIVES else "") or (goal or "").strip() or None
+        obj_custom = (objective_custom or "").strip()
+        # primary_goal: ưu tiên mục đích tự điền > WHY tag (nút) > goal cụ thể
+        primary_goal = (obj_custom[:120] or (obj if obj in OCCASION_OBJECTIVES else "")
+                        or (goal or "").strip() or None)
         camp = await campaigns_v2.create_campaign(
             uid,
             name=occasion.strip(),
