@@ -117,3 +117,18 @@ Cốt lõi: tách **"bài đã duyệt"** khỏi **"ô gợi ý sinh ra"**.
 - Verify: ast/import OK; node --check OK; unit test _normalize/_pillar_id/_post_key + mô phỏng
   reconcile (đổi tên+cadence KHÔNG mất bài; trụ xoá → orphan) PASS.
 - CHƯA làm: kéo-thả gán lại orphan (pha C); gợi ý LLM tự match (Q3 để sau).
+
+## 9. M-E2 — Topic-first trong lịch (2026-06-23, founder chốt B + 2 pha)
+Bối cảnh: modal cũ bắt chọn Chủ đề + Góc khai thác + Hook ngang hàng → rối/lệch pha.
+Đọc bot (`POST_BATCH_SYSTEM`/`CONTENT_CALENDAR_SYSTEM`): **content angle KẾ THỪA từ funnel/pillar**
+(không tự bốc mỗi bài), **framework LLM tự chọn**, **hook là biến per-bài**; topic là cột cụ thể
+sinh theo theme tuần × pillar × phễu. → Áp: tối ưu NGAY trong lịch, không thêm trang trung gian.
+- **Pha 1 (modal)**: Chủ đề = ô text sửa-được (điền sẵn topic cụ thể) + chip gợi ý; Góc khai thác =
+  kế thừa `value_lens` của trụ (phụ, đổi nếu cần); Hook giữ (mặc định Tự động). slot-gen đọc ô topic.
+- **Pha 2 (sinh loạt topic)**: `gen_calendar_topics` — 1 call LLM, mỗi pillar 1 list chủ đề cụ thể
+  (= ppw×tuần, trần 12), tiến triển TOFU→BOFU, bám USP/ngành/wedge, không lặp. Lưu
+  `intake_extra.calendar_topics` (pillarId→[topic]). `calendar_plan` gán topic thứ k cho lần xuất
+  hiện thứ k của pillar (thiếu → fallback angle). Nút "✨ Gợi ý chủ đề cả lịch" + API
+  `calendar/topics`. Ô đã duyệt (M-E) giữ nguyên — topic sinh chỉ điền ô trống.
+- Verify: ast/import/node --check OK; unit test map+assign theo index + occurrence PASS.
+- Để sau: sinh 3 biến thể hook + recommend (như bot); backlog kéo-thả (pha C).

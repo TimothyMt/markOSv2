@@ -207,6 +207,13 @@ async def biz_calendar_post_archive(request):
     return JSONResponse(res, status_code=400 if "error" in res else 200)
 
 
+async def biz_calendar_topics(request):
+    """M-E Pha 2 — Max sinh loạt chủ đề cụ thể cho always-on (lưu intake_extra.calendar_topics)."""
+    d = await request.json()
+    res = await biz.gen_calendar_topics(d.get("user_id"))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
 async def biz_content_derive(request):
     """M3.1 — sinh biến thể từ 1 bài gốc (đa kênh/video/UGC), lưu skill_run."""
     d = await request.json()
@@ -414,6 +421,7 @@ def api_routes() -> list:
         Route("/api/biz/pillars-lock",             biz_pillars_lock,   methods=["POST"]),
         Route("/api/biz/calendar/post-save",       biz_calendar_post_save, methods=["POST"]),
         Route("/api/biz/calendar/post-archive",    biz_calendar_post_archive, methods=["POST"]),
+        Route("/api/biz/calendar/topics",          biz_calendar_topics, methods=["POST"]),
         Route("/api/biz/campaign-plan",            biz_campaign_plan,  methods=["GET"]),
         Route("/api/biz/occasion",                 biz_occasion_draft, methods=["POST"]),
         Route("/api/biz/occasion/save",            biz_occasion_save,  methods=["POST"]),

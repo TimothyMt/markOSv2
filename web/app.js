@@ -1301,6 +1301,7 @@
           <button class="${_calView==='plan'?'on':''}" data-act="cal-view" data-view="plan">Kế hoạch tháng</button>
           <button class="${_calView==='week'?'on':''}" data-act="cal-view" data-view="week">Chi tiết tuần</button>
         </div>
+        ${_realCal ? `<button class="ghost-line" data-act="gen-topics">✨ Gợi ý chủ đề cả lịch</button>` : ''}
         <button class="ghost-line" data-act="add-campaign-occasion">🎯 Tạo campaign theo dịp</button>`;
     },
     render: () => `
@@ -1974,13 +1975,15 @@
     ov.querySelector('h3').textContent = `${_slotWhen(slot)} — ${slot.pillar || 'Always-on'}`;
     const lensDef = slot.value_lens || '';
     const lensList = VALUE_LENSES.includes(lensDef) || !lensDef ? VALUE_LENSES : [lensDef, ...VALUE_LENSES];
+    // Pha 1: chủ đề = ô text sửa được (điền sẵn topic cụ thể), kèm chip gợi ý; góc khai thác = kế thừa từ trụ.
+    const topicDef = slot.topic || (angles[0] || slot.title || '');
     ov.querySelector('.modal-body').innerHTML = `
-      <p class="muted" style="margin:0 0 10px">Chọn <b>💡 chủ đề</b> cho bài này, rồi để Max viết:</p>
-      <div class="angle-pick">${angles.map((a, i) =>
-        `<label class="radio-row"><input type="radio" name="slotAngle" value="${i}" ${i === 0 ? 'checked' : ''}> ${E(a)}</label>`).join('')}
-      </div>
+      <p class="muted" style="margin:0 0 8px"><b>💡 Chủ đề</b> bài này (sửa thoải mái) — Max viết theo:</p>
+      <input id="slotTopic" class="slot-topic" value="${E(topicDef)}" placeholder="vd: 3 sai lầm khi chọn nhà cung cấp khiến mất tiền oan">
+      ${angles.length ? `<div class="topic-chips">${angles.map(a =>
+        `<button class="topic-chip" data-act="topic-pick" data-topic="${encodeURIComponent(a)}">${E(a)}</button>`).join('')}</div>` : ''}
       <div class="slot-axes">
-        <label class="slot-axis"><span>Góc khai thác</span>
+        <label class="slot-axis"><span>Góc khai thác <small class="muted">· kế thừa từ trụ</small></span>
           <select id="slotLens">${lensList.map(l => `<option ${l === lensDef ? 'selected' : ''}>${E(l)}</option>`).join('')}</select></label>
         <label class="slot-axis"><span>Cách mở (hook)</span>
           <select id="slotHook">${HOOK_STYLES.map(h => `<option>${E(h)}</option>`).join('')}</select></label>
@@ -2390,11 +2393,16 @@
       catch (e) { toast('Không mở được thẻ'); }
       return;
     }
-    if (act === 'slot-gen') {   // tạo bài từ chủ đề đã chọn (gọi được cả khi "Tạo lại")
+    if (act === 'topic-pick') {   // Pha 1: bấm chip gợi ý → điền vào ô chủ đề
+      const box = document.getElementById('slotTopic');
+      if (box) { try { box.value = decodeURIComponent(el.dataset.topic || ''); } catch (e) { box.value = el.dataset.topic || ''; } box.focus(); }
+      return;
+    }
+    if (act === 'slot-gen') {   // tạo bài từ chủ đề (ô text sửa được; gọi được cả khi "Tạo lại")
       const ov = document.getElementById('bizModal'); if (!ov || !_slotCtx) return;
-      const pick = ov.querySelector('input[name="slotAngle"]:checked');
-      const idx = pick ? (+pick.value || 0) : 0;
-      const angle = (_slotCtx.angles && _slotCtx.angles[idx]) || _slotCtx.title || '';
+      const angle = ((ov.querySelector('#slotTopic') || {}).value || '').trim()
+        || _slotCtx.topic || _slotCtx.title || '';
+      if (!angle) { toast('Nhập chủ đề bài'); return; }
       const value_lens = (ov.querySelector('#slotLens') || {}).value || _slotCtx.value_lens || '';
       const hook_style = (ov.querySelector('#slotHook') || {}).value || '';
       const orig = el.textContent; el.disabled = true; el.textContent = '⏳ Đang viết…';
@@ -2437,6 +2445,17 @@
         const ov = document.getElementById('bizModal'); if (ov) ov.classList.remove('show');
         toast('Đã bỏ bài — ô về trạng thái gợi ý'); await refreshBiz(); route();
       } catch (e) { toast('Không bỏ được — thử lại sau.'); }
+      return;
+    }
+    if (act === 'gen-topics') {   // Pha 2: Max sinh loạt chủ đề cụ thể cho cả lịch
+      if (!apiAvailable || !M.bizEnabled) { toast('Bật backend để Max gợi ý chủ đề'); return; }
+      const orig = el.textContent; el.disabled = true; el.textContent = '⏳ Max đang nghĩ chủ đề…';
+      try {
+        const r = await API.post('api/biz/calendar/topics', { user_id: _bizUserId });
+        if (r.error) { toast(r.error); el.disabled = false; el.textContent = orig; return; }
+        toast(`✨ Đã gợi ý ${r.topics || ''} chủ đề — ô đã duyệt giữ nguyên`);
+        await loadRealCalendar();
+      } catch (e) { toast('Không gợi ý được — thử lại sau.'); el.disabled = false; el.textContent = orig; }
       return;
     }
     if (act === 'orphan-archive') {   // M-E (Q4): chuyển bài orphan sang Tài liệu

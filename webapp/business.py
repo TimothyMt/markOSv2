@@ -390,6 +390,82 @@ async def save_calendar_post(user_id=None, slot_key: str = "", content: str = ""
         return {"error": str(e)}
 
 
+async def gen_calendar_topics(user_id=None) -> dict:
+    """M-E Pha 2: Max sinh LOẠT chủ đề cụ thể cho always-on (mỗi pillar 1 danh sách phủ horizon),
+    bám USP/ngành/wedge + tiến triển TOFU→BOFU, KHÔNG lặp. Lưu intake_extra.calendar_topics
+    (dict pillarId → [topic...]). calendar_plan gán topic thứ k cho lần xuất hiện thứ k của pillar.
+    Tham khảo bot content_calendar (topic cụ thể theo theme tuần × pillar × phễu)."""
+    if not available():
+        return {"error": "Chưa cấu hình Supabase."}
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {"error": "Chưa có user."}
+        plan = await campaign_plan(uid)
+        pillars = (plan or {}).get("pillars") or []
+        if not pillars:
+            return {"error": "Chưa có tuyến nền — chốt chiến lược (và chốt pillars) trước."}
+        from storage.v2 import profiles
+        prof = await profiles.get_profile(uid) or {}
+        extra = prof.get("intake_extra") if isinstance(prof.get("intake_extra"), dict) else {}
+        industry = prof.get("industry") or ""
+        usp = prof.get("usp") or ""
+        wedge = (extra.get("wedge") if isinstance(extra, dict) else "") or ""
+        hz = (extra.get("horizon") if isinstance(extra, dict) else "") or ""
+        weeks = _HORIZON_WEEKS.get(str(hz or ""), 4)
+        synth = await _latest_content(uid, "synthesis")
+        # số chủ đề cần/pillar = ppw × tuần, trần 12 (đủ đa dạng, không phình token)
+        specs = []
+        for i, p in enumerate(pillars):
+            n = min(_ppw(p.get("posts_per_week")) * weeks, 12)
+            specs.append((i, _pillar_id(p), p, max(n, 3)))
+        from tools.llm_router import call as router_call, TaskType
+        import json as _json
+        plist = "\n".join(
+            f"{i+1}. Trụ «{p.get('name','')}» (vai: {p.get('role','')[:80]}; phễu: {p.get('funnel','')}; "
+            f"góc: {p.get('value_lens','')}) → cần {n} chủ đề"
+            for (i, _pid, p, n) in specs)
+        system = (
+            "Bạn là Content Strategist. Với mỗi content pillar (always-on), sinh DANH SÁCH chủ đề "
+            "bài viết CỤ THỂ (không phải góc khai thác chung chung) cho founder Việt Nam.\n"
+            "🔴 Mỗi chủ đề = 1 ý bài rõ ràng, viết được ngay (6-14 từ), KHÁC NHAU hoàn toàn (không lặp ý).\n"
+            "🔴 Tiến triển theo phễu trong danh sách: đầu list nghiêng nhận biết/giá trị (TOFU), "
+            "giữa list bằng chứng/so sánh (MOFU), cuối list gần chuyển đổi (BOFU) — hợp VAI + GÓC của trụ.\n"
+            "🔴 Bám USP + ngành + tệp ưu tiên (wedge). TIẾNG VIỆT tự nhiên, cụ thể (nêu được tình huống/đối "
+            "tượng), KHÔNG generic kiểu 'Mẹo hay mỗi ngày'. KHÔNG markdown.\n"
+            'Output JSON DUY NHẤT: {"pillars":[{"topics":["...","..."]}]} — mảng "pillars" ĐÚNG THỨ TỰ '
+            "và ĐÚNG SỐ chủ đề yêu cầu cho từng trụ ở trên."
+        )
+        user = (f"# Ngành\n{industry}\n# USP\n{usp or '(chưa rõ)'}\n# Wedge\n{wedge or '(chưa chọn)'}\n"
+                f"# Horizon\n{weeks} tuần\n\n# CÁC TRỤ + SỐ CHỦ ĐỀ CẦN\n{plist}\n\n"
+                f"# Chiến lược (tham chiếu)\n{synth[:1800]}")
+        res = await router_call(task_type=TaskType.INTAKE_JSON, system=system, user=user, max_tokens=1800)
+        raw = (res or {}).get("output", "").strip()
+        raw = re.sub(r'^```(?:json)?\s*', '', raw)
+        raw = re.sub(r'\s*```\s*$', '', raw).strip()
+        data = _json.loads(raw)
+        arr = data.get("pillars") or []
+        topics_map, total = {}, 0
+        for (i, pid, p, n) in specs:
+            tlist = []
+            if i < len(arr) and isinstance(arr[i], dict):
+                tlist = [str(t)[:160] for t in (arr[i].get("topics") or []) if str(t).strip()]
+            if tlist:
+                topics_map[pid] = tlist[:12]
+                total += len(topics_map[pid])
+        if not topics_map:
+            return {"error": "Max chưa sinh được chủ đề — thử lại."}
+        if not isinstance(extra, dict):
+            extra = {}
+        extra["calendar_topics"] = topics_map
+        await profiles.upsert_profile(uid, intake_extra=extra)
+        return {"ok": True, "pillars": len(topics_map), "topics": total}
+    except Exception as e:
+        logger.warning("biz.gen_calendar_topics failed: %s", e)
+        return {"error": str(e)}
+
+
 async def archive_calendar_post(user_id=None, slot_key: str = "") -> dict:
     """M-E (Q4): chuyển 1 bài orphan sang Tài liệu (skill_runs 'calendar_post') rồi gỡ khỏi lịch.
     Để bài đã duyệt không kẹt ở khay khi trụ/đợt liên quan bị bỏ."""
@@ -1059,6 +1135,11 @@ async def calendar_plan(user_id=None) -> dict:
 
         # Always-on từ pillars đã chốt (M4(2)) — rải theo NHỊP (posts_per_week) suốt HORIZON.
         # Mỗi trụ xuất hiện posts_per_week lần/tuần; angles xoay theo tuần cho đa dạng.
+        # Pha 2: nếu có calendar_topics (Max sinh sẵn) → gán chủ đề CỤ THỂ theo lần xuất hiện.
+        topics_map = (_extra or {}).get("calendar_topics") or {}
+        if not isinstance(topics_map, dict):
+            topics_map = {}
+        occ = {}   # đếm lần xuất hiện mỗi pillar (để lấy topic thứ k)
         always = []
         if pillars:
             weekly = []                      # 1 phần tử = 1 slot/tuần (lặp theo nhịp trụ)
@@ -1071,12 +1152,16 @@ async def calendar_plan(user_id=None) -> dict:
                 for idx, p in enumerate(weekly):
                     pid = p["_pid"]
                     angles = p.get("angles") or []
-                    title = (angles[(idx + w) % len(angles)] if angles
-                             else (p.get("role") or p.get("name") or "Bài brand"))
+                    k = occ.get(pid, 0); occ[pid] = k + 1
+                    tlist = topics_map.get(pid) or []
+                    topic = (tlist[k % len(tlist)] if tlist
+                             else (angles[(idx + w) % len(angles)] if angles
+                                   else (p.get("role") or p.get("name") or "Bài brand")))
                     pname = p.get("name") or "Pillar"
                     key = f"aw|{pid}|{w}|{day_of[idx]}"
                     slot = {"week": w, "day": day_of[idx], "pillar": pname, "pillarId": pid,
-                            "title": title, "angles": [str(a) for a in (p.get("angles") or [])][:6],
+                            "title": topic, "topic": topic,
+                            "angles": [str(a) for a in (p.get("angles") or [])][:6],
                             "funnel": p.get("funnel") or "", "framework": p.get("framework") or "",
                             "value_lens": p.get("value_lens") or "",
                             "track": "always", "key": key}
