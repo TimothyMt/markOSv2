@@ -86,3 +86,34 @@ Cốt lõi: tách **"bài đã duyệt"** khỏi **"ô gợi ý sinh ra"**.
       bài↔pillar mới)? → đề xuất: tự xử trước; gợi ý LLM để pha sau.
 - [ ] Q4: Khi orphan vì pillar bị bỏ — giữ trong khay vô thời hạn hay có nút "lưu vào Tài liệu"
       để không kẹt ở lịch? → đề xuất: có nút chuyển sang Tài liệu.
+
+## 7. ĐÃ CHỐT (2026-06-23) — founder duyệt
+- Q1 = **B** (nâng bài-đã-duyệt thành thẻ hạng nhất, nền cho C).
+- Q2 = **uuid** ngắn cho pillarId (ổn định khi đổi tên).
+- Q3 = founder **tự xử** orphan (gán/xoá) trước; gợi ý LLM để pha sau.
+- Q4 = **có nút** chuyển orphan sang Tài liệu.
+
+### Thiết kế chốt theo quyết định
+- pillarId = `uuid.uuid4().hex[:8]`, cấp ở `save_pillars` (giữ id cũ nếu FE gửi lại).
+- key thẻ ổn định: always `aw|{pillarId}|{week}|{day}`, occasion `oc|{campaignId}|{phase}`.
+  value = `{content, approved, track, ref:{pillarId|campaignId,phase}, place:{week,day,phase}}`.
+- Render = **inject theo ref+place**: pillar/campaign còn tồn tại → hiện thẻ tại đúng vị trí (kể cả
+  grid gợi ý không sinh ô đó vì đổi cadence); ref KHÔNG còn → `orphan` → khay.
+- Migration mềm: đọc được key cũ (`aw|w|d|name`, `oc|cid|phase`, value phẳng) tại render — match
+  name→pillarId hiện có; không match → orphan. Không xoá dữ liệu cũ.
+- Orphan tray (FE): banner "N bài cần xếp lại" + mỗi thẻ có [Xoá] + [Chuyển sang Tài liệu].
+  Kéo-thả gán lại = pha C (sau).
+- API mới: `calendar/post-archive` (chuyển orphan → skill_runs 'calendar_post' rồi gỡ khỏi lịch).
+- Phạm vi đợt này: nền dữ liệu + inject + orphan tray + an toàn-không-mất. CHƯA kéo-thả.
+
+## 8. ĐÃ TRIỂN KHAI (2026-06-23)
+- Backend: `_short_uuid` + `save_pillars` cấp `id` (giữ nếu re-lock). `_pillar_id`/`_normalize_saved`/
+  `_post_key`. `save_calendar_post` → schema thẻ (ref+place), key ổn định, migration dọn key cũ.
+  `calendar_plan` chuẩn hoá bài lưu → index → khớp ô gợi ý → INJECT thẻ lệch (đổi cadence/tên/thứ tự,
+  còn trong horizon) → phần còn lại = `orphans[]`. `archive_calendar_post` (Q4) → Tài liệu.
+  API: `post-save` +track/pillar_id/campaign_id/phase/week/day; route mới `calendar/post-archive`.
+- FE: always slot mang `pillarId`; `_slotSaveRef()` gửi ref+place khi lưu/bỏ; khay `calOrphanTray()`
+  + handler `orphan-archive`/`orphan-del`; CSS `.cal-orphans`. Mirror app.js ↔ standalone.
+- Verify: ast/import OK; node --check OK; unit test _normalize/_pillar_id/_post_key + mô phỏng
+  reconcile (đổi tên+cadence KHÔNG mất bài; trụ xoá → orphan) PASS.
+- CHƯA làm: kéo-thả gán lại orphan (pha C); gợi ý LLM tự match (Q3 để sau).

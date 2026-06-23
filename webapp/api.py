@@ -190,10 +190,20 @@ async def biz_calendar_gen(request):
 
 
 async def biz_calendar_post_save(request):
-    """M-C(t1) — lưu/duyệt bài đã sửa tại ô lịch (intake_extra.calendar_posts)."""
+    """M-E (nâng từ M-C) — lưu/duyệt bài tại ô lịch dưới dạng thẻ (ref ổn định + place)."""
     d = await request.json()
     res = await biz.save_calendar_post(d.get("user_id"), d.get("slot_key", ""),
-                                       d.get("content", ""), bool(d.get("delete")))
+                                       d.get("content", ""), bool(d.get("delete")),
+                                       d.get("track", ""), d.get("pillar_id", ""),
+                                       d.get("campaign_id", ""), d.get("phase", ""),
+                                       d.get("week"), d.get("day"))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_calendar_post_archive(request):
+    """M-E (Q4) — chuyển bài orphan sang Tài liệu (skill_runs) rồi gỡ khỏi lịch."""
+    d = await request.json()
+    res = await biz.archive_calendar_post(d.get("user_id"), d.get("slot_key", ""))
     return JSONResponse(res, status_code=400 if "error" in res else 200)
 
 
@@ -403,6 +413,7 @@ def api_routes() -> list:
         Route("/api/biz/synthesis-approve",        biz_synthesis_approve, methods=["POST"]),
         Route("/api/biz/pillars-lock",             biz_pillars_lock,   methods=["POST"]),
         Route("/api/biz/calendar/post-save",       biz_calendar_post_save, methods=["POST"]),
+        Route("/api/biz/calendar/post-archive",    biz_calendar_post_archive, methods=["POST"]),
         Route("/api/biz/campaign-plan",            biz_campaign_plan,  methods=["GET"]),
         Route("/api/biz/occasion",                 biz_occasion_draft, methods=["POST"]),
         Route("/api/biz/occasion/save",            biz_occasion_save,  methods=["POST"]),

@@ -17,8 +17,14 @@ import logging
 import os
 import re
 import time
+import uuid
 
 logger = logging.getLogger(__name__)
+
+
+def _short_uuid() -> str:
+    """M-E: id ổn định ngắn cho pillar (giữ liên kết bài-đã-duyệt khi đổi tên trụ)."""
+    return uuid.uuid4().hex[:8]
 
 # AI agent jobs (in-memory — đủ nhẹ để nhét vào full_state cho SSE đẩy live)
 _jobs: dict[str, dict] = {}
@@ -299,6 +305,8 @@ async def save_pillars(user_id=None, pillars=None) -> dict:
                 if not isinstance(p, dict):
                     continue
                 clean.append({
+                    # M-E: id ổn định — giữ nếu FE gửi lại (re-lock), cấp mới nếu chưa có.
+                    "id": str(p.get("id") or "")[:16] or _short_uuid(),
                     "name": str(p.get("name") or "")[:120],
                     "role": str(p.get("role") or "")[:240],
                     "funnel": str(p.get("funnel") or "")[:40],
@@ -318,14 +326,26 @@ async def save_pillars(user_id=None, pillars=None) -> dict:
         return {"error": str(e)}
 
 
+def _post_key(track: str, pillar_id: str, campaign_id: str, phase: str,
+              week, day) -> str:
+    """M-E: key thẻ ỔN ĐỊNH — always theo pillarId (đổi tên trụ không mất), occasion theo
+    campaignId+phase. Vị trí (week/day) là phần founder tự đặt (kéo-thả ở pha C)."""
+    if (track or "") == "camp":
+        return f"oc|{campaign_id}|{phase}"
+    return f"aw|{pillar_id}|{week}|{day}"
+
+
 async def save_calendar_post(user_id=None, slot_key: str = "", content: str = "",
-                             delete: bool = False) -> dict:
-    """M-C(t1): lưu/duyệt bài ĐÃ SỬA ngay tại ô lịch → intake_extra.calendar_posts[slot_key].
-    delete=True → bỏ bài đã lưu (quay lại trạng thái trống). Bài lưu = nguồn sự thật của ô đó."""
+                             delete: bool = False, track: str = "", pillar_id: str = "",
+                             campaign_id: str = "", phase: str = "",
+                             week=None, day=None) -> dict:
+    """M-E (nâng từ M-C): lưu/duyệt bài tại ô lịch dưới dạng THẺ HẠNG NHẤT.
+
+    value = {content, approved, track, ref:{pillarId|campaignId,phase}, place:{week,day,phase}}.
+    key ổn định (_post_key) → đổi tên trụ / đổi cadence / đổi thứ tự KHÔNG mất bài (render
+    inject theo ref+place). delete=True → gỡ thẻ. slot_key = key cũ (back-compat / migration)."""
     if not available():
         return {"error": "Chưa cấu hình Supabase."}
-    if not (slot_key or "").strip():
-        return {"error": "Thiếu slot_key."}
     try:
         await ensure_client()
         uid = await pick_user_id(user_id)
@@ -339,17 +359,66 @@ async def save_calendar_post(user_id=None, slot_key: str = "", content: str = ""
         posts = extra.get("calendar_posts") or {}
         if not isinstance(posts, dict):
             posts = {}
+        tr = (track or "").strip() or "always"
+        # key ổn định từ field cấu trúc; fallback slot_key (gọi cũ / migration)
+        has_struct = bool((pillar_id or campaign_id))
+        key = _post_key(tr, pillar_id, campaign_id, phase, week, day) if has_struct else (slot_key or "").strip()
+        if not key:
+            return {"error": "Thiếu thông tin ô (key)."}
         if delete:
-            posts.pop(slot_key, None)
+            posts.pop(key, None)
+            if slot_key and slot_key != key:
+                posts.pop(slot_key, None)   # dọn cả key cũ nếu khác
         else:
             if not (content or "").strip():
                 return {"error": "Bài trống — không lưu."}
-            posts[slot_key] = {"content": content[:6000], "approved": True}
+            def _int(v):
+                try: return int(v)
+                except Exception: return None
+            ref = ({"campaignId": str(campaign_id), "phase": str(phase or "")} if tr == "camp"
+                   else {"pillarId": str(pillar_id)})
+            posts[key] = {"content": content[:6000], "approved": True, "track": tr,
+                          "ref": ref, "place": {"week": _int(week), "day": _int(day),
+                                                "phase": str(phase or "")}}
+            if slot_key and slot_key != key:
+                posts.pop(slot_key, None)   # migration: bỏ bản key cũ trùng ô
         extra["calendar_posts"] = posts
         row = await profiles.upsert_profile(uid, intake_extra=extra)
         return {"ok": True, "saved": len(posts), "profile": row}
     except Exception as e:
         logger.warning("biz.save_calendar_post failed: %s", e)
+        return {"error": str(e)}
+
+
+async def archive_calendar_post(user_id=None, slot_key: str = "") -> dict:
+    """M-E (Q4): chuyển 1 bài orphan sang Tài liệu (skill_runs 'calendar_post') rồi gỡ khỏi lịch.
+    Để bài đã duyệt không kẹt ở khay khi trụ/đợt liên quan bị bỏ."""
+    if not available():
+        return {"error": "Chưa cấu hình Supabase."}
+    if not (slot_key or "").strip():
+        return {"error": "Thiếu slot_key."}
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {"error": "Chưa có user."}
+        from storage.v2 import profiles, skill_runs
+        cur = await profiles.get_profile(uid) or {}
+        extra = cur.get("intake_extra") or {}
+        if not isinstance(extra, dict):
+            extra = {}
+        posts = extra.get("calendar_posts") or {}
+        entry = posts.get(slot_key) if isinstance(posts, dict) else None
+        content = (entry or {}).get("content") if isinstance(entry, dict) else None
+        if not (content or "").strip():
+            return {"error": "Không tìm thấy bài để chuyển."}
+        await skill_runs.insert_skill_run(uid, "calendar_post", content, model_used="web-calendar-archive")
+        posts.pop(slot_key, None)
+        extra["calendar_posts"] = posts
+        await profiles.upsert_profile(uid, intake_extra=extra)
+        return {"ok": True, "archived": True}
+    except Exception as e:
+        logger.warning("biz.archive_calendar_post failed: %s", e)
         return {"error": str(e)}
 
 
@@ -864,6 +933,44 @@ def _occasion_beats(sd: str, ed: str, anchor) -> list:
     return beats
 
 
+def _pillar_id(p: dict) -> str:
+    """M-E: id dùng cho key/ref. Locked pillar có uuid; bản sinh (chưa chốt) → slug từ tên."""
+    pid = str((p or {}).get("id") or "").strip()
+    if pid:
+        return pid
+    return "n_" + (re.sub(r'[^a-z0-9]+', '', str((p or {}).get("name") or "pillar").lower())[:12] or "pillar")
+
+
+def _normalize_saved(key: str, val, pillars_by_name: dict) -> dict | None:
+    """M-E: chuẩn hoá 1 entry calendar_posts về thẻ {track,pillarId,campaignId,phase,week,day,content}.
+    Đọc cả schema MỚI (có ref/place) lẫn key CŨ (aw|w|d|name, oc|cid|phase, value phẳng) → migration mềm."""
+    if not isinstance(val, dict):
+        return None
+    content = (val.get("content") or "").strip()
+    if not content:
+        return None
+    # schema mới
+    if isinstance(val.get("ref"), dict):
+        ref = val["ref"]; place = val.get("place") or {}
+        tr = val.get("track") or ("camp" if ref.get("campaignId") else "always")
+        return {"track": tr, "pillarId": str(ref.get("pillarId") or ""),
+                "campaignId": str(ref.get("campaignId") or ""), "phase": str(ref.get("phase") or place.get("phase") or ""),
+                "week": place.get("week"), "day": place.get("day"), "content": content, "key": key}
+    # key cũ
+    parts = (key or "").split("|")
+    if parts and parts[0] == "oc" and len(parts) >= 3:
+        return {"track": "camp", "pillarId": "", "campaignId": parts[1], "phase": parts[2],
+                "week": None, "day": None, "content": content, "key": key}
+    if parts and parts[0] == "aw" and len(parts) >= 4:
+        # aw|week|day|name → match name → pillarId hiện tại
+        try: wk, dy = int(parts[1]), int(parts[2])
+        except Exception: wk, dy = None, None
+        name = "|".join(parts[3:])
+        pid = _pillar_id(pillars_by_name[name]) if name in pillars_by_name else ""
+        return {"track": "always", "pillarId": pid, "campaignId": "", "phase": "",
+                "week": wk, "day": dy, "content": content, "key": key}
+    return None
+
 
 async def calendar_plan(user_id=None) -> dict:
     """M1.2: ghép lịch 2-track THẬT = always-on pillars (D-040) + occasion bands (window thật).
@@ -885,15 +992,35 @@ async def calendar_plan(user_id=None) -> dict:
         # M-A: span lịch = horizon đã chọn ở gate (30/60/90 ngày → tuần); auto/khác = 4.
         from storage.v2 import profiles as _profiles
         _prof = await _profiles.get_profile(uid) or {}
-        _hz = ((_prof.get("intake_extra") or {}).get("horizon")) if isinstance(_prof.get("intake_extra"), dict) else ""
+        _extra = _prof.get("intake_extra") if isinstance(_prof.get("intake_extra"), dict) else {}
+        _hz = (_extra or {}).get("horizon")
         horizon_weeks = _HORIZON_WEEKS.get(str(_hz or ""), 4)
-        saved_posts = (_prof.get("intake_extra") or {}).get("calendar_posts") or {}
-        if not isinstance(saved_posts, dict):
-            saved_posts = {}
+        saved_raw = (_extra or {}).get("calendar_posts") or {}
+        if not isinstance(saved_raw, dict):
+            saved_raw = {}
+
+        # M-E: pillars trước (cần để chuẩn hoá bài đã lưu + phát hiện orphan).
+        plan = await campaign_plan(uid)
+        pillars = (plan or {}).get("pillars") or []
+        for p in pillars:
+            if isinstance(p, dict):
+                p["_pid"] = _pillar_id(p)
+        pillars_by_name = {str(p.get("name") or ""): p for p in pillars if isinstance(p, dict)}
+        pillars_by_id = {p["_pid"]: p for p in pillars if isinstance(p, dict)}
+
+        # M-E: chuẩn hoá bài đã lưu thành thẻ (migration mềm key cũ) + index theo ref+place.
+        cards = [c for c in (_normalize_saved(k, v, pillars_by_name) for k, v in saved_raw.items()) if c]
+        idx_always, idx_camp = {}, {}
+        for c in cards:
+            if c["track"] == "camp":
+                idx_camp[(c["campaignId"], c["phase"])] = c
+            else:
+                idx_always[(c["pillarId"], c["week"], c["day"])] = c
+        consumed = set()   # storage-key của thẻ ĐÃ đặt lên lịch (phần còn lại = orphan)
 
         from storage.v2 import campaigns_v2
         camps_raw = await campaigns_v2.list_campaigns_v2(uid, limit=30)
-        bands = []
+        bands, bands_by_cid, camp_ids = [], {}, set()
         max_week = horizon_weeks
         for i, c in enumerate(camps_raw or []):
             sd, ed = c.get("start_date"), c.get("end_date")
@@ -907,7 +1034,8 @@ async def calendar_plan(user_id=None) -> dict:
             color = _CAL_COLORS[i % len(_CAL_COLORS)]
             name = c.get("name") or "Đợt"
             offer = c.get("offer_lever") or ""
-            cid = c.get("id")
+            cid = str(c.get("id"))
+            camp_ids.add(cid)
             # M-D Pha 3: beat theo Story Arc 5 pha (đợt ≤1 tuần → 3 pha) thay vì 3 bài generic.
             beats = _occasion_beats(sd, ed, anchor)
             if not beats:                       # fallback an toàn nếu parse lỗi
@@ -918,20 +1046,19 @@ async def calendar_plan(user_id=None) -> dict:
                 post = {"week": bt["week"], "day": bt["day"], "phase": bt["phase"],
                         "icon": bt["icon"], "hint": bt["hint"],
                         "title": f"{bt['icon']} {bt['phase']} — {name}", "key": key}
-                sp = saved_posts.get(key)
-                if isinstance(sp, dict) and (sp.get("content") or "").strip():
-                    post["saved"] = True
-                    post["post"] = sp["content"]
+                card = idx_camp.get((cid, bt["phase"]))
+                if card:
+                    post["saved"] = True; post["post"] = card["content"]
+                    consumed.add(card["key"])
                 posts.append(post)
-            bands.append({"name": name, "occasion": c.get("primary_goal") or "đợt",
-                          "offer": offer or "ưu đãi đợt", "color": color,
-                          "fromWeek": fw, "toWeek": tw, "posts": posts,
-                          "campaignId": c.get("id"), "briefRunId": c.get("brief_skill_run_id")})
+            band = {"name": name, "occasion": c.get("primary_goal") or "đợt",
+                    "offer": offer or "ưu đãi đợt", "color": color,
+                    "fromWeek": fw, "toWeek": tw, "posts": posts,
+                    "campaignId": c.get("id"), "briefRunId": c.get("brief_skill_run_id")}
+            bands.append(band); bands_by_cid[cid] = band
 
         # Always-on từ pillars đã chốt (M4(2)) — rải theo NHỊP (posts_per_week) suốt HORIZON.
         # Mỗi trụ xuất hiện posts_per_week lần/tuần; angles xoay theo tuần cho đa dạng.
-        plan = await campaign_plan(uid)
-        pillars = (plan or {}).get("pillars") or []
         always = []
         if pillars:
             weekly = []                      # 1 phần tử = 1 slot/tuần (lặp theo nhịp trụ)
@@ -942,26 +1069,62 @@ async def calendar_plan(user_id=None) -> dict:
             day_of = _assign_days(len(weekly))
             for w in range(1, max_week + 1):
                 for idx, p in enumerate(weekly):
+                    pid = p["_pid"]
                     angles = p.get("angles") or []
                     title = (angles[(idx + w) % len(angles)] if angles
                              else (p.get("role") or p.get("name") or "Bài brand"))
                     pname = p.get("name") or "Pillar"
-                    key = f"aw|{w}|{day_of[idx]}|{pname}"
-                    slot = {"week": w, "day": day_of[idx], "pillar": pname, "title": title,
-                            "angles": [str(a) for a in (p.get("angles") or [])][:6],
+                    key = f"aw|{pid}|{w}|{day_of[idx]}"
+                    slot = {"week": w, "day": day_of[idx], "pillar": pname, "pillarId": pid,
+                            "title": title, "angles": [str(a) for a in (p.get("angles") or [])][:6],
                             "funnel": p.get("funnel") or "", "framework": p.get("framework") or "",
                             "value_lens": p.get("value_lens") or "",
                             "track": "always", "key": key}
-                    sp = saved_posts.get(key)
-                    if isinstance(sp, dict) and (sp.get("content") or "").strip():
-                        slot["saved"] = True
-                        slot["post"] = sp["content"]
+                    card = idx_always.get((pid, w, day_of[idx]))
+                    if card:
+                        slot["saved"] = True; slot["post"] = card["content"]
+                        consumed.add(card["key"])
                     always.append(slot)
 
-        if not bands and not always:
+        # M-E: INJECT thẻ đã duyệt chưa khớp ô gợi ý (đổi cadence/thứ tự) — trụ còn tồn tại,
+        # vị trí trong horizon → hiện đúng chỗ, KHÔNG mất. Ngoài horizon / trụ mất → orphan.
+        for c in cards:
+            if c["key"] in consumed:
+                continue
+            if c["track"] == "always":
+                p = pillars_by_id.get(c["pillarId"])
+                w, d = c["week"], (c["day"] if c["day"] is not None else 0)
+                if p and isinstance(w, int) and 1 <= w <= max_week:
+                    always.append({"week": w, "day": d, "pillar": p.get("name") or "Pillar",
+                                   "pillarId": c["pillarId"], "title": (p.get("role") or p.get("name") or "Bài brand"),
+                                   "angles": [str(a) for a in (p.get("angles") or [])][:6],
+                                   "funnel": p.get("funnel") or "", "framework": p.get("framework") or "",
+                                   "value_lens": p.get("value_lens") or "", "track": "always",
+                                   "key": c["key"], "saved": True, "post": c["content"]})
+                    consumed.add(c["key"])
+            else:
+                band = bands_by_cid.get(c["campaignId"])
+                if band and isinstance(c["week"], int):
+                    band["posts"].append({"week": c["week"], "day": (c["day"] if c["day"] is not None else 0),
+                                          "phase": c["phase"] or "Đợt", "icon": "📌", "hint": "bài đã duyệt",
+                                          "title": f"📌 {c['phase'] or 'Đợt'} — {band['name']}",
+                                          "key": c["key"], "saved": True, "post": c["content"]})
+                    consumed.add(c["key"])
+
+        # M-E: phần còn lại = orphan (trụ/đợt đã bị bỏ, hoặc ngoài horizon) → khay, KHÔNG mất.
+        orphans = []
+        for c in cards:
+            if c["key"] in consumed:
+                continue
+            orphans.append({"key": c["key"], "track": c["track"],
+                            "content": c["content"], "excerpt": c["content"][:160],
+                            "label": ("Always-on" if c["track"] == "always" else "Đợt"),
+                            "reason": "Trụ/đợt liên quan đã đổi hoặc bị bỏ — xếp lại hoặc lưu vào Tài liệu."})
+
+        if not bands and not always and not orphans:
             return {}   # chưa có gì thật → FE giữ mock
         return {"days": ["T2", "T3", "T4", "T5", "T6", "T7", "CN"],
-                "weeks": max_week, "alwaysOn": always, "campaigns": bands,
+                "weeks": max_week, "alwaysOn": always, "campaigns": bands, "orphans": orphans,
                 "horizon": str(_hz or "auto")}
     except Exception as e:
         logger.warning("biz.calendar_plan failed (non-fatal): %s", e)

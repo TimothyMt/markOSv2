@@ -1175,15 +1175,30 @@
   let _calView = 'plan';   // 'plan' (tháng) | 'week' (chi tiết tuần)
   let _calWeek = 1;        // tuần đang xem ở chế độ week
   let _realCal = null;     // M1.2: lịch THẬT (occasion bands + pillars) khi bizEnabled
-  const calPlan = () => _realCal || M.calendarPlan || { days: [], weeks: 0, alwaysOn: [], campaigns: [] };
+  const calPlan = () => _realCal || M.calendarPlan || { days: [], weeks: 0, alwaysOn: [], campaigns: [], orphans: [] };
   async function loadRealCalendar() {
     if (!apiAvailable || !M.bizEnabled) { _realCal = null; return; }
     try {
       const r = await API.get('api/biz/calendar' + bizQuery());
       const c = r && r.calendar;
-      _realCal = (c && (c.campaigns || c.alwaysOn)) ? c : null;
+      _realCal = (c && (c.campaigns || c.alwaysOn || c.orphans)) ? c : null;
       if (_realCal) route();   // re-render với dữ liệu thật
     } catch (e) { _realCal = null; }
+  }
+  // M-E: khay "Bài chưa xếp lịch" — bài đã duyệt mà trụ/đợt đổi/bị bỏ; KHÔNG mất, founder xử.
+  function calOrphanTray() {
+    const orphans = (calPlan().orphans) || [];
+    if (!orphans.length) return '';
+    const E = s => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return `<div class="cal-orphans">
+      <div class="cal-orphans-head">⚠️ ${orphans.length} bài đã duyệt cần xếp lại
+        <span class="muted">— trụ/đợt liên quan đã đổi hoặc bị bỏ. Bài KHÔNG mất: lưu vào Tài liệu hoặc bỏ.</span></div>
+      ${orphans.map(o => `<div class="cal-orphan">
+        <div class="cal-orphan-meta"><b>${E(o.label || 'Bài')}</b> · <span class="muted">${E(o.excerpt || '')}…</span></div>
+        <div class="cal-orphan-acts">
+          <button class="ghost-line sm" data-act="orphan-archive" data-key="${encodeURIComponent(o.key)}">📁 Lưu vào Tài liệu</button>
+          <button class="ghost-line sm" data-act="orphan-del" data-key="${encodeURIComponent(o.key)}">🗑 Bỏ</button>
+        </div></div>`).join('')}</div>`;
   }
   const campActiveWeek = (w) => (calPlan().campaigns || []).filter(c => w >= c.fromWeek && w <= c.toWeek);
   // Bài campaign cộng thêm trong 1 (tuần, ngày)
@@ -1299,6 +1314,7 @@
         <span><i class="lg camp"></i> 🔴 Campaign theo dịp — bài đẩy offer, CỘNG THÊM lên nền trong đúng đợt</span>
         <span class="cal-arc-legend">Đợt chạy theo Story Arc: 🌱 Teaser → 🔥 Build-up → 🚀 Peak → ⏰ Last-call → 💌 After (đợt ngắn gộp 3 pha)</span>
       </div>
+      ${calOrphanTray()}
       ${_calView === 'plan' ? calPlanView() : calWeekView()}`,
     mount: () => { loadRealCalendar(); },
   };
@@ -1933,6 +1949,13 @@
 
   // ── Lịch: thẻ tương tác — chọn 💡 chủ đề → tạo bài → duyệt ──
   let _slotCtx = null;
+  // M-E: payload ref+place gửi khi lưu/bỏ bài (key ổn định tính ở backend).
+  function _slotSaveRef() {
+    const s = _slotCtx || {};
+    return { slot_key: s.key || '', track: s.track || 'always',
+             pillar_id: s.pillarId || '', campaign_id: s.campaignId || '',
+             phase: s.phase || '', week: s.week, day: s.day };
+  }
   const _DAYNAMES = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
   function _ensureBizModal() { showModal('', '', null); return document.getElementById('bizModal'); }
   // M-D Pha 2: 2 trục soạn bài — Góc khai thác (value lens) × Cách mở (hook style)
@@ -2392,14 +2415,14 @@
       if (box) { try { await navigator.clipboard.writeText(box.value); toast('📋 Đã copy'); } catch (e) { toast('Không copy được'); } }
       return;
     }
-    if (act === 'slot-save') {   // t1: lưu & duyệt bài (đã sửa) ngay tại ô
+    if (act === 'slot-save') {   // M-E: lưu & duyệt bài dưới dạng thẻ (ref ổn định + place)
       const box = document.getElementById('slotEditBox');
       const content = box ? box.value : '';
       if (!content.trim()) { toast('Bài trống'); return; }
       if (!_slotCtx || !_slotCtx.key) { toast('Thiếu thông tin ô'); return; }
       const orig = el.textContent; el.disabled = true; el.textContent = '⏳ Đang lưu…';
       try {
-        const r = await API.post('api/biz/calendar/post-save', { user_id: _bizUserId, slot_key: _slotCtx.key, content });
+        const r = await API.post('api/biz/calendar/post-save', { user_id: _bizUserId, ..._slotSaveRef(), content });
         if (r.error) { toast(r.error); el.disabled = false; el.textContent = orig; return; }
         const ov = document.getElementById('bizModal'); if (ov) ov.classList.remove('show');
         toast('✓ Đã lưu & duyệt — ghim tại ô'); await refreshBiz(); route();
@@ -2409,10 +2432,29 @@
     if (act === 'slot-unsave') {   // bỏ bài đã lưu → ô về trạng thái trống
       if (!_slotCtx || !_slotCtx.key) return;
       try {
-        const r = await API.post('api/biz/calendar/post-save', { user_id: _bizUserId, slot_key: _slotCtx.key, delete: true });
+        const r = await API.post('api/biz/calendar/post-save', { user_id: _bizUserId, ..._slotSaveRef(), delete: true });
         if (r.error) { toast(r.error); return; }
         const ov = document.getElementById('bizModal'); if (ov) ov.classList.remove('show');
         toast('Đã bỏ bài — ô về trạng thái gợi ý'); await refreshBiz(); route();
+      } catch (e) { toast('Không bỏ được — thử lại sau.'); }
+      return;
+    }
+    if (act === 'orphan-archive') {   // M-E (Q4): chuyển bài orphan sang Tài liệu
+      const key = decodeURIComponent(el.dataset.key || ''); if (!key) return;
+      el.disabled = true;
+      try {
+        const r = await API.post('api/biz/calendar/post-archive', { user_id: _bizUserId, slot_key: key });
+        if (r.error) { toast(r.error); el.disabled = false; return; }
+        toast('📁 Đã lưu vào Tài liệu'); await loadRealCalendar(); refreshBiz();
+      } catch (e) { toast('Không lưu được — thử lại sau.'); el.disabled = false; }
+      return;
+    }
+    if (act === 'orphan-del') {   // M-E: bỏ hẳn bài orphan
+      const key = decodeURIComponent(el.dataset.key || ''); if (!key) return;
+      try {
+        const r = await API.post('api/biz/calendar/post-save', { user_id: _bizUserId, slot_key: key, delete: true });
+        if (r.error) { toast(r.error); return; }
+        toast('Đã bỏ bài'); await loadRealCalendar(); refreshBiz();
       } catch (e) { toast('Không bỏ được — thử lại sau.'); }
       return;
     }
