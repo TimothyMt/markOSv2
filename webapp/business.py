@@ -808,23 +808,31 @@ async def occasion_draft(user_id=None, occasion: str = "", window_start: str = "
             "Teaser (hé lộ) → Build-up (nuôi) → Peak (ngày dịp, đẩy mạnh) → Last-call (chốt gấp) "
             "→ After (hậu mãi/winback). Mỗi pha bám archetype ngành + tầng phễu (TOFU hút mới → "
             "BOFU chốt).\n\n"
-            "Xuất MARKDOWN gồm các mục:\n"
-            "## 1. Mục tiêu SMART (đợt này)\n"
-            "## 2. Arc 5 pha theo timeline (bảng: Pha | Thời gian | Mục tiêu pha | Kênh | Góc copy)\n"
-            "## 3. KPI cần theo dõi (có target nếu có baseline)\n"
-            "## 4. Phân bổ ngân sách đợt (theo pha)\n"
-            "## 5. Lưu ý nhất quán (đợt này có lệch wedge/định vị chính không? — nhắc nhẹ nếu có)\n\n"
+            "Brief tốt = team không cần hỏi lại 1 câu để bắt đầu. Xuất MARKDOWN gồm:\n"
+            "## 1. Big idea & Key message\n"
+            "1 BIG IDEA xuyên suốt đợt (concept, KHÔNG phải tagline) + Key message (điều khách phải nhớ sau đợt).\n"
+            "## 2. Tệp nhắm + insight ngầm\n"
+            "Demographic + psychographic + pain cốt lõi + 1 insight ngầm dẫn dắt creative.\n"
+            "## 3. Mục tiêu SMART (đợt này)\n"
+            "## 4. Arc 5 pha theo timeline (bảng: Pha | Thời gian | Mục tiêu pha | Kênh | Góc copy)\n"
+            "## 5. Creative direction\n"
+            "Tone & visual mood (bối cảnh VN) + Do's/Don'ts cụ thể + 3 HOOK ANGLE để A/B test.\n"
+            "## 6. Offer & cơ chế urgency\n"
+            "Offer chính (từ lever, KHÔNG bịa) + cách tạo urgency THẬT (không fake — khách VN nhận ra ngay).\n"
+            "## 7. KPI cần theo dõi (đúng loại theo mục đích; có target nếu có baseline)\n"
+            "## 8. Phân bổ ngân sách đợt (theo pha)\n"
+            "## 9. Rủi ro & dự phòng + Lưu ý nhất quán (2-3 rủi ro + plan B; đợt có lệch wedge/định vị chính không?)\n\n"
             f"🔴 SMART: {base_rule}\n"
             "🔴 MỤC ĐÍCH đợt (nếu founder chọn/tự mô tả) định hình TRỌNG TÂM phễu + KPI + loại offer "
-            "của cả arc — bám đúng, đừng lệch sang mục đích khác. KPI ở mục 3 phải ĐÚNG LOẠI với mục "
+            "của cả arc — bám đúng, đừng lệch sang mục đích khác. KPI (mục 7) phải ĐÚNG LOẠI với mục "
             "đích (vd thu lead → số lead/CPL/lịch hẹn; tương tác → reach/share/người tham gia; chốt "
             "đơn → doanh số/ROAS), KHÔNG mặc định lấy đơn hàng.\n"
             "🔴 ARCHETYPE ngành quyết bản chất mua: trust_building (ticket lớn, cân nhắc cao) thì đợt "
             "KHÔNG ép 'flash chốt đơn' — hướng thu lead/đặt tư vấn/nuôi; impulse thì đẩy chốt nhanh "
             "được; demand_gen thì khơi desire + tương tác. Nếu mục đích founder chọn nghịch archetype "
-            "→ vẫn theo founder nhưng NHẮC ở mục 5.\n"
+            "→ vẫn theo founder nhưng NHẮC ở mục 9.\n"
             "🔴 Bám đúng dịp + mùa vụ + văn hoá ngành. Tôn trọng wedge/USP founder đã chọn "
-            "(nếu lever cho thấy đợt nhắm tệp khác → vẫn làm theo founder, chỉ NHẮC ở mục 5). "
+            "(nếu lever cho thấy đợt nhắm tệp khác → vẫn làm theo founder, chỉ NHẮC ở mục 9). "
             "KHÔNG bịa số ngoài lever/baseline."
         )
         user = (
@@ -841,7 +849,7 @@ async def occasion_draft(user_id=None, occasion: str = "", window_start: str = "
             f"# Tactical Playbook (cách đánh)\n{(tact or '(chưa có)')[:2000]}"
         )
         res = await router_call(task_type=TaskType.OPS_BRIEF, system=system,
-                                user=user, max_tokens=2600)
+                                user=user, max_tokens=3200)
         brief = (res or {}).get("output", "").strip()
         if not brief:
             return {}
@@ -1154,10 +1162,17 @@ async def retention_draft(user_id=None, mode: str = "retention", cycle: str = ""
             "## 1. Bảng cẩm nang theo tình huống\n"
             "Bảng cột: Tình huống khách (DẤU HIỆU founder tự nhận biết bằng mắt) | Nên làm gì | "
             "Kênh (owned: Zalo/SMS/gọi/email) | Tin nhắn mẫu (copy sẵn dùng được, đúng giọng ngành)\n"
-            "→ phủ các giai đoạn vòng đời hợp mode. Dấu hiệu phải CỤ THỂ, đời thường "
-            "(vd 'mua đều rồi ~3 tuần không quay lại'), KHÔNG phải thuật ngữ RFM.\n"
-            "## 2. KPI tự theo dõi thủ công (repeat/AOV/tỉ lệ quay lại — cách đếm mộc, không cần phần mềm)\n"
-            "## 3. Mẹo nhịp & ưu tiên (làm gì trước với nguồn lực nhỏ)\n\n"
+            "→ PHỦ ĐỦ 4 trạng thái vòng đời (diễn đời thường, KHÔNG thuật ngữ RFM): khách MỚI (vừa mua "
+            "lần đầu) · đang ĐỀU (mua nhiều lần) · có dấu hiệu NGUỘI (đều rồi tự nhiên thưa) · đã RỜI lâu "
+            "(mất hút) — hợp mode đang chọn. Dấu hiệu CỤ THỂ (vd 'mua đều rồi ~3 tuần không quay lại').\n"
+            "## 2. Nhịp liên hệ theo chu kỳ ngành (lần 1 → 2 → 3)\n"
+            "Gợi ý mốc chạm sau mỗi lần mua theo CHU KỲ NGÀNH (vd spa 4-6 tuần: ngày 3 hỏi thăm → ngày 25 "
+            "nhắc lịch → ngày 35 ưu đãi; F&B 1-2 tuần; clinic/giáo dục dài hơn). Mỗi mốc: làm gì + kênh.\n"
+            "## 3. Loyalty/tier mộc (đếm tay được, không cần phần mềm)\n"
+            "2-4 bậc đơn giản (vd Mua-lần-đầu → Khách-quen → VIP) + điều kiện đếm tay + quyền lợi gợi ý "
+            "hợp ngành. Chỉ làm nếu hợp mode (winback có thể bỏ).\n"
+            "## 4. KPI tự theo dõi thủ công (repeat/AOV/tỉ lệ quay lại — cách đếm mộc, không cần phần mềm)\n"
+            "## 5. Mẹo nhịp & ưu tiên (làm gì trước với nguồn lực nhỏ)\n\n"
             "🔴 Ngưỡng thời gian (vd '3 tuần', '2 tháng') để dạng '≈ X× chu kỳ mua TB của ngành' "
             "+ nhãn '(ước tính — chỉnh theo thực tế)'. TUYỆT ĐỐI không bịa số đo lường chắc nịch.\n"
             "🔴 Bám USP/wedge + archetype ngành. Tin mẫu đúng văn hoá VN, ngắn, gửi được ngay."
@@ -1171,7 +1186,7 @@ async def retention_draft(user_id=None, mode: str = "retention", cycle: str = ""
             f"- Ưu đãi loyalty sẵn có: {offer or '(chưa có — gợi ý loại phù hợp)'}\n\n"
             f"# Chiến lược (Synthesis — la bàn)\n{synth[:2800]}"
         )
-        res = await router_call(task_type=TaskType.OPS_BRIEF, system=system, user=user, max_tokens=2600)
+        res = await router_call(task_type=TaskType.OPS_BRIEF, system=system, user=user, max_tokens=3000)
         brief = (res or {}).get("output", "").strip()
         if not brief:
             return {}
@@ -1724,11 +1739,41 @@ async def gen_content_asset(user_id=None, kind: str = "ads_copy") -> dict:
 _CAMPAIGN_TASK_GEN = {
     "calendar_post":       ("OPS_CONTENT_CREATIVE", 900,  "Viết 1 BÀI ĐĂNG mẫu organic cho đợt (hook + body + CTA), bám brief đợt + USP."),
     "post_channels":       ("CHANNEL_ADAPT",        1100, "Biến thông điệp đợt thành biến thể cho 3-4 kênh (FB/Zalo/TikTok/IG) — mỗi kênh đúng đặc tính."),
-    "video_script":        ("OPS_CONTENT_CREATIVE", 1100, "Viết KỊCH BẢN VIDEO ngắn (TikTok/Reels) cho đợt: hook 3 giây + phân cảnh + CTA."),
-    "ugc_brief":           ("OPS_BRIEF",            1100, "Viết BRIEF giao UGC/KOL cho đợt: mục tiêu, loại creator, thông điệp chính, do/don't, CTA, hashtag."),
-    "ads_copy":            ("OPS_CONTENT_CREATIVE", 1200, "Viết bộ ADS COPY theo phễu (TOFU/MOFU/BOFU) cho đợt: nhiều biến thể headline + body + CTA."),
-    "email_zalo_sequence": ("OPS_CONTENT_BULK",     1300, "Viết CHUỖI Email/Zalo cho đợt (3-5 chặng): mục tiêu mỗi chặng + tiêu đề + nội dung + CTA."),
-    "sales_inbox_script":  ("OPS_CONTENT_CREATIVE", 1100, "Viết KỊCH BẢN chốt inbox cho đợt: xử lý hỏi giá/chê đắt/so sánh + cách chốt."),
+    "video_script":        ("OPS_CONTENT_CREATIVE", 1500,
+        "Viết KỊCH BẢN VIDEO quay-được-ngay (TikTok/Reels/Shorts) cho đợt. Chọn FRAMEWORK theo pillar/funnel "
+        "(PAS=TOFU/educate · BAB=MOFU/before-after · AIDA=narrative · FAB=BOFU/chốt · Star-Story/Storytime=viral). "
+        "Viết LỜI THOẠI THẬT từng beat kèm timing (Xs) — TUYỆT ĐỐI không placeholder kiểu '[giới thiệu SP]'. "
+        "Hook ở đầu (1 trong 5 nhóm: tò mò/trái ngược/cảm xúc/chuyên gia/đồng cảm). Kèm: Visual direction (shot "
+        "list từng beat) + Music/SFX + Caption hook ≤125 ký tự + 8-12 hashtag VN (branded+niche+trending). "
+        "Proof chưa có data thật → ghi '[chèn review khách thật]', KHÔNG bịa số."),
+    "ugc_brief":           ("OPS_BRIEF",            1400,
+        "Viết CREATOR BRIEF giao UGC/KOL cho đợt — chi tiết tới mức creator không hỏi lại. Mỗi brief đủ 9 phần: "
+        "Creator Type (UGC micro 1K-50K / KOL 100K+ / EGC nhân viên / FGC khách cũ) · Platform · Objective · "
+        "Brand Voice (tone + từ nên/tránh) · Key Message (1-2 câu) · Content Requirements (cảnh quay/lời thoại "
+        "gợi ý/thời lượng/góc máy/ánh sáng/background) · Don'ts (claim sai, cách mention brand) · Hashtags 5-8 "
+        "(branded+niche+trending) · Disclosure (#ad). Specific quay-được-ngay (KHÔNG generic 'thể hiện tự nhiên'); "
+        "KPI realistic theo size (micro 3-5% ER, mid 2-3%, KOL 1-2%). KHÔNG budget/payment/deadline."),
+    "ads_copy":            ("OPS_CONTENT_CREATIVE", 1500,
+        "Viết bộ ADS COPY dùng-được-ngay cho đợt, theo phễu TOFU/MOFU/BOFU — mỗi tầng vài variant. Chọn framework "
+        "hợp tầng (AIDA/PAS=TOFU · BAB/4P=MOFU · FAB=BOFU · Star-Story=viral). Luật VN: 125 ký tự đầu là vàng; "
+        "MỞ bằng câu hỏi/statement chạm pain, KHÔNG mở bằng tên brand; tránh từ trigger spam ('miễn phí/khuyến "
+        "mãi/giảm giá') ở headline; 1-2 emoji; CTA cụ thể ('Inbox ngay' > 'Tìm hiểu thêm'); BOFU có deadline THẬT. "
+        "Mỗi variant dùng ≥1 emotion trigger (sợ mất/tự hào/cộng đồng/tò mò/kết quả cụ thể/đau ngầm). CẤM generic "
+        "kiểu 'sản phẩm chất lượng cao giá tốt'. Mỗi variant ghi rõ tầng phễu + framework + kênh."),
+    "email_zalo_sequence": ("OPS_CONTENT_BULK",     1600,
+        "Build CHUỖI nurture Email + Zalo OA cho đợt (3-5 chặng), mỗi chặng 1 mục tiêu rõ. Phân kênh: Email cho "
+        "long-form/B2B/khách >30t; Zalo OA cho short reminder/B2C. Tối đa 2-3 message/tuần (quá = spam). Mỗi chặng: "
+        "thời điểm gửi (ngày T+x) · kênh · mục tiêu · tiêu đề/dòng mở (Zalo) · nội dung đầy đủ · CTA · cá nhân hoá "
+        "(first_name + 1 field segment). Ghi rõ loại chuỗi (onboarding/re-engage/reactivation/upsell). Nội dung "
+        "viết thật, dùng được ngay; KHÔNG bịa số/ưu đãi không có thật."),
+    "sales_inbox_script":  ("OPS_CONTENT_CREATIVE", 1500,
+        "Viết KỊCH BẢN chat sales/inbox cho đợt — nhân viên ca mới đọc 1 lần là chốt được. Tone match đợt "
+        "(luxury formal / mass thân thiện-urgency / B2B value). 4 phần: (1) Opening (auto-reply 5 phút đầu + reply "
+        "manual: chào + 1 câu hỏi mở dẫn dắt) · (2) Discovery (3-5 câu hỏi flow, mỗi câu kèm vì sao hỏi + cách "
+        "handle) · (3) Recommendation (match offer theo câu trả lời + cách present nối lại pain) · (4) Handle "
+        "Objections — 3 cái phổ biến (giá đắt / để suy nghĩ / so sánh đối thủ): Acknowledge → Reframe value → "
+        "Alternative, kèm script cụ thể 3 dòng. Nguyên tắc: hỏi dẫn dắt (không liệt kê features), urgency THẬT, "
+        "soft close (VN dị ứng pressure mạnh). LỜI THOẠI cụ thể, có placeholder tên khách."),
     "landing_copy":        ("OPS_CONTENT_CREATIVE", 1400, "Viết NỘI DUNG LANDING PAGE cho đợt: headline + sub + 3-5 khối (vấn đề/giá trị/bằng chứng/ưu đãi/FAQ) + CTA rõ. Ghi gợi ý bố cục."),
     "seo_outline":         ("OPS_BRIEF",            1300, "Lập DÀN BÀI SEO cho đợt: 5-10 từ khoá (intent) + cụm chủ đề + outline H1/H2/H3 cho 1-2 bài trụ + meta title/description gợi ý."),
     "pr_pitch":            ("OPS_CONTENT_CREATIVE", 1200, "Viết BÀI PR / pitch báo chí cho đợt: góc tin (news angle) + tiêu đề + thân bài ~300-400 chữ + boilerplate + mẫu email gửi báo."),
