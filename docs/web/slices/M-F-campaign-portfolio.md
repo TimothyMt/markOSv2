@@ -127,3 +127,20 @@ task = { id, kind, label, status:'todo'|'draft'|'approved', run_id? }
 - Q6 = status task mức **badge đơn giản** (todo/draft/approved).
 
 → Cleared để code **Pha F1** (campaign_type 2 nhóm + tự-mô-tả; task checklist móc generator sẵn; UI bảng task).
+
+## 9. ĐÃ TRIỂN KHAI
+### F1a (2026-06-24) — chọn loại + playbook + lưu task
+- Backend: CAMPAIGN_TYPES (12, 2 nhóm) + CAMPAIGN_TASK_LABELS + campaign_types_list + _build_campaign_tasks.
+  occasion_draft(campaign_type=) default objective + playbook vào prompt. save_occasion lưu type+tasks
+  vào intake_extra.campaign_meta[cid]. biz_data trả bizCampaignMeta + bizCampaignTypes. API +campaign_type.
+- FE: wizard bước "1·Loại chiến dịch" (nhóm A/B + tự mô tả, loại trừ); pre-fill mục đích; task preview ở
+  review brief; renumber bước 1-4. Mirror + CSS.
+
+### F1b (2026-06-24) — bảng task + sinh deliverable + status
+- Backend: gen_campaign_task(cid,task_id) — content task → generator bám BRIEF ĐỢT (_CAMPAIGN_TASK_GEN);
+  action task → hướng dẫn + mẫu (_ACTION_TASK_GEN); lưu skill_run + set status=draft+run_id.
+  update_campaign_task(status) approve. API: campaign/task-gen, campaign/task-update.
+- FE: band campaign clickable → modal chi tiết; bảng task (✍️ content / 🔧 action) + status badge
+  (todo/draft/approved) + nút Tạo/Xem/Duyệt. Mirror app.js↔standalone + CSS.
+- Verify: ast/import/node --check OK; types=12, tasks đúng.
+- Còn (F2/F3): Max đề xuất danh mục từ roadmap (F2); generator mới landing/SEO/event + kanban (F3).

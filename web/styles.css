@@ -760,6 +760,16 @@ body.chat-mode #view { height: calc(100vh - 64px); }
   padding:8px 0; border-top:1px solid var(--stroke); }
 .cal-orphan-meta { font-size:12.5px; overflow:hidden; }
 .cal-orphan-acts { display:flex; gap:8px; flex:none; }
+/* M-F (F1b): bảng task chi tiết campaign */
+.band-camp.clickable { cursor:pointer; }
+.band-task-hint { opacity:.7; font-size:11px; }
+.camptask { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:9px 0; border-top:1px solid var(--stroke); }
+.camptask:first-of-type { border-top:none; }
+.camptask-main { font-size:13.5px; }
+.camptask-st { font-size:11px; margin-left:8px; padding:1px 7px; border-radius:10px; background:var(--panel-2); color:var(--muted); }
+.camptask-st.st-draft { background:rgba(224,161,6,.16); color:var(--amber,#e0a106); }
+.camptask-st.st-ok { background:rgba(34,160,90,.16); color:var(--green,#22a05a); }
+.camptask-acts { display:flex; gap:6px; flex:none; }
 .cal-post.saved { border-left-color:var(--green); background:color-mix(in srgb, var(--green) 6%, var(--panel)); }
 .slot-done { font-size:9.5px; font-weight:700; color:var(--green);
   background:color-mix(in srgb, var(--green) 16%, transparent); padding:1px 6px; border-radius:999px; margin-left:auto; }

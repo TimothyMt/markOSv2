@@ -1237,8 +1237,9 @@
   function calPlanView() {
     const P0 = calPlan(); const W = P0.weeks || 4;
     const bands = (P0.campaigns || []).map(c =>
-      `<div class="band-camp" style="grid-column:${c.fromWeek} / ${c.toWeek + 1}; --c:${c.color}">
-        <b>🔴 ${c.name}</b> ${(c.posts||[]).map(p=>p.icon||'').join('')} · 🎁 ${c.offer}</div>`).join('');
+      `<div class="band-camp clickable" style="grid-column:${c.fromWeek} / ${c.toWeek + 1}; --c:${c.color}"
+         data-act="camp-detail" data-camp-id="${c.campaignId||''}" title="Bấm xem chi tiết + việc cần làm">
+        <b>🔴 ${c.name}</b> ${(c.posts||[]).map(p=>p.icon||'').join('')} · 🎁 ${c.offer} <span class="band-task-hint">📋</span></div>`).join('');
     const weekRows = Array.from({ length: W }, (_, k) => {
       const w = k + 1; const camps = campActiveWeek(w);
       const campCount = camps.reduce((n, c) => n + (c.posts || []).filter(p => p.week === w).length, 0);
@@ -2033,6 +2034,43 @@
     trust_building: ['leadgen', 'brand', 'retention'],
   };
   let _occState = { occasion: '', ws: '', we: '', budget: '', baseline: '', goal: '', objective: '', objectiveCustom: '', campaignType: '', campaignTypeCustom: '', brief: '', busy: false };
+
+  // M-F (F1b): modal chi tiết campaign — bảng task móc generator + status.
+  let _campDetailId = null;
+  const _TASK_STATUS = { todo: ['Chưa làm', ''], draft: ['Bản nháp', 'st-draft'], approved: ['✓ Đã duyệt', 'st-ok'] };
+  function openCampDetail(cid) {
+    _campDetailId = cid;
+    const ov = _ensureBizModal();
+    renderCampDetail();
+    ov.classList.add('show');
+  }
+  function renderCampDetail() {
+    const ov = document.getElementById('bizModal'); if (!ov || _campDetailId == null) return;
+    const E = s => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const meta = ((window.MOCK && window.MOCK.bizCampaignMeta) || {})[String(_campDetailId)];
+    const camp = (calPlan().campaigns || []).find(c => String(c.campaignId) === String(_campDetailId)) || {};
+    ov.querySelector('h3').textContent = `${meta ? (meta.type_icon + ' ') : '🔴 '}${camp.name || 'Chiến dịch'}${meta ? ' · ' + meta.type_label : ''}`;
+    let bodyHtml;
+    if (!meta || !(meta.tasks || []).length) {
+      bodyHtml = `<p class="muted">Chiến dịch này chưa gắn <b>loại</b> nên chưa có việc cần làm. Tạo lại chiến dịch và chọn loại ở bước 1 để Max liệt kê task.</p>`;
+    } else {
+      const rows = meta.tasks.map(t => {
+        const st = _TASK_STATUS[t.status] || _TASK_STATUS.todo;
+        const act = t.is_action
+          ? `<button class="ghost-line sm" data-act="camptask-gen" data-task="${t.id}">${t.run_id ? '↻ Brief lại' : '🔧 Hướng dẫn'}</button>`
+          : `<button class="ghost-line sm" data-act="camptask-gen" data-task="${t.id}">${t.run_id ? '↻ Tạo lại' : '✍️ Tạo'}</button>`;
+        const view = t.run_id ? `<button class="ghost-line sm" data-act="camptask-view" data-run="${t.run_id}">Xem</button>` : '';
+        const appr = (t.run_id && t.status !== 'approved') ? `<button class="ghost-line sm" data-act="camptask-approve" data-task="${t.id}">Duyệt</button>` : '';
+        return `<div class="camptask">
+          <div class="camptask-main">${t.is_action ? '🔧' : '✍️'} ${E(t.label)}
+            <span class="camptask-st ${st[1]}">${st[0]}</span></div>
+          <div class="camptask-acts">${act}${view}${appr}</div></div>`;
+      }).join('');
+      bodyHtml = `<p class="muted" style="margin:0 0 10px">Việc cần làm cho đợt này — ✍️ Max tạo nội dung · 🔧 việc người làm (Max ra hướng dẫn).</p>${rows}`;
+    }
+    ov.querySelector('.modal-body').innerHTML = bodyHtml;
+    const foot = ov.querySelector('.modal-foot'); if (foot) { foot.style.display = 'none'; foot.innerHTML = ''; }
+  }
   // D-044b: ví dụ chỉ tiêu khác nhau theo mục đích đã chọn — tránh nhầm "mục đích" với "mục tiêu"
   const OCC_GOAL_EX = {
     acquisition: 'vd: 300 lead mới, reach 50.000',
@@ -2483,6 +2521,41 @@
         const ov = document.getElementById('bizModal'); if (ov) ov.classList.remove('show');
         toast('Đã bỏ bài — ô về trạng thái gợi ý'); await refreshBiz(); route();
       } catch (e) { toast('Không bỏ được — thử lại sau.'); }
+      return;
+    }
+    if (act === 'camp-detail') {   // M-F (F1b): mở chi tiết campaign + bảng task
+      const cid = el.dataset.campId || el.getAttribute('data-camp-id') || '';
+      if (cid) openCampDetail(cid);
+      return;
+    }
+    if (act === 'camptask-gen') {   // sinh deliverable / hướng dẫn cho 1 task
+      if (!apiAvailable || !M.bizEnabled) { toast('Bật backend để Max tạo'); return; }
+      const tid = el.dataset.task; if (!tid || _campDetailId == null) return;
+      const orig = el.textContent; el.disabled = true; el.textContent = '⏳ Max đang làm…';
+      try {
+        const r = await API.post('api/biz/campaign/task-gen', { user_id: _bizUserId, campaign_id: _campDetailId, task_id: tid });
+        if (r.error) { toast(r.error); el.disabled = false; el.textContent = orig; return; }
+        await refreshBiz();
+        showModal('✨ Kết quả deliverable', r.content, { run: true, id: r.run_id });
+        toast('✅ Đã tạo — đã lưu vào Tài liệu');
+      } catch (e) { toast('Không tạo được — thử lại sau.'); el.disabled = false; el.textContent = orig; }
+      return;
+    }
+    if (act === 'camptask-view') {   // xem deliverable đã sinh
+      const rid = el.dataset.run; if (!rid) return;
+      try {
+        const r = await API.get('api/biz/skillrun/' + rid);
+        showModal('Deliverable', (r && r.content) || '(trống)', { run: true, id: rid });
+      } catch (e) { toast('Không mở được'); }
+      return;
+    }
+    if (act === 'camptask-approve') {   // founder duyệt task
+      const tid = el.dataset.task; if (!tid || _campDetailId == null) return;
+      try {
+        const r = await API.post('api/biz/campaign/task-update', { user_id: _bizUserId, campaign_id: _campDetailId, task_id: tid, status: 'approved' });
+        if (r.error) { toast(r.error); return; }
+        await refreshBiz(); renderCampDetail(); toast('✓ Đã duyệt');
+      } catch (e) { toast('Không duyệt được'); }
       return;
     }
     if (act === 'gen-topics') {   // Pha 2: Max sinh loạt chủ đề cụ thể cho cả lịch

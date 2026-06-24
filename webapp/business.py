@@ -1509,6 +1509,121 @@ async def gen_content_asset(user_id=None, kind: str = "ads_copy") -> dict:
         return {"error": str(e)}
 
 
+# M-F (F1b): mỗi task của campaign → 1 generator bám CONTEXT ĐỢT (brief). Content task = deliverable;
+# action:* = hướng dẫn thực thi + mẫu cho người làm (Max KHÔNG thực thi ngoài đời).
+_CAMPAIGN_TASK_GEN = {
+    "calendar_post":       ("OPS_CONTENT_CREATIVE", 900,  "Viết 1 BÀI ĐĂNG mẫu organic cho đợt (hook + body + CTA), bám brief đợt + USP."),
+    "post_channels":       ("CHANNEL_ADAPT",        1100, "Biến thông điệp đợt thành biến thể cho 3-4 kênh (FB/Zalo/TikTok/IG) — mỗi kênh đúng đặc tính."),
+    "video_script":        ("OPS_CONTENT_CREATIVE", 1100, "Viết KỊCH BẢN VIDEO ngắn (TikTok/Reels) cho đợt: hook 3 giây + phân cảnh + CTA."),
+    "ugc_brief":           ("OPS_BRIEF",            1100, "Viết BRIEF giao UGC/KOL cho đợt: mục tiêu, loại creator, thông điệp chính, do/don't, CTA, hashtag."),
+    "ads_copy":            ("OPS_CONTENT_CREATIVE", 1200, "Viết bộ ADS COPY theo phễu (TOFU/MOFU/BOFU) cho đợt: nhiều biến thể headline + body + CTA."),
+    "email_zalo_sequence": ("OPS_CONTENT_BULK",     1300, "Viết CHUỖI Email/Zalo cho đợt (3-5 chặng): mục tiêu mỗi chặng + tiêu đề + nội dung + CTA."),
+    "sales_inbox_script":  ("OPS_CONTENT_CREATIVE", 1100, "Viết KỊCH BẢN chốt inbox cho đợt: xử lý hỏi giá/chê đắt/so sánh + cách chốt."),
+}
+_ACTION_TASK_GEN = ("OPS_BRIEF", 1000,
+    "Viết HƯỚNG DẪN THỰC THI + MẪU cho đầu việc này (các bước cụ thể + mẫu tin nhắn/checklist/yêu cầu) "
+    "để người của founder dùng ngay. KHÔNG hứa tự động làm hộ.")
+
+
+async def _campaign_meta(uid):
+    """Đọc intake_extra.campaign_meta (+ profile) — dùng chung cho gen/update task."""
+    from storage.v2 import profiles
+    prof = await profiles.get_profile(uid) or {}
+    extra = prof.get("intake_extra") if isinstance(prof.get("intake_extra"), dict) else {}
+    meta = (extra or {}).get("campaign_meta") or {}
+    return prof, (extra or {}), (meta if isinstance(meta, dict) else {})
+
+
+async def gen_campaign_task(user_id=None, campaign_id: str = "", task_id: str = "") -> dict:
+    """M-F (F1b): sinh deliverable cho 1 task của campaign (bám brief đợt). Lưu skill_run +
+    cập nhật status='draft'+run_id trong campaign_meta. action task → hướng dẫn + mẫu."""
+    if not available():
+        return {"error": "Chưa cấu hình Supabase."}
+    if not (campaign_id or "").strip() or not (task_id or "").strip():
+        return {"error": "Thiếu campaign_id/task_id."}
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {"error": "Chưa có user."}
+        from storage.v2 import profiles, skill_runs, campaigns_v2
+        prof, extra, meta = await _campaign_meta(uid)
+        cm = meta.get(str(campaign_id))
+        if not cm:
+            return {"error": "Không tìm thấy campaign."}
+        task = next((t for t in (cm.get("tasks") or []) if t.get("id") == task_id), None)
+        if not task:
+            return {"error": "Không tìm thấy task."}
+        kind = task.get("kind") or ""
+        # context đợt: tên + brief
+        camp = await campaigns_v2.get_campaign(str(campaign_id)) or {}
+        brief = ""
+        bid = camp.get("brief_skill_run_id")
+        if bid:
+            brief = (await skill_run_content(bid)).get("content") or ""
+        if not brief:
+            brief = camp.get("summary") or ""
+        strat = await skill_runs.get_latest_skill_run(uid, "synthesis") or {}
+        if kind.startswith("action:"):
+            task_name, max_tok, instruction = _ACTION_TASK_GEN
+        else:
+            task_name, max_tok, instruction = _CAMPAIGN_TASK_GEN.get(
+                kind, ("OPS_CONTENT_CREATIVE", 1000, "Viết deliverable bám brief đợt + USP."))
+        from tools.llm_router import call as router_call, TaskType
+        task_type = getattr(TaskType, task_name, TaskType.OPS_CONTENT_CREATIVE)
+        system = ("Bạn là chuyên gia content/marketing người Việt. " + instruction + "\n"
+                  "🔴 Bám BRIEF ĐỢT + USP + ngành; TIẾNG VIỆT tự nhiên; KHÔNG bịa số/khuyến mãi không có thật. "
+                  "Trả MARKDOWN gọn, dùng được ngay.")
+        user = (f"# Loại deliverable\n{task.get('label') or kind}\n"
+                f"# Ngành\n{prof.get('industry') or ''}\n# USP\n{prof.get('usp') or '(chưa rõ)'}\n"
+                f"# Khách mục tiêu\n{prof.get('target_customer') or '(chưa rõ)'}\n\n"
+                f"# BRIEF ĐỢT: {camp.get('name') or ''}\n{brief[:2200] or '(chưa có brief — bám chiến lược)'}\n\n"
+                f"# Chiến lược (tham chiếu)\n{(strat.get('content') or '')[:1200]}")
+        res = await router_call(task_type=task_type, system=system, user=user, max_tokens=max_tok)
+        content = (res or {}).get("output", "").strip()
+        if not content:
+            return {"error": "Chưa sinh được — thử lại."}
+        run = await skill_runs.insert_skill_run(uid, kind.replace(":", "_"), content, model_used="web-camptask")
+        rid = (run or {}).get("id")
+        task["run_id"] = rid
+        task["status"] = "draft"
+        extra["campaign_meta"] = meta
+        await profiles.upsert_profile(uid, intake_extra=extra)
+        return {"ok": True, "content": content, "run_id": rid, "kind": kind}
+    except Exception as e:
+        logger.warning("biz.gen_campaign_task failed: %s", e)
+        return {"error": str(e)}
+
+
+async def update_campaign_task(user_id=None, campaign_id: str = "", task_id: str = "",
+                               status: str = "") -> dict:
+    """M-F (F1b): đổi status task (todo/draft/approved). approve = founder chốt deliverable/việc."""
+    if not available():
+        return {"error": "Chưa cấu hình Supabase."}
+    if status not in ("todo", "draft", "approved"):
+        return {"error": "status không hợp lệ."}
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {"error": "Chưa có user."}
+        from storage.v2 import profiles
+        prof, extra, meta = await _campaign_meta(uid)
+        cm = meta.get(str(campaign_id))
+        if not cm:
+            return {"error": "Không tìm thấy campaign."}
+        task = next((t for t in (cm.get("tasks") or []) if t.get("id") == task_id), None)
+        if not task:
+            return {"error": "Không tìm thấy task."}
+        task["status"] = status
+        extra["campaign_meta"] = meta
+        await profiles.upsert_profile(uid, intake_extra=extra)
+        return {"ok": True, "status": status}
+    except Exception as e:
+        logger.warning("biz.update_campaign_task failed: %s", e)
+        return {"error": str(e)}
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # M5: WEB-OWNED strategy generation (Synthesis + Tactical Playbook)
 # Thay cho synthesis của pipeline bot — bot là tham khảo, sẽ rebuild để hỗ trợ web
