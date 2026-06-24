@@ -10,6 +10,16 @@
 - **[N-02] Giao diện bị "bóp" khi chạy lại.**
   Khi chạy lại (re-run), layout trang đọc doc — panel "Lịch sử version" bên phải — bị bóp/vỡ.
   (CSS/layout của doc reader khi có panel version history.)
+- **[N-03] Competitor "độn" nội dung ICP/JTBD (scope-drift, không phải lỗi web).**
+  Trang competitor hiện section "Bối cảnh, ICP và JTBD (giả định)" — vốn thuộc Customer Insight.
+  Đã rà: web map task→skill ĐÚNG cả 6 trang; CompetitorSkill dùng đúng COMPETITOR_SYSTEM (không
+  yêu cầu ICP/JTBD); competitor chạy TRƯỚC customer nên không phải copy. → Gốc: doanh nghiệp ngách
+  (QC/sourcing cho DN Mỹ) khó tìm đối thủ công khai → grounding mỏng → LLM ĐỘN bằng ICP/JTBD tự suy
+  từ target_customer để lấp chỗ trống (scope drift). Rủi ro hệ thống của pipeline `agents/` (mỗi
+  agent thấy hồ sơ + kết quả trước → dễ lấn mảng kế cận khi data mỏng).
+  → KHÔNG sửa sạch được khi research còn chạy qua `agents/` (reference-only). Dứt điểm = rebuild
+  research WEB-OWNED, khoá cứng scope từng skill (thiếu data thì ghi "_chưa đủ dữ liệu công khai_",
+  KHÔNG độn mảng khác). Gộp vào đợt rebuild research.
 
 ## ✅ Đã làm (lưu vết)
 - Enter ở ô intake = nút Tiếp (fcbb3e3)
