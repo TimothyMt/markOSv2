@@ -1981,23 +1981,54 @@ async def strategize_web(user_id=None, progress=None) -> dict:
         # ───────── (2) TACTICAL PLAYBOOK ─────────
         await _say("Đang viết Tactical Playbook (cách đánh chi tiết)…")
         tac_system = (
-            "Bạn là CMO senior viết TACTICAL PLAYBOOK — cách đánh CHI TIẾT theo từng tệp khách, bám "
-            "Chiến lược (synthesis) + SWOT đã có. Xương sống: mỗi tệp = phễu TOFU/MOFU/BOFU, mỗi tầng "
-            "vài mũi tactic. Tệp ƯU TIÊN (wedge) viết đầy đủ nhất (đủ 3 tầng); tệp phụ gọn (mỗi tầng 1 mũi). "
-            "Mỗi mũi có: góc/insight, COPY MẪU (quote dùng được), kênh cụ thể, khung THỬ NGHIỆM (cấu trúc test "
-            "+ ngưỡng theo chỉ số TƯƠNG ĐỐI: CTR/ROAS/CVR + thời lượng), KPI cần theo dõi.\n"
-            "🔴 KHÔNG ghi số tiền tuyệt đối (ngân sách thật chốt khi lập chiến dịch). KPI nêu ĐO GÌ, không chốt target.\n"
-            "🔴 Bám archetype ngành; PHỦ HẾT các tệp (đừng cụt). Kết bằng bảng tổng hợp (Tệp|Tầng|Mũi chính|Mức đầu tư định tính).\n"
-            "🔴 Viết TOÀN BỘ bằng TIẾNG VIỆT. Xuất MARKDOWN, giọng CMO thẳng thắn."
+            "Bạn là CMO senior viết TACTICAL PLAYBOOK — cách đánh CHI TIẾT, xuống tới level thực thi, "
+            "bám Chiến lược (Synthesis) + SWOT đã có. Nói thẳng với founder, sắc, không vòng vo.\n\n"
+            "XƯƠNG SỐNG bắt buộc: **Segment (tệp khách) → Phễu TOFU/MOFU/BOFU**. KHÔNG tổ chức theo "
+            "SO/WO/WT (đó là việc của SWOT).\n\n"
+            "NGUYÊN TẮC:\n"
+            "1. Tôn trọng WEDGE: tệp ƯU TIÊN viết ĐẦU TIÊN + ĐẦY ĐỦ nhất (đủ 3 tầng, mỗi tầng vài mũi); "
+            "tệp phụ viết GỌN (mỗi tầng 1 mũi, bỏ đoạn 'lợi thế bền vững').\n"
+            "2. Mỗi tệp MỞ ĐẦU bằng **🧠 Insight cốt lõi** (2-3 đoạn SẮC, dám contrarian nếu thị trường đang "
+            "làm sai) — viết bằng NGÔN NGỮ FOUNDER, không quăng thuật ngữ trần.\n"
+            "3. Mỗi mũi tactic phải xuống thực thi: tên chiến thuật + góc/insight + **COPY MẪU** (câu quote "
+            "dùng được ngay) + **kênh cụ thể** + **khung thử nghiệm** (cấu trúc test + ngưỡng cut theo chỉ số "
+            "TƯƠNG ĐỐI CTR/ROAS/CVR + thời lượng) + **KPI cần theo dõi**.\n"
+            "4. Mỗi mũi gắn 1 tag NGẮN dẫn về nước cờ TOWS nó phục vụ, trích mã từ SWOT — vd '(phục vụ SO1)'. "
+            "Tag là PHỤ, bỏ vẫn đọc hiểu; TUYỆT ĐỐI KHÔNG dựng lại khối SO/WO/WT làm cấu trúc.\n"
+            "5. Tệp ƯU TIÊN có 1 đoạn **📊 Vì sao đối thủ không copy được ngay** (lợi thế bền vững, bám đối thủ thật).\n"
+            "6. BÁM ARCHETYPE mua hàng của ngành (xem block context) — kênh + copy + tactic phải khớp:\n"
+            "   • trust_building: long-form/chuyên môn (LinkedIn, blog, podcast, YouTube/FB dài), nuôi authority "
+            "trước, đừng push-sale sớm; copy góc người trong nghề + quan điểm cá nhân.\n"
+            "   • impulse: paid ads + retarget + livestream (Meta/TikTok Ads, TikTok Shop, Shopee); copy ngắn, "
+            "hook scroll-stop, social proof định lượng, CTA + urgency.\n"
+            "   • demand_gen: video-first organic (TikTok/Reels/Shorts); khơi desire/lifestyle trước, UGC/KOC, "
+            "rồi mới pitch.\n"
+            "   Diễn đạt archetype theo cách founder hiểu (vd 'khách của sếp không tự nghĩ tới chuyện mua — phải "
+            "khơi nhu cầu trước khi pitch'), KHÔNG nói trần 'archetype demand_gen là…'.\n"
+            "7. PHỦ HẾT mọi tệp — TUYỆT ĐỐI KHÔNG cụt. Số tệp lấy đúng từ Synthesis; nếu sắp dài thì RÚT GỌN tệp "
+            "ưu tiên (vẫn giữ copy mẫu + khung test + KPI) để chừa đủ chỗ cho mọi tệp — thà mỗi tệp ngắn còn hơn cụt.\n"
+            "8. 🔴 KHÔNG ghi số tiền tuyệt đối (ngân sách thật chốt khi lập chiến dịch). KPI nêu ĐO GÌ, KHÔNG chốt target.\n"
+            "9. 🔴 Viết TOÀN BỘ bằng TIẾNG VIỆT. MARKDOWN.\n\n"
+            "FORMAT mỗi tệp:\n"
+            "# [TÊN TỆP — mô tả ngắn] (cách mua: <archetype diễn đạt tự nhiên>)\n"
+            "### 🧠 Insight cốt lõi\n"
+            "## TOFU — Khơi/bắt nhu cầu\n### 🎯 Hướng 1 — [Tên] _(phục vụ SOx)_ …\n"
+            "## MOFU — Nuôi & thuyết phục\n### 🎯 Hướng 1 — [Tên] _(phục vụ WOx)_ …\n"
+            "## BOFU — Chốt\n### 🎯 Hướng 1 — [Tên] …\n"
+            "### 📊 Vì sao đối thủ không copy được _(chỉ tệp ưu tiên)_\n\n"
+            "Kết bằng **# BẢNG TỔNG HỢP**: cột Tệp | Tầng | Mũi chính | Phục vụ (TOWS) | Mức đầu tư (Thấp/Trung/Cao — "
+            "định tính, ghi chú số tiền cụ thể chốt khi lập chiến dịch)."
         )
         tac_user = (
             f"# Ngành\n{industry}\n{ictx}\n\n"
+            f"# Tệp ƯU TIÊN (wedge founder chọn)\n{wedge or '(chưa chọn — lấy tệp ưu tiên từ Synthesis)'}\n\n"
             f"# Chiến lược (Synthesis — vừa lập)\n{synthesis[:3500]}\n\n"
-            f"# SWOT\n{(research.get('swot') or '(chưa có)')[:2200]}\n\n"
-            f"# Customer Insight (để hiểu tệp)\n{(research.get('customer_insight') or '(chưa có)')[:1800]}"
+            f"# SWOT (dùng mã TOWS SO/WO/ST/WT để gắn tag mũi)\n{(research.get('swot') or '(chưa có)')[:2200]}\n\n"
+            f"# Customer Insight (hiểu tệp + insight)\n{(research.get('customer_insight') or '(chưa có)')[:1800]}\n\n"
+            f"# Đối thủ (cho đoạn 'không copy được')\n{(research.get('competitor') or '(chưa có)')[:1500]}"
         )
         tac_res = await router_call(task_type=TaskType.OPS_BRIEF,
-                                    system=tac_system, user=tac_user, max_tokens=3600)
+                                    system=tac_system, user=tac_user, max_tokens=4000)
         tactical = (tac_res or {}).get("output", "").strip()
         tac_run = None
         if tactical:
