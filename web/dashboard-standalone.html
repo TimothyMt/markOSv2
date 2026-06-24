@@ -3220,11 +3220,12 @@ window.MOCK = {
     const lensList = VALUE_LENSES.includes(lensDef) || !lensDef ? VALUE_LENSES : [lensDef, ...VALUE_LENSES];
     // Pha 1: chủ đề = ô text sửa được (điền sẵn topic cụ thể), kèm chip gợi ý; góc khai thác = kế thừa từ trụ.
     const topicDef = slot.topic || (angles[0] || slot.title || '');
+    const angleLens = slot.angleLens || [];
     ov.querySelector('.modal-body').innerHTML = `
       <p class="muted" style="margin:0 0 8px"><b>💡 Chủ đề</b> bài này (sửa thoải mái) — Max viết theo:</p>
       <input id="slotTopic" class="slot-topic" value="${E(topicDef)}" placeholder="vd: 3 sai lầm khi chọn nhà cung cấp khiến mất tiền oan">
-      ${angles.length ? `<div class="topic-chips">${angles.map(a =>
-        `<button class="topic-chip" data-act="topic-pick" data-topic="${encodeURIComponent(a)}">${E(a)}</button>`).join('')}</div>` : ''}
+      ${angles.length ? `<div class="topic-chips">${angles.map((a, i) =>
+        `<button class="topic-chip" data-act="topic-pick" data-topic="${encodeURIComponent(a)}" data-lens="${encodeURIComponent(angleLens[i] || '')}">${E(a)}</button>`).join('')}</div>` : ''}
       <div class="slot-axes">
         <label class="slot-axis"><span>Góc khai thác <small class="muted">· kế thừa từ trụ</small></span>
           <select id="slotLens">${lensList.map(l => `<option ${l === lensDef ? 'selected' : ''}>${E(l)}</option>`).join('')}</select></label>
@@ -3708,9 +3709,12 @@ window.MOCK = {
       catch (e) { toast('Không mở được thẻ'); }
       return;
     }
-    if (act === 'topic-pick') {   // Pha 1: bấm chip gợi ý → điền vào ô chủ đề
+    if (act === 'topic-pick') {   // Pha 1: bấm chip gợi ý → điền chủ đề + góc khai thác của chủ đề đó
       const box = document.getElementById('slotTopic');
       if (box) { try { box.value = decodeURIComponent(el.dataset.topic || ''); } catch (e) { box.value = el.dataset.topic || ''; } box.focus(); }
+      let lens = ''; try { lens = decodeURIComponent(el.dataset.lens || ''); } catch (e) { lens = el.dataset.lens || ''; }
+      const lensSel = document.getElementById('slotLens');
+      if (lensSel && lens) { for (const o of lensSel.options) { if (o.value === lens) { lensSel.value = lens; break; } } }
       return;
     }
     if (act === 'slot-gen') {   // tạo bài từ chủ đề (ô text sửa được; gọi được cả khi "Tạo lại")

@@ -26,6 +26,11 @@ def _short_uuid() -> str:
     """M-E: id ổn định ngắn cho pillar (giữ liên kết bài-đã-duyệt khi đổi tên trụ)."""
     return uuid.uuid4().hex[:8]
 
+
+# M-E2 (B): bộ góc khai thác (value lens) — KHỚP nhãn FE để slot pre-select đúng option.
+_VALUE_LENSES = ["Nỗi đau/Vấn đề", "Kết quả/Lợi ích", "Bằng chứng xã hội", "Khát vọng/Định vị",
+                 "Xử lý phản đối", "Cơ chế/USP", "Khẩn cấp", "Uy tín chuyên môn"]
+
 # AI agent jobs (in-memory — đủ nhẹ để nhét vào full_state cho SSE đẩy live)
 _jobs: dict[str, dict] = {}
 _JOB_LIMIT = 30
@@ -433,21 +438,25 @@ async def gen_calendar_topics(user_id=None) -> dict:
             f"{i+1}. Trụ «{p.get('name','')}» (vai: {p.get('role','')[:80]}; phễu: {p.get('funnel','')}; "
             f"góc: {p.get('value_lens','')}) → cần {n} chủ đề"
             for (i, _pid, p, n) in specs)
+        lens_opts = " · ".join(_VALUE_LENSES)
         system = (
             "Bạn là Content Strategist. Với mỗi content pillar (always-on), sinh DANH SÁCH chủ đề "
             "bài viết CỤ THỂ (không phải góc khai thác chung chung) cho founder Việt Nam.\n"
             "🔴 Mỗi chủ đề = 1 ý bài rõ ràng, viết được ngay (6-14 từ), KHÁC NHAU hoàn toàn (không lặp ý).\n"
+            "🔴 Mỗi chủ đề kèm 1 'lens' = GÓC KHAI THÁC phù hợp NHẤT với chủ đề đó (mỗi bài 1 góc riêng, "
+            f"KHÔNG dùng chung 1 góc của trụ), CHỌN ĐÚNG 1 trong: {lens_opts}.\n"
             "🔴 Tiến triển theo phễu trong danh sách: đầu list nghiêng nhận biết/giá trị (TOFU), "
-            "giữa list bằng chứng/so sánh (MOFU), cuối list gần chuyển đổi (BOFU) — hợp VAI + GÓC của trụ.\n"
-            "🔴 Bám USP + ngành + tệp ưu tiên (wedge). TIẾNG VIỆT tự nhiên, cụ thể (nêu được tình huống/đối "
-            "tượng), KHÔNG generic kiểu 'Mẹo hay mỗi ngày'. KHÔNG markdown.\n"
-            'Output JSON DUY NHẤT: {"pillars":[{"topics":["...","..."]}]} — mảng "pillars" ĐÚNG THỨ TỰ '
-            "và ĐÚNG SỐ chủ đề yêu cầu cho từng trụ ở trên."
+            "giữa list bằng chứng/so sánh (MOFU), cuối list gần chuyển đổi (BOFU) — hợp VAI của trụ.\n"
+            "🔴 Bám USP + ngành + tệp ưu tiên (wedge). BẮT BUỘC TIẾNG VIỆT tự nhiên — kể cả khi chiến lược "
+            "tham chiếu bằng tiếng Anh thì vẫn DỊCH/viết chủ đề bằng tiếng Việt, KHÔNG để nguyên tiếng Anh. "
+            "Cụ thể (nêu được tình huống/đối tượng), KHÔNG generic kiểu 'Mẹo hay mỗi ngày'. KHÔNG markdown.\n"
+            'Output JSON DUY NHẤT: {"pillars":[{"topics":[{"topic":"...","lens":"..."}]}]} — mảng "pillars" '
+            "ĐÚNG THỨ TỰ và ĐÚNG SỐ chủ đề yêu cầu cho từng trụ ở trên."
         )
         user = (f"# Ngành\n{industry}\n# USP\n{usp or '(chưa rõ)'}\n# Wedge\n{wedge or '(chưa chọn)'}\n"
                 f"# Horizon\n{weeks} tuần\n\n# CÁC TRỤ + SỐ CHỦ ĐỀ CẦN\n{plist}\n\n"
                 f"# Chiến lược (tham chiếu)\n{synth[:1800]}")
-        res = await router_call(task_type=TaskType.INTAKE_JSON, system=system, user=user, max_tokens=1800)
+        res = await router_call(task_type=TaskType.INTAKE_JSON, system=system, user=user, max_tokens=2200)
         raw = (res or {}).get("output", "").strip()
         raw = re.sub(r'^```(?:json)?\s*', '', raw)
         raw = re.sub(r'\s*```\s*$', '', raw).strip()
@@ -457,7 +466,15 @@ async def gen_calendar_topics(user_id=None) -> dict:
         for (i, pid, p, n) in specs:
             tlist = []
             if i < len(arr) and isinstance(arr[i], dict):
-                tlist = [str(t)[:160] for t in (arr[i].get("topics") or []) if str(t).strip()]
+                for t in (arr[i].get("topics") or []):
+                    # hỗ trợ cả {topic,lens} lẫn chuỗi thuần
+                    if isinstance(t, dict):
+                        tp = str(t.get("topic") or "").strip()
+                        ln = str(t.get("lens") or "").strip()
+                    else:
+                        tp, ln = str(t).strip(), ""
+                    if tp:
+                        tlist.append({"t": tp[:160], "lens": ln if ln in _VALUE_LENSES else ""})
             if tlist:
                 topics_map[pid] = tlist[:12]
                 total += len(topics_map[pid])
@@ -601,8 +618,11 @@ async def campaign_plan(user_id=None, steer: str = "") -> dict:
             "🔴 framework = khung copywriting ẩn hợp VAI trụ (PAS/AIDA/BAB/FAB/Star-Story). value_lens = "
             "GÓC KHAI THÁC chính của trụ, chọn 1 trong: Nỗi đau/Vấn đề · Kết quả/Lợi ích · Bằng chứng xã hội · "
             "Khát vọng/Định vị · Xử lý phản đối · Cơ chế/USP · Khẩn cấp · Uy tín chuyên môn.\n"
-            "🔴 TẤT CẢ giá trị chữ (name/role/cadence/value_lens/angles/occasion name/when/why) viết bằng "
-            "TIẾNG VIỆT tự nhiên (angles là gợi ý CHỦ ĐỀ bài, không phải brief ảnh). Giữ NGUYÊN khoá JSON tiếng Anh.\n"
+            "🔴 BẮT BUỘC TIẾNG VIỆT cho MỌI giá trị chữ (name/role/cadence/value_lens/angles/occasion "
+            "name/when/why) — KỂ CẢ khi Synthesis/Tactical tham chiếu bằng TIẾNG ANH thì vẫn phải DỊCH/đặt "
+            "tên trụ + chủ đề bằng tiếng Việt tự nhiên, TUYỆT ĐỐI KHÔNG để nguyên cụm tiếng Anh (vd KHÔNG "
+            "'Supply Chain Insights' mà là 'Góc nhìn chuỗi cung ứng'). angles = gợi ý CHỦ ĐỀ bài, không phải "
+            "brief ảnh. Giữ NGUYÊN khoá JSON tiếng Anh.\n"
             "🔴 Bám đúng NGÀNH + wedge; KHÔNG bịa số/ngân sách (always-on KHÔNG chốt SMART). KHÔNG markdown."
         )
         steer_block = (f"\n\n# ĐỊNH HƯỚNG THÊM TỪ FOUNDER (ưu tiên bám)\n{steer}" if steer else "")
@@ -1242,22 +1262,36 @@ async def calendar_plan(user_id=None) -> dict:
                     weekly.append(p)
             weekly = weekly[:14]             # trần an toàn ~2 bài/ngày
             day_of = _assign_days(len(weekly))
+            def _topic_lens(item):   # hỗ trợ {t,lens} (mới) lẫn chuỗi thuần (cũ)
+                if isinstance(item, dict):
+                    return (item.get("t") or ""), (item.get("lens") or "")
+                return str(item), ""
             for w in range(1, max_week + 1):
                 for idx, p in enumerate(weekly):
                     pid = p["_pid"]
                     angles = p.get("angles") or []
                     k = occ.get(pid, 0); occ[pid] = k + 1
                     tlist = topics_map.get(pid) or []
-                    topic = (tlist[k % len(tlist)] if tlist
-                             else (angles[(idx + w) % len(angles)] if angles
-                                   else (p.get("role") or p.get("name") or "Bài brand")))
+                    # M-E2: chip gợi ý = các CHỦ ĐỀ Việt Pha 2 (nếu có) thay vì angle gốc (có thể tiếng Anh);
+                    # mỗi chip mang kèm góc khai thác (lens) riêng → bấm chip đổi cả topic lẫn góc.
+                    pairs = [_topic_lens(it) for it in tlist]
+                    pairs = [(t, l) for (t, l) in pairs if t]
+                    if pairs:
+                        topic, lens = pairs[k % len(pairs)]
+                        chips = [t for (t, _l) in pairs[:8]]
+                        chip_lens = [l for (_t, l) in pairs[:8]]
+                    else:
+                        topic = (angles[(idx + w) % len(angles)] if angles
+                                 else (p.get("role") or p.get("name") or "Bài brand"))
+                        lens = ""
+                        chips = [str(a) for a in (p.get("angles") or [])][:6]
+                        chip_lens = []
                     pname = p.get("name") or "Pillar"
                     key = f"aw|{pid}|{w}|{day_of[idx]}"
                     slot = {"week": w, "day": day_of[idx], "pillar": pname, "pillarId": pid,
-                            "title": topic, "topic": topic,
-                            "angles": [str(a) for a in (p.get("angles") or [])][:6],
+                            "title": topic, "topic": topic, "angles": chips, "angleLens": chip_lens,
                             "funnel": p.get("funnel") or "", "framework": p.get("framework") or "",
-                            "value_lens": p.get("value_lens") or "",
+                            "value_lens": lens or p.get("value_lens") or "",
                             "track": "always", "key": key}
                     card = idx_always.get((pid, w, day_of[idx]))
                     if card:
