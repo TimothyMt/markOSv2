@@ -37,6 +37,14 @@
   quan business thật, reset không xoá. Founder quyết: **bỏ hẳn section này ở giai đoạn T1-T3**
   (không đổi sang data thật). → Gỡ khối `M.tracked` khỏi render P.competitor.
 
+- **[N-06] Hiện rõ trạng thái task (đang chạy / đã lỗi / xong) cho user.**
+  Bấm "Lập chiến lược" (strategize_web ~2 LLM call, chạy ngầm) nhưng KHÔNG có chỉ báo rõ → user
+  tưởng "không chạy gì" (thực ra vẫn ra kết quả, chỉ chậm + im lặng). Cần: chỉ báo toàn cục
+  (banner/toast/progress) cho biết task ĐANG CHẠY (bước/% nếu có), ĐÃ LỖI (kèm lý do — đã log ở
+  2f28497), hay XONG — đừng chỉ dựa nút đổi chữ. Áp cho mọi task (research + strategize).
+  → Phụ: nhánh strategize trong `_execute` KHÔNG có timeout (research có `wait_for`) — nếu LLM treo
+  thì job kẹt 'running' mãi → thêm timeout + đánh 'error' để khỏi kẹt vô hạn.
+
 ## ✅ Đã làm (lưu vết)
 - Enter ở ô intake = nút Tiếp (fcbb3e3)
 - Báo "agent đang chạy" đúng + bỏ "90 ngày" hardcode intake (04f9a9a)
