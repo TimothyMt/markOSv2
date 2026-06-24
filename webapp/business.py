@@ -2525,24 +2525,45 @@ async def _execute(job: dict):
 
             agen = run_targeted_pipeline(session, progress_callback=progress)
             done: list[str] = []
-            async for stage_key, _result in agen:
+            warns: list[str] = []
+            stop_reason = None
+            async for stage_key, result in agen:
+                # M-fix: BẮT lý do dừng (trước đây nuốt _result → không truy nguyên được).
                 if stage_key in ("pipeline_abort", "quota_stop"):
+                    stop_reason = str(result or stage_key)
                     job["progress"] = f"Dừng: {stage_key}"
+                    logger.warning("research stopped (user=%s task=%s): %s — %s",
+                                   uid, task, stage_key, stop_reason[:300])
                     break
-                done.append(stage_key)
-                job["progress"] = f"Hoàn tất bước: {stage_key}"
+                # bước lỗi/timeout: pipeline vẫn yield stage_key nhưng result là chuỗi '⚠️ …'
+                if isinstance(result, str) and result.lstrip().startswith("⚠️"):
+                    warns.append(f"{stage_key}: {result.strip()[:160]}")
+                    job["progress"] = f"⚠️ {stage_key}"
+                    logger.warning("research stage warn (user=%s): %s — %s",
+                                   uid, stage_key, result[:300])
+                else:
+                    done.append(stage_key)
+                    job["progress"] = f"Hoàn tất bước: {stage_key}"
             await save_session(session)
 
-            if task == "full":
+            if task == "full" and not stop_reason:
                 res = await strategize_web(uid, progress)
                 if res.get("error"):
                     raise RuntimeError(res["error"])
                 done.append("strategy_web")
 
-            job["status"] = "done"
-            job["summary"] = (
-                f"Hoàn tất {len(done)} bước: {', '.join(done)}" if done else "Hoàn tất."
-            )
+            if stop_reason:
+                job["status"] = "error"
+                job["error"] = stop_reason[:300]
+                job["summary"] = f"Dừng sớm sau {len(done)} bước ({', '.join(done) or '—'})."
+            else:
+                parts = [f"Hoàn tất {len(done)} bước: {', '.join(done)}" if done else "Hoàn tất."]
+                if warns:
+                    parts.append(f"⚠️ {len(warns)} bước cảnh báo — {' | '.join(warns)}")
+                job["status"] = "done"
+                job["summary"] = " ".join(parts)
+                if warns:
+                    job["error"] = "; ".join(warns)[:300]   # để hiện cảnh báo dù status done
     except Exception as e:
         logger.exception("AI agent job failed (user=%s task=%s)", uid, task)
         job["status"] = "error"
