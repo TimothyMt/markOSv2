@@ -584,7 +584,7 @@
         ? `<div class="sel" data-act="switch-user" title="Đổi người dùng đang xem">${
             (M.bizUser && (M.bizUser.name || M.bizUser.user_id)) || M.bizUserId || 'Chọn user'} ▾</div>`
         : '';
-      return sel + runBtn('research', '🔬 Chạy nghiên cứu (T1-T3)', 'primary-btn');
+      return sel + `<button class="ghost-line" data-act="biz-reset" title="Xoá dữ liệu để test lại từ đầu">🧹 Reset</button>` + runBtn('research', '🔬 Chạy nghiên cứu (T1-T3)', 'primary-btn');
     },
     render: () => {
       const p = M.bizProfile || {};
@@ -2079,6 +2079,21 @@
     const foot = ov.querySelector('.modal-foot'); if (foot) { foot.style.display = 'none'; foot.innerHTML = ''; }
   }
 
+  // Reset để test — 2 mức (giữ hồ sơ / xoá sạch).
+  function openResetModal() {
+    const ov = _ensureBizModal();
+    ov.querySelector('h3').textContent = '🧹 Reset để test lại';
+    ov.querySelector('.modal-body').innerHTML = `
+      <p class="muted" style="margin:0 0 12px">Xoá dữ liệu để chạy thử lại từ đầu. <b>Không hoàn tác được.</b></p>
+      <div class="reset-opt"><b>① Giữ hồ sơ — reset kết quả</b>
+        <div class="muted">Giữ thông tin doanh nghiệp + câu trả lời. Xoá: phân tích (T1-T3), chiến lược, pillars, lịch, bài đã lưu, chiến dịch, danh mục.</div>
+        <button class="primary-btn sm" data-act="biz-reset-go" data-full="0" style="margin-top:8px">Reset (giữ hồ sơ)</button></div>
+      <div class="reset-opt" style="margin-top:14px"><b>② Xoá sạch</b>
+        <div class="muted">Xoá HẲN cả hồ sơ — về trắng, làm lại từ bước nhập liệu (intake).</div>
+        <button class="ghost-line sm" data-act="biz-reset-go" data-full="1" style="margin-top:8px">Xoá sạch tất cả</button></div>`;
+    const foot = ov.querySelector('.modal-foot'); if (foot) { foot.style.display = 'none'; foot.innerHTML = ''; }
+    ov.classList.add('show');
+  }
   // M-F (F2): danh mục chiến dịch — Max đề xuất từ roadmap, founder duyệt → tạo từng cái.
   function openPortfolio() { _ensureBizModal(); renderPortfolio(); document.getElementById('bizModal').classList.add('show'); }
   function renderPortfolio() {
@@ -2717,6 +2732,21 @@
     if (act === 'intake-skip') { handleIntake('skip'); return; }
     if (act === 'intake-choice') { handleIntake('choice', el.dataset.val); return; }
     if (act === 'intake-suggest') { handleIntake('suggest', el.dataset.val); return; }
+    if (act === 'biz-reset') { openResetModal(); return; }
+    if (act === 'biz-reset-go') {
+      if (!apiAvailable || !M.bizEnabled) { toast('Bật backend để reset'); return; }
+      const full = el.dataset.full === '1';
+      el.disabled = true; el.textContent = '⏳ Đang reset…';
+      try {
+        const r = await API.post('api/biz/reset', { user_id: _bizUserId, full });
+        if (r.error) { toast(r.error); el.disabled = false; return; }
+        const ov = document.getElementById('bizModal'); if (ov) ov.classList.remove('show');
+        _realCal = null;
+        toast(full ? '🧹 Đã xoá sạch — làm lại từ hồ sơ' : '🧹 Đã reset kết quả — hồ sơ giữ nguyên');
+        await refreshBiz(); location.hash = '#hoso'; route();
+      } catch (e) { toast('Không reset được — thử lại sau.'); el.disabled = false; }
+      return;
+    }
     if (act === 'edit-profile') { _editProfile = true; route(); return; }
     if (act === 'cancel-profile') { _editProfile = false; route(); return; }
     if (act === 'view-skillrun') { location.hash = '#doc/' + el.dataset.id; return; }

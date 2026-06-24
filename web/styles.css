@@ -777,6 +777,8 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 .kb-card-t { font-size:12.5px; margin-bottom:6px; line-height:1.35; }
 .kb-card .camptask-acts { flex-wrap:wrap; }
 .kb-empty { font-size:12px; text-align:center; padding:6px 0; }
+.reset-opt { border:1px solid var(--stroke); border-radius:10px; padding:11px 13px; font-size:13px; }
+.reset-opt .muted { font-size:12px; margin-top:3px; line-height:1.4; }
 .kanban .kb-col { } /* spacing handled by .kanban gap */
 /* M-F (F2): danh mục chiến dịch */
 .pf-card { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding:11px 0; border-top:1px solid var(--stroke); }

@@ -51,6 +51,19 @@ async def create_campaign(
         return None
 
 
+async def delete_campaigns_by_user(user_id: int) -> bool:
+    """Xoá toàn bộ campaigns của user (dùng cho /reset test)."""
+    client = get_client()
+    if client is None:
+        return False
+    try:
+        await client.table(TABLE).delete().eq("user_id", user_id).execute()
+        return True
+    except Exception as e:
+        logger.warning("delete_campaigns_by_user(%d) failed: %s", user_id, e)
+        return False
+
+
 async def get_campaign(campaign_id: str) -> Optional[dict]:
     client = get_client()
     if client is None:

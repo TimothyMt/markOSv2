@@ -1020,6 +1020,44 @@ async def gen_campaign_portfolio(user_id=None) -> dict:
         return {"error": str(e)}
 
 
+# Reset để test: các key SINH RA trong intake_extra (xoá khi reset 'mềm', giữ hồ sơ + intake answers).
+_RESET_EXTRA_KEYS = ["wedge", "usp_stance", "usp_text", "horizon", "posture", "pillars_locked",
+                     "calendar_posts", "calendar_topics", "campaign_meta", "campaign_portfolio"]
+
+
+async def reset_business(user_id=None, full: bool = False) -> dict:
+    """Reset dữ liệu để TEST lại từ đầu.
+    full=False (mềm): giữ hồ sơ + câu trả lời intake, xoá kết quả phân tích (skill_runs) + campaigns
+                      + các key sinh ra (gate/pillars/lịch/chiến dịch) trong intake_extra.
+    full=True: xoá HẲN hồ sơ + skill_runs + campaigns (về trắng, làm lại từ intake)."""
+    if not available():
+        return {"error": "Chưa cấu hình Supabase."}
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {"error": "Chưa có user."}
+        from storage.v2 import profiles, skill_runs, campaigns_v2
+        await skill_runs.delete_skill_runs(uid)
+        await campaigns_v2.delete_campaigns_by_user(uid)
+        # dọn cache in-memory để không trả output cũ
+        for _c in (_campaign_plan_cache, _occasion_cache, _retention_cache, _market_kpi_cache):
+            try: _c.clear()
+            except Exception: pass
+        if full:
+            await profiles.delete_profile(uid)
+            return {"ok": True, "full": True}
+        cur = await profiles.get_profile(uid) or {}
+        extra = cur.get("intake_extra") if isinstance(cur.get("intake_extra"), dict) else {}
+        for k in _RESET_EXTRA_KEYS:
+            extra.pop(k, None)
+        await profiles.upsert_profile(uid, intake_extra=extra)
+        return {"ok": True, "full": False}
+    except Exception as e:
+        logger.warning("biz.reset_business failed: %s", e)
+        return {"error": str(e)}
+
+
 async def clear_campaign_portfolio(user_id=None, index: int = -1) -> dict:
     """M-F (F2): bỏ 1 mục (index) hoặc cả danh mục (index<0) khỏi proposal đã lưu."""
     if not available():

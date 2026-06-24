@@ -245,6 +245,13 @@ async def biz_campaign_portfolio_clear(request):
     return JSONResponse(res, status_code=400 if "error" in res else 200)
 
 
+async def biz_reset(request):
+    """Reset dữ liệu test: full=False giữ hồ sơ, full=True xoá hẳn."""
+    d = await request.json()
+    res = await biz.reset_business(d.get("user_id"), bool(d.get("full")))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
 async def biz_content_derive(request):
     """M3.1 — sinh biến thể từ 1 bài gốc (đa kênh/video/UGC), lưu skill_run."""
     d = await request.json()
@@ -457,6 +464,7 @@ def api_routes() -> list:
         Route("/api/biz/campaign/task-update",     biz_campaign_task_update, methods=["POST"]),
         Route("/api/biz/campaign/portfolio",       biz_campaign_portfolio, methods=["POST"]),
         Route("/api/biz/campaign/portfolio-clear", biz_campaign_portfolio_clear, methods=["POST"]),
+        Route("/api/biz/reset",                    biz_reset,          methods=["POST"]),
         Route("/api/biz/campaign-plan",            biz_campaign_plan,  methods=["GET"]),
         Route("/api/biz/occasion",                 biz_occasion_draft, methods=["POST"]),
         Route("/api/biz/occasion/save",            biz_occasion_save,  methods=["POST"]),
