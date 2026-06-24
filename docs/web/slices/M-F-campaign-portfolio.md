@@ -143,4 +143,16 @@ task = { id, kind, label, status:'todo'|'draft'|'approved', run_id? }
 - FE: band campaign clickable → modal chi tiết; bảng task (✍️ content / 🔧 action) + status badge
   (todo/draft/approved) + nút Tạo/Xem/Duyệt. Mirror app.js↔standalone + CSS.
 - Verify: ast/import/node --check OK; types=12, tasks đúng.
-- Còn (F2/F3): Max đề xuất danh mục từ roadmap (F2); generator mới landing/SEO/event + kanban (F3).
+### F2 (2026-06-24) — Max đề xuất danh mục từ roadmap + tệp nhắm (Pha 4 nhẹ)
+- Backend: gen_campaign_portfolio — 1 LLM call suy 3-6 chiến dịch CÓ LOẠI bám roadmap, mỗi cái
+  {name,type,objective,audience,why,start_week,window_weeks}. CODE lo NGÀY (start_week→ws/we qua
+  anchor+horizon), LLM lo ý; validate type/audience, clamp start_week≤horizon, bỏ loại sai. Lưu
+  intake_extra.campaign_portfolio. clear_campaign_portfolio(index) bỏ 1 mục/cả list.
+  Pha 4: AUDIENCE_SEGMENTS (Mới/Active/Nguy cơ/VIP/Tất cả) + _TYPE_AUDIENCE default theo loại;
+  audience threaded qua occasion_draft (prompt) + save_occasion (campaign_meta). biz_data trả
+  bizCampaignPortfolio. API: campaign/portfolio + portfolio-clear.
+- FE: nút "🗂️ Danh mục chiến dịch" → modal list (card: loại/tuần/tệp nhắm/why) + "✨ Đề xuất" /
+  "↻ Đề xuất lại" + mỗi card "Tạo chiến dịch" (mở wizard điền sẵn type/objective/window/audience) +
+  "✕ bỏ". Wizard thêm selector "🎯 Tệp nhắm". openOccasionWizard nhận preset object. Mirror+CSS.
+- Verify: ast/import/node --check OK; test date-map/validate/clamp/drop PASS.
+- Còn (F3): generator mới landing/SEO/event/PR + ACTION-task brief đầy đủ + kanban status.

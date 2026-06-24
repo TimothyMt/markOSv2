@@ -1303,6 +1303,7 @@
           <button class="${_calView==='week'?'on':''}" data-act="cal-view" data-view="week">Chi tiết tuần</button>
         </div>
         ${_realCal ? `<button class="ghost-line" data-act="gen-topics">✨ Gợi ý chủ đề cả lịch</button>` : ''}
+        <button class="ghost-line" data-act="portfolio-open">🗂️ Danh mục chiến dịch</button>
         <button class="ghost-line" data-act="add-campaign-occasion">🎯 Tạo campaign theo dịp</button>`;
     },
     render: () => `
@@ -2034,7 +2035,7 @@
     demand_gen:     ['engagement', 'acquisition', 'conversion'],
     trust_building: ['leadgen', 'brand', 'retention'],
   };
-  let _occState = { occasion: '', ws: '', we: '', budget: '', baseline: '', goal: '', objective: '', objectiveCustom: '', campaignType: '', campaignTypeCustom: '', brief: '', busy: false };
+  let _occState = { occasion: '', ws: '', we: '', budget: '', baseline: '', goal: '', objective: '', objectiveCustom: '', campaignType: '', campaignTypeCustom: '', audience: '', brief: '', busy: false };
 
   // M-F (F1b): modal chi tiết campaign — bảng task móc generator + status.
   let _campDetailId = null;
@@ -2072,6 +2073,32 @@
     ov.querySelector('.modal-body').innerHTML = bodyHtml;
     const foot = ov.querySelector('.modal-foot'); if (foot) { foot.style.display = 'none'; foot.innerHTML = ''; }
   }
+
+  // M-F (F2): danh mục chiến dịch — Max đề xuất từ roadmap, founder duyệt → tạo từng cái.
+  function openPortfolio() { _ensureBizModal(); renderPortfolio(); document.getElementById('bizModal').classList.add('show'); }
+  function renderPortfolio() {
+    const ov = document.getElementById('bizModal'); if (!ov) return;
+    const E = s => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const list = (window.MOCK && window.MOCK.bizCampaignPortfolio) || [];
+    ov.querySelector('h3').textContent = '🗂️ Danh mục chiến dịch (Max đề xuất)';
+    const cards = list.map((c, i) => `
+      <div class="pf-card">
+        <div class="pf-main"><b>${c.type_icon || '🔴'} ${E(c.name)}</b>
+          <span class="pf-meta">${E(c.type_label || '')} · Tuần ${c.start_week} · ${c.window_weeks} tuần · 🎯 ${E(c.audience || 'Tất cả')}</span>
+          <div class="muted pf-why">${E(c.why || '')}</div></div>
+        <div class="pf-acts">
+          <button class="primary-btn sm" data-act="pf-make" data-idx="${i}">Tạo chiến dịch →</button>
+          <button class="ghost-line sm" data-act="pf-drop" data-idx="${i}">✕</button></div>
+      </div>`).join('');
+    ov.querySelector('.modal-body').innerHTML = list.length
+      ? `<p class="muted" style="margin:0 0 10px">Max suy từ roadmap — bám giai đoạn chiến lược. Duyệt cái nào thì <b>Tạo chiến dịch</b> (mở wizard điền sẵn), bỏ cái không hợp.</p>${cards}`
+      : `<p class="muted">Chưa có danh mục. Bấm <b>✨ Đề xuất danh mục</b> để Max suy từ roadmap chiến lược.</p>`;
+    const foot = ov.querySelector('.modal-foot'); if (foot) {
+      foot.style.display = 'flex';
+      foot.innerHTML = `<div class="rate-group"><span class="muted">${list.length} chiến dịch</span></div>
+        <div class="modal-foot-r"><button class="primary-btn sm" data-act="pf-gen">${list.length ? '↻ Đề xuất lại' : '✨ Đề xuất danh mục'}</button></div>`;
+    }
+  }
   // D-044b: ví dụ chỉ tiêu khác nhau theo mục đích đã chọn — tránh nhầm "mục đích" với "mục tiêu"
   const OCC_GOAL_EX = {
     acquisition: 'vd: 300 lead mới, reach 50.000',
@@ -2087,7 +2114,8 @@
 
   const _occTypeByKey = (k) => ((window.MOCK && window.MOCK.bizCampaignTypes) || []).find(t => t.key === k) || null;
   function openOccasionWizard(preset) {
-    _occState = { occasion: preset || '', ws: '', we: '', budget: '', baseline: '', goal: '', objective: '', objectiveCustom: '', campaignType: '', campaignTypeCustom: '', brief: '', busy: false };
+    const _pp = (preset && typeof preset === 'object') ? preset : { occasion: preset || '' };
+    _occState = { occasion: _pp.occasion || '', ws: _pp.ws || '', we: _pp.we || '', budget: '', baseline: '', goal: '', objective: _pp.objective || '', objectiveCustom: '', campaignType: _pp.campaignType || '', campaignTypeCustom: '', audience: _pp.audience || '', brief: '', busy: false };
     let ov = document.getElementById('occWizard');
     if (!ov) {
       ov = document.createElement('div');
@@ -2213,6 +2241,10 @@
         <label class="occ-sublbl" style="margin-top:10px">…hoặc tự mô tả loại khác (Max tự dựng playbook)</label>
         <input class="occ-inp ${typeCustomOn ? 'occ-custom-on' : ''}" data-occfield="campaignTypeCustom"
           placeholder="vd: chiến dịch affiliate, chiến dịch tri ân đại lý…" value="${E(S.campaignTypeCustom)}">
+        <label class="occ-sublbl" style="margin-top:10px">🎯 Tệp nhắm chính (Pha 4)</label>
+        <select class="occ-inp" data-occfield="audience">
+          ${['', 'Mới', 'Active', 'Nguy cơ', 'VIP', 'Tất cả'].map(a => `<option value="${a}" ${S.audience === a ? 'selected' : ''}>${a || '— theo loại (Max tự suy) —'}</option>`).join('')}
+        </select>
       </div>` : '';
     body.innerHTML = `
       <div class="dir-banner" style="margin-bottom:14px">🧭 Đợt này <b>kế thừa la bàn + cách đánh</b> (pre-fill).
@@ -2258,7 +2290,7 @@
       const r = await API.post('api/biz/occasion', {
         user_id: _bizUserId, occasion: S.occasion, window_start: S.ws, window_end: S.we,
         budget: S.budget, baseline: S.baseline, goal: S.goal, objective: S.objective,
-        objective_custom: S.objectiveCustom, campaign_type: S.campaignType });
+        objective_custom: S.objectiveCustom, campaign_type: S.campaignType, audience: S.audience });
       const d = (r && r.draft) || {};
       S.busy = false;
       if (!d.brief) { renderOccWizard(); toast('Chưa lập được brief — cần có Chiến lược (T4) trước, hoặc thử lại.'); return; }
@@ -2273,7 +2305,7 @@
       const r = await API.post('api/biz/occasion/save', {
         user_id: _bizUserId, occasion: S.occasion, window_start: S.ws, window_end: S.we,
         budget: S.budget, goal: S.goal, brief: S.brief, objective: S.objective,
-        objective_custom: S.objectiveCustom, campaign_type: S.campaignType });
+        objective_custom: S.objectiveCustom, campaign_type: S.campaignType, audience: S.audience });
       if (r.error) { toast(r.error); return; }
       const ov = document.getElementById('occWizard'); if (ov) ov.classList.remove('show');
       toast('✅ Đã lưu chiến dịch theo dịp');
@@ -2525,6 +2557,35 @@
         const ov = document.getElementById('bizModal'); if (ov) ov.classList.remove('show');
         toast('Đã bỏ bài — ô về trạng thái gợi ý'); await refreshBiz(); route();
       } catch (e) { toast('Không bỏ được — thử lại sau.'); }
+      return;
+    }
+    if (act === 'portfolio-open') { openPortfolio(); return; }
+    if (act === 'pf-gen') {   // M-F (F2): Max đề xuất danh mục từ roadmap
+      if (!apiAvailable || !M.bizEnabled) { toast('Bật backend để Max đề xuất'); return; }
+      const orig = el.textContent; el.disabled = true; el.textContent = '⏳ Max đang suy danh mục…';
+      try {
+        const r = await API.post('api/biz/campaign/portfolio', { user_id: _bizUserId });
+        if (r.error) { toast(r.error); el.disabled = false; el.textContent = orig; return; }
+        await refreshBiz(); renderPortfolio(); toast(`✨ Đã đề xuất ${(r.campaigns||[]).length} chiến dịch`);
+      } catch (e) { toast('Không đề xuất được — thử lại sau.'); el.disabled = false; el.textContent = orig; }
+      return;
+    }
+    if (act === 'pf-drop') {   // bỏ 1 mục khỏi danh mục
+      const idx = +el.dataset.idx;
+      try {
+        const r = await API.post('api/biz/campaign/portfolio-clear', { user_id: _bizUserId, index: idx });
+        if (r.error) { toast(r.error); return; }
+        await refreshBiz(); renderPortfolio();
+      } catch (e) { toast('Không bỏ được'); }
+      return;
+    }
+    if (act === 'pf-make') {   // tạo chiến dịch từ 1 mục → mở wizard điền sẵn
+      const idx = +el.dataset.idx;
+      const c = ((window.MOCK && window.MOCK.bizCampaignPortfolio) || [])[idx];
+      if (!c) return;
+      const ov = document.getElementById('bizModal'); if (ov) ov.classList.remove('show');
+      openOccasionWizard({ occasion: c.name, campaignType: c.type, objective: c.objective,
+        ws: c.ws, we: c.we, audience: c.audience });
       return;
     }
     if (act === 'camp-detail') {   // M-F (F1b): mở chi tiết campaign + bảng task

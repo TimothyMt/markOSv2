@@ -142,7 +142,7 @@ async def biz_occasion_draft(request):
                                    d.get("window_start", ""), d.get("window_end", ""),
                                    d.get("budget", ""), d.get("baseline", ""), d.get("goal", ""),
                                    d.get("objective", ""), d.get("objective_custom", ""),
-                                   d.get("campaign_type", ""))
+                                   d.get("campaign_type", ""), d.get("audience", ""))
     return JSONResponse({"draft": res})
 
 
@@ -153,7 +153,7 @@ async def biz_occasion_save(request):
                                   d.get("window_start", ""), d.get("window_end", ""),
                                   d.get("budget", ""), d.get("goal", ""), d.get("brief", ""),
                                   d.get("objective", ""), d.get("objective_custom", ""),
-                                  d.get("campaign_type", ""))
+                                  d.get("campaign_type", ""), d.get("audience", ""))
     return JSONResponse(res, status_code=400 if "error" in res else 200)
 
 
@@ -228,6 +228,20 @@ async def biz_campaign_task_update(request):
     d = await request.json()
     res = await biz.update_campaign_task(d.get("user_id"), d.get("campaign_id", ""),
                                          d.get("task_id", ""), d.get("status", ""))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_campaign_portfolio(request):
+    """M-F (F2) — Max đề xuất danh mục chiến dịch từ roadmap."""
+    d = await request.json()
+    res = await biz.gen_campaign_portfolio(d.get("user_id"))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_campaign_portfolio_clear(request):
+    """M-F (F2) — bỏ 1 mục (index) hoặc cả danh mục đề xuất."""
+    d = await request.json()
+    res = await biz.clear_campaign_portfolio(d.get("user_id"), int(d.get("index", -1)))
     return JSONResponse(res, status_code=400 if "error" in res else 200)
 
 
@@ -441,6 +455,8 @@ def api_routes() -> list:
         Route("/api/biz/calendar/topics",          biz_calendar_topics, methods=["POST"]),
         Route("/api/biz/campaign/task-gen",        biz_campaign_task_gen, methods=["POST"]),
         Route("/api/biz/campaign/task-update",     biz_campaign_task_update, methods=["POST"]),
+        Route("/api/biz/campaign/portfolio",       biz_campaign_portfolio, methods=["POST"]),
+        Route("/api/biz/campaign/portfolio-clear", biz_campaign_portfolio_clear, methods=["POST"]),
         Route("/api/biz/campaign-plan",            biz_campaign_plan,  methods=["GET"]),
         Route("/api/biz/occasion",                 biz_occasion_draft, methods=["POST"]),
         Route("/api/biz/occasion/save",            biz_occasion_save,  methods=["POST"]),

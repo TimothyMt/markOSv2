@@ -215,6 +215,11 @@ async def biz_data(user_id=None) -> dict:
     except Exception:
         out["bizCampaignMeta"] = {}
     out["bizCampaignTypes"] = campaign_types_list()
+    try:
+        _ie2 = (out.get("bizProfile") or {}).get("intake_extra") or {}
+        out["bizCampaignPortfolio"] = (_ie2.get("campaign_portfolio") if isinstance(_ie2, dict) else []) or []
+    except Exception:
+        out["bizCampaignPortfolio"] = []
     # M-D Pha2b: archetype mua hàng của ngành → FE lọc "mục đích đợt" hợp ngành (nguồn duy nhất ở frameworks/).
     try:
         from frameworks.industry_context import get_purchase_archetype
@@ -721,7 +726,7 @@ def _build_campaign_tasks(type_key: str) -> list:
 async def occasion_draft(user_id=None, occasion: str = "", window_start: str = "",
                          window_end: str = "", budget: str = "", baseline: str = "",
                          goal: str = "", objective: str = "", objective_custom: str = "",
-                         campaign_type: str = "") -> dict:
+                         campaign_type: str = "", audience: str = "") -> dict:
     """M1.1 (D-043/044): sinh Campaign Brief cho 1 ĐỢT theo dịp — web-side 1 LLM call.
 
     Kế thừa Synthesis (la bàn) + Tactical (cách đánh) + industry (mùa vụ/archetype)
@@ -828,7 +833,8 @@ async def occasion_draft(user_id=None, occasion: str = "", window_start: str = "
             f"- Ngân sách đợt: {budget or '(chưa nhập)'}\n- Baseline hiện tại: {baseline or '(chưa rõ)'}\n"
             f"- Mục tiêu chính founder muốn: {goal or '(theo giai đoạn roadmap)'}\n"
             f"- MỤC ĐÍCH đợt: {obj_hint or '(founder chưa chọn — tự suy mục đích hợp dịp + giai đoạn)'}\n"
-            f"{('- ' + ct_hint + chr(10)) if ct_hint else ''}\n"
+            f"{('- ' + ct_hint + chr(10)) if ct_hint else ''}"
+            f"{('- TỆP NHẮM chính: ' + audience + ' — bám đúng nhóm khách này (thông điệp/offer/kênh).' + chr(10)) if (audience or '').strip() else ''}\n"
             f"# Chiến lược (Synthesis — la bàn)\n{synth[:3000]}\n\n"
             f"# Tactical Playbook (cách đánh)\n{(tact or '(chưa có)')[:2000]}"
         )
@@ -851,7 +857,7 @@ async def occasion_draft(user_id=None, occasion: str = "", window_start: str = "
 async def save_occasion(user_id=None, occasion: str = "", window_start: str = "",
                         window_end: str = "", budget: str = "", goal: str = "",
                         brief: str = "", objective: str = "", objective_custom: str = "",
-                        campaign_type: str = "") -> dict:
+                        campaign_type: str = "", audience: str = "") -> dict:
     """M1.1 (D-044): lưu Campaign Brief đợt → skill_runs (occasion_brief) + campaigns.
 
     Tái dùng hạ tầng có sẵn (skill_runs cho doc-reader/patch; campaigns cho record),
@@ -899,7 +905,8 @@ async def save_occasion(user_id=None, occasion: str = "", window_start: str = ""
                 meta = {}
             spec = CAMPAIGN_TYPES[ctk]
             meta[str(cid)] = {"type": ctk, "type_label": spec[2], "type_icon": spec[1],
-                              "group": spec[0], "tasks": _build_campaign_tasks(ctk)}
+                              "group": spec[0], "audience": (audience or "").strip(),
+                              "tasks": _build_campaign_tasks(ctk)}
             extra["campaign_meta"] = meta
             await profiles.upsert_profile(uid, intake_extra=extra)
         return {"ok": True, "campaign": camp, "run_id": run_id}
@@ -908,8 +915,134 @@ async def save_occasion(user_id=None, occasion: str = "", window_start: str = ""
         return {"error": str(e)}
 
 
-# ── M2.1 (D-045): Retention/Lifecycle — cẩm nang if-then, KHÔNG cần order data ──
-_retention_cache: dict = {}
+# M-F (F2): nhóm khách (Pha 4 bản nhẹ — gắn ở lớp campaign). always-on KHÔNG dùng.
+AUDIENCE_SEGMENTS = ["Mới", "Active", "Nguy cơ", "VIP", "Tất cả"]
+# default tệp nhắm theo loại (founder đổi được)
+_TYPE_AUDIENCE = {
+    "awareness": "Mới", "launch": "Mới", "promo": "Tất cả", "leadgen": "Mới",
+    "engagement": "Tất cả", "retention": "Active", "rebrand": "Tất cả", "influencer": "Mới",
+    "event": "Tất cả", "csr": "Mới", "content_seo": "Mới", "ugc": "Active",
+}
+
+
+async def gen_campaign_portfolio(user_id=None) -> dict:
+    """M-F (F2): Max suy DANH MỤC chiến dịch từ roadmap (synthesis) — chuỗi chiến dịch CÓ LOẠI
+    theo từng giai đoạn, kèm tệp nhắm (Pha 4 nhẹ) + lý do. CODE lo NGÀY (map start_week→date),
+    LLM lo Ý. Lưu intake_extra.campaign_portfolio; founder duyệt → commit thành occasion."""
+    if not available():
+        return {"error": "Chưa cấu hình Supabase."}
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {"error": "Chưa có user."}
+        synth = await _latest_content(uid, "synthesis")
+        if not synth.strip():
+            return {"error": "Cần Chiến lược (Synthesis) trước khi đề xuất danh mục."}
+        tact = await _latest_content(uid, "tactical_playbook")
+        from storage.v2 import profiles
+        prof = await profiles.get_profile(uid) or {}
+        extra = prof.get("intake_extra") if isinstance(prof.get("intake_extra"), dict) else {}
+        industry = prof.get("industry") or ""
+        usp = prof.get("usp") or ""
+        wedge = (extra.get("wedge") if isinstance(extra, dict) else "") or ""
+        hz = (extra.get("horizon") if isinstance(extra, dict) else "") or ""
+        weeks = _HORIZON_WEEKS.get(str(hz or ""), 4)
+        from frameworks.industry_context import get_purchase_archetype, ARCHETYPE_LABEL
+        arche = ARCHETYPE_LABEL.get(get_purchase_archetype(industry) or "", "")
+        # mô tả loại cho LLM chọn đúng key
+        type_menu = "\n".join(f"- {k} ({CAMPAIGN_TYPES[k][2]})" for k in CAMPAIGN_TYPES)
+        from tools.llm_router import call as router_call, TaskType
+        import json as _json
+        system = (
+            "Bạn là CMO lập DANH MỤC CHIẾN DỊCH cho 1 doanh nghiệp Việt theo roadmap chiến lược.\n"
+            f"Đề xuất 3-6 chiến dịch trải đều trong {weeks} TUẦN tới, mỗi cái bám 1 GIAI ĐOẠN của roadmap "
+            "(từ nhận biết → cân nhắc → chuyển đổi/giữ chân theo đúng mạch chiến lược + mùa vụ ngành).\n"
+            "Mỗi chiến dịch chọn 1 LOẠI từ menu (trả đúng KEY tiếng Anh):\n" + type_menu + "\n"
+            "🔴 KHÔNG bịa NGÀY tháng — chỉ ghi start_week (tuần bắt đầu, số nguyên 1.." + str(weeks) + ") và "
+            "window_weeks (độ dài, số nguyên). Hệ thống tự tính ngày.\n"
+            "🔴 audience = tệp nhắm chính, chọn 1 trong: Mới · Active · Nguy cơ · VIP · Tất cả (hợp loại + giai đoạn).\n"
+            "🔴 why = 1-2 câu vì sao chiến dịch này ở giai đoạn này (bám roadmap + USP + ngành). TIẾNG VIỆT.\n"
+            "🔴 Trải hợp lý, KHÔNG chồng chéo dày; tôn trọng wedge/định vị; KHÔNG bịa số/ngân sách.\n"
+            'Output JSON DUY NHẤT: {"campaigns":[{"name":"","type":"","objective":"","audience":"",'
+            '"why":"","start_week":1,"window_weeks":2}]} — name tiếng Việt, ngắn gọn hook-y.'
+        )
+        user = (f"# Ngành\n{industry} — {arche}\n# USP\n{usp or '(chưa rõ)'}\n# Wedge\n{wedge or '(chưa chọn)'}\n"
+                f"# Horizon\n{weeks} tuần\n\n# Chiến lược (Synthesis — roadmap)\n{synth[:3200]}\n\n"
+                f"# Tactical Playbook\n{(tact or '(chưa có)')[:1500]}")
+        res = await router_call(task_type=TaskType.INTAKE_JSON, system=system, user=user, max_tokens=1800)
+        raw = (res or {}).get("output", "").strip()
+        raw = re.sub(r'^```(?:json)?\s*', '', raw)
+        raw = re.sub(r'\s*```\s*$', '', raw).strip()
+        data = _json.loads(raw)
+        from datetime import date, timedelta
+        today = date.today()
+        anchor = today - timedelta(days=today.weekday())   # thứ Hai tuần này
+        items = []
+        for c in (data.get("campaigns") or [])[:8]:
+            if not isinstance(c, dict):
+                continue
+            tkey = str(c.get("type") or "").strip().lower()
+            spec = CAMPAIGN_TYPES.get(tkey)
+            if not spec:
+                continue   # bỏ loại không hợp lệ
+            try:
+                sw = max(1, min(int(c.get("start_week") or 1), weeks))
+            except Exception:
+                sw = 1
+            try:
+                ww = max(1, int(c.get("window_weeks") or spec[4] or 2))
+            except Exception:
+                ww = spec[4] or 2
+            ww = ww if ww > 0 else 2
+            ws = anchor + timedelta(weeks=sw - 1)
+            we = ws + timedelta(weeks=ww) - timedelta(days=1)
+            aud = str(c.get("audience") or "").strip()
+            if aud not in AUDIENCE_SEGMENTS:
+                aud = _TYPE_AUDIENCE.get(tkey, "Tất cả")
+            items.append({"name": str(c.get("name") or spec[2])[:120], "type": tkey,
+                          "type_label": spec[2], "type_icon": spec[1],
+                          "objective": (str(c.get("objective") or "").strip() or spec[3]),
+                          "audience": aud, "why": str(c.get("why") or "")[:280],
+                          "start_week": sw, "window_weeks": ww,
+                          "ws": ws.isoformat(), "we": we.isoformat()})
+        if not items:
+            return {"error": "Max chưa đề xuất được danh mục — thử lại."}
+        if not isinstance(extra, dict):
+            extra = {}
+        extra["campaign_portfolio"] = items
+        await profiles.upsert_profile(uid, intake_extra=extra)
+        return {"ok": True, "campaigns": items}
+    except Exception as e:
+        logger.warning("biz.gen_campaign_portfolio failed: %s", e)
+        return {"error": str(e)}
+
+
+async def clear_campaign_portfolio(user_id=None, index: int = -1) -> dict:
+    """M-F (F2): bỏ 1 mục (index) hoặc cả danh mục (index<0) khỏi proposal đã lưu."""
+    if not available():
+        return {"error": "Chưa cấu hình Supabase."}
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {"error": "Chưa có user."}
+        from storage.v2 import profiles
+        prof = await profiles.get_profile(uid) or {}
+        extra = prof.get("intake_extra") if isinstance(prof.get("intake_extra"), dict) else {}
+        if not isinstance(extra, dict):
+            extra = {}
+        lst = extra.get("campaign_portfolio") or []
+        if index is not None and index >= 0 and index < len(lst):
+            lst.pop(index)
+            extra["campaign_portfolio"] = lst
+        else:
+            extra.pop("campaign_portfolio", None)
+        await profiles.upsert_profile(uid, intake_extra=extra)
+        return {"ok": True, "remaining": len(extra.get("campaign_portfolio") or [])}
+    except Exception as e:
+        logger.warning("biz.clear_campaign_portfolio failed: %s", e)
+        return {"error": str(e)}
 
 # 2 chế độ cùng 1 module (D-045 mục 8). retention = full lifecycle giữ chân;
 # winback = chuyên kéo khách đã rời bỏ quay lại.
