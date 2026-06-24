@@ -691,7 +691,8 @@
         grow();
         box.oninput = grow;
         box.onkeydown = (e) => {
-          if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); aiMode ? aiIntakeSend() : handleIntake('next'); }
+          // form intake: Enter=Tiếp do listener delegated lo (chống mất handler khi re-render)
+          if (e.key === 'Enter' && !e.shiftKey && aiMode) { e.preventDefault(); aiIntakeSend(); }
         };
       }
     },
@@ -3025,6 +3026,14 @@
   document.addEventListener('change', (e) => {
     const el = e.target.closest('input[data-act]');
     if (el) handleAction(el);
+  });
+  // Enter trong ô intake (form) = nút Tiếp — delegated để luôn ăn dù mount re-render
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' || e.shiftKey) return;
+    const t = e.target;
+    if (t && t.id === 'intakeBox' && document.querySelector('[data-act="intake-next"]')) {
+      e.preventDefault(); handleIntake('next');
+    }
   });
 
   window.addEventListener('hashchange', route);
