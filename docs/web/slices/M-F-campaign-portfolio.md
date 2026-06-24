@@ -26,7 +26,11 @@
 
 ### 3.1 Campaign TYPE = template gắn mục tiêu (deterministic)
 Mỗi type = playbook đặt sẵn: objective (1 trong 6 đã có) + hình arc + kênh gợi ý + KPI dạng + window điển hình
-+ **bộ task mặc định**. Bảng dự kiến:
++ **bộ task mặc định**.
+
+> Founder (2026-06-24): KHÔNG giới hạn 6. Chia 2 nhóm + cho tự-mô-tả (Max dựng playbook) — không trần cứng.
+
+**Nhóm A — theo MỤC TIÊU (objective-led):**
 
 | Type | Objective | Arc | Window | Task mặc định |
 |---|---|---|---|---|
@@ -36,6 +40,22 @@ Mỗi type = playbook đặt sẵn: objective (1 trong 6 đã có) + hình arc +
 | 📞 Thu lead | leadgen | educate→offer tư vấn→nurture | 2-6 tuần | lead-magnet content, ads_copy (lead), email seq nurture, sales_inbox |
 | ✨ Tương tác/Viral | engagement | hook→participate→amplify | 1-3 tuần | minigame post, ugc_brief, influencer brief |
 | 🔁 Giữ/Winback | retention | (behavior, không window) | n/a | email/Zalo winback seq, loyalty posts, sales_inbox |
+
+**Nhóm B — theo HÌNH THỨC đặc thù (playbook + task riêng):**
+
+| Type | Objective gốc | Đặc trưng playbook/task |
+|---|---|---|
+| 🔄 Tái định vị (Rebranding) | brand | story chuyển đổi, video manifesto, PR pitch, đồng bộ kênh |
+| 🤝 Influencer/KOL-led | brand/engagement/conversion | influencer brief (nhiều tier), outreach (action), tổng hợp UGC |
+| 🎪 Event/Trải nghiệm | engagement/brand | pre-hype → ngày event → recap; landing đăng ký (action: tổ chức) |
+| ❤️ CSR/Vì cộng đồng | brand | narrative giá trị, PR, kêu gọi tham gia |
+| 📚 Content/SEO dài hơi | leadgen/brand | cụm bài SEO, lead magnet, email nurture (window dài) |
+| 👥 UGC/Cộng đồng | engagement | ugc_brief, minigame, tổng hợp & re-share |
+
+**+ ✏️ Tự mô tả loại khác** → Max dựng playbook (arc + task + KPI) cho loại đó (1 LLM call, như free-text
+mục đích đợt). → KHÔNG có trần cứng số loại.
+
+🔴 Pure-channel (email · ads/PPC · retargeting · social) = **TASK bên trong** campaign, KHÔNG thành "loại".
 
 → Bảng trên là DEFAULT (code); Max có thể tinh chỉnh task theo bối cảnh (xem 4.2).
 
@@ -98,11 +118,12 @@ task = { id, kind, label, status:'todo'|'draft'|'approved', run_id? }
 - **Pha F3 (sau)** — generator mới (landing/SEO/event) + ACTION-task brief đầy đủ + theo dõi status/kanban.
 → Khuyến nghị làm F1 trước (mỗi campaign hết mơ hồ), rồi F2 (Max lên cả danh mục).
 
-## 8. Mở / cần founder chốt
-- [ ] Q1: Bộ LOẠI campaign (6 cái mục 3.1) đủ/đúng chưa? thêm "Tái định vị", bớt cái nào?
-- [ ] Q2: Task checklist — **fixed theo template** (code, nhanh, đoán được) hay **Max tinh chỉnh theo ngành**
-      (1 call thêm)? → đề xuất: template default + Max chỉ thêm/bớt nhẹ khi rõ ràng.
-- [ ] Q3: ACTION task (contact KOL/chạy ads…) đợt này chỉ **brief + tick tay** (chưa integration) — OK chứ?
-- [ ] Q4: Generator mới (landing/SEO/event) — để **Pha F3** (đề xuất) hay cần ngay?
-- [ ] Q5: Thứ tự **F1 trước F2** (đề xuất) hay bạn muốn F2 (portfolio) trước?
-- [ ] Q6: Theo dõi status task (todo/draft/approved) đợt này ở mức **đơn giản** (badge) — đủ chưa, hay cần kanban?
+## 8. ĐÃ CHỐT (2026-06-24)
+- Q1 = KHÔNG giới hạn 6 → **Nhóm A (6 objective-led) + Nhóm B (6 form/style-led) + tự-mô-tả (Max dựng playbook)**.
+- Q2 = **template default + Max tinh chỉnh** nhẹ theo ngành.
+- Q3 = ACTION task chỉ **brief + tick tay** (chưa integration). OK.
+- Q4 = Generator mới (landing/SEO/event) → **Pha F3**.
+- Q5 = **F1 trước F2**.
+- Q6 = status task mức **badge đơn giản** (todo/draft/approved).
+
+→ Cleared để code **Pha F1** (campaign_type 2 nhóm + tự-mô-tả; task checklist móc generator sẵn; UI bảng task).
