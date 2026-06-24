@@ -1084,6 +1084,9 @@ async def clear_campaign_portfolio(user_id=None, index: int = -1) -> dict:
         logger.warning("biz.clear_campaign_portfolio failed: %s", e)
         return {"error": str(e)}
 
+# ── M2.1 (D-045): Retention/Lifecycle — cẩm nang if-then, KHÔNG cần order data ──
+_retention_cache: dict = {}
+
 # 2 chế độ cùng 1 module (D-045 mục 8). retention = full lifecycle giữ chân;
 # winback = chuyên kéo khách đã rời bỏ quay lại.
 RETENTION_MODES = {
