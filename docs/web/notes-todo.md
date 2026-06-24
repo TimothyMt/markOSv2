@@ -20,6 +20,22 @@
   → KHÔNG sửa sạch được khi research còn chạy qua `agents/` (reference-only). Dứt điểm = rebuild
   research WEB-OWNED, khoá cứng scope từng skill (thiếu data thì ghi "_chưa đủ dữ liệu công khai_",
   KHÔNG độn mảng khác). Gộp vào đợt rebuild research.
+  - **N-03b (cùng họ): Customer Insight (và competitor) "độn" ROADMAP.** Output có "6. Strategic
+    Implications → 🟢 Quick wins / 🟡 Medium term / 🔴 Risks" — VI PHẠM chính luật prompt
+    (`prompts.py:380` + `pipeline.py:173`: research kết bằng so-what, KHÔNG xếp Quick-win/Medium/
+    Long-term — việc đó của Synthesis T4/Tactical T5). Nguyên nhân: LLM bỏ qua lệnh phủ định + đoạn
+    luật cấm lại IN MẪU 🟢🟡🔴 nên model bắt chước. → Khoá scope khi rebuild research web-owned;
+    research dừng ở insight, roadmap chỉ ở Synthesis.
+
+- **[N-04] Bản đồ định vị lòi JSON thô.** `enhancePosMaps` chỉ thay `<pre>` khi parse được map
+  (JSON có `items` / ASCII có `^`+`GÓC`); khối JSON pos-map không khớp (thiếu items/parse lỗi/bản
+  spec thứ 2) thì `return` bỏ qua → để nguyên `<pre>` JSON thô hiện ra. → Thêm nhánh: khối trông
+  như pos-map JSON (có `yTop`/`xLeft`) mà không render được thì ẩn/gỡ, không để lòi.
+
+- **[N-05] Bỏ HẲN "Đối thủ đang theo dõi (Ads Library)" ở T1-T3.** Section trên trang competitor
+  (`P.competitor`) hiện DATA MOCK (`M.tracked` từ `web/data.js`: Phúc Long/Katinat) — không liên
+  quan business thật, reset không xoá. Founder quyết: **bỏ hẳn section này ở giai đoạn T1-T3**
+  (không đổi sang data thật). → Gỡ khối `M.tracked` khỏi render P.competitor.
 
 ## ✅ Đã làm (lưu vết)
 - Enter ở ô intake = nút Tiếp (fcbb3e3)
