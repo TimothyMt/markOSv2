@@ -45,6 +45,22 @@
   → Phụ: nhánh strategize trong `_execute` KHÔNG có timeout (research có `wait_for`) — nếu LLM treo
   thì job kẹt 'running' mãi → thêm timeout + đánh 'error' để khỏi kẹt vô hạn.
 
+- **[N-07] Build/refresh Playbook SAU khi chốt chiến lược + cờ lệch nguồn.**
+  Hiện `strategize_web` sinh synthesis + playbook cùng lúc; nhưng nếu sửa synthesis sau đó
+  (doc "Sửa tay"/"Nhờ Max chỉnh" → version mới) thì **playbook KHÔNG regen** → bám synthesis cũ.
+  `approve_synthesis` (chốt) cũng không regen. → (1) Regen playbook khi bấm "Chốt chiến lược"
+  (đọc synthesis mới nhất); (2) gắn playbook với version/fingerprint synthesis nó dựa vào, lệch
+  thì hiện badge "Playbook theo chiến lược cũ — cập nhật?" (tái dùng `_strategy_fp`).
+
+- **[N-08] Chất lượng output Playbook hơi kém — rà cấu trúc/prompt.**
+  Playbook web do prompt `tac_system` trong `strategize_web` sinh (WEB-OWNED, không phải agents/).
+  Cấu trúc hiện: mỗi tệp × phễu TOFU/MOFU/BOFU, mỗi mũi có góc/insight + copy mẫu + kênh + khung
+  test (ngưỡng tương đối) + KPI; tệp ưu tiên full, tệp phụ gọn; kết bằng bảng. Founder thấy output
+  "hơi kém". Nghi 2 nguồn: (a) prompt còn chung chung/cần cụ thể hơn; (b) UPSTREAM — research T1-T3
+  chưa đủ (mới market) → synthesis mỏng → playbook mỏng (garbage-in). → Khi làm: hỏi rõ "kém" ở
+  điểm nào (chung chung? thiếu copy thật? thiếu kênh cụ thể? test mơ hồ?) rồi nâng prompt + đảm bảo
+  research đủ trước khi lập.
+
 ## ✅ Đã làm (lưu vết)
 - Enter ở ô intake = nút Tiếp (fcbb3e3)
 - Báo "agent đang chạy" đúng + bỏ "90 ngày" hardcode intake (04f9a9a)
