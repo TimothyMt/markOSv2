@@ -770,6 +770,14 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 .camptask-st.st-draft { background:rgba(224,161,6,.16); color:var(--amber,#e0a106); }
 .camptask-st.st-ok { background:rgba(34,160,90,.16); color:var(--green,#22a05a); }
 .camptask-acts { display:flex; gap:6px; flex:none; }
+/* M-F (F3): kanban task (tái dùng .kanban grid sẵn có) */
+.kb-col { background:var(--panel-2); border:1px solid var(--stroke); border-radius:10px; padding:8px; min-height:60px; }
+.kb-h { font-size:12px; font-weight:600; margin-bottom:8px; }
+.kb-card { background:var(--panel); border:1px solid var(--stroke); border-radius:8px; padding:8px; margin-bottom:8px; }
+.kb-card-t { font-size:12.5px; margin-bottom:6px; line-height:1.35; }
+.kb-card .camptask-acts { flex-wrap:wrap; }
+.kb-empty { font-size:12px; text-align:center; padding:6px 0; }
+.kanban .kb-col { } /* spacing handled by .kanban gap */
 /* M-F (F2): danh mục chiến dịch */
 .pf-card { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding:11px 0; border-top:1px solid var(--stroke); }
 .pf-card:first-of-type { border-top:none; }

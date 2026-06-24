@@ -2056,19 +2056,24 @@
     if (!meta || !(meta.tasks || []).length) {
       bodyHtml = `<p class="muted">Chiến dịch này chưa gắn <b>loại</b> nên chưa có việc cần làm. Tạo lại chiến dịch và chọn loại ở bước 1 để Max liệt kê task.</p>`;
     } else {
-      const rows = meta.tasks.map(t => {
-        const st = _TASK_STATUS[t.status] || _TASK_STATUS.todo;
+      const card = (t) => {
         const act = t.is_action
           ? `<button class="ghost-line sm" data-act="camptask-gen" data-task="${t.id}">${t.run_id ? '↻ Brief lại' : '🔧 Hướng dẫn'}</button>`
           : `<button class="ghost-line sm" data-act="camptask-gen" data-task="${t.id}">${t.run_id ? '↻ Tạo lại' : '✍️ Tạo'}</button>`;
         const view = t.run_id ? `<button class="ghost-line sm" data-act="camptask-view" data-run="${t.run_id}">Xem</button>` : '';
         const appr = (t.run_id && t.status !== 'approved') ? `<button class="ghost-line sm" data-act="camptask-approve" data-task="${t.id}">Duyệt</button>` : '';
-        return `<div class="camptask">
-          <div class="camptask-main">${t.is_action ? '🔧' : '✍️'} ${E(t.label)}
-            <span class="camptask-st ${st[1]}">${st[0]}</span></div>
+        return `<div class="kb-card">
+          <div class="kb-card-t">${t.is_action ? '🔧' : '✍️'} ${E(t.label)}</div>
           <div class="camptask-acts">${act}${view}${appr}</div></div>`;
+      };
+      const cols = [['todo', '📋 Chưa làm'], ['draft', '✏️ Bản nháp'], ['approved', '✓ Đã duyệt']];
+      const kb = cols.map(([k, lbl]) => {
+        const ts = meta.tasks.filter(t => (t.status || 'todo') === k);
+        return `<div class="kb-col"><div class="kb-h">${lbl} <span class="muted">${ts.length}</span></div>
+          ${ts.map(card).join('') || '<div class="kb-empty muted">—</div>'}</div>`;
       }).join('');
-      bodyHtml = `<p class="muted" style="margin:0 0 10px">Việc cần làm cho đợt này — ✍️ Max tạo nội dung · 🔧 việc người làm (Max ra hướng dẫn).</p>${rows}`;
+      bodyHtml = `<p class="muted" style="margin:0 0 10px">${meta.audience ? '🎯 Tệp nhắm: <b>' + E(meta.audience) + '</b> · ' : ''}✍️ Max tạo nội dung · 🔧 việc người làm (Max ra hướng dẫn).</p>
+        <div class="kanban">${kb}</div>`;
     }
     ov.querySelector('.modal-body').innerHTML = bodyHtml;
     const foot = ov.querySelector('.modal-foot'); if (foot) { foot.style.display = 'none'; foot.innerHTML = ''; }

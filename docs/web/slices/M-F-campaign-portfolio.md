@@ -155,4 +155,12 @@ task = { id, kind, label, status:'todo'|'draft'|'approved', run_id? }
   "↻ Đề xuất lại" + mỗi card "Tạo chiến dịch" (mở wizard điền sẵn type/objective/window/audience) +
   "✕ bỏ". Wizard thêm selector "🎯 Tệp nhắm". openOccasionWizard nhận preset object. Mirror+CSS.
 - Verify: ast/import/node --check OK; test date-map/validate/clamp/drop PASS.
-- Còn (F3): generator mới landing/SEO/event/PR + ACTION-task brief đầy đủ + kanban status.
+### F3 (2026-06-24) — generator mới + kanban
+- Backend: thăng các action viết-được thành CONTENT generator: landing_copy · seo_outline · pr_pitch ·
+  event_plan · referral_plan (thêm vào _CAMPAIGN_TASK_GEN + CAMPAIGN_TASK_LABELS). Cập nhật task list
+  của các loại (launch/leadgen→landing_copy; rebrand/csr→pr_pitch; content_seo→seo_outline; event→
+  event_plan; retention→referral_plan). Giữ action thật: setup_ads/contact_kol/run_event.
+- FE: campaign detail → KANBAN 3 cột (Chưa làm/Bản nháp/Đã duyệt) gom task theo status + hiện tệp nhắm.
+  Tái dùng .kanban grid sẵn + .kb-* mới. Mirror app.js↔standalone.
+- Verify: ast/import/node --check OK; _build_campaign_tasks loại mới đúng.
+- M-F HOÀN TẤT (F1a/F1b/F2/F3). Còn ngoài M-F: C kéo-thả, theme tháng mềm, test Railway.

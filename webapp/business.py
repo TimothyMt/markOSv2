@@ -667,17 +667,17 @@ OCCASION_OBJECTIVES = {
 CAMPAIGN_TYPES = {
     # Nhóm A — theo mục tiêu
     "awareness":   ("A", "📣", "Nhận biết",        "brand",      5, ["calendar_post", "video_script", "ugc_brief"]),
-    "launch":      ("A", "🚀", "Ra mắt sản phẩm",  "brand",      4, ["calendar_post", "video_script", "ads_copy", "ugc_brief", "email_zalo_sequence", "action:landing"]),
+    "launch":      ("A", "🚀", "Ra mắt sản phẩm",  "brand",      4, ["calendar_post", "video_script", "ads_copy", "ugc_brief", "email_zalo_sequence", "landing_copy"]),
     "promo":       ("A", "💰", "Sale/Khuyến mãi",  "conversion", 2, ["calendar_post", "ads_copy", "email_zalo_sequence", "sales_inbox_script", "action:setup_ads"]),
-    "leadgen":     ("A", "📞", "Thu lead/Tư vấn",  "leadgen",    4, ["calendar_post", "ads_copy", "email_zalo_sequence", "sales_inbox_script"]),
+    "leadgen":     ("A", "📞", "Thu lead/Tư vấn",  "leadgen",    4, ["calendar_post", "ads_copy", "landing_copy", "email_zalo_sequence", "sales_inbox_script"]),
     "engagement":  ("A", "✨", "Tương tác/Viral",  "engagement", 2, ["calendar_post", "ugc_brief"]),
-    "retention":   ("A", "🔁", "Giữ & Winback",    "retention",  0, ["email_zalo_sequence", "sales_inbox_script", "calendar_post"]),
+    "retention":   ("A", "🔁", "Giữ & Winback",    "retention",  0, ["email_zalo_sequence", "sales_inbox_script", "calendar_post", "referral_plan"]),
     # Nhóm B — theo hình thức đặc thù
-    "rebrand":     ("B", "🔄", "Tái định vị",       "brand",      6, ["calendar_post", "video_script", "ugc_brief", "action:pr"]),
+    "rebrand":     ("B", "🔄", "Tái định vị",       "brand",      6, ["calendar_post", "video_script", "ugc_brief", "pr_pitch"]),
     "influencer":  ("B", "🤝", "Influencer/KOL",    "engagement", 4, ["ugc_brief", "calendar_post", "action:contact_kol"]),
-    "event":       ("B", "🎪", "Event/Trải nghiệm", "engagement", 3, ["calendar_post", "video_script", "email_zalo_sequence", "action:run_event"]),
-    "csr":         ("B", "❤️", "CSR/Vì cộng đồng",  "brand",      4, ["calendar_post", "video_script", "action:pr"]),
-    "content_seo": ("B", "📚", "Content/SEO dài hơi", "leadgen",  8, ["calendar_post", "email_zalo_sequence", "action:seo"]),
+    "event":       ("B", "🎪", "Event/Trải nghiệm", "engagement", 3, ["event_plan", "calendar_post", "video_script", "email_zalo_sequence", "action:run_event"]),
+    "csr":         ("B", "❤️", "CSR/Vì cộng đồng",  "brand",      4, ["calendar_post", "video_script", "pr_pitch"]),
+    "content_seo": ("B", "📚", "Content/SEO dài hơi", "leadgen",  8, ["seo_outline", "calendar_post", "email_zalo_sequence"]),
     "ugc":         ("B", "👥", "UGC/Cộng đồng",      "engagement", 3, ["ugc_brief", "calendar_post", "action:contact_kol"]),
 }
 
@@ -690,12 +690,14 @@ CAMPAIGN_TASK_LABELS = {
     "ads_copy":            "Quảng cáo (ads copy theo phễu)",
     "email_zalo_sequence": "Chuỗi Email / Zalo",
     "sales_inbox_script":  "Kịch bản chốt inbox",
-    "action:landing":      "Landing page đăng ký (việc người làm)",
+    "landing_copy":        "Nội dung Landing page",
+    "seo_outline":         "Dàn bài SEO (cụm từ khoá + outline)",
+    "pr_pitch":            "Bài PR / pitch báo chí",
+    "event_plan":          "Kế hoạch event (kịch bản chương trình)",
+    "referral_plan":       "Cơ chế giới thiệu (referral)",
     "action:setup_ads":    "Set-up & chạy tài khoản ads (việc người làm)",
     "action:contact_kol":  "Liên hệ & chốt KOL/Influencer (việc người làm)",
     "action:run_event":    "Tổ chức event (việc người làm)",
-    "action:pr":           "PR/booking báo (việc người làm)",
-    "action:seo":          "Triển khai SEO on-page (việc người làm)",
 }
 
 
@@ -1686,6 +1688,11 @@ _CAMPAIGN_TASK_GEN = {
     "ads_copy":            ("OPS_CONTENT_CREATIVE", 1200, "Viết bộ ADS COPY theo phễu (TOFU/MOFU/BOFU) cho đợt: nhiều biến thể headline + body + CTA."),
     "email_zalo_sequence": ("OPS_CONTENT_BULK",     1300, "Viết CHUỖI Email/Zalo cho đợt (3-5 chặng): mục tiêu mỗi chặng + tiêu đề + nội dung + CTA."),
     "sales_inbox_script":  ("OPS_CONTENT_CREATIVE", 1100, "Viết KỊCH BẢN chốt inbox cho đợt: xử lý hỏi giá/chê đắt/so sánh + cách chốt."),
+    "landing_copy":        ("OPS_CONTENT_CREATIVE", 1400, "Viết NỘI DUNG LANDING PAGE cho đợt: headline + sub + 3-5 khối (vấn đề/giá trị/bằng chứng/ưu đãi/FAQ) + CTA rõ. Ghi gợi ý bố cục."),
+    "seo_outline":         ("OPS_BRIEF",            1300, "Lập DÀN BÀI SEO cho đợt: 5-10 từ khoá (intent) + cụm chủ đề + outline H1/H2/H3 cho 1-2 bài trụ + meta title/description gợi ý."),
+    "pr_pitch":            ("OPS_CONTENT_CREATIVE", 1200, "Viết BÀI PR / pitch báo chí cho đợt: góc tin (news angle) + tiêu đề + thân bài ~300-400 chữ + boilerplate + mẫu email gửi báo."),
+    "event_plan":          ("OPS_BRIEF",            1400, "Lập KẾ HOẠCH EVENT cho đợt: mục tiêu, định dạng, kịch bản chương trình theo mốc thời gian (pre/ngày/post), phân vai, checklist hậu cần, KPI."),
+    "referral_plan":       ("OPS_BRIEF",            1200, "Thiết kế CƠ CHẾ GIỚI THIỆU (referral): cấu trúc thưởng cho người giới thiệu + người được giới thiệu, điều kiện, kênh chia sẻ, mẫu lời mời, chống gian lận."),
 }
 _ACTION_TASK_GEN = ("OPS_BRIEF", 1000,
     "Viết HƯỚNG DẪN THỰC THI + MẪU cho đầu việc này (các bước cụ thể + mẫu tin nhắn/checklist/yêu cầu) "

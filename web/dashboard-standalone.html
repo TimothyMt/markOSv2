@@ -779,6 +779,14 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 .camptask-st.st-draft { background:rgba(224,161,6,.16); color:var(--amber,#e0a106); }
 .camptask-st.st-ok { background:rgba(34,160,90,.16); color:var(--green,#22a05a); }
 .camptask-acts { display:flex; gap:6px; flex:none; }
+/* M-F (F3): kanban task (tái dùng .kanban grid sẵn có) */
+.kb-col { background:var(--panel-2); border:1px solid var(--stroke); border-radius:10px; padding:8px; min-height:60px; }
+.kb-h { font-size:12px; font-weight:600; margin-bottom:8px; }
+.kb-card { background:var(--panel); border:1px solid var(--stroke); border-radius:8px; padding:8px; margin-bottom:8px; }
+.kb-card-t { font-size:12.5px; margin-bottom:6px; line-height:1.35; }
+.kb-card .camptask-acts { flex-wrap:wrap; }
+.kb-empty { font-size:12px; text-align:center; padding:6px 0; }
+.kanban .kb-col { } /* spacing handled by .kanban gap */
 /* M-F (F2): danh mục chiến dịch */
 .pf-card { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding:11px 0; border-top:1px solid var(--stroke); }
 .pf-card:first-of-type { border-top:none; }
@@ -3304,19 +3312,24 @@ window.MOCK = {
     if (!meta || !(meta.tasks || []).length) {
       bodyHtml = `<p class="muted">Chiến dịch này chưa gắn <b>loại</b> nên chưa có việc cần làm. Tạo lại chiến dịch và chọn loại ở bước 1 để Max liệt kê task.</p>`;
     } else {
-      const rows = meta.tasks.map(t => {
-        const st = _TASK_STATUS[t.status] || _TASK_STATUS.todo;
+      const card = (t) => {
         const act = t.is_action
           ? `<button class="ghost-line sm" data-act="camptask-gen" data-task="${t.id}">${t.run_id ? '↻ Brief lại' : '🔧 Hướng dẫn'}</button>`
           : `<button class="ghost-line sm" data-act="camptask-gen" data-task="${t.id}">${t.run_id ? '↻ Tạo lại' : '✍️ Tạo'}</button>`;
         const view = t.run_id ? `<button class="ghost-line sm" data-act="camptask-view" data-run="${t.run_id}">Xem</button>` : '';
         const appr = (t.run_id && t.status !== 'approved') ? `<button class="ghost-line sm" data-act="camptask-approve" data-task="${t.id}">Duyệt</button>` : '';
-        return `<div class="camptask">
-          <div class="camptask-main">${t.is_action ? '🔧' : '✍️'} ${E(t.label)}
-            <span class="camptask-st ${st[1]}">${st[0]}</span></div>
+        return `<div class="kb-card">
+          <div class="kb-card-t">${t.is_action ? '🔧' : '✍️'} ${E(t.label)}</div>
           <div class="camptask-acts">${act}${view}${appr}</div></div>`;
+      };
+      const cols = [['todo', '📋 Chưa làm'], ['draft', '✏️ Bản nháp'], ['approved', '✓ Đã duyệt']];
+      const kb = cols.map(([k, lbl]) => {
+        const ts = meta.tasks.filter(t => (t.status || 'todo') === k);
+        return `<div class="kb-col"><div class="kb-h">${lbl} <span class="muted">${ts.length}</span></div>
+          ${ts.map(card).join('') || '<div class="kb-empty muted">—</div>'}</div>`;
       }).join('');
-      bodyHtml = `<p class="muted" style="margin:0 0 10px">Việc cần làm cho đợt này — ✍️ Max tạo nội dung · 🔧 việc người làm (Max ra hướng dẫn).</p>${rows}`;
+      bodyHtml = `<p class="muted" style="margin:0 0 10px">${meta.audience ? '🎯 Tệp nhắm: <b>' + E(meta.audience) + '</b> · ' : ''}✍️ Max tạo nội dung · 🔧 việc người làm (Max ra hướng dẫn).</p>
+        <div class="kanban">${kb}</div>`;
     }
     ov.querySelector('.modal-body').innerHTML = bodyHtml;
     const foot = ov.querySelector('.modal-foot'); if (foot) { foot.style.display = 'none'; foot.innerHTML = ''; }
