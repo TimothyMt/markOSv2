@@ -1705,7 +1705,7 @@ window.MOCK = {
       choices: ['Chưa chạy quảng cáo', 'Dưới 5 triệu', '5–20 triệu', '20–50 triệu', 'Trên 50 triệu', 'Không tiện chia sẻ'],
       note: 'Để Max đề xuất kênh & phân bổ khả thi với túi tiền của bạn.' },
     { key: 'current_channels', tier: 'context', optional: true, q: 'Hiện bạn đang dùng kênh marketing nào?', ph: 'vd: Facebook, TikTok, Zalo OA' },
-    { key: 'primary_goal', tier: 'context', q: '90 ngày tới bạn muốn ưu tiên điều gì nhất?',
+    { key: 'primary_goal', tier: 'context', q: 'Thời gian tới bạn muốn ưu tiên điều gì nhất?',
       choices: ['Tăng nhận diện thương hiệu', 'Ra nhiều đơn / doanh thu', 'Giữ chân & chăm khách cũ', 'Ra mắt sản phẩm mới'],
       note: 'Chọn hướng ưu tiên — con số cụ thể sẽ chốt khi bạn lập từng chiến dịch theo dịp.' },
     { key: 'usp', tier: 'context', optional: true,
@@ -1844,7 +1844,9 @@ window.MOCK = {
         ? `<div class="sel" data-act="switch-user" title="Đổi người dùng đang xem">${
             (M.bizUser && (M.bizUser.name || M.bizUser.user_id)) || M.bizUserId || 'Chọn user'} ▾</div>`
         : '';
-      return sel + `<button class="ghost-line" data-act="biz-reset" title="Xoá dữ liệu để test lại từ đầu">🧹 Reset</button>` + runBtn('research', '🔬 Chạy nghiên cứu (T1-T3)', 'primary-btn');
+      const busy = (M.agentJobs||[]).some(j => j.status==='running' && (j.task==='research' || j.task==='full'));
+      return sel + `<button class="ghost-line" data-act="biz-reset" title="Xoá dữ liệu để test lại từ đầu">🧹 Reset</button>`
+        + `<button class="primary-btn" data-act="run-agent" data-task="research" ${busy?'disabled':''}>${busy?'⏳ Đang chạy nghiên cứu…':'🔬 Chạy nghiên cứu (T1-T3)'}</button>`;
     },
     render: () => {
       const p = M.bizProfile || {};
@@ -1884,7 +1886,10 @@ window.MOCK = {
         ['swot','swot','⚖️','SWOT','Ma trận chiến lược'],
         ['synthesis','strategy','🎯','Chiến lược tổng hợp','Định vị (bền) + roadmap theo nhịp'],
       ];
-      const isRunning = (t) => jobs.some(j => j.status === 'running' && (j.task === t || j.task === 'full'));
+      // 'research' bao T1-T3 (market/competitor/customer/swot); 'strategize' bao synthesis; 'full' bao tất.
+      const RUN_COVERS = { research: ['market','competitor','customer','swot'], strategize: ['strategy'] };
+      const isRunning = (t) => jobs.some(j => j.status === 'running' && (
+        j.task === t || j.task === 'full' || (RUN_COVERS[j.task] || []).includes(t)));
       const diagBody = `<div class="diag-list">${ANALYSES.map(([k, task, ic, name, desc]) => {
         const run = runs.find(r => r.skill_name === k);
         const running = isRunning(task);
