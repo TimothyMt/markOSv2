@@ -2032,7 +2032,7 @@
     demand_gen:     ['engagement', 'acquisition', 'conversion'],
     trust_building: ['leadgen', 'brand', 'retention'],
   };
-  let _occState = { occasion: '', ws: '', we: '', budget: '', baseline: '', goal: '', objective: '', objectiveCustom: '', brief: '', busy: false };
+  let _occState = { occasion: '', ws: '', we: '', budget: '', baseline: '', goal: '', objective: '', objectiveCustom: '', campaignType: '', campaignTypeCustom: '', brief: '', busy: false };
   // D-044b: ví dụ chỉ tiêu khác nhau theo mục đích đã chọn — tránh nhầm "mục đích" với "mục tiêu"
   const OCC_GOAL_EX = {
     acquisition: 'vd: 300 lead mới, reach 50.000',
@@ -2046,8 +2046,9 @@
     return (OCC_GOAL_EX[obj] || 'vd: 500 đơn, 50 triệu doanh thu, 300 lead') + ' — để trống = theo giai đoạn roadmap';
   }
 
+  const _occTypeByKey = (k) => ((window.MOCK && window.MOCK.bizCampaignTypes) || []).find(t => t.key === k) || null;
   function openOccasionWizard(preset) {
-    _occState = { occasion: preset || '', ws: '', we: '', budget: '', baseline: '', goal: '', objective: '', objectiveCustom: '', brief: '', busy: false };
+    _occState = { occasion: preset || '', ws: '', we: '', budget: '', baseline: '', goal: '', objective: '', objectiveCustom: '', campaignType: '', campaignTypeCustom: '', brief: '', busy: false };
     let ov = document.getElementById('occWizard');
     if (!ov) {
       ov = document.createElement('div');
@@ -2066,6 +2067,11 @@
           _occState.objective = '';
           ov.querySelectorAll('[data-act="occ-obj"]').forEach(c => c.classList.remove('on'));
         }
+        // M-F: tự mô tả loại campaign → bỏ chọn loại có sẵn.
+        if (k === 'campaignTypeCustom' && (e.target.value || '').trim()) {
+          _occState.campaignType = '';
+          ov.querySelectorAll('[data-act="occ-type"]').forEach(c => c.classList.remove('on'));
+        }
       });
       ov.addEventListener('click', (e) => {
         const chip = e.target.closest('[data-act="occ-chip"]');
@@ -2073,6 +2079,14 @@
           _occState.occasion = chip.dataset.occ || '';
           const inp = document.getElementById('occName'); if (inp) inp.value = _occState.occasion;
           ov.querySelectorAll('[data-act="occ-chip"]').forEach(c => c.classList.toggle('on', c === chip));
+          return;
+        }
+        const tbtn = e.target.closest('[data-act="occ-type"]');
+        if (tbtn) {   // M-F: chọn loại campaign → pre-fill mục đích; chọn lại = bỏ
+          const k = tbtn.dataset.type;
+          if (_occState.campaignType === k) { _occState.campaignType = ''; }
+          else { _occState.campaignType = k; _occState.objective = tbtn.dataset.obj || _occState.objective; _occState.campaignTypeCustom = ''; }
+          renderOccWizard();
           return;
         }
         const more = e.target.closest('[data-act="occ-more"]');
@@ -2105,10 +2119,15 @@
     const S = _occState;
     const E = s => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     if (S.brief) {   // Bước 3-4: review brief đã sinh
+      const ct = _occTypeByKey(S.campaignType);
+      const taskPrev = ct && ct.tasks && ct.tasks.length ? `
+        <div class="occ-tasks-prev"><b>${ct.icon} ${E(ct.label)}</b> — đợt này sẽ cần (Max giúp tạo sau khi lưu):
+          <ul>${ct.tasks.map(t => `<li>${t.is_action ? '🔧 ' : '✍️ '}${E(t.label)}</li>`).join('')}</ul></div>` : '';
       body.innerHTML = `
         <div class="dir-banner" style="margin-bottom:14px">✅ <b>Campaign Brief — ${E(S.occasion)}</b>.
           Mọi số là <b>gợi ý của Max</b> — bạn chốt lại được. Xem kỹ rồi lưu, hoặc quay lại chỉnh lever.</div>
         <div class="ai-output expanded">${renderAIContent(S.brief)}</div>
+        ${taskPrev}
         <div class="occ-foot">
           <button class="ghost-line" data-act="occ-back">← Chỉnh lever</button>
           <button class="primary-btn" data-act="occ-save">💾 Lưu chiến dịch</button>
@@ -2130,7 +2149,7 @@
     const moreObjs = OCC_OBJECTIVES.filter(o => !primKeys.includes(o.k));
     const customOn = !!(S.objectiveCustom || '').trim();
     const objSection = `
-      <div class="occ-step"><label class="occ-lbl">2 · Mục đích đợt <span class="muted" style="font-weight:400">(định hình brief — trống thì Max tự suy)${arche ? ' · gợi ý hợp ngành bạn' : ''}</span></label>
+      <div class="occ-step"><label class="occ-lbl">3 · Mục đích đợt <span class="muted" style="font-weight:400">(định hình brief — trống thì Max tự suy)${arche ? ' · gợi ý hợp ngành bạn' : ''}</span></label>
         <div class="occ-objs">${primObjs.map(objBtn).join('')}</div>
         ${moreObjs.length ? `
           <button class="occ-more" data-act="occ-more">Mục đích khác ▾</button>
@@ -2139,11 +2158,30 @@
         <input class="occ-inp ${customOn ? 'occ-custom-on' : ''}" data-occfield="objectiveCustom"
           placeholder="vd: tuyển 50 cộng tác viên bán hàng, gom data khách quan tâm khoá học…" value="${E(S.objectiveCustom)}">
       </div>`;
+    // M-F (F1): chọn LOẠI chiến dịch (2 nhóm + tự mô tả) — pre-fill mục đích + định hình task.
+    const types = (window.MOCK && window.MOCK.bizCampaignTypes) || [];
+    const typeBtn = (t) => `
+      <button class="occ-type ${S.campaignType === t.key ? 'on' : ''}" data-act="occ-type" data-type="${t.key}" data-obj="${t.objective}">
+        <span class="occ-obj-ic">${t.icon}</span><b>${E(t.label)}</b></button>`;
+    const grpA = types.filter(t => t.group === 'A'), grpB = types.filter(t => t.group === 'B');
+    const typeCustomOn = !!(S.campaignTypeCustom || '').trim();
+    const typeSection = types.length ? `
+      <div class="occ-step"><label class="occ-lbl">1 · Loại chiến dịch <span class="muted" style="font-weight:400">(định hình playbook + việc cần làm — chọn 1)</span></label>
+        <div class="occ-types-grp muted">Theo mục tiêu</div>
+        <div class="occ-types">${grpA.map(typeBtn).join('')}</div>
+        <div class="occ-types-grp muted" style="margin-top:8px">Theo hình thức đặc thù</div>
+        <div class="occ-types">${grpB.map(typeBtn).join('')}</div>
+        <label class="occ-sublbl" style="margin-top:10px">…hoặc tự mô tả loại khác (Max tự dựng playbook)</label>
+        <input class="occ-inp ${typeCustomOn ? 'occ-custom-on' : ''}" data-occfield="campaignTypeCustom"
+          placeholder="vd: chiến dịch affiliate, chiến dịch tri ân đại lý…" value="${E(S.campaignTypeCustom)}">
+      </div>` : '';
     body.innerHTML = `
       <div class="dir-banner" style="margin-bottom:14px">🧭 Đợt này <b>kế thừa la bàn + cách đánh</b> (pre-fill).
         Bạn nhập <b>lever</b> (dịp, window, ngân sách, baseline) — đây là cái khoá để chốt <b>SMART thật</b>. Mọi giá trị <b>bạn quyết</b>.</div>
 
-      <div class="occ-step"><label class="occ-lbl">1 · Chọn dịp</label>
+      ${typeSection}
+
+      <div class="occ-step"><label class="occ-lbl">2 · Chọn dịp</label>
         ${chips ? `<div class="occ-chips">${chips}</div>` : ''}
         <input id="occName" class="occ-inp" data-occfield="occasion" placeholder="vd: Tết Nguyên Đán, 20/10, Mừng khai trương…" value="${E(S.occasion)}">
       </div>
@@ -2157,7 +2195,7 @@
 
       ${objSection}
 
-      <div class="occ-step"><label class="occ-lbl">3 · Lever (khoá SMART) <span class="muted" style="font-weight:400">— mục đích ở trên quyết LOẠI chỉ tiêu, đây là SỐ cụ thể</span></label>
+      <div class="occ-step"><label class="occ-lbl">4 · Lever (khoá SMART) <span class="muted" style="font-weight:400">— mục đích ở trên quyết LOẠI chỉ tiêu, đây là SỐ cụ thể</span></label>
         <label class="occ-sublbl">Ngân sách đợt</label>
         <input class="occ-inp" data-occfield="budget" placeholder="vd: 30 triệu — gợi ý từ % burst nếu để trống" value="${E(S.budget)}">
         <label class="occ-sublbl">Baseline hiện tại (trước đợt)</label>
@@ -2181,7 +2219,7 @@
       const r = await API.post('api/biz/occasion', {
         user_id: _bizUserId, occasion: S.occasion, window_start: S.ws, window_end: S.we,
         budget: S.budget, baseline: S.baseline, goal: S.goal, objective: S.objective,
-        objective_custom: S.objectiveCustom });
+        objective_custom: S.objectiveCustom, campaign_type: S.campaignType });
       const d = (r && r.draft) || {};
       S.busy = false;
       if (!d.brief) { renderOccWizard(); toast('Chưa lập được brief — cần có Chiến lược (T4) trước, hoặc thử lại.'); return; }
@@ -2196,7 +2234,7 @@
       const r = await API.post('api/biz/occasion/save', {
         user_id: _bizUserId, occasion: S.occasion, window_start: S.ws, window_end: S.we,
         budget: S.budget, goal: S.goal, brief: S.brief, objective: S.objective,
-        objective_custom: S.objectiveCustom });
+        objective_custom: S.objectiveCustom, campaign_type: S.campaignType });
       if (r.error) { toast(r.error); return; }
       const ov = document.getElementById('occWizard'); if (ov) ov.classList.remove('show');
       toast('✅ Đã lưu chiến dịch theo dịp');

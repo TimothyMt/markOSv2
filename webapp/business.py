@@ -203,6 +203,13 @@ async def biz_data(user_id=None) -> dict:
         latest.setdefault(r["skill_name"], r)
     out["bizLatest"]     = latest
     out["bizBrandVoice"] = _bv_dict(bv)
+    # M-F (F1): meta loại campaign + checklist task (lưu intake_extra.campaign_meta) → FE bảng task.
+    try:
+        _ie = (out.get("bizProfile") or {}).get("intake_extra") or {}
+        out["bizCampaignMeta"] = (_ie.get("campaign_meta") if isinstance(_ie, dict) else {}) or {}
+    except Exception:
+        out["bizCampaignMeta"] = {}
+    out["bizCampaignTypes"] = campaign_types_list()
     # M-D Pha2b: archetype mua hàng của ngành → FE lọc "mục đích đợt" hợp ngành (nguồn duy nhất ở frameworks/).
     try:
         from frameworks.industry_context import get_purchase_archetype
@@ -630,9 +637,71 @@ OCCASION_OBJECTIVES = {
 }
 
 
+# M-F (Pha F1): LOẠI chiến dịch = playbook gắn mục tiêu. 2 nhóm + tự-mô-tả (không trần cứng).
+# tuple: (group, icon, label, objective, window_weeks, [task_kind...]). task kind 'action:*' = việc người làm.
+CAMPAIGN_TYPES = {
+    # Nhóm A — theo mục tiêu
+    "awareness":   ("A", "📣", "Nhận biết",        "brand",      5, ["calendar_post", "video_script", "ugc_brief"]),
+    "launch":      ("A", "🚀", "Ra mắt sản phẩm",  "brand",      4, ["calendar_post", "video_script", "ads_copy", "ugc_brief", "email_zalo_sequence", "action:landing"]),
+    "promo":       ("A", "💰", "Sale/Khuyến mãi",  "conversion", 2, ["calendar_post", "ads_copy", "email_zalo_sequence", "sales_inbox_script", "action:setup_ads"]),
+    "leadgen":     ("A", "📞", "Thu lead/Tư vấn",  "leadgen",    4, ["calendar_post", "ads_copy", "email_zalo_sequence", "sales_inbox_script"]),
+    "engagement":  ("A", "✨", "Tương tác/Viral",  "engagement", 2, ["calendar_post", "ugc_brief"]),
+    "retention":   ("A", "🔁", "Giữ & Winback",    "retention",  0, ["email_zalo_sequence", "sales_inbox_script", "calendar_post"]),
+    # Nhóm B — theo hình thức đặc thù
+    "rebrand":     ("B", "🔄", "Tái định vị",       "brand",      6, ["calendar_post", "video_script", "ugc_brief", "action:pr"]),
+    "influencer":  ("B", "🤝", "Influencer/KOL",    "engagement", 4, ["ugc_brief", "calendar_post", "action:contact_kol"]),
+    "event":       ("B", "🎪", "Event/Trải nghiệm", "engagement", 3, ["calendar_post", "video_script", "email_zalo_sequence", "action:run_event"]),
+    "csr":         ("B", "❤️", "CSR/Vì cộng đồng",  "brand",      4, ["calendar_post", "video_script", "action:pr"]),
+    "content_seo": ("B", "📚", "Content/SEO dài hơi", "leadgen",  8, ["calendar_post", "email_zalo_sequence", "action:seo"]),
+    "ugc":         ("B", "👥", "UGC/Cộng đồng",      "engagement", 3, ["ugc_brief", "calendar_post", "action:contact_kol"]),
+}
+
+# Nhãn task (kind → label tiếng Việt). content task móc generator sẵn; 'action:*' = người làm + Max ra brief.
+CAMPAIGN_TASK_LABELS = {
+    "calendar_post":       "Bài đăng cho đợt (posts)",
+    "post_channels":       "Biến thể đa kênh",
+    "video_script":        "Kịch bản video",
+    "ugc_brief":           "Brief UGC / KOL",
+    "ads_copy":            "Quảng cáo (ads copy theo phễu)",
+    "email_zalo_sequence": "Chuỗi Email / Zalo",
+    "sales_inbox_script":  "Kịch bản chốt inbox",
+    "action:landing":      "Landing page đăng ký (việc người làm)",
+    "action:setup_ads":    "Set-up & chạy tài khoản ads (việc người làm)",
+    "action:contact_kol":  "Liên hệ & chốt KOL/Influencer (việc người làm)",
+    "action:run_event":    "Tổ chức event (việc người làm)",
+    "action:pr":           "PR/booking báo (việc người làm)",
+    "action:seo":          "Triển khai SEO on-page (việc người làm)",
+}
+
+
+def campaign_types_list() -> list:
+    """Cho FE: list loại campaign (2 nhóm) + objective/window/task (kèm label) để pre-fill wizard."""
+    out = []
+    for k, (grp, ic, label, obj, wk, tasks) in CAMPAIGN_TYPES.items():
+        out.append({"key": k, "group": grp, "icon": ic, "label": label,
+                    "objective": obj, "window_weeks": wk,
+                    "tasks": [{"kind": t, "label": CAMPAIGN_TASK_LABELS.get(t, t),
+                               "is_action": t.startswith("action:")} for t in tasks]})
+    return out
+
+
+def _build_campaign_tasks(type_key: str) -> list:
+    """Dựng checklist task mặc định từ template loại campaign."""
+    spec = CAMPAIGN_TYPES.get(type_key)
+    kinds = list(spec[5]) if spec else ["calendar_post", "ads_copy", "email_zalo_sequence"]
+    tasks = []
+    for kind in kinds:
+        tasks.append({"id": kind.replace(":", "_"), "kind": kind,
+                      "label": CAMPAIGN_TASK_LABELS.get(kind, kind),
+                      "is_action": kind.startswith("action:"),
+                      "status": "todo", "run_id": None})
+    return tasks
+
+
 async def occasion_draft(user_id=None, occasion: str = "", window_start: str = "",
                          window_end: str = "", budget: str = "", baseline: str = "",
-                         goal: str = "", objective: str = "", objective_custom: str = "") -> dict:
+                         goal: str = "", objective: str = "", objective_custom: str = "",
+                         campaign_type: str = "") -> dict:
     """M1.1 (D-043/044): sinh Campaign Brief cho 1 ĐỢT theo dịp — web-side 1 LLM call.
 
     Kế thừa Synthesis (la bàn) + Tactical (cách đánh) + industry (mùa vụ/archetype)
@@ -659,6 +728,14 @@ async def occasion_draft(user_id=None, occasion: str = "", window_start: str = "
         wedge = (extra.get("wedge") if isinstance(extra, dict) else "") or ""
         usp = prof.get("usp") or ""
         has_base = bool((baseline or "").strip())
+        # M-F: loại campaign → mặc định objective nếu founder chưa chọn + playbook vào prompt.
+        ct = CAMPAIGN_TYPES.get((campaign_type or "").strip().lower())
+        ct_hint = ""
+        if ct:
+            if not (objective or "").strip() and not (objective_custom or "").strip():
+                objective = ct[3]   # objective gốc của loại
+            ct_hint = (f"LOẠI chiến dịch: {ct[2]} (playbook đặc thù — bám đúng hình thức này: arc, "
+                       f"trọng tâm phễu, loại deliverable phù hợp loại {ct[2]}).")
         obj_key = (objective or "").strip().lower()
         obj_custom = (objective_custom or "").strip()
         # Pha2b: mục đích tự điền ưu tiên > nút chọn. KHÔNG ép phân loại — đưa nguyên văn cho LLM diễn giải.
@@ -730,7 +807,8 @@ async def occasion_draft(user_id=None, occasion: str = "", window_start: str = "
             f"# Lever ĐỢT NÀY\n- Dịp: {occasion}\n- Window: {window_start or '?'} → {window_end or '?'}\n"
             f"- Ngân sách đợt: {budget or '(chưa nhập)'}\n- Baseline hiện tại: {baseline or '(chưa rõ)'}\n"
             f"- Mục tiêu chính founder muốn: {goal or '(theo giai đoạn roadmap)'}\n"
-            f"- MỤC ĐÍCH đợt: {obj_hint or '(founder chưa chọn — tự suy mục đích hợp dịp + giai đoạn)'}\n\n"
+            f"- MỤC ĐÍCH đợt: {obj_hint or '(founder chưa chọn — tự suy mục đích hợp dịp + giai đoạn)'}\n"
+            f"{('- ' + ct_hint + chr(10)) if ct_hint else ''}\n"
             f"# Chiến lược (Synthesis — la bàn)\n{synth[:3000]}\n\n"
             f"# Tactical Playbook (cách đánh)\n{(tact or '(chưa có)')[:2000]}"
         )
@@ -752,7 +830,8 @@ async def occasion_draft(user_id=None, occasion: str = "", window_start: str = "
 
 async def save_occasion(user_id=None, occasion: str = "", window_start: str = "",
                         window_end: str = "", budget: str = "", goal: str = "",
-                        brief: str = "", objective: str = "", objective_custom: str = "") -> dict:
+                        brief: str = "", objective: str = "", objective_custom: str = "",
+                        campaign_type: str = "") -> dict:
     """M1.1 (D-044): lưu Campaign Brief đợt → skill_runs (occasion_brief) + campaigns.
 
     Tái dùng hạ tầng có sẵn (skill_runs cho doc-reader/patch; campaigns cho record),
@@ -788,6 +867,21 @@ async def save_occasion(user_id=None, occasion: str = "", window_start: str = ""
             summary=brief[:500],
             brief_skill_run_id=run_id,
         )
+        # M-F (F1): lưu loại campaign + checklist task vào intake_extra.campaign_meta[cid] (không cần migration).
+        ctk = (campaign_type or "").strip().lower()
+        cid = (camp or {}).get("id")
+        if ctk in CAMPAIGN_TYPES and cid is not None:
+            extra = prof.get("intake_extra") or {}
+            if not isinstance(extra, dict):
+                extra = {}
+            meta = extra.get("campaign_meta") or {}
+            if not isinstance(meta, dict):
+                meta = {}
+            spec = CAMPAIGN_TYPES[ctk]
+            meta[str(cid)] = {"type": ctk, "type_label": spec[2], "type_icon": spec[1],
+                              "group": spec[0], "tasks": _build_campaign_tasks(ctk)}
+            extra["campaign_meta"] = meta
+            await profiles.upsert_profile(uid, intake_extra=extra)
         return {"ok": True, "campaign": camp, "run_id": run_id}
     except Exception as e:
         logger.warning("biz.save_occasion failed: %s", e)

@@ -822,6 +822,16 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 .occ-obj-main { display:flex; flex-direction:column; gap:1px; }
 .occ-obj-main b { font-size:13px; color:var(--text); }
 .occ-obj-main small { font-size:11px; color:var(--muted); }
+/* M-F: chọn loại campaign + preview task */
+.occ-types-grp { font-size:11px; font-weight:600; margin:2px 0 6px; text-transform:uppercase; letter-spacing:.04em; }
+.occ-types { display:flex; flex-wrap:wrap; gap:8px; }
+.occ-type { display:inline-flex; align-items:center; gap:7px; background:var(--panel-2); border:1px solid var(--stroke);
+  border-radius:10px; padding:8px 12px; cursor:pointer; font-size:13px; color:var(--text); transition:.15s; }
+.occ-type:hover { border-color:var(--primary); }
+.occ-type.on { background:rgba(91,140,255,.16); border-color:var(--primary); }
+.occ-tasks-prev { margin:12px 0 0; padding:10px 14px; border:1px dashed var(--stroke-2); border-radius:10px; font-size:13px; }
+.occ-tasks-prev ul { margin:6px 0 0; padding-left:18px; }
+.occ-tasks-prev li { margin:2px 0; }
 .occ-more { background:transparent; border:1px dashed var(--stroke-2); color:var(--muted); border-radius:8px;
   padding:6px 12px; margin-top:8px; cursor:pointer; font-size:12.5px; }
 .occ-more:hover, .occ-more.on { border-color:var(--primary); color:var(--text); }

@@ -141,7 +141,8 @@ async def biz_occasion_draft(request):
     res = await biz.occasion_draft(d.get("user_id"), d.get("occasion", ""),
                                    d.get("window_start", ""), d.get("window_end", ""),
                                    d.get("budget", ""), d.get("baseline", ""), d.get("goal", ""),
-                                   d.get("objective", ""), d.get("objective_custom", ""))
+                                   d.get("objective", ""), d.get("objective_custom", ""),
+                                   d.get("campaign_type", ""))
     return JSONResponse({"draft": res})
 
 
@@ -151,7 +152,8 @@ async def biz_occasion_save(request):
     res = await biz.save_occasion(d.get("user_id"), d.get("occasion", ""),
                                   d.get("window_start", ""), d.get("window_end", ""),
                                   d.get("budget", ""), d.get("goal", ""), d.get("brief", ""),
-                                  d.get("objective", ""), d.get("objective_custom", ""))
+                                  d.get("objective", ""), d.get("objective_custom", ""),
+                                  d.get("campaign_type", ""))
     return JSONResponse(res, status_code=400 if "error" in res else 200)
 
 
