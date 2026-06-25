@@ -254,6 +254,20 @@ async def biz_gaps(request):
     return JSONResponse(res, status_code=400 if "error" in res else 200)
 
 
+async def biz_bet_options(request):
+    """Vision A — Max rút option đặt cược theo 5 nhóm từ research T1-T3."""
+    d = await request.json()
+    res = await biz.gen_bet_options(d.get("user_id"))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_bet_save(request):
+    """Vision A — lưu lựa chọn đặt cược (5 nhóm) trước khi chạy T4-T5."""
+    d = await request.json()
+    res = await biz.save_bet(d.get("user_id"), d.get("choices"))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
 async def biz_master_plan(request):
     """S-10a — tạo campaign tổng (gap+wedge+USP) + đề xuất sub-campaign."""
     d = await request.json()
@@ -505,6 +519,8 @@ def api_routes() -> list:
         Route("/api/biz/campaign/portfolio",       biz_campaign_portfolio, methods=["POST"]),
         Route("/api/biz/campaign/branding",        biz_campaign_branding, methods=["POST"]),
         Route("/api/biz/gaps",                     biz_gaps,           methods=["POST"]),
+        Route("/api/biz/bet/options",              biz_bet_options,    methods=["POST"]),
+        Route("/api/biz/bet/save",                 biz_bet_save,       methods=["POST"]),
         Route("/api/biz/campaign/master",          biz_master_plan,    methods=["POST"]),
         Route("/api/biz/campaign/sub",             biz_subcampaign,    methods=["POST"]),
         Route("/api/biz/campaign/sub-content",     biz_sub_content,    methods=["POST"]),

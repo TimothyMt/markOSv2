@@ -226,6 +226,15 @@ async def biz_data(user_id=None) -> dict:
         out["bizGaps"] = (_ie3.get("gaps") if isinstance(_ie3, dict) else []) or []
     except Exception:
         out["bizGaps"] = []
+    # Vision A: option đặt cược (5 nhóm) + lựa chọn founder đã chốt → FE màn "Đặt cược".
+    try:
+        _ie4 = (out.get("bizProfile") or {}).get("intake_extra") or {}
+        out["bizBetOptions"] = (_ie4.get("bet_options") if isinstance(_ie4, dict) else {}) or {}
+        out["bizBetChoices"] = (_ie4.get("bet_choices") if isinstance(_ie4, dict) else {}) or {}
+    except Exception:
+        out["bizBetOptions"] = {}; out["bizBetChoices"] = {}
+    out["bizBetCategories"] = [{"key": k, "icon": v[0], "label": v[1], "hint": v[2]}
+                               for k, v in BET_CATEGORIES.items()]
     # M-D Pha2b: archetype mua hàng của ngành → FE lọc "mục đích đợt" hợp ngành (nguồn duy nhất ở frameworks/).
     try:
         from frameworks.industry_context import get_purchase_archetype
@@ -1169,6 +1178,114 @@ async def gen_gaps(user_id=None) -> dict:
         return {"ok": True, "gaps": gaps}
     except Exception as e:
         logger.warning("biz.gen_gaps failed: %s", e)
+        return {"error": str(e)}
+
+
+# ════ Vision A: ĐẶT CƯỢC THEO NHÓM → T4-T5 → tuyến → lịch ════
+# 5 nhóm đặt cược (trust XUỐNG tầng tuyến nội dung = CONTENT_TRACKS['tin_cay'], không ở đây).
+BET_CATEGORIES = {
+    "market":      ("🕳️", "Khoảng trống thị trường", "nhu cầu/giải pháp chưa ai làm tốt"),
+    "segment":     ("👥", "Tệp khách nhắm tới", "phân khúc muốn phục vụ trước (wedge)"),
+    "positioning": ("🎯", "Góc định vị", "chỗ muốn chiếm trong tâm trí khách"),
+    "price":       ("💰", "Phân khúc giá-trị", "mô hình giá / mức giá-trị"),
+    "channel":     ("📡", "Kênh triển khai", "kênh chính muốn đánh"),
+}
+
+
+async def gen_bet_options(user_id=None) -> dict:
+    """Vision A: từ research T1-T3, Max rút OPTION cho 5 NHÓM đặt cược (market/segment/positioning/
+    price/channel) để founder CHỌN (hoặc tự ghi) trước khi chạy T4-T5. 1 LLM call → options theo nhóm.
+    Lưu intake_extra.bet_options. (Tái dùng mạch gen_gaps, gom theo nhóm.)"""
+    if not available():
+        return {"error": "Chưa cấu hình Supabase."}
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {"error": "Chưa có user."}
+        research = {}
+        for sk in _RESEARCH_SKILLS:
+            research[sk] = await _latest_content(uid, sk)
+        if not any((research.get(k) or "").strip() for k in _RESEARCH_SKILLS):
+            return {"error": "Chưa có nghiên cứu (T1-T3) — hãy chạy nghiên cứu trước."}
+        from storage.v2 import profiles
+        prof = await profiles.get_profile(uid) or {}
+        extra = prof.get("intake_extra") if isinstance(prof.get("intake_extra"), dict) else {}
+        if not isinstance(extra, dict):
+            extra = {}
+        industry = prof.get("industry") or ""
+        cats_menu = "\n".join(f"- {k}: {v[1]} ({v[2]})" for k, v in BET_CATEGORIES.items())
+        from tools.llm_router import call as router_call, TaskType
+        import json as _json
+        system = (
+            "Bạn là Chief Strategist. Từ RESEARCH (thị trường/đối thủ/khách/SWOT), với MỖI NHÓM dưới đây "
+            "rút 2-4 OPTION (lựa chọn) ĐÁNG ĐÁNH — bám phát hiện research THẬT, KHÔNG bịa. Đây là các hướng "
+            "để founder CHỌN khi đặt cược chiến lược.\n" + cats_menu + "\n"
+            "Mỗi option: title (ngắn, cụ thể) · desc (1 câu) · why (vì sao đáng — bám research). TIẾNG VIỆT.\n"
+            'Output JSON DUY NHẤT: {"market":[{"title":"","desc":"","why":""}],"segment":[...],'
+            '"positioning":[...],"price":[...],"channel":[...]}.'
+        )
+        user = (f"# Ngành\n{industry}\n\n# Thị trường\n{(research.get('market_research') or '(chưa có)')[:2200]}\n\n"
+                f"# Đối thủ (chú ý Market Gap)\n{(research.get('competitor') or '(chưa có)')[:2200]}\n\n"
+                f"# Khách\n{(research.get('customer_insight') or '(chưa có)')[:1800]}\n\n"
+                f"# SWOT\n{(research.get('swot') or '(chưa có)')[:1600]}")
+        res = await router_call(task_type=TaskType.INTAKE_JSON, system=system, user=user, max_tokens=2200)
+        raw = re.sub(r'\s*```\s*$', '', re.sub(r'^```(?:json)?\s*', '', (res or {}).get("output", "").strip())).strip()
+        data = _json.loads(raw)
+        options = {}
+        for k in BET_CATEGORIES:
+            opts = []
+            for o in (data.get(k) or [])[:4]:
+                if isinstance(o, dict) and str(o.get("title") or "").strip():
+                    opts.append({"title": str(o.get("title"))[:120], "desc": str(o.get("desc") or "")[:200],
+                                 "why": str(o.get("why") or "")[:200]})
+            options[k] = opts
+        if not any(options.values()):
+            return {"error": "Chưa rút được lựa chọn — thử lại."}
+        extra["bet_options"] = options
+        await profiles.upsert_profile(uid, intake_extra=extra)
+        return {"ok": True, "options": options}
+    except Exception as e:
+        logger.warning("biz.gen_bet_options failed: %s", e)
+        return {"error": str(e)}
+
+
+async def save_bet(user_id=None, choices=None) -> dict:
+    """Vision A: lưu lựa chọn ĐẶT CƯỢC theo 5 nhóm (choices = {market:[...],segment:[...],...} mỗi nhóm
+    list chuỗi — title option đã chọn HOẶC tự ghi). Lưu intake_extra.bet_choices + map wedge (tệp) / usp
+    (định vị) để strategize + hiển thị tương thích. Nằm trong _strategy_fp → đổi là cache vô hiệu."""
+    if not available():
+        return {"error": "Chưa cấu hình Supabase."}
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {"error": "Chưa có user."}
+        from storage.v2 import profiles
+        prof = await profiles.get_profile(uid) or {}
+        extra = prof.get("intake_extra") if isinstance(prof.get("intake_extra"), dict) else {}
+        if not isinstance(extra, dict):
+            extra = {}
+        norm = {}
+        for k in BET_CATEGORIES:
+            vals = (choices or {}).get(k) or []
+            if isinstance(vals, str):
+                vals = [vals]
+            norm[k] = [str(v).strip()[:160] for v in vals if str(v).strip()][:5]
+        if not any(norm.values()):
+            return {"error": "Chưa chọn gì — chọn (hoặc tự ghi) ít nhất 1 nhóm."}
+        extra["bet_choices"] = norm
+        fields = {"intake_extra": extra}
+        if norm.get("segment"):
+            extra["wedge"] = " · ".join(norm["segment"])
+        if norm.get("positioning"):
+            extra["usp_stance"] = "clear"
+            fields["usp"] = " · ".join(norm["positioning"])[:400]
+            fields["usp_confidence"] = "clear"
+        await profiles.upsert_profile(uid, **fields)
+        return {"ok": True, "bet_choices": norm}
+    except Exception as e:
+        logger.warning("biz.save_bet failed: %s", e)
         return {"error": str(e)}
 
 
@@ -2368,6 +2485,19 @@ async def strategize_web(user_id=None, progress=None) -> dict:
                           f"- Đội làm marketing: {team_size or '(chưa rõ — giả định nhỏ)'}\n"
                           f"- Kênh đang dùng: {cur_channels or '(chưa rõ)'}\n\n")
 
+        # Vision A: ĐẶT CƯỢC theo 5 nhóm founder đã chọn → T4-T5 bám CHẶT lựa chọn này.
+        bet_block = ""
+        _bc = extra.get("bet_choices") if isinstance(extra.get("bet_choices"), dict) else {}
+        if _bc and any(_bc.values()):
+            _lines = []
+            for _k, _spec in BET_CATEGORIES.items():
+                _vals = _bc.get(_k) or []
+                if _vals:
+                    _lines.append(f"- {_spec[1]}: {' · '.join(_vals)}")
+            if _lines:
+                bet_block = ("# ĐẶT CƯỢC FOUNDER ĐÃ CHỌN (bám CHẶT — đây là kim chỉ nam, KHÔNG đi lệch)\n"
+                             + "\n".join(_lines) + "\n\n")
+
         ictx = ""
         try:
             from frameworks.industry_context import INDUSTRY_CONTEXT
@@ -2431,6 +2561,7 @@ async def strategize_web(user_id=None, progress=None) -> dict:
         )
         syn_user = (
             f"# Ngành\n{industry}\n{ictx}\n\n"
+            f"{bet_block}"
             f"{resource_block}"
             f"# Định hướng founder\n- Wedge (tệp ưu tiên): {wedge or '(chưa chọn — tự đề xuất theo research)'}\n"
             f"- Nhịp roadmap: {horizon}\n- Posture: {posture}\n\n"
@@ -2489,6 +2620,7 @@ async def strategize_web(user_id=None, progress=None) -> dict:
         )
         tac_user = (
             f"# Ngành\n{industry}\n{ictx}\n\n"
+            f"{bet_block}"
             f"{resource_block}"
             f"# Tệp ƯU TIÊN (wedge founder chọn)\n{wedge or '(chưa chọn — lấy tệp ưu tiên từ Synthesis)'}\n\n"
             f"# Chiến lược (Synthesis — vừa lập)\n{synthesis[:3500]}\n\n"

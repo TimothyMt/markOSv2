@@ -997,38 +997,28 @@
           .every(k => (M.bizSkillRuns || []).some(r => r.skill_name === k));
         if (researchDone) {
           const running = (M.agentJobs || []).some(j => j.status === 'running' && (j.task === 'strategize' || j.task === 'full'));
+          const hasOpts = M.bizBetOptions && Object.values(M.bizBetOptions).some(a => (a || []).length);
           return `<section class="grid">
-            <div class="card span-12 dir-banner">🚪 <b>Nghiên cứu xong (T1-T3).</b> Trước khi Max lập chiến lược, chốt vài lựa chọn dưới đây trên dữ liệu THẬT — Max sẽ bám đúng ý bạn (đọc kỹ Đối thủ / Customer / USP ở các tab nếu cần). Mục nào chưa chắc cứ để <b>Tự động</b>.</div>
-            ${card('🎯 Chốt hướng đánh trước khi lập chiến lược', `
-              <label class="fld"><span>① Bạn muốn đánh vào (các) phân khúc nào TRƯỚC? <span class="muted">— để trống thì Max tự chọn theo research</span></span>
-                <input id="gateWedge" placeholder="vd: mẹ bỉm plus-size sau sinh; hoặc chủ shop Amazon nhỏ"></label>
-              <div class="fld"><span>② Định vị (USP) — chọn cái Max bám khi lập chiến lược:</span>
-                <div class="gate-usp">
-                  ${(M.bizProfile && M.bizProfile.usp) ? `
-                  <label class="radio-row"><input type="radio" name="uspStance" value="own" checked> Dùng <b>USP của bạn</b>: <span class="muted">"${(M.bizProfile.usp || '').replace(/"/g, '&quot;')}"</span></label>
-                  <label class="radio-row"><input type="radio" name="uspStance" value="draft"> Dùng <b>USP Max gợi ý</b> <span class="muted">(xem ở tab USP — Max đã làm sắc từ USP của bạn)</span></label>
-                  ` : `
-                  <label class="radio-row"><input type="radio" name="uspStance" value="draft" checked> Để <b>Max đề xuất & làm sắc</b> <span class="muted">(khuyến nghị)</span></label>
-                  `}
-                  <label class="radio-row"><input type="radio" name="uspStance" value="edit"> Tôi muốn sửa/nhập lại →</label>
-                  <input id="gateUsp" placeholder="Nhập câu định vị (nếu chọn 'sửa/nhập lại')">
-                </div></div>
-              <div class="fld"><span>③ Nhịp roadmap <span class="muted">— bao lâu cho 1 chu kỳ kế hoạch (để 'Tự động' cho Max chọn theo giai đoạn)</span></span>
-                <div class="gate-usp">
-                  <label class="radio-row"><input type="radio" name="gateHorizon" value="auto" checked> <b>Tự động</b> <span class="muted">(Max cân theo bối cảnh — khuyến nghị)</span></label>
-                  <label class="radio-row"><input type="radio" name="gateHorizon" value="30"> 30 ngày <span class="muted">(nhịp nhanh — shop nhỏ / thử nghiệm)</span></label>
+            <div class="card span-12 dir-banner">🚪 <b>Nghiên cứu xong (T1-T3).</b> Chốt <b>ĐẶT CƯỢC</b> (thị trường · tệp · định vị · giá · kênh) trên dữ liệu THẬT → Max chạy chiến lược (T4-T5) bám đúng lựa chọn → chia <b>tuyến nội dung</b> → lịch. <span class="muted">(Tin cậy/bằng chứng nằm ở tuyến nội dung, không ở đây.)</span></div>
+            ${hasOpts ? betForm() : card('🎯 Đặt cược chiến lược', `<div class="empty-cta">
+              <div class="empty-ic">🎯</div><h3>Để Max gợi ý lựa chọn từ nghiên cứu</h3>
+              <p class="muted">Max đọc T1-T3 rồi rút các hướng cho 5 nhóm (thị trường · tệp · định vị · giá · kênh) để bạn chọn — hoặc tự ghi cái mình muốn.</p>
+              <div class="empty-actions"><button class="primary-btn" data-act="gen-bet">✨ Gợi ý lựa chọn đặt cược</button></div></div>`, { cls: 'span-12' })}
+            ${hasOpts ? card('⚙️ Tinh chỉnh nâng cao (tuỳ chọn)', `
+              <details><summary style="cursor:pointer;color:var(--muted)">Nhịp roadmap + trọng tâm giai đoạn — để Tự động nếu chưa chắc</summary>
+                <div class="fld" style="margin-top:10px"><span>Nhịp roadmap</span><div class="gate-usp">
+                  <label class="radio-row"><input type="radio" name="gateHorizon" value="auto" checked> <b>Tự động</b></label>
+                  <label class="radio-row"><input type="radio" name="gateHorizon" value="30"> 30 ngày</label>
                   <label class="radio-row"><input type="radio" name="gateHorizon" value="60"> 60 ngày</label>
-                  <label class="radio-row"><input type="radio" name="gateHorizon" value="90"> 90 ngày <span class="muted">(theo quý)</span></label>
-                </div></div>
-              <div class="fld"><span>④ Trọng tâm giai đoạn <span class="muted">— nghiêng xây thương hiệu hay đẩy đơn (để 'Tự động' cho Max cân)</span></span>
-                <div class="gate-usp">
-                  <label class="radio-row"><input type="radio" name="gatePosture" value="auto" checked> <b>Tự động</b> <span class="muted">(Max cân theo giai đoạn + dòng tiền)</span></label>
-                  <label class="radio-row"><input type="radio" name="gatePosture" value="brand"> Thiên <b>xây nhận biết</b> <span class="muted">(the long — chậm thấy đơn hơn)</span></label>
-                  <label class="radio-row"><input type="radio" name="gatePosture" value="balanced"> <b>Cân bằng</b> ~60/40 brand·đơn</label>
-                  <label class="radio-row"><input type="radio" name="gatePosture" value="activation"> Thiên <b>ra đơn ngay</b> <span class="muted">(the short — nền thương hiệu mỏng hơn)</span></label>
-                </div></div>
-              <button class="primary-btn full" data-act="run-strategize" ${running ? 'disabled' : ''} style="margin-top:10px">${running ? '⏳ Đang lập chiến lược…' : '🎯 Lập chiến lược (Synthesis + Playbook)'}</button>
-            `, {cls:'span-12'})}
+                  <label class="radio-row"><input type="radio" name="gateHorizon" value="90"> 90 ngày</label></div></div>
+                <div class="fld"><span>Trọng tâm giai đoạn</span><div class="gate-usp">
+                  <label class="radio-row"><input type="radio" name="gatePosture" value="auto" checked> <b>Tự động</b></label>
+                  <label class="radio-row"><input type="radio" name="gatePosture" value="brand"> Xây nhận biết</label>
+                  <label class="radio-row"><input type="radio" name="gatePosture" value="balanced"> Cân bằng</label>
+                  <label class="radio-row"><input type="radio" name="gatePosture" value="activation"> Ra đơn ngay</label></div></div>
+              </details>`, { cls: 'span-12' }) : ''}
+            ${hasOpts ? `<div class="card span-12" style="text-align:center">
+              <button class="primary-btn" data-act="run-strategize-bet" ${running ? 'disabled' : ''}>${running ? '⏳ Đang lập chiến lược…' : '🎯 Lập chiến lược (T4-T5) theo đặt cược'}</button></div>` : ''}
           </section>`;
         }
         return `<section class="grid">
@@ -1099,11 +1089,8 @@
           <div class="empty-actions"><a class="primary-btn" href="#strategy">🎯 Tới bước Lập chiến lược</a></div></div>`, {cls:'span-12'})}</section>`;
       }
       return `<section class="grid">
-        <div class="card span-12 dir-banner">🧭 <b>Campaign-first.</b> Nghiên cứu → <b>Bóc GAP</b> → <b>Campaign TỔNG</b> (đặt cược: gap + tệp + USP) → Max dựng <b>sub-campaign</b> + <b>tuyến bài</b> (Khai sáng/Tin cậy/Chuyển hoá/Lan toả) → bài. Nhiều campaign tổng chạy song song.</div>
-        ${campaignFirstHero()}
-        <details class="card span-12 legacy-fold"><summary>🟢 Tuyến nền · 🔴 Theo dịp · 🔁 Giữ chân (tạo nhanh / cho lịch)</summary>
-          <div id="campaignPlan" style="margin-top:12px"><div class="card"><p class="muted">⏳ Đang lập 2 tuyến theo ngành của bạn…</p></div></div>
-        </details>
+        <div class="card span-12 dir-banner">🧭 <b>Tuyến nội dung</b> (kế thừa Chiến lược T4-T5) chia 2 tuyến chạy song song: <b>Always-on</b> (nền — Byron Sharp) + <b>Theo dịp</b> (occasion — Binet&Field). Mỗi bài bám vai-trò-tuyến (Khai sáng/Tin cậy/Chuyển hoá/Lan toả) → lên Lịch.</div>
+        <div id="campaignPlan" class="span-12"><div class="card"><p class="muted">⏳ Đang lập tuyến nội dung theo chiến lược của bạn…</p></div></div>
       </section>`;
     },
     mount: () => { loadCampaignPlan(); },
@@ -1216,6 +1203,35 @@
         <p class="muted" style="margin:0 0 12px">Mỗi campaign tổng = 1 <b>đặt cược</b>: đánh gap nào + tệp nào + USP nào. Có HUB riêng (sub-campaign · tuyến bài · brief · task). Nhiều campaign tổng chạy song song.</p>
         <div class="master-grid">${masterCards}</div>
         <button class="primary-btn full" data-act="new-master" style="margin-top:14px">📦 Tạo campaign tổng mới</button>`, { cls: 'span-12' })}`;
+  }
+
+  /* ── Vision A: form ĐẶT CƯỢC theo 5 nhóm (option từ T1-T3 + tự ghi) → T4-T5 ── */
+  function betForm() {
+    const E = _eHero;
+    const cats = M.bizBetCategories || [];
+    const opts = M.bizBetOptions || {};
+    const chosen = M.bizBetChoices || {};
+    if (!cats.length) return '';
+    const groups = cats.map(c => {
+      const list = opts[c.key] || [];
+      const sel = chosen[c.key] || [];
+      const chips = list.map(o => {
+        const on = sel.includes(o.title);
+        const tip = ((o.desc || '') + (o.why ? ' — ' + o.why : '')).replace(/"/g, '&quot;');
+        return `<button type="button" class="bet-chip${on ? ' on' : ''}" data-act="bet-chip" data-cat="${c.key}" data-val="${E(o.title).replace(/"/g, '&quot;')}" title="${E(tip)}">${E(o.title)}</button>`;
+      }).join('');
+      const extra = sel.filter(s => !list.some(o => o.title === s)).join(', ');
+      return `<div class="bet-grp">
+        <div class="bet-grp-h">${c.icon} <b>${E(c.label)}</b> <span class="muted">— ${E(c.hint)}</span>
+          <span class="bet-tip">💡 nên chọn 1 để tập trung; hướng khác để test đợt sau</span></div>
+        <div class="bet-chips">${chips || '<span class="muted">— Max chưa rút được, tự ghi bên dưới</span>'}</div>
+        <input class="bet-free" id="betFree-${c.key}" data-cat="${c.key}" placeholder="✍️ Tự ghi (nếu không ưng option nào; phẩy để nhiều)" value="${E(extra)}">
+      </div>`;
+    }).join('');
+    return card('🎯 Đặt cược chiến lược — chọn hướng trên dữ liệu THẬT', `
+      <p class="muted" style="margin:0 0 14px">Mỗi nhóm: bấm chọn option Max rút từ nghiên cứu (rê chuột xem lý do), hoặc tự ghi. <b>Khuyên chọn 1/nhóm</b> cho tập trung — tệp/hướng khác để test ở đợt sau.</p>
+      ${groups}
+      <button class="ghost-line sm" data-act="gen-bet" style="margin-top:4px">↻ Max gợi ý lại từ nghiên cứu</button>`, { cls: 'span-12' });
   }
 
   /* ── Wizard tạo Campaign tổng (chọn các gap → đặt cược → Max đề xuất sub → chốt) ── */
@@ -2987,6 +3003,39 @@
         const r = await API.post('api/biz/agent', { task: 'strategize', user_id: _bizUserId });
         if (r.error) { toast(r.error); return; }
         toast('Đã chốt hướng — Max đang lập chiến lược + playbook…');
+        await refreshBiz(); renderRail(); renderTopbar(); route();
+      } catch (e) { toast('Không lập được chiến lược'); }
+      return;
+    }
+    if (act === 'gen-bet') {   // Vision A: Max rút option đặt cược (5 nhóm) từ T1-T3
+      if (!apiAvailable || !M.bizEnabled) { toast('Bật backend để Max gợi ý'); return; }
+      const orig = el.textContent; el.disabled = true; el.textContent = '⏳ Max đang rút lựa chọn…';
+      try {
+        const r = await API.post('api/biz/bet/options', { user_id: _bizUserId });
+        if (r.error) { toast(r.error); el.disabled = false; el.textContent = orig; return; }
+        await refreshBiz(); toast('✨ Đã gợi ý lựa chọn đặt cược'); route();
+      } catch (e) { toast('Không gợi ý được — thử lại sau.'); el.disabled = false; el.textContent = orig; }
+      return;
+    }
+    if (act === 'bet-chip') { el.classList.toggle('on'); return; }   // tick/bỏ 1 option
+    if (act === 'run-strategize-bet') {   // Vision A: lưu đặt cược (5 nhóm) → chạy T4-T5
+      try {
+        const cats = M.bizBetCategories || [];
+        const choices = {};
+        cats.forEach(c => {
+          const on = Array.from(document.querySelectorAll('.bet-chip.on[data-cat="' + c.key + '"]')).map(b => b.dataset.val);
+          const free = (((document.getElementById('betFree-' + c.key) || {}).value) || '').split(',').map(s => s.trim()).filter(Boolean);
+          choices[c.key] = [...on, ...free];
+        });
+        if (!Object.values(choices).some(a => a.length)) { toast('Chọn (hoặc tự ghi) ít nhất 1 nhóm'); return; }
+        const b = await API.post('api/biz/bet/save', { user_id: _bizUserId, choices });
+        if (b.error) { toast(b.error); return; }
+        const horizon = (document.querySelector('input[name="gateHorizon"]:checked') || {}).value || 'auto';
+        const posture = (document.querySelector('input[name="gatePosture"]:checked') || {}).value || 'auto';
+        await API.post('api/biz/gate', { horizon, posture, user_id: _bizUserId });
+        const r = await API.post('api/biz/agent', { task: 'strategize', user_id: _bizUserId });
+        if (r.error) { toast(r.error); return; }
+        toast('Đã chốt đặt cược — Max đang lập chiến lược + playbook…');
         await refreshBiz(); renderRail(); renderTopbar(); route();
       } catch (e) { toast('Không lập được chiến lược'); }
       return;
