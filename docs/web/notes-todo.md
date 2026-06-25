@@ -78,6 +78,38 @@
     3. Bỏ luôn dấu `:` cuối heading cho đồng nhất; thêm CSS `.md-subh` cho gọn-đẹp.
   - Mirror app.js ↔ standalone. (Cùng họ trình bày output: cân nhắc gộp với N-04 posmap khi làm.)
 
+- **[N-10] Chuyển trang KHÔNG tự cuộn lên đầu.**
+  Đọc 1 doc dài (vd competitor) cuộn xuống giữa, bấm sang trang khác → trang mới vẫn ở vị trí cuộn
+  cũ (phải tự kéo lên). `route()` CÓ `document.querySelector('.main').scrollTo(0,0)` (app.js ~1993)
+  nhưng không ăn → element đang cuộn THỰC TẾ không phải `.main` (có thể window/body, hoặc nội dung
+  doc cuộn trong `.ai-output` max-height:560 overflow:auto). → Fix sau: thêm `window.scrollTo(0,0)`
+  + reset `.ai-output`/scroll-container về 0 trong `route()` (và sau `injectPageNav` chuyển tab T1→T5).
+  Mirror 2 file.
+
+- **[N-11] Tiếng Việt output chưa tự nhiên — dịch máy / ghép từ Tây.**
+  Ví dụ (ảnh competitor): `cạnh tranh "đầu-đầu"` (head-to-head dịch sát), `"generalist"`, `"category
+  leader"`… đọc gượng. Gốc prompt research = `agents/` (reference-only). → Phương án xử lý:
+    1. Khi rebuild research WEB-OWNED: thêm luật prompt "TIẾNG VIỆT TỰ NHIÊN — KHÔNG dịch sát/ghép từ
+       Tây (đầu-đầu→trực diện/đối đầu trực tiếp; generalist→làm tất-không-chuyên); thuật ngữ Anh phải
+       kèm giải thích ngắn." (Tái dùng tinh thần đã có ở `syn_system`/`tac_system` web-owned.)
+    2. Output web-owned (synthesis/playbook) CÓ THỂ thêm luật này NGAY (không chờ research).
+    3. (tuỳ chọn) glossary hậu-xử-lý thay vài cụm sát-nghĩa cố định — nhẹ, nhưng dễ sót.
+  → Gộp vào đợt nâng prompt + rebuild research.
+
+- **[N-12] Output research bị CẮT giữa câu — do thinking budget, KHÔNG phải max_tokens thấp.**
+  Research max_tokens = 16,000 (đủ), nhưng chạy Gemini 2.5 Pro → token "thinking" tính VÀO output:
+  `_calc_thinking_budget(16000)=min(8000,40%×16000)=6,400` → chữ thấy được chỉ ≈ 9,600 token → bài
+  dài bị cụt. → Fix (A, web-owned): trong `tools/llm_router.py › _calc_thinking_budget`, giảm cap dải
+  5K–20K (vd `min(4000, 25%)`) → research thinking ≈4,000 → output ≈12,000 (+~2,400). Chỉ ảnh hưởng
+  dải giữa (research + content assets), KHÔNG đụng Synthesis/SWOT/Playbook (≥20K). Hoặc gộp vào
+  rebuild research web-owned (tự set token + scope). (Founder hỏi 2026-06-25, chốt: note để sửa 1 thể.)
+
+- **[N-13] (quan sát thêm) Bảng markdown rộng bị CẮT cạnh phải.**
+  Bảng competitor nhiều cột (…Estimated Spend · Audience) tràn khung, cột phải bị cắt, không cuộn
+  ngang được. CSS có sẵn `.tbl-wrap{overflow-x:auto}` (styles.css:280) nhưng `renderAIContent` có vẻ
+  KHÔNG bọc `<table>` vào `.tbl-wrap`. → Fix sau: bọc mọi `<table>` render từ markdown trong
+  `<div class="tbl-wrap">` để cuộn ngang thay vì cắt. Mirror 2 file.
+
 ## ✅ Đã làm (lưu vết)
 - Enter ở ô intake = nút Tiếp (fcbb3e3)
 - Báo "agent đang chạy" đúng + bỏ "90 ngày" hardcode intake (04f9a9a)
