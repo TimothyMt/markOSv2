@@ -252,6 +252,22 @@ async def biz_gaps(request):
     return JSONResponse(res, status_code=400 if "error" in res else 200)
 
 
+async def biz_master_plan(request):
+    """S-10a — tạo campaign tổng (gap+wedge+USP) + đề xuất sub-campaign."""
+    d = await request.json()
+    res = await biz.gen_master_plan(d.get("user_id"), d.get("gap_kind", ""), d.get("gap_title", ""),
+                                    d.get("wedge", ""), d.get("usp", ""), d.get("name", ""))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_subcampaign(request):
+    """S-10b — chốt 1 sub-campaign vào master."""
+    d = await request.json()
+    res = await biz.commit_subcampaign(d.get("user_id"), d.get("master_id", ""),
+                                       d.get("type", ""), d.get("name", ""))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
 async def biz_campaign_portfolio_clear(request):
     """M-F (F2) — bỏ 1 mục (index) hoặc cả danh mục đề xuất."""
     d = await request.json()
@@ -479,6 +495,8 @@ def api_routes() -> list:
         Route("/api/biz/campaign/portfolio",       biz_campaign_portfolio, methods=["POST"]),
         Route("/api/biz/campaign/branding",        biz_campaign_branding, methods=["POST"]),
         Route("/api/biz/gaps",                     biz_gaps,           methods=["POST"]),
+        Route("/api/biz/campaign/master",          biz_master_plan,    methods=["POST"]),
+        Route("/api/biz/campaign/sub",             biz_subcampaign,    methods=["POST"]),
         Route("/api/biz/campaign/portfolio-clear", biz_campaign_portfolio_clear, methods=["POST"]),
         Route("/api/biz/reset",                    biz_reset,          methods=["POST"]),
         Route("/api/biz/campaign-plan",            biz_campaign_plan,  methods=["GET"]),

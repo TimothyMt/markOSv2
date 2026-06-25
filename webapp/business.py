@@ -1068,6 +1068,30 @@ async def reset_business(user_id=None, full: bool = False) -> dict:
         return {"error": str(e)}
 
 
+# S-10: tuyến bài (content tracks theo vai trò phễu) + mặc định theo mục tiêu sub-campaign
+CONTENT_TRACKS = {
+    "khai_sang":  ("🎓", "Khai sáng", "TOFU — làm khách NHẬN RA gap/vấn đề"),
+    "tin_cay":    ("🤝", "Tin cậy", "MOFU — bằng chứng · case · so sánh"),
+    "chuyen_hoa": ("🎯", "Chuyển hoá", "BOFU — chốt · CTA mềm"),
+    "lan_toa":    ("✨", "Lan toả", "Engage — tương tác · UGC · cộng đồng"),
+}
+# objective của sub → bộ tuyến mặc định (mix phễu theo mục tiêu)
+_OBJ_TRACKS = {
+    "brand":      ["khai_sang", "tin_cay", "lan_toa"],
+    "acquisition":["khai_sang", "chuyen_hoa"],
+    "leadgen":    ["khai_sang", "tin_cay", "chuyen_hoa"],
+    "conversion": ["chuyen_hoa"],
+    "engagement": ["lan_toa", "khai_sang"],
+    "retention":  ["tin_cay", "lan_toa"],
+}
+
+
+def _tracks_for(objective: str) -> list:
+    keys = _OBJ_TRACKS.get(objective or "", ["khai_sang", "tin_cay", "chuyen_hoa"])
+    return [{"key": k, "icon": CONTENT_TRACKS[k][0], "label": CONTENT_TRACKS[k][1],
+             "role": CONTENT_TRACKS[k][2]} for k in keys]
+
+
 # S-05: 6 loại GAP bóc từ research (key ổn định để FE map icon/màu)
 GAP_KINDS = {
     "market":      ("🕳️", "Khoảng trống thị trường", "nhu cầu chưa ai đáp ứng tốt"),
@@ -1139,6 +1163,112 @@ async def gen_gaps(user_id=None) -> dict:
         return {"ok": True, "gaps": gaps}
     except Exception as e:
         logger.warning("biz.gen_gaps failed: %s", e)
+        return {"error": str(e)}
+
+
+async def gen_master_plan(user_id=None, gap_kind: str = "", gap_title: str = "",
+                          wedge: str = "", usp: str = "", name: str = "") -> dict:
+    """S-10a: tạo CAMPAIGN TỔNG (đặt cược: gap+wedge+USP) — lưu campaigns_v2 row + meta(role=master).
+    1 LLM call ĐỀ XUẤT sub-campaign (theo mục tiêu) hợp gap/wedge → lưu proposed_subs. Nhiều tổng OK."""
+    if not available():
+        return {"error": "Chưa cấu hình Supabase."}
+    if not (gap_title or "").strip():
+        return {"error": "Thiếu gap."}
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {"error": "Chưa có user."}
+        from storage.v2 import profiles, campaigns_v2
+        prof = await profiles.get_profile(uid) or {}
+        extra = prof.get("intake_extra") if isinstance(prof.get("intake_extra"), dict) else {}
+        if not isinstance(extra, dict):
+            extra = {}
+        industry = prof.get("industry") or ""
+        synth = await _latest_content(uid, "synthesis")
+        gk = (gap_kind or "").strip().lower()
+        if gk not in GAP_KINDS:
+            gk = "market"
+        # đề xuất sub-campaign cho master này
+        sub_menu = "\n".join(f"- {k}: {CAMPAIGN_TYPES[k][2]}" for k in CAMPAIGN_TYPES if k != "branding")
+        from tools.llm_router import call as router_call, TaskType
+        import json as _json
+        system = (
+            "Bạn là CMO. Cho 1 ĐẶT CƯỢC chiến lược (đánh GAP + tệp wedge + USP), đề xuất 2-4 SUB-CAMPAIGN "
+            "theo MỤC TIÊU để thực thi đặt cược đó (vd kéo khách mới, chuyển đổi, giữ chân, đợt theo dịp). "
+            "LUÔN ngầm hiểu có 1 sub Branding nền — KHÔNG đề xuất lại branding. Chọn type từ:\n" + sub_menu + "\n"
+            "Mỗi sub: type (KEY tiếng Anh) · name (tiếng Việt ngắn) · why (1 câu vì sao cần cho đặt cược này).\n"
+            'Output JSON: {"subs":[{"type":"","name":"","why":""}]}.'
+        )
+        user = (f"# Ngành\n{industry}\n# ĐẶT CƯỢC\n- Gap: {GAP_KINDS[gk][1]} — {gap_title}\n"
+                f"- Tệp ưu tiên (wedge): {wedge or '(theo synthesis)'}\n- USP: {usp or '(theo synthesis)'}\n\n"
+                f"# Chiến lược\n{synth[:1800]}")
+        res = await router_call(task_type=TaskType.INTAKE_JSON, system=system, user=user, max_tokens=1000)
+        raw = re.sub(r'\s*```\s*$', '', re.sub(r'^```(?:json)?\s*', '', (res or {}).get("output", "").strip())).strip()
+        subs = []
+        try:
+            for sb in (_json.loads(raw).get("subs") or [])[:4]:
+                t = str(sb.get("type") or "").strip().lower()
+                if t in CAMPAIGN_TYPES and t != "branding":
+                    subs.append({"type": t, "type_label": CAMPAIGN_TYPES[t][2], "type_icon": CAMPAIGN_TYPES[t][1],
+                                 "name": str(sb.get("name") or CAMPAIGN_TYPES[t][2])[:80], "why": str(sb.get("why") or "")[:160]})
+        except Exception:
+            pass
+        # tạo master row + meta
+        mname = (name or "").strip() or f"Tổng: {gap_title}"[:120]
+        camp = await campaigns_v2.create_campaign(uid, name=mname, industry=prof.get("industry"),
+                                                  primary_goal="master", summary=gap_title[:400])
+        mid = str((camp or {}).get("id") or "")
+        if not mid:
+            return {"error": "Không tạo được campaign tổng."}
+        meta = extra.get("campaign_meta") or {}
+        if not isinstance(meta, dict):
+            meta = {}
+        meta[mid] = {"role": "master", "type": "master", "type_label": "Campaign tổng", "type_icon": "📦",
+                     "name": mname, "gap": {"kind": gk, "icon": GAP_KINDS[gk][0], "title": gap_title},
+                     "wedge": wedge, "usp": usp, "proposed_subs": subs, "sub_ids": []}
+        extra["campaign_meta"] = meta
+        await profiles.upsert_profile(uid, intake_extra=extra)
+        return {"ok": True, "master_id": mid, "proposed_subs": subs}
+    except Exception as e:
+        logger.warning("biz.gen_master_plan failed: %s", e)
+        return {"error": str(e)}
+
+
+async def commit_subcampaign(user_id=None, master_id: str = "", type: str = "", name: str = "") -> dict:
+    """S-10b: chốt 1 sub-campaign vào master — campaigns_v2 row + meta(role=sub, parent, tuyến, task)."""
+    if not available():
+        return {"error": "Chưa cấu hình Supabase."}
+    tk = (type or "").strip().lower()
+    if tk not in CAMPAIGN_TYPES:
+        return {"error": "Loại sub không hợp lệ."}
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {"error": "Chưa có user."}
+        from storage.v2 import profiles, campaigns_v2
+        prof, extra, meta = await _campaign_meta(uid)
+        m = meta.get(str(master_id))
+        if not m or m.get("role") != "master":
+            return {"error": "Không tìm thấy campaign tổng."}
+        spec = CAMPAIGN_TYPES[tk]
+        sname = (name or "").strip() or spec[2]
+        camp = await campaigns_v2.create_campaign(uid, name=sname, industry=prof.get("industry"),
+                                                  primary_goal=tk, summary=(m.get("name") or "")[:400])
+        sid = str((camp or {}).get("id") or "")
+        if not sid:
+            return {"error": "Không tạo được sub."}
+        meta[sid] = {"role": "sub", "parent": str(master_id), "type": tk, "type_label": spec[2],
+                     "type_icon": spec[1], "group": spec[0], "audience": _TYPE_AUDIENCE.get(tk, "Tất cả"),
+                     "persistent": (spec[4] == 0), "tracks": _tracks_for(spec[3]),
+                     "tasks": _build_campaign_tasks(tk)}
+        m.setdefault("sub_ids", []).append(sid)
+        extra["campaign_meta"] = meta
+        await profiles.upsert_profile(uid, intake_extra=extra)
+        return {"ok": True, "sub_id": sid}
+    except Exception as e:
+        logger.warning("biz.commit_subcampaign failed: %s", e)
         return {"error": str(e)}
 
 
