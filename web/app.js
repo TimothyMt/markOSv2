@@ -685,10 +685,7 @@
         const grow = () => { if (box.tagName === 'TEXTAREA') { box.style.height = 'auto'; box.style.height = box.scrollHeight + 'px'; } };
         grow();
         box.oninput = grow;
-        box.onkeydown = (e) => {
-          // form intake: Enter=Tiếp do listener delegated lo (chống mất handler khi re-render)
-          if (e.key === 'Enter' && !e.shiftKey && aiMode) { e.preventDefault(); aiIntakeSend(); }
-        };
+        // Enter=Tiếp/Gửi do 1 listener CAPTURE-phase ở document lo (ăn trước extension + chống mất khi re-render).
       }
     },
   };
@@ -3390,14 +3387,18 @@
     const el = e.target.closest('input[data-act]');
     if (el) handleAction(el);
   });
-  // Enter trong ô intake (form) = nút Tiếp — delegated để luôn ăn dù mount re-render
+  // Enter trong ô intake (#intakeBox) = Tiếp (form tĩnh) / Gửi (AI) — CAPTURE-phase để ăn TRƯỚC
+  // default của textarea + extension (Grammarly…), và luôn ăn dù mount re-render.
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Enter' || e.shiftKey) return;
     const t = e.target;
-    if (t && t.id === 'intakeBox' && document.querySelector('[data-act="intake-next"]')) {
+    if (!t || t.id !== 'intakeBox') return;
+    if (document.querySelector('[data-act="intake-next"]')) {   // wizard tĩnh có nút Tiếp
       e.preventDefault(); handleIntake('next');
+    } else if (typeof aiIntakeSend === 'function') {            // AI intake → gửi câu trả lời
+      e.preventDefault(); aiIntakeSend();
     }
-  });
+  }, true);
 
   window.addEventListener('hashchange', route);
   document.getElementById('navToggle').addEventListener('click', () => document.body.classList.toggle('nav-open'));
