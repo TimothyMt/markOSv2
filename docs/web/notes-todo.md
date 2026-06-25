@@ -162,12 +162,21 @@
   "Chi tiết hoá bằng Tactical Playbook" → user dễ nhảy thẳng sang campaign, BỎ QUA Playbook (T5 — cách
   đánh chi tiết per tệp × phễu TOFU/MOFU/BOFU: copy mẫu, kênh, test, KPI). Mất cầu nối chiến lược→thực
   thi. Lưu ý: `strategize_web` ĐÃ sinh playbook CÙNG synthesis (tồn tại sẵn, chỉ không bắt xem/dùng).
-  → Cần CHỐT với founder hướng:
-    (a) Playbook = **checkpoint bắt buộc** trong mạch Chiến lược → (đọc/duyệt) → Lập chiến dịch; hoặc
-    (b) Playbook = **nền ngầm**: tuyến nội dung + lịch + bài TỰ bám playbook (kế thừa) dù user không
-        mở tab Playbook. (Hợp Vision A: T4-T5 → tuyến → lịch; playbook là phần T5 nuôi tuyến.)
-    → Nghiêng (b) + vẫn để link xem Playbook; nhưng phải bảo đảm khâu sinh tuyến/bài ĐỌC playbook,
-      không chỉ đọc synthesis. (Liên quan N-07: playbook refresh khi synthesis đổi.)
+  → ✅ FOUNDER CHỐT (2026-06-25): **(b) — Playbook là NỀN NGẦM.** Tuyến nội dung + lịch + bài TỰ bám
+    playbook (kế thừa) dù user không mở tab; vẫn để link xem Playbook. Bắt buộc: khâu sinh tuyến/bài
+    ĐỌC CẢ playbook, không chỉ synthesis. (Liên quan N-07: playbook refresh khi synthesis đổi.)
+
+- **[N-18] Trang "Lập chiến dịch" (#occasion) UI/UX còn RỐI — CHƯA dọn (bản legacy revert).**
+  Founder tưởng đã dọn — thực tế CHƯA. Lịch sử: page này từng được dựng "campaign-first hero" (gap→
+  master→hub), nhưng khi chốt **Vision A** mình đã GỠ hero đó và **REVERT page về layout LEGACY**
+  (Always-on pillars TOFU/MOFU/BOFU + Occasion gợi ý + Retention + "Chốt tuyến nền"/"Sinh lại"/"Lên
+  lịch"/"Max viết brief thương hiệu"). → Nên nó vẫn rối + còn sót khái niệm chồng chéo (pillars vs
+  tuyến vs branding-campaign vs occasion). Phần ĐÃ dọn = **Strategy (đặt cược) + Intake**, KHÔNG phải
+  page này.
+  → Việc làm (slice tuyến nội dung, ~S-20/S-21): redesign #occasion thành **"Tuyến nội dung" gọn theo
+    Vision A**: T4-T5 → các tuyến (Khai sáng/Tin cậy/Chuyển hoá/Lan toả) bám playbook ngầm (N-17b) →
+    lịch. Bỏ/gộp các khối chồng chéo legacy (branding-campaign packaging, occasion rời, retention để
+    riêng). Mirror 2 file.
 
 ## ✅ Đã làm (lưu vết)
 - Enter ở ô intake = nút Tiếp (fcbb3e3)
