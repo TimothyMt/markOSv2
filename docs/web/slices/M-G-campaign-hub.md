@@ -90,8 +90,8 @@ mạch brief→calendar của bot.
   calendar-from-pillars-toàn-cục). Áp cho cả branding lẫn occasion.
 - **G3 — Hoàn thiện hub**: KPI/rủi ro/lineage/% tiến độ + badge lệch nguồn (nối N-07).
 
-## 8. Mở / cần chốt thêm
-- [ ] Lịch nội dung: **1 lịch hợp nhất** (mọi campaign đổ vào) hay **lịch riêng từng campaign**? (đề xuất:
-      1 lịch hợp nhất, lọc theo campaign — quen thuộc, đỡ phân mảnh.)
-- [ ] G1 có cần **auto-tạo** sẵn 1 campaign Branding sau khi chốt chiến lược, hay **user tự tạo**? (founder
-      nói "user sẽ xây dựng" → để user tạo; có thể gợi ý 1 nút "Tạo campaign Branding nền".)
+## 8. ĐÃ CHỐT thêm (2026-06-25)
+- **Brief**: tham khảo BOT `CAMPAIGN_BRIEF_SYSTEM` cho cả branding brief (1-a).
+- **Lịch**: **1 lịch HỢP NHẤT** — mọi campaign đổ chung vào; **cần tối ưu UI lịch** để nhiều campaign
+  không bị rối (lọc/ẩn theo campaign, gom band, màu phân biệt…) (1-b).
+- **Branding campaign**: **user TỰ TẠO** (không auto-đẻ); có nút gợi ý "Tạo campaign Branding nền" (2).

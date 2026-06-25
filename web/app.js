@@ -1145,6 +1145,10 @@
             ${locked ? `<button class="ghost-line" data-act="unlock-pillars">Bỏ chốt</button>` : ''}
             <a class="ghost-line" href="#calendar">→ Lên lịch nội dung</a>
           </div>
+          <div class="occ-row" style="margin-top:10px">
+            <button class="primary-btn full" data-act="new-branding">🟢 Tạo campaign Branding nền (xuyên suốt)</button>
+          </div>
+          <p class="muted" style="margin-top:6px;font-size:12px">Đóng gói tuyến nền này thành 1 <b>campaign Branding</b> chạy liên tục — Max viết brief thương hiệu (big idea + định vị nền), gom kênh + lịch + task vào 1 chỗ.</p>
         </div>`;
       host.innerHTML = `<section class="grid" style="margin:0">
         ${card('🟢 Always-on — tuyến NỀN (content pillars)', `
@@ -2048,7 +2052,12 @@
     const E = s => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     const meta = ((window.MOCK && window.MOCK.bizCampaignMeta) || {})[String(_campDetailId)];
     const camp = (calPlan().campaigns || []).find(c => String(c.campaignId) === String(_campDetailId)) || {};
-    ov.querySelector('h3').textContent = `${meta ? (meta.type_icon + ' ') : '🔴 '}${camp.name || 'Chiến dịch'}${meta ? ' · ' + meta.type_label : ''}`;
+    const cname = camp.name || (meta && meta.type_label) || 'Chiến dịch';
+    ov.querySelector('h3').textContent = `${meta ? (meta.type_icon + ' ') : '🔴 '}${cname}`;
+    // M-G: header phụ — branding xuyên suốt + link brief
+    const briefRid = meta && (meta.brief_run_id);
+    const hdr = (meta && meta.persistent ? '<span class="muted">🟢 Chạy liên tục (nền) · không deadline</span> · ' : '')
+      + (briefRid ? `<button class="ghost-line sm" data-act="camptask-view" data-run="${briefRid}">📄 Xem brief</button>` : '');
     let bodyHtml;
     if (!meta || !(meta.tasks || []).length) {
       bodyHtml = `<p class="muted">Chiến dịch này chưa gắn <b>loại</b> nên chưa có việc cần làm. Tạo lại chiến dịch và chọn loại ở bước 1 để Max liệt kê task.</p>`;
@@ -2069,7 +2078,7 @@
         return `<div class="kb-col"><div class="kb-h">${lbl} <span class="muted">${ts.length}</span></div>
           ${ts.map(card).join('') || '<div class="kb-empty muted">—</div>'}</div>`;
       }).join('');
-      bodyHtml = `<p class="muted" style="margin:0 0 10px">${meta.audience ? '🎯 Tệp nhắm: <b>' + E(meta.audience) + '</b> · ' : ''}✍️ Max tạo nội dung · 🔧 việc người làm (Max ra hướng dẫn).</p>
+      bodyHtml = `${hdr ? '<p class="muted" style="margin:0 0 8px">' + hdr + '</p>' : ''}<p class="muted" style="margin:0 0 10px">${meta.audience ? '🎯 Tệp nhắm: <b>' + E(meta.audience) + '</b> · ' : ''}✍️ Max tạo nội dung · 🔧 việc người làm (Max ra hướng dẫn).</p>
         <div class="kanban">${kb}</div>`;
     }
     ov.querySelector('.modal-body').innerHTML = bodyHtml;
@@ -2856,6 +2865,18 @@
     }
     if (act === 'new-occasion') {   // M1.1 (D-043): luồng tạo occasion đầy đủ (chốt SMART thật)
       openOccasionWizard(el.dataset.occ || '');
+      return;
+    }
+    if (act === 'new-branding') {   // M-G (G1): tạo campaign Branding nền (xuyên suốt)
+      if (!apiAvailable || !M.bizEnabled) { toast('Bật backend để tạo campaign'); return; }
+      const orig = el.textContent; el.disabled = true; el.textContent = '⏳ Max đang viết brief thương hiệu…';
+      try {
+        const r = await API.post('api/biz/campaign/branding', { user_id: _bizUserId });
+        if (r.error) { toast(r.error); el.disabled = false; el.textContent = orig; return; }
+        toast('🟢 Đã tạo campaign Branding nền');
+        await refreshBiz();
+        if (r.campaign_id != null) openCampDetail(r.campaign_id); else route();
+      } catch (e) { toast('Không tạo được — thử lại sau.'); el.disabled = false; el.textContent = orig; }
       return;
     }
     if (act === 'occ-gen') { await occasionGenerate(); return; }

@@ -665,6 +665,8 @@ OCCASION_OBJECTIVES = {
 # M-F (Pha F1): LOẠI chiến dịch = playbook gắn mục tiêu. 2 nhóm + tự-mô-tả (không trần cứng).
 # tuple: (group, icon, label, objective, window_weeks, [task_kind...]). task kind 'action:*' = việc người làm.
 CAMPAIGN_TYPES = {
+    # Nhóm Nền — XUYÊN SUỐT (M-G): không window/deadline, là campaign nền chạy liên tục
+    "branding":    ("nền", "🟢", "Branding nền (xuyên suốt)", "brand", 0, ["calendar_post", "video_script", "ugc_brief"]),
     # Nhóm A — theo mục tiêu
     "awareness":   ("A", "📣", "Nhận biết",        "brand",      5, ["calendar_post", "video_script", "ugc_brief"]),
     "launch":      ("A", "🚀", "Ra mắt sản phẩm",  "brand",      4, ["calendar_post", "video_script", "ads_copy", "ugc_brief", "email_zalo_sequence", "landing_copy"]),
@@ -1063,6 +1065,86 @@ async def reset_business(user_id=None, full: bool = False) -> dict:
         return {"ok": True, "full": False}
     except Exception as e:
         logger.warning("biz.reset_business failed: %s", e)
+        return {"error": str(e)}
+
+
+async def gen_branding_brief(user_id=None) -> dict:
+    """M-G (G1): tạo/cập nhật campaign BRANDING NỀN (xuyên suốt). 1 LLM call sinh brand brief
+    (big idea + key message + định vị nền + KPI định hướng) bám synthesis/playbook — KHÔNG SMART/
+    deadline/offer (tham khảo bot CAMPAIGN_BRIEF, bỏ phần số/deadline). Lưu campaigns_v2 row
+    (type=branding, không ngày) + meta + task. 1 user 1 branding (có thì cập nhật brief)."""
+    if not available():
+        return {"error": "Chưa cấu hình Supabase."}
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {"error": "Chưa có user."}
+        synth = await _latest_content(uid, "synthesis")
+        if not synth.strip():
+            return {"error": "Cần Chiến lược (Synthesis) trước khi tạo campaign Branding."}
+        tact = await _latest_content(uid, "tactical_playbook")
+        from storage.v2 import profiles, skill_runs, campaigns_v2
+        prof = await profiles.get_profile(uid) or {}
+        extra = prof.get("intake_extra") if isinstance(prof.get("intake_extra"), dict) else {}
+        if not isinstance(extra, dict):
+            extra = {}
+        industry = prof.get("industry") or ""
+        usp = prof.get("usp") or ""
+        wedge = (extra.get("wedge") or "")
+        _ans = (extra.get("answers") if isinstance(extra.get("answers"), dict) else {}) or {}
+        team_size = _ans.get("team_size") or ""
+        cur_channels = prof.get("current_channels") or _ans.get("current_channels") or ""
+        from frameworks.industry_context import get_purchase_archetype, ARCHETYPE_LABEL
+        arche = ARCHETYPE_LABEL.get(get_purchase_archetype(industry) or "", "")
+        from tools.llm_router import call as router_call, TaskType
+        system = (
+            "Bạn là Campaign Strategist viết BRIEF cho 1 CAMPAIGN THƯƠNG HIỆU NỀN (branding) — chạy "
+            "LIÊN TỤC, xuyên suốt (Byron Sharp: hiện diện đều để được nhớ). 🔴 Đây KHÔNG phải đợt: "
+            "TUYỆT ĐỐI KHÔNG có offer/deadline/SMART số/urgency — chỉ định hướng được-nhớ.\n"
+            "Bám Chiến lược (Synthesis) + Tactical Playbook đã có. Xuất MARKDOWN gồm:\n"
+            "## 1. Big idea & Key message (concept xuyên suốt + điều khách phải nhớ về thương hiệu)\n"
+            "## 2. Định vị nền (kế thừa synthesis — câu định vị + vì sao khác biệt)\n"
+            "## 3. Tệp nhắm + insight ngầm (rộng theo Byron Sharp — chạm cả khách chưa mua)\n"
+            "## 4. Trục nội dung (content pillars) — vai trò mỗi trụ trong xây nhận biết/niềm tin\n"
+            "## 5. Kênh + vai trò mỗi kênh (kênh nào xây nhận biết, kênh nào nuôi niềm tin)\n"
+            "## 6. Creative direction (tone & visual mood VN + 3 hook angle thương hiệu)\n"
+            "## 7. KPI định hướng (reach/tần suất/nhớ thương hiệu — ĐO GÌ, KHÔNG target/deadline)\n\n"
+            "🔴 Bám archetype ngành + nguồn lực (đề xuất khả thi, không vẽ quá sức). KHÔNG bịa số. "
+            "Diễn đạt tự nhiên, TIẾNG VIỆT."
+        )
+        user = (f"# Ngành\n{industry} — {arche}\n# USP\n{usp or '(chưa rõ)'}\n# Wedge\n{wedge or '(chưa chọn)'}\n"
+                f"# Nguồn lực\n- Đội: {team_size or '(nhỏ)'}\n- Kênh: {cur_channels or '(chưa rõ)'}\n\n"
+                f"# Chiến lược (Synthesis)\n{synth[:3200]}\n\n# Tactical Playbook\n{(tact or '(chưa có)')[:1800]}")
+        res = await router_call(task_type=TaskType.OPS_BRIEF, system=system, user=user, max_tokens=2600)
+        brief = (res or {}).get("output", "").strip()
+        if not brief:
+            return {"error": "Chưa sinh được brief — thử lại."}
+        run = await skill_runs.insert_skill_run(uid, "branding_brief", brief, model_used="web-branding")
+        run_id = (run or {}).get("id")
+        spec = CAMPAIGN_TYPES["branding"]
+        meta = extra.get("campaign_meta") or {}
+        if not isinstance(meta, dict):
+            meta = {}
+        # 1 user 1 branding: tìm cái có sẵn → cập nhật; chưa có → tạo campaigns_v2 row
+        cid = next((k for k, v in meta.items() if isinstance(v, dict) and v.get("type") == "branding"), None)
+        if cid is None:
+            camp = await campaigns_v2.create_campaign(
+                uid, name="Branding nền", industry=prof.get("industry"),
+                primary_goal="brand", summary=brief[:500], brief_skill_run_id=run_id)
+            cid = str((camp or {}).get("id") or "")
+            if not cid:
+                return {"error": "Không tạo được campaign."}
+            meta[cid] = {"type": "branding", "type_label": spec[2], "type_icon": spec[1],
+                         "group": spec[0], "audience": "Tất cả", "persistent": True,
+                         "brief_run_id": run_id, "tasks": _build_campaign_tasks("branding")}
+        else:
+            meta[cid]["brief_run_id"] = run_id   # cập nhật brief, giữ task
+        extra["campaign_meta"] = meta
+        await profiles.upsert_profile(uid, intake_extra=extra)
+        return {"ok": True, "campaign_id": cid, "brief_run_id": run_id}
+    except Exception as e:
+        logger.warning("biz.gen_branding_brief failed: %s", e)
         return {"error": str(e)}
 
 
