@@ -245,6 +245,13 @@ async def biz_campaign_branding(request):
     return JSONResponse(res, status_code=400 if "error" in res else 200)
 
 
+async def biz_gaps(request):
+    """S-05 — bóc GAP/cơ hội từ research để tạo campaign tổng."""
+    d = await request.json()
+    res = await biz.gen_gaps(d.get("user_id"))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
 async def biz_campaign_portfolio_clear(request):
     """M-F (F2) — bỏ 1 mục (index) hoặc cả danh mục đề xuất."""
     d = await request.json()
@@ -471,6 +478,7 @@ def api_routes() -> list:
         Route("/api/biz/campaign/task-update",     biz_campaign_task_update, methods=["POST"]),
         Route("/api/biz/campaign/portfolio",       biz_campaign_portfolio, methods=["POST"]),
         Route("/api/biz/campaign/branding",        biz_campaign_branding, methods=["POST"]),
+        Route("/api/biz/gaps",                     biz_gaps,           methods=["POST"]),
         Route("/api/biz/campaign/portfolio-clear", biz_campaign_portfolio_clear, methods=["POST"]),
         Route("/api/biz/reset",                    biz_reset,          methods=["POST"]),
         Route("/api/biz/campaign-plan",            biz_campaign_plan,  methods=["GET"]),

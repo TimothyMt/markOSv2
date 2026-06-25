@@ -1068,6 +1068,80 @@ async def reset_business(user_id=None, full: bool = False) -> dict:
         return {"error": str(e)}
 
 
+# S-05: 6 loại GAP bóc từ research (key ổn định để FE map icon/màu)
+GAP_KINDS = {
+    "market":      ("🕳️", "Khoảng trống thị trường", "nhu cầu chưa ai đáp ứng tốt"),
+    "segment":     ("👥", "Tệp bị bỏ ngỏ", "phân khúc chưa ai phục vụ đúng"),
+    "positioning": ("🎯", "Góc định vị trống", "chỗ trống trong tâm trí khách chưa ai chiếm"),
+    "trust":       ("🤝", "Khoảng tin cậy / bằng chứng", "khách thiếu niềm tin, chưa ai giải"),
+    "channel":     ("📡", "Kênh đối thủ bỏ trống", "kênh đối thủ yếu/bỏ"),
+    "price":       ("💰", "Phân khúc giá-trị", "mức giá/giá trị chưa ai phục vụ"),
+}
+
+
+async def gen_gaps(user_id=None) -> dict:
+    """S-05: bóc GAP/cơ hội từ research (market/competitor/customer/swot) → trình user chọn khi
+    tạo CAMPAIGN TỔNG. 1 LLM call → list gap {kind, title, desc, why, segment}. Lưu intake_extra.gaps."""
+    if not available():
+        return {"error": "Chưa cấu hình Supabase."}
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {"error": "Chưa có user."}
+        research = {}
+        for sk in _RESEARCH_SKILLS:
+            research[sk] = await _latest_content(uid, sk)
+        if not any((research.get(k) or "").strip() for k in _RESEARCH_SKILLS):
+            return {"error": "Chưa có nghiên cứu (T1-T3) — hãy chạy nghiên cứu trước."}
+        from storage.v2 import profiles
+        prof = await profiles.get_profile(uid) or {}
+        extra = prof.get("intake_extra") if isinstance(prof.get("intake_extra"), dict) else {}
+        if not isinstance(extra, dict):
+            extra = {}
+        industry = prof.get("industry") or ""
+        synth = await _latest_content(uid, "synthesis")
+        kinds_menu = "\n".join(f"- {k}: {v[1]} ({v[2]})" for k, v in GAP_KINDS.items())
+        from tools.llm_router import call as router_call, TaskType
+        import json as _json
+        system = (
+            "Bạn là Chief Strategist. Từ RESEARCH (thị trường/đối thủ/khách/SWOT), BÓC ra các GAP/CƠ HỘI "
+            "ĐÁNG ĐÁNH — chỗ trống thật mà đối thủ bỏ ngỏ / khách chưa được phục vụ tốt. 4-7 gap.\n"
+            "Mỗi gap chọn 1 'kind' (trả đúng KEY tiếng Anh) trong:\n" + kinds_menu + "\n"
+            "Mỗi gap: title (ngắn, cụ thể) · desc (1-2 câu) · why (vì sao đáng đánh — bám phát hiện research "
+            "THẬT, KHÔNG bịa) · segment (tệp khách liên quan, nếu có). KHÔNG bịa số. TIẾNG VIỆT.\n"
+            'Output JSON DUY NHẤT: {"gaps":[{"kind":"","title":"","desc":"","why":"","segment":""}]}.'
+        )
+        user = (f"# Ngành\n{industry}\n\n# Thị trường\n{(research.get('market_research') or '(chưa có)')[:2200]}\n\n"
+                f"# Đối thủ (chú ý Market Gap)\n{(research.get('competitor') or '(chưa có)')[:2200]}\n\n"
+                f"# Khách\n{(research.get('customer_insight') or '(chưa có)')[:1800]}\n\n"
+                f"# SWOT (Cơ hội)\n{(research.get('swot') or '(chưa có)')[:1600]}\n\n"
+                f"# Chiến lược (nếu có)\n{synth[:1200]}")
+        res = await router_call(task_type=TaskType.INTAKE_JSON, system=system, user=user, max_tokens=1600)
+        raw = (res or {}).get("output", "").strip()
+        raw = re.sub(r'^```(?:json)?\s*', '', raw)
+        raw = re.sub(r'\s*```\s*$', '', raw).strip()
+        data = _json.loads(raw)
+        gaps = []
+        for g in (data.get("gaps") or [])[:8]:
+            if not isinstance(g, dict):
+                continue
+            kind = str(g.get("kind") or "").strip().lower()
+            if kind not in GAP_KINDS:
+                kind = "market"
+            gaps.append({"kind": kind, "icon": GAP_KINDS[kind][0], "kind_label": GAP_KINDS[kind][1],
+                         "title": str(g.get("title") or "")[:120], "desc": str(g.get("desc") or "")[:280],
+                         "why": str(g.get("why") or "")[:280], "segment": str(g.get("segment") or "")[:120]})
+        if not gaps:
+            return {"error": "Chưa bóc được gap — thử lại."}
+        extra["gaps"] = gaps
+        await profiles.upsert_profile(uid, intake_extra=extra)
+        return {"ok": True, "gaps": gaps}
+    except Exception as e:
+        logger.warning("biz.gen_gaps failed: %s", e)
+        return {"error": str(e)}
+
+
 async def gen_branding_brief(user_id=None) -> dict:
     """M-G (G1): tạo/cập nhật campaign BRANDING NỀN (xuyên suốt). 1 LLM call sinh brand brief
     (big idea + key message + định vị nền + KPI định hướng) bám synthesis/playbook — KHÔNG SMART/
