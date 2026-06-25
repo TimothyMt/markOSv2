@@ -226,6 +226,7 @@ body { overflow-x: hidden; }
 }
 .pill { font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 8px; }
 .pill.warn { color: var(--amber); background: rgba(255, 200, 87, .14); }
+.pill.green { color: var(--green); background: rgba(45, 212, 167, .14); }
 
 .timeline { list-style: none; display: flex; flex-direction: column; gap: 14px; }
 .timeline li { display: flex; gap: 12px; position: relative; }
@@ -796,6 +797,47 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 .pf-meta { display:block; font-size:11.5px; color:var(--muted); margin-top:2px; }
 .pf-why { font-size:12.5px; margin-top:5px; }
 .pf-acts { display:flex; gap:6px; flex:none; align-items:center; }
+/* ── S-05/S-10/S-12: campaign-first (gap → tổng → sub → tuyến) ── */
+.legacy-fold { padding:14px 16px; }
+.legacy-fold > summary { cursor:pointer; font-size:13px; font-weight:600; color:var(--muted); list-style:none; }
+.legacy-fold > summary::-webkit-details-marker { display:none; }
+.legacy-fold > summary::before { content:'▸ '; }
+.legacy-fold[open] > summary::before { content:'▾ '; }
+.gap-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
+.gap-card { border:1px solid var(--stroke); border-radius:10px; padding:11px 13px; background:var(--panel-2); }
+.gap-head { font-size:13.5px; line-height:1.4; margin-bottom:5px; }
+.gap-head .tag { font-size:10.5px; }
+.gap-card .muted { font-size:12px; line-height:1.45; margin:3px 0 0; }
+.gap-why { font-size:12.5px; margin:6px 0 0; color:var(--text); }
+.master-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px; }
+.master-card { border:1px solid var(--stroke); border-radius:12px; padding:13px 15px; background:var(--panel-2);
+  cursor:pointer; transition:border-color .15s, transform .1s; }
+.master-card:hover { border-color:var(--primary); transform:translateY(-1px); }
+.master-head { font-size:14.5px; margin-bottom:8px; }
+.gap-badge { display:inline-block; font-size:11px; font-weight:600; padding:3px 9px; border-radius:999px;
+  background:color-mix(in srgb, var(--primary) 14%, transparent); color:var(--primary); }
+.master-meta { display:flex; flex-wrap:wrap; gap:6px 14px; margin:9px 0 4px; font-size:12px; color:var(--txt-2); }
+.master-foot { font-size:11.5px; margin-top:6px; }
+.gap-pick, .sub-pick { display:flex; flex-direction:column; gap:8px; }
+.gap-opt, .sub-opt { display:flex; gap:9px; align-items:flex-start; border:1px solid var(--stroke);
+  border-radius:10px; padding:10px 12px; cursor:pointer; font-size:13px; line-height:1.45; }
+.gap-opt.on, .sub-opt.on { border-color:var(--primary); background:color-mix(in srgb, var(--primary) 7%, transparent); }
+.gap-opt input, .sub-opt input { margin-top:3px; flex:none; }
+.hub-bet { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 14px; }
+.hub-chip { font-size:12px; font-weight:600; padding:4px 11px; border-radius:999px; border:1px solid var(--stroke); color:var(--txt-2); }
+.hub-add { font-size:12px; margin:0 0 8px; display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+.sub-list { display:flex; flex-direction:column; gap:14px; }
+.sub-block { border:1px solid var(--stroke); border-radius:12px; padding:12px 14px; background:var(--panel-2); }
+.sub-head { display:flex; flex-wrap:wrap; align-items:center; gap:8px; font-size:14px; margin-bottom:10px; }
+.sub-head-acts { display:flex; flex-wrap:wrap; gap:6px; margin-left:auto; }
+.tuyen-wrap { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px; }
+.tuyen { border:1px solid var(--stroke); border-radius:9px; padding:9px 11px; background:var(--panel); }
+.tuyen-h { font-size:13px; margin-bottom:6px; line-height:1.35; }
+.tuyen-topics { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:7px; }
+.tuyen-topics li { font-size:12.5px; line-height:1.4; display:flex; flex-wrap:wrap; align-items:center; gap:6px; }
+.tuyen-topics .tt-text { flex:1; min-width:120px; }
+@media (max-width: 920px) { .tuyen-wrap { grid-template-columns:1fr; } }
+
 .cal-post.saved { border-left-color:var(--green); background:color-mix(in srgb, var(--green) 6%, var(--panel)); }
 .slot-done { font-size:9.5px; font-weight:700; color:var(--green);
   background:color-mix(in srgb, var(--green) 16%, transparent); padding:1px 6px; border-radius:999px; margin-left:auto; }
@@ -2359,8 +2401,11 @@ window.MOCK = {
           <div class="empty-actions"><a class="primary-btn" href="#strategy">🎯 Tới bước Lập chiến lược</a></div></div>`, {cls:'span-12'})}</section>`;
       }
       return `<section class="grid">
-        <div class="card span-12 dir-banner">🧭 <b>Synthesis = la bàn TRÊN cả 2 tuyến.</b> <b>Always-on</b> chạy nền liên tục để được nhớ (Byron Sharp); <b>Occasion</b> là đợt theo dịp tạo spike (Binet&Field). 2 tuyến SONG SONG — occasion cộng thêm, không tắt nền.</div>
-        <div id="campaignPlan" class="span-12"><div class="card"><p class="muted">⏳ Đang lập 2 tuyến theo ngành của bạn…</p></div></div>
+        <div class="card span-12 dir-banner">🧭 <b>Campaign-first.</b> Nghiên cứu → <b>Bóc GAP</b> → <b>Campaign TỔNG</b> (đặt cược: gap + tệp + USP) → Max dựng <b>sub-campaign</b> + <b>tuyến bài</b> (Khai sáng/Tin cậy/Chuyển hoá/Lan toả) → bài. Nhiều campaign tổng chạy song song.</div>
+        ${campaignFirstHero()}
+        <details class="card span-12 legacy-fold"><summary>🟢 Tuyến nền · 🔴 Theo dịp · 🔁 Giữ chân (tạo nhanh / cho lịch)</summary>
+          <div id="campaignPlan" style="margin-top:12px"><div class="card"><p class="muted">⏳ Đang lập 2 tuyến theo ngành của bạn…</p></div></div>
+        </details>
       </section>`;
     },
     mount: () => { loadCampaignPlan(); },
@@ -2427,6 +2472,154 @@ window.MOCK = {
           </div>`, { cls: 'span-12' })}
       </section>`;
     } catch (e) { host.innerHTML = `<div class="card"><p class="muted">Không lập được kế hoạch — thử lại sau.</p></div>`; }
+  }
+
+  /* ════ M-G/S-10/11/12: CAMPAIGN-FIRST — Bóc GAP → Campaign tổng → sub → tuyến → bài ════ */
+  const _eHero = s => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  function _masters() {
+    const meta = M.bizCampaignMeta || {};
+    return Object.keys(meta).filter(id => meta[id] && meta[id].role === 'master')
+      .map(id => ({ id, ...meta[id] }));
+  }
+  function _subsOf(masterId) {
+    const meta = M.bizCampaignMeta || {};
+    return Object.keys(meta).filter(id => meta[id] && meta[id].role === 'sub'
+      && String(meta[id].parent) === String(masterId)).map(id => ({ id, ...meta[id] }));
+  }
+  // Hero trên trang Lập chiến dịch: Bước 1 Bóc GAP · Bước 2 Campaign tổng (list → hub).
+  function campaignFirstHero() {
+    const E = _eHero, gaps = M.bizGaps || [], masters = _masters();
+    const gapCards = gaps.length ? `<div class="gap-grid">${gaps.map(g => `
+      <div class="gap-card">
+        <div class="gap-head">${g.icon || '🕳️'} <b>${E(g.title)}</b> <span class="tag">${E(g.kind_label || '')}</span></div>
+        ${g.desc ? `<p class="muted">${E(g.desc)}</p>` : ''}
+        ${g.why ? `<p class="gap-why">💡 ${E(g.why)}</p>` : ''}
+        ${g.segment ? `<p class="muted">👥 ${E(g.segment)}</p>` : ''}
+      </div>`).join('')}</div>`
+      : `<p class="muted">Chưa bóc gap. Max trích các khoảng trống đáng đánh từ nghiên cứu (thị trường · đối thủ · khách · SWOT) để bạn chọn khi tạo campaign tổng.</p>`;
+    const gapBtn = `<button class="${gaps.length ? 'ghost-line' : 'primary-btn'}" data-act="gen-gaps">${gaps.length ? '↻ Bóc lại gap' : '🔍 Bóc gap & cơ hội từ nghiên cứu'}</button>`;
+    const masterCards = masters.length ? masters.map(m => {
+      const subs = _subsOf(m.id);
+      return `<div class="master-card clickable" data-act="master-hub" data-id="${m.id}">
+        <div class="master-head">📦 <b>${E(m.name)}</b></div>
+        ${m.gap ? `<span class="gap-badge">${m.gap.icon || '🕳️'} ${E(m.gap.title)}</span>` : ''}
+        <div class="master-meta">${m.wedge ? `<span>🎯 ${E(m.wedge)}</span>` : ''}${m.usp ? `<span>⭐ ${E(m.usp)}</span>` : ''}</div>
+        <div class="master-foot muted">${subs.length} sub-campaign · ${(m.proposed_subs || []).length} đề xuất · bấm mở hub →</div>
+      </div>`;
+    }).join('') : `<p class="muted">Chưa có campaign tổng. Tạo 1 cái: chọn gap muốn đánh + tệp wedge + USP → Max dựng sub-campaign + tuyến bài.</p>`;
+    return `
+      ${card('🕳️ Bước 1 — Bóc GAP & cơ hội', `${gapCards}<div style="margin-top:12px">${gapBtn}</div>`, { cls: 'span-12' })}
+      ${card('📦 Bước 2 — Campaign tổng (đặt cược chiến lược)', `
+        <p class="muted" style="margin:0 0 12px">Mỗi campaign tổng = 1 <b>đặt cược</b>: đánh gap nào + tệp nào + USP nào. Có HUB riêng (sub-campaign · tuyến bài · brief · task). Nhiều campaign tổng chạy song song.</p>
+        <div class="master-grid">${masterCards}</div>
+        <button class="primary-btn full" data-act="new-master" style="margin-top:14px">📦 Tạo campaign tổng mới</button>`, { cls: 'span-12' })}`;
+  }
+
+  /* ── Wizard tạo Campaign tổng (gap → đặt cược → Max đề xuất sub → chốt) ── */
+  let _masterState = { step: 'gap', gapIdx: -1, wedge: '', usp: '', name: '', masterId: '', subs: [], picked: [], busy: false };
+  function openMasterWizard() {
+    if (!apiAvailable || !M.bizEnabled) { toast('Bật backend (Supabase + LLM) để tạo campaign tổng'); return; }
+    _masterState = { step: 'gap', gapIdx: -1, wedge: '', usp: '', name: '', masterId: '', subs: [], picked: [], busy: false };
+    _ensureBizModal(); renderMasterWizard(); document.getElementById('bizModal').classList.add('show');
+  }
+  function _msSync() {   // giữ giá trị ô input khi re-render
+    const S = _masterState, ov = document.getElementById('bizModal'); if (!ov) return;
+    const w = ov.querySelector('#mWedge'), u = ov.querySelector('#mUsp'), n = ov.querySelector('#mName');
+    if (w) S.wedge = w.value; if (u) S.usp = u.value; if (n) S.name = n.value;
+  }
+  function renderMasterWizard() {
+    const ov = document.getElementById('bizModal'); if (!ov) return;
+    const E = _eHero, S = _masterState;
+    ov.querySelector('h3').textContent = '📦 Tạo campaign tổng';
+    const body = ov.querySelector('.modal-body'), foot = ov.querySelector('.modal-foot');
+    foot.style.display = 'flex';
+    if (S.step === 'gap') {
+      const gaps = M.bizGaps || [];
+      if (!gaps.length) {
+        body.innerHTML = `<p class="muted">Chưa có gap để chọn. Bóc gap trước rồi quay lại, hoặc bấm dưới để Max bóc ngay.</p>`;
+        foot.innerHTML = `<button class="ghost-line sm" data-act="master-close">Đóng</button>
+          <button class="primary-btn sm" data-act="gen-gaps">🔍 Bóc gap ngay</button>`;
+        return;
+      }
+      body.innerHTML = `<p class="muted" style="margin:0 0 10px">Chọn <b>gap</b> campaign tổng này sẽ đánh:</p>
+        <div class="gap-pick">${gaps.map((g, i) => `
+          <label class="gap-opt${S.gapIdx === i ? ' on' : ''}">
+            <input type="radio" name="mgap" ${S.gapIdx === i ? 'checked' : ''} data-act="master-gap" data-idx="${i}">
+            <span>${g.icon || '🕳️'} <b>${E(g.title)}</b> <small class="muted">${E(g.kind_label || '')}</small><br><small class="muted">${E(g.desc || '')}</small></span>
+          </label>`).join('')}</div>`;
+      foot.innerHTML = `<button class="ghost-line sm" data-act="master-close">Đóng</button>
+        <button class="primary-btn sm" data-act="master-next" ${S.gapIdx < 0 ? 'disabled' : ''}>Tiếp →</button>`;
+    } else if (S.step === 'bet') {
+      const g = (M.bizGaps || [])[S.gapIdx] || {};
+      body.innerHTML = `
+        <p class="muted" style="margin:0 0 10px">Gap đã chọn: <b>${g.icon || ''} ${E(g.title)}</b></p>
+        <label class="slot-axis"><span>Tệp ưu tiên (wedge) — đánh ai trước</span>
+          <input id="mWedge" class="slot-topic" value="${E(S.wedge)}" placeholder="vd: chủ shop nhỏ mới mở, ngân sách hạn chế"></label>
+        <label class="slot-axis" style="margin-top:10px"><span>USP — lời hứa khác biệt</span>
+          <input id="mUsp" class="slot-topic" value="${E(S.usp)}" placeholder="vd: giao trong 2h, đổi trả 30 ngày không hỏi"></label>
+        <label class="slot-axis" style="margin-top:10px"><span>Tên campaign tổng <small class="muted">· để trống = tự đặt</small></span>
+          <input id="mName" class="slot-topic" value="${E(S.name)}" placeholder="vd: Chiếm tệp shop nhỏ Q3"></label>
+        <p class="muted" style="margin:10px 0 0;font-size:12px">Để trống wedge/USP = Max lấy theo Chiến lược (synthesis).</p>`;
+      foot.innerHTML = `<button class="ghost-line sm" data-act="master-back">← Lại</button>
+        <button class="primary-btn sm" data-act="master-genplan" ${S.busy ? 'disabled' : ''}>${S.busy ? '⏳ Max đang nghĩ…' : '🤖 Max đề xuất sub-campaign →'}</button>`;
+    } else if (S.step === 'subs') {
+      const proposed = S.subs || [];
+      body.innerHTML = `
+        <p class="muted" style="margin:0 0 10px">✅ Đã tạo campaign tổng. Max đề xuất các <b>sub-campaign</b> cho đặt cược này — tick cái muốn tạo:</p>
+        <div class="sub-pick">${proposed.map((s, i) => `
+          <label class="sub-opt${S.picked.includes(i) ? ' on' : ''}">
+            <input type="checkbox" data-act="master-pick" data-idx="${i}" ${S.picked.includes(i) ? 'checked' : ''}>
+            <span>${s.type_icon || '🔴'} <b>${E(s.name)}</b> <small class="muted">${E(s.type_label || '')}</small><br><small class="muted">${E(s.why || '')}</small></span>
+          </label>`).join('') || '<p class="muted">Không có đề xuất — bạn thêm sub thủ công trong hub.</p>'}</div>
+        <p class="muted" style="margin:12px 0 0;font-size:12px">🟢 Branding nền tạo riêng (xuyên suốt). Thêm/bớt sub trong hub bất cứ lúc nào.</p>`;
+      foot.innerHTML = `<button class="ghost-line sm" data-act="master-skip">Để sau →</button>
+        <button class="primary-btn sm" data-act="master-commit" ${S.busy ? 'disabled' : ''}>${S.busy ? '⏳ Đang tạo…' : '✅ Tạo sub đã chọn → mở hub'}</button>`;
+    }
+  }
+
+  /* ── Hub campaign tổng: đặt cược · sub-campaign · tuyến bài · topics → tạo bài ── */
+  let _hubId = null;
+  function openMasterHub(id) {
+    _hubId = id; _ensureBizModal(); renderMasterHub();
+    document.getElementById('bizModal').classList.add('show');
+  }
+  function renderMasterHub() {
+    const ov = document.getElementById('bizModal'); if (!ov || _hubId == null) return;
+    const E = _eHero, meta = M.bizCampaignMeta || {}, m = meta[String(_hubId)];
+    if (!m) { ov.querySelector('.modal-body').innerHTML = '<p class="muted">Không tìm thấy campaign tổng.</p>'; return; }
+    ov.querySelector('h3').textContent = `📦 ${m.name || 'Campaign tổng'}`;
+    const subs = _subsOf(_hubId), committed = new Set(subs.map(s => s.type));
+    const betHdr = `<div class="hub-bet">
+      ${m.gap ? `<span class="gap-badge">${m.gap.icon || '🕳️'} ${E(m.gap.title)}</span>` : ''}
+      ${m.wedge ? `<span class="hub-chip">🎯 ${E(m.wedge)}</span>` : ''}
+      ${m.usp ? `<span class="hub-chip">⭐ ${E(m.usp)}</span>` : ''}</div>`;
+    const addable = (m.proposed_subs || []).filter(s => !committed.has(s.type));
+    const addRow = addable.length ? `<div class="hub-add"><span class="muted">➕ Thêm sub đề xuất:</span> ${addable.map(s =>
+      `<button class="ghost-line sm" data-act="hub-add-sub" data-type="${s.type}" data-name="${encodeURIComponent(s.name || '')}">${s.type_icon || ''} ${E(s.name)}</button>`).join('')}</div>` : '';
+    const subCards = subs.map(s => {
+      const tracks = s.tracks || [], hasTopics = tracks.some(t => (t.topics || []).length);
+      const trackHtml = tracks.map(t => {
+        const tops = t.topics || [];
+        const topHtml = tops.length ? `<ul class="tuyen-topics">${tops.map(tp => `
+          <li><span class="tt-text">${E(tp.t || '')}</span>${tp.lens ? ` <small class="tag">${E(tp.lens)}</small>` : ''}
+            <button class="chip-btn sm" data-act="sub-topic-post" data-sub="${s.id}" data-track="${t.key}" data-topic="${encodeURIComponent(tp.t || '')}" data-lens="${encodeURIComponent(tp.lens || '')}">⚡ Tạo bài</button></li>`).join('')}</ul>`
+          : '<p class="muted" style="margin:2px 0 0">— (chưa có chủ đề)</p>';
+        return `<div class="tuyen"><div class="tuyen-h">${t.icon || ''} <b>${E(t.label)}</b> <small class="muted">${E(t.role || '')}</small></div>${topHtml}</div>`;
+      }).join('');
+      return `<div class="sub-block">
+        <div class="sub-head">${s.type_icon || '🔴'} <b>${E(s.type_label || 'Sub')}</b>${s.audience ? ` <span class="tag">🎯 ${E(s.audience)}</span>` : ''}${s.persistent ? ' <span class="pill green">nền</span>' : ''}
+          <span class="sub-head-acts">
+            ${s.brief_run_id ? `<button class="ghost-line sm" data-act="camptask-view" data-run="${s.brief_run_id}">📄 Brief</button>` : ''}
+            <button class="${hasTopics ? 'ghost-line' : 'primary-btn'} sm" data-act="sub-content-gen" data-sub="${s.id}">${hasTopics ? '↻ Sinh lại tuyến' : '✨ Sinh brief + chủ đề tuyến'}</button>
+            <button class="ghost-line sm" data-act="camp-detail" data-camp-id="${s.id}">📋 Task</button>
+          </span></div>
+        <div class="tuyen-wrap">${trackHtml || '<p class="muted">—</p>'}</div></div>`;
+    }).join('') || '<p class="muted">Chưa có sub-campaign. Thêm từ đề xuất hoặc loại khác bên dưới.</p>';
+    const types = (M.bizCampaignTypes || []).filter(t => t.key !== 'branding');
+    const addAny = `<div class="hub-add" style="margin-top:10px"><span class="muted">➕ Loại khác:</span> ${types.map(t =>
+      `<button class="ghost-line sm" data-act="hub-add-sub" data-type="${t.key}" data-name="">${t.icon || ''} ${E(t.label)}</button>`).join('')}</div>`;
+    ov.querySelector('.modal-body').innerHTML = betHdr + addRow + `<div class="sub-list">${subCards}</div>` + addAny;
+    const foot = ov.querySelector('.modal-foot'); foot.style.display = 'none'; foot.innerHTML = '';
   }
 
   /* ---- (gỡ) Campaign Brief mock — thay bằng Occasion brief thật (M1.1).
@@ -3804,7 +3997,9 @@ window.MOCK = {
           user_id: _bizUserId, track: _slotCtx.track || 'always', pillar: _slotCtx.pillar || '',
           angle, value_lens, hook_style, framework: _slotCtx.framework || '',
           campaign_id: _slotCtx.campaignId || '', phase: _slotCtx.phase || '',
-          week: _slotCtx.week || '', day: _slotCtx.day != null ? _slotCtx.day : '' });
+          week: _slotCtx.week || '', day: _slotCtx.day != null ? _slotCtx.day : '',
+          campaign_gap: _slotCtx.campaign_gap || '', objective: _slotCtx.objective || '',
+          track_role: _slotCtx.track_role || '' });
         if (r.error) { toast(r.error); el.disabled = false; el.textContent = orig; return; }
         showSlotResult(r.content, r.run_id); refreshBiz();
       } catch (e) { toast('Không tạo được bài — thử lại sau.'); el.disabled = false; el.textContent = orig; }
@@ -4132,6 +4327,116 @@ window.MOCK = {
         await refreshBiz();
         if (r.campaign_id != null) openCampDetail(r.campaign_id); else route();
       } catch (e) { toast('Không tạo được — thử lại sau.'); el.disabled = false; el.textContent = orig; }
+      return;
+    }
+    /* ── S-05/S-10/S-12: campaign-first (gap → tổng → sub → tuyến → bài) ── */
+    if (act === 'gen-gaps') {   // S-05: bóc GAP từ nghiên cứu
+      if (!apiAvailable || !M.bizEnabled) { toast('Bật backend để Max bóc gap'); return; }
+      const orig = el.textContent; el.disabled = true; el.textContent = '⏳ Max đang bóc gap…';
+      try {
+        const r = await API.post('api/biz/gaps', { user_id: _bizUserId });
+        if (r.error) { toast(r.error); el.disabled = false; el.textContent = orig; return; }
+        await refreshBiz();
+        toast(`✨ Đã bóc ${(r.gaps || []).length} gap`);
+        if (_masterState.step === 'gap' && document.getElementById('bizModal').classList.contains('show')) renderMasterWizard();
+        else route();
+      } catch (e) { toast('Không bóc được gap — thử lại sau.'); el.disabled = false; el.textContent = orig; }
+      return;
+    }
+    if (act === 'new-master') { openMasterWizard(); return; }
+    if (act === 'master-close' || act === 'master-skip') {
+      const ov = document.getElementById('bizModal'); if (ov) ov.classList.remove('show');
+      if (act === 'master-skip') route();
+      return;
+    }
+    if (act === 'master-gap') { _masterState.gapIdx = +el.dataset.idx; renderMasterWizard(); return; }
+    if (act === 'master-next') { _masterState.step = 'bet'; renderMasterWizard(); return; }
+    if (act === 'master-back') { _msSync(); _masterState.step = 'gap'; renderMasterWizard(); return; }
+    if (act === 'master-genplan') {   // S-10a: tạo master row + Max đề xuất sub
+      _msSync();
+      const S = _masterState, g = (M.bizGaps || [])[S.gapIdx] || {};
+      if (!g.title) { toast('Chọn gap trước'); return; }
+      S.busy = true; renderMasterWizard();
+      try {
+        const r = await API.post('api/biz/campaign/master', {
+          user_id: _bizUserId, gap_kind: g.kind || '', gap_title: g.title || '',
+          wedge: S.wedge || '', usp: S.usp || '', name: S.name || '' });
+        S.busy = false;
+        if (r.error) { toast(r.error); renderMasterWizard(); return; }
+        S.masterId = r.master_id; S.subs = r.proposed_subs || [];
+        S.picked = S.subs.map((_, i) => i);
+        S.step = 'subs';
+        await refreshBiz(); renderMasterWizard();
+      } catch (e) { S.busy = false; toast('Không tạo được — thử lại sau.'); renderMasterWizard(); }
+      return;
+    }
+    if (act === 'master-pick') {
+      const i = +el.dataset.idx, S = _masterState;
+      if (S.picked.includes(i)) S.picked = S.picked.filter(x => x !== i); else S.picked.push(i);
+      renderMasterWizard();
+      return;
+    }
+    if (act === 'master-commit') {   // S-10b: chốt từng sub đã tick → mở hub
+      const S = _masterState;
+      if (!S.masterId) { toast('Thiếu campaign tổng'); return; }
+      S.busy = true; renderMasterWizard();
+      try {
+        for (const i of S.picked) {
+          const sub = S.subs[i]; if (!sub) continue;
+          const r = await API.post('api/biz/campaign/sub', {
+            user_id: _bizUserId, master_id: S.masterId, type: sub.type, name: sub.name || '' });
+          if (r.error) { toast(r.error); }
+        }
+        S.busy = false;
+        await refreshBiz();
+        const mid = S.masterId;
+        toast('✅ Đã tạo campaign tổng + sub');
+        openMasterHub(mid);
+      } catch (e) { S.busy = false; toast('Có lỗi khi tạo sub — thử lại.'); renderMasterWizard(); }
+      return;
+    }
+    if (act === 'master-hub') { openMasterHub(el.dataset.id); return; }
+    if (act === 'hub-add-sub') {   // S-10b: thêm 1 sub vào master từ hub
+      if (_hubId == null) return;
+      let nm = ''; try { nm = decodeURIComponent(el.dataset.name || ''); } catch (e) { nm = el.dataset.name || ''; }
+      const orig = el.textContent; el.disabled = true; el.textContent = '⏳…';
+      try {
+        const r = await API.post('api/biz/campaign/sub', {
+          user_id: _bizUserId, master_id: _hubId, type: el.dataset.type || '', name: nm });
+        if (r.error) { toast(r.error); el.disabled = false; el.textContent = orig; return; }
+        toast('➕ Đã thêm sub-campaign'); await refreshBiz(); renderMasterHub();
+      } catch (e) { toast('Không thêm được — thử lại.'); el.disabled = false; el.textContent = orig; }
+      return;
+    }
+    if (act === 'sub-content-gen') {   // S-10c: sinh brief + chủ đề theo tuyến cho 1 sub
+      if (!apiAvailable || !M.bizEnabled) { toast('Bật backend để Max sinh tuyến'); return; }
+      const sid = el.dataset.sub; if (!sid) return;
+      const orig = el.textContent; el.disabled = true; el.textContent = '⏳ Max đang dựng tuyến + chủ đề…';
+      try {
+        const r = await API.post('api/biz/campaign/sub-content', { user_id: _bizUserId, sub_id: sid });
+        if (r.error) { toast(r.error); el.disabled = false; el.textContent = orig; return; }
+        toast('✨ Đã dựng tuyến bài + chủ đề'); await refreshBiz(); renderMasterHub();
+      } catch (e) { toast('Không dựng được — thử lại sau.'); el.disabled = false; el.textContent = orig; }
+      return;
+    }
+    if (act === 'sub-topic-post') {   // tạo bài từ 1 chủ đề tuyến (bám đặt-cược + vai-trò-tuyến)
+      if (_hubId == null) return;
+      const meta = M.bizCampaignMeta || {}, m = meta[String(_hubId)] || {};
+      const sid = el.dataset.sub, sub = meta[String(sid)] || {};
+      let topic = '', lens = '';
+      try { topic = decodeURIComponent(el.dataset.topic || ''); } catch (e) { topic = el.dataset.topic || ''; }
+      try { lens = decodeURIComponent(el.dataset.lens || ''); } catch (e) { lens = el.dataset.lens || ''; }
+      const trackKey = el.dataset.track || '';
+      const tr = (sub.tracks || []).find(t => t.key === trackKey) || {};
+      const objective = (M.bizCampaignTypes || []).find(t => t.key === sub.type);
+      openSlotModal({
+        track: 'camp', campaignId: sid, phase: tr.label || '',
+        pillar: `${sub.type_icon || '🔴'} ${sub.type_label || 'Sub'} · ${tr.label || ''}`,
+        funnel: m.name || '', title: topic, topic, angles: [topic],
+        value_lens: lens, key: '',
+        campaign_gap: (m.gap || {}).title || '',
+        objective: objective ? objective.objective : '',
+        track_role: tr.role || '' });
       return;
     }
     if (act === 'occ-gen') { await occasionGenerate(); return; }

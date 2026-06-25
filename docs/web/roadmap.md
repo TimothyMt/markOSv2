@@ -24,15 +24,15 @@ Intake → Research (T1-T3) → BÓC GAP/cơ hội (market/segment/định vị/
 | S-01 Intake gọn | 13 câu, bỏ câu thừa/trùng, thêm team_size + wire vào chiến lược | ✅ |
 | S-02 Research T1-T3 | market/competitor/customer/pricing/SWOT (đang chạy `agents/`) | 🟡 |
 | S-03 Synthesis + Playbook | nâng prompt (mạch lập luận, TOWS, USP variants, archetype) | ✅ |
-| S-05 Bóc GAP & cơ hội | sau research → trích các gap (thị trường/tệp/định vị/tin cậy/kênh/giá) trình user chọn | ⬜ |
+| S-05 Bóc GAP & cơ hội | sau research → trích các gap (thị trường/tệp/định vị/tin cậy/kênh/giá) trình user chọn | ✅ |
 | S-04 Research web-owned | viết lại T1-T3 web-owned, khoá scope (gỡ N-03 scope-drift) | ⬜ |
 
 ## TRỤ 2 — Campaign Hub (campaign-first)
 | Slice | Mô tả | TT |
 |---|---|---|
-| S-10 **Campaign tổng** (mũi nhọn) | chọn gap+wedge+USP → Max viết brief + tuyến bài (Khai sáng/Tin cậy/Chuyển hoá/Lan toả) → hub. KHÔNG phải campaign duy nhất | 🔵 |
-| S-11 Trang "Campaign" (list-first) | thay màn "Lập chiến dịch" rối → 1 danh sách campaign (tổng + occasion + …) + "Tạo campaign" | ⬜ |
-| S-12 Hub detail (trang riêng, 10 mục) | brief · gap/wedge/USP · tuyến bài · kênh · lịch · task · KPI · ngân sách · rủi ro · lineage · % | ⬜ |
+| S-10 **Campaign tổng** (mũi nhọn) | chọn gap+wedge+USP → Max viết brief + tuyến bài (Khai sáng/Tin cậy/Chuyển hoá/Lan toả) → hub. KHÔNG phải campaign duy nhất | ✅ |
+| S-11 Trang "Campaign" (list-first) | hero campaign-first ở #occasion: Bước 1 bóc GAP + Bước 2 list campaign tổng (→ hub); tuyến nền/occasion/retention gập lại | ✅ |
+| S-12 Hub detail (modal) | đặt-cược (gap/wedge/USP) · sub-campaign · tuyến bài + topics → ⚡ tạo bài (bám vai-trò-tuyến) · brief · task. (trang-riêng + KPI/ngân sách/rủi ro/% = sau) | 🟡 |
 | S-13 Occasion typed + Portfolio | loại campaign + task kanban + Max đề xuất danh mục | ✅ |
 
 ## TRỤ 3 — Lịch nội dung
