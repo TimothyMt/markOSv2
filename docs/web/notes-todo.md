@@ -157,6 +157,18 @@
     4. Cân nhắc 2 call: (a) CMO reasoning từ research → (b) chẻ thành 5 nhóm option. (Giống mạch
        brief→funnel của bot.)
 
+- **[N-17] Flow ĐANG BỎ QUA bước Playbook — nhảy thẳng "Lập chiến dịch".**
+  Sau "✓ Đã chốt Chiến lược", nút CHÍNH là **"→ Lập chiến dịch"**; Tactical Playbook chỉ là nút phụ
+  "Chi tiết hoá bằng Tactical Playbook" → user dễ nhảy thẳng sang campaign, BỎ QUA Playbook (T5 — cách
+  đánh chi tiết per tệp × phễu TOFU/MOFU/BOFU: copy mẫu, kênh, test, KPI). Mất cầu nối chiến lược→thực
+  thi. Lưu ý: `strategize_web` ĐÃ sinh playbook CÙNG synthesis (tồn tại sẵn, chỉ không bắt xem/dùng).
+  → Cần CHỐT với founder hướng:
+    (a) Playbook = **checkpoint bắt buộc** trong mạch Chiến lược → (đọc/duyệt) → Lập chiến dịch; hoặc
+    (b) Playbook = **nền ngầm**: tuyến nội dung + lịch + bài TỰ bám playbook (kế thừa) dù user không
+        mở tab Playbook. (Hợp Vision A: T4-T5 → tuyến → lịch; playbook là phần T5 nuôi tuyến.)
+    → Nghiêng (b) + vẫn để link xem Playbook; nhưng phải bảo đảm khâu sinh tuyến/bài ĐỌC playbook,
+      không chỉ đọc synthesis. (Liên quan N-07: playbook refresh khi synthesis đổi.)
+
 ## ✅ Đã làm (lưu vết)
 - Enter ở ô intake = nút Tiếp (fcbb3e3)
 - Báo "agent đang chạy" đúng + bỏ "90 ngày" hardcode intake (04f9a9a)
