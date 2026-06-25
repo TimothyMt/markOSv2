@@ -268,6 +268,13 @@ async def biz_subcampaign(request):
     return JSONResponse(res, status_code=400 if "error" in res else 200)
 
 
+async def biz_sub_content(request):
+    """S-10c — sinh brief + topics theo tuyến cho 1 sub-campaign."""
+    d = await request.json()
+    res = await biz.gen_sub_content(d.get("user_id"), d.get("sub_id", ""))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
 async def biz_campaign_portfolio_clear(request):
     """M-F (F2) — bỏ 1 mục (index) hoặc cả danh mục đề xuất."""
     d = await request.json()
@@ -497,6 +504,7 @@ def api_routes() -> list:
         Route("/api/biz/gaps",                     biz_gaps,           methods=["POST"]),
         Route("/api/biz/campaign/master",          biz_master_plan,    methods=["POST"]),
         Route("/api/biz/campaign/sub",             biz_subcampaign,    methods=["POST"]),
+        Route("/api/biz/campaign/sub-content",     biz_sub_content,    methods=["POST"]),
         Route("/api/biz/campaign/portfolio-clear", biz_campaign_portfolio_clear, methods=["POST"]),
         Route("/api/biz/reset",                    biz_reset,          methods=["POST"]),
         Route("/api/biz/campaign-plan",            biz_campaign_plan,  methods=["GET"]),

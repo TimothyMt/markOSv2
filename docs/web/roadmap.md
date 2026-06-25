@@ -64,6 +64,15 @@ Intake → Research (T1-T3) → BÓC GAP/cơ hội (market/segment/định vị/
 3. **S-40 + S-41** (gói fix UX nhỏ — nhanh, đỡ khó chịu)
 4. **S-22** (kéo-thả C) · **S-04** (rebuild research web-owned — lớn, để sau)
 
+## 🧪 Quy tắc TEST (founder chốt 2026-06-25)
+- **Test theo slice, không dồn:** xong 1 slice → deploy Railway test ngay (lỗi nông, dễ sửa).
+- **Test checkpoint sau mỗi nhóm:** dưới đây là các điểm DỪNG để bạn test thật trước khi đi tiếp.
+  - 🧪 CP-A (sau S-05/S-10 engine): bóc gap có trúng? tạo tổng + sub có đúng?
+  - 🧪 CP-B (sau S-10c + bài): brief sub + topics theo tuyến + bài đăng có sắc, đúng vai-trò-tuyến?
+  - 🧪 CP-C (sau UX/UI): luồng gap→tổng→sub→tuyến→bài chạy mượt, lịch không rối khi nhiều campaign?
+- Tôi sẽ **viết vài test thuần Python** cho phần logic (như đã làm cho reconciliation/topics) để bắt
+  "sửa mới hỏng cũ" mà không cần chạy full app.
+
 ---
 
 ## ════ VÍ DỤ 1 SLICE VIẾT ĐẦY ĐỦ (mẫu để bạn copy) ════

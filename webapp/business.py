@@ -1272,6 +1272,81 @@ async def commit_subcampaign(user_id=None, master_id: str = "", type: str = "", 
         return {"error": str(e)}
 
 
+async def gen_sub_content(user_id=None, sub_id: str = "") -> dict:
+    """S-10c: sinh BRIEF + TOPICS theo tuyến cho 1 sub-campaign. Bám đặt-cược master (gap/wedge/USP)
+    + mục tiêu sub + vai-trò-tuyến. 2 LLM call (brief + topics). Lưu meta[sub].brief_run_id + tracks[].topics."""
+    if not available():
+        return {"error": "Chưa cấu hình Supabase."}
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {"error": "Chưa có user."}
+        from storage.v2 import profiles, skill_runs
+        prof, extra, meta = await _campaign_meta(uid)
+        sub = meta.get(str(sub_id))
+        if not sub or sub.get("role") != "sub":
+            return {"error": "Không tìm thấy sub-campaign."}
+        master = meta.get(str(sub.get("parent"))) or {}
+        gap = (master.get("gap") or {}).get("title") or ""
+        wedge = master.get("wedge") or (extra.get("wedge") or "")
+        usp = master.get("usp") or prof.get("usp") or ""
+        industry = prof.get("industry") or ""
+        synth = await _latest_content(uid, "synthesis")
+        objective = CAMPAIGN_TYPES.get(sub.get("type"), ("", "", "", "brand"))[3]
+        tracks = sub.get("tracks") or _tracks_for(objective)
+        is_persist = bool(sub.get("persistent"))
+        tracks_desc = " · ".join(f"{t['label']} ({t['role']})" for t in tracks)
+        from tools.llm_router import call as router_call, TaskType
+        import json as _json
+        # (1) brief sub — bám đặt cược + mục tiêu sub
+        smart_rule = ("KHÔNG SMART số/deadline (nền liên tục)." if is_persist
+                      else "Mục tiêu định hướng theo mục tiêu sub; số cụ thể chốt khi lập đợt — KHÔNG bịa.")
+        b_sys = (f"Bạn là CMO viết BRIEF cho SUB-CAMPAIGN '{sub.get('type_label')}' (mục tiêu: {objective}) "
+                 f"trong campaign tổng (đặt cược: đánh GAP + tệp wedge + USP). Bám đặt-cược + synthesis.\n"
+                 "MARKDOWN gọn: ## Mục tiêu sub · ## Tệp nhắm + insight · ## Thông điệp chính · "
+                 f"## Các tuyến bài & vai trò ({tracks_desc}) · ## KPI định hướng (đo gì).\n"
+                 f"🔴 {smart_rule} Bám archetype ngành. TIẾNG VIỆT, không bịa số.")
+        b_user = (f"# Ngành\n{industry}\n# Đặt cược (master)\n- Gap: {gap}\n- Wedge: {wedge or '(synthesis)'}\n"
+                  f"- USP: {usp or '(synthesis)'}\n\n# Chiến lược\n{synth[:2200]}")
+        b_res = await router_call(task_type=TaskType.OPS_BRIEF, system=b_sys, user=b_user, max_tokens=1800)
+        brief = (b_res or {}).get("output", "").strip()
+        brun = await skill_runs.insert_skill_run(uid, "subcampaign_brief", brief or "(trống)", model_used="web-sub") if brief else None
+        # (2) topics theo tuyến — mỗi tuyến vài chủ đề + lens
+        lens_opts = " · ".join(_VALUE_LENSES)
+        tlist = "\n".join(f"{i+1}. {t['label']} — {t['role']}" for i, t in enumerate(tracks))
+        t_sys = ("Bạn là Content Strategist. Với MỖI tuyến bài dưới, sinh 4-6 CHỦ ĐỀ bài CỤ THỂ (viết được ngay, "
+                 "khác nhau) đúng VAI TRÒ tuyến (Khai sáng=giáo dục/nhận biết; Tin cậy=bằng chứng; Chuyển hoá=chốt; "
+                 "Lan toả=tương tác). Mỗi chủ đề kèm 'lens' (góc khai thác) ∈ " + lens_opts + ".\n"
+                 "Bám gap/wedge/USP + ngành. TIẾNG VIỆT, cụ thể, không generic.\n"
+                 'Output JSON: {"tracks":[{"topics":[{"topic":"","lens":""}]}]} — ĐÚNG THỨ TỰ & SỐ tuyến.')
+        t_user = (f"# Đặt cược\n- Gap: {gap}\n- Wedge: {wedge}\n- USP: {usp}\n# Ngành\n{industry}\n\n# CÁC TUYẾN\n{tlist}")
+        t_res = await router_call(task_type=TaskType.INTAKE_JSON, system=t_sys, user=t_user, max_tokens=1800)
+        traw = re.sub(r'\s*```\s*$', '', re.sub(r'^```(?:json)?\s*', '', (t_res or {}).get("output", "").strip())).strip()
+        try:
+            arr = _json.loads(traw).get("tracks") or []
+        except Exception:
+            arr = []
+        for i, t in enumerate(tracks):
+            tps = []
+            if i < len(arr) and isinstance(arr[i], dict):
+                for tp in (arr[i].get("topics") or []):
+                    if isinstance(tp, dict) and str(tp.get("topic") or "").strip():
+                        ln = str(tp.get("lens") or "").strip()
+                        tps.append({"t": str(tp.get("topic"))[:160], "lens": ln if ln in _VALUE_LENSES else ""})
+            t["topics"] = tps[:8]
+        sub["tracks"] = tracks
+        if brun:
+            sub["brief_run_id"] = (brun or {}).get("id")
+        extra["campaign_meta"] = meta
+        await profiles.upsert_profile(uid, intake_extra=extra)
+        return {"ok": True, "brief_run_id": sub.get("brief_run_id"),
+                "tracks": [{"label": t["label"], "topics": len(t.get("topics") or [])} for t in tracks]}
+    except Exception as e:
+        logger.warning("biz.gen_sub_content failed: %s", e)
+        return {"error": str(e)}
+
+
 async def gen_branding_brief(user_id=None) -> dict:
     """M-G (G1): tạo/cập nhật campaign BRANDING NỀN (xuyên suốt). 1 LLM call sinh brand brief
     (big idea + key message + định vị nền + KPI định hướng) bám synthesis/playbook — KHÔNG SMART/
