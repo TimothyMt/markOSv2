@@ -1667,9 +1667,8 @@ window.MOCK = {
     // ── Khối nền (bắt buộc) ──
     { key: 'business_name', tier: 'core', q: 'Doanh nghiệp của bạn tên là gì?', ph: 'vd: Cà phê An' },
     { key: 'industry', tier: 'core', q: 'Bạn kinh doanh trong ngành nào?', ph: 'vd: F&B — Quán cà phê' },
-    { key: 'location', tier: 'core', q: 'Bạn kinh doanh ở khu vực nào?', ph: 'vd: TP.HCM, Quận 1', optional: true },
-    { key: 'product_service', tier: 'core', q: 'Bạn bán sản phẩm/dịch vụ gì, và nó giải quyết vấn đề gì cho khách?', ph: 'vd: Cà phê specialty — đồ uống chất cho dân văn phòng cần tỉnh táo' },
-    { key: 'target_customer', tier: 'core', q: 'Khách hàng mục tiêu của bạn là ai?', ph: 'vd: Dân văn phòng 25–34, Q.1' },
+    { key: 'product_service', tier: 'core', q: 'Bạn bán sản phẩm/dịch vụ gì?', ph: 'vd: Cà phê specialty pha máy + hạt rang mộc' },
+    { key: 'target_customer', tier: 'core', q: 'Khách hàng mục tiêu của bạn là ai (độ tuổi · đặc điểm · khu vực)?', ph: 'vd: Dân văn phòng 25–34, Q.1 TP.HCM' },
     { key: 'main_challenge', tier: 'core', q: 'Thách thức lớn nhất hiện tại của bạn là gì?', ph: 'vd: cạnh tranh chuỗi lớn, chi phí ads cao' },
 
     // ── Khối chiến lược (tầng CMO — skip→AI suy, sẽ có chip gợi ý) ──
@@ -1683,7 +1682,7 @@ window.MOCK = {
       ph: 'vd: Highlands, cà phê pha sẵn ở nhà, hoặc trà sữa' },
     { key: 'differentiation', tier: 'strategic', strategic: true,
       q: 'Điểm khác biệt bền vững của bạn là gì, và bằng chứng cho điều đó?',
-      helper: 'Khách hay khen bạn điểm gì nhất? Vì sao họ quay lại?',
+      helper: 'Đây là CHẤT khác biệt (vì sao khách quay lại) — chưa cần gói thành câu slogan.',
       note: 'Nếu chưa biết thì ghi "chưa biết" — Max sẽ tự tìm/đề xuất định vị giúp bạn.' },
     { key: 'objection', tier: 'strategic', strategic: true,
       q: 'Rào cản / nỗi sợ lớn nhất khiến khách chần chừ là gì?',
@@ -1694,22 +1693,14 @@ window.MOCK = {
       helper: 'Nêu tên giúp Max nghiên cứu đúng đối thủ đó — không có thì để trống.',
       ph: 'vd: Highlands, Phúc Long, The Coffee House' },
 
-    // ── Khối bối cảnh (optional — chọn khoảng) ──
-    { key: 'price_point', tier: 'context', optional: true, q: 'Giá bán / giá trị đơn hàng trung bình tầm bao nhiêu?',
-      choices: ['Dưới 100k', '100–300k', '300k–1 triệu', '1–5 triệu', 'Trên 5 triệu', 'Chưa rõ'],
-      note: 'Giúp Max tư vấn giá & ước lượng đúng — chọn khoảng gần đúng là được.' },
-    { key: 'monthly_revenue', tier: 'context', optional: true, q: 'Doanh thu mỗi tháng khoảng bao nhiêu?',
-      choices: ['Mới mở, chưa có doanh thu', 'Dưới 50 triệu', '50–200 triệu', '200 triệu–1 tỷ', 'Trên 1 tỷ', 'Không tiện chia sẻ'],
-      note: 'Giúp Max ước lượng giai đoạn doanh nghiệp. Không tiện thì cứ bỏ qua.' },
-    { key: 'monthly_marketing_budget', tier: 'context', optional: true, q: 'Ngân sách marketing mỗi tháng khoảng bao nhiêu?',
-      choices: ['Chưa chạy quảng cáo', 'Dưới 5 triệu', '5–20 triệu', '20–50 triệu', 'Trên 50 triệu', 'Không tiện chia sẻ'],
-      note: 'Để Max đề xuất kênh & phân bổ khả thi với túi tiền của bạn.' },
+    // ── Khối bối cảnh (optional — gọn, chỉ cái cần để ra output) ──
     { key: 'current_channels', tier: 'context', optional: true, q: 'Hiện bạn đang dùng kênh marketing nào?', ph: 'vd: Facebook, TikTok, Zalo OA' },
-    { key: 'primary_goal', tier: 'context', q: 'Thời gian tới bạn muốn ưu tiên điều gì nhất?',
-      choices: ['Tăng nhận diện thương hiệu', 'Ra nhiều đơn / doanh thu', 'Giữ chân & chăm khách cũ', 'Ra mắt sản phẩm mới'],
-      note: 'Chọn hướng ưu tiên — con số cụ thể sẽ chốt khi bạn lập từng chiến dịch theo dịp.' },
+    { key: 'team_size', tier: 'context', optional: true, q: 'Đội làm marketing/nội dung của bạn mấy người?',
+      choices: ['Một mình founder', '2–3 người', '4–10 người', 'Trên 10 / có agency'],
+      note: 'Giúp Max đề xuất khối lượng & kênh KHẢ THI với nguồn lực của bạn — không vẽ quá sức.' },
     { key: 'usp', tier: 'context', optional: true,
-      q: 'Bạn đã có CÂU ĐỊNH VỊ / slogan / USP chốt chưa?',
+      q: 'Bạn đã CHỐT thành CÂU định vị / slogan / USP chưa?',
+      helper: 'Khác câu "điểm khác biệt" ở trên: đây là đã gói thành 1 CÂU CHỮ để dùng hay chưa.',
       note: 'Có rồi thì nhập — Max sẽ LÀM SẮC THÊM (không vứt đi). Chưa có thì để trống — Max tự đề xuất. Bước Chiến lược sẽ cho bạn chọn lại.' },
   ];
   // Field nào có cột riêng trong profile; còn lại gói vào intake_extra.answers (D-032)

@@ -1963,6 +1963,13 @@ async def strategize_web(user_id=None, progress=None) -> dict:
         usp_stance = extra.get("usp_stance") or "draft"
         usp = prof.get("usp") or ""
         industry = prof.get("industry") or ""
+        # Nguồn lực (đề xuất KHẢ THI, không vẽ quá sức): team_size (intake answers) + kênh đang dùng.
+        _ans = (extra.get("answers") if isinstance(extra.get("answers"), dict) else {}) or {}
+        team_size = _ans.get("team_size") or ""
+        cur_channels = prof.get("current_channels") or _ans.get("current_channels") or ""
+        resource_block = (f"# Nguồn lực (đề xuất phải KHẢ THI với cái này)\n"
+                          f"- Đội làm marketing: {team_size or '(chưa rõ — giả định nhỏ)'}\n"
+                          f"- Kênh đang dùng: {cur_channels or '(chưa rõ)'}\n\n")
 
         ictx = ""
         try:
@@ -2027,6 +2034,7 @@ async def strategize_web(user_id=None, progress=None) -> dict:
         )
         syn_user = (
             f"# Ngành\n{industry}\n{ictx}\n\n"
+            f"{resource_block}"
             f"# Định hướng founder\n- Wedge (tệp ưu tiên): {wedge or '(chưa chọn — tự đề xuất theo research)'}\n"
             f"- Nhịp roadmap: {horizon}\n- Posture: {posture}\n\n"
             f"# Nghiên cứu thị trường\n{(research.get('market_research') or '(chưa có)')[:3000]}\n\n"
@@ -2084,6 +2092,7 @@ async def strategize_web(user_id=None, progress=None) -> dict:
         )
         tac_user = (
             f"# Ngành\n{industry}\n{ictx}\n\n"
+            f"{resource_block}"
             f"# Tệp ƯU TIÊN (wedge founder chọn)\n{wedge or '(chưa chọn — lấy tệp ưu tiên từ Synthesis)'}\n\n"
             f"# Chiến lược (Synthesis — vừa lập)\n{synthesis[:3500]}\n\n"
             f"# SWOT (dùng mã TOWS SO/WO/ST/WT để gắn tag mũi)\n{(research.get('swot') or '(chưa có)')[:2200]}\n\n"
