@@ -6,12 +6,18 @@ Mỗi user mặc định có quota 1,000,000 tokens (free tier).
 Khi gần hết, hiển thị cảnh báo qua /settings hoặc khi chạy skill.
 """
 import logging
+import os
 from datetime import datetime, timezone
 from typing import Optional
 
 logger = logging.getLogger(__name__)
 
 DEFAULT_QUOTA = 1_000_000  # 1M tokens/user/month
+
+# ⚠️ TẠM THỜI TẮT QUOTA cho giai đoạn founder test (yêu cầu 2026-06-25).
+# Vẫn ĐẾM token (track_skill chạy bình thường), chỉ KHÔNG CHẶN khi hết.
+# Bật lại: set env DISABLE_QUOTA=0  (hoặc đổi mặc định "1" → "0" dưới đây).
+QUOTA_DISABLED = os.getenv("DISABLE_QUOTA", "1").strip().lower() not in ("0", "false", "no", "off", "")
 _TOKEN_LOG_KEY = "_token_log"
 _TOKEN_LOG_MAX = 50  # số entries tối đa giữ lại
 _JOB_SEQ_KEY = "_job_seq"  # marker — gom các call của cùng 1 job
@@ -257,11 +263,15 @@ def get_used(session) -> int:
 
 def get_remaining(session) -> int:
     """Còn lại bao nhiêu token."""
+    if QUOTA_DISABLED:
+        return DEFAULT_QUOTA   # luôn báo "còn đầy" khi tắt quota (test)
     return max(0, get_quota(session) - get_used(session))
 
 
 def is_low(session, threshold_pct: float = 0.1) -> bool:
     """True nếu còn < threshold_pct của quota (mặc định 10%)."""
+    if QUOTA_DISABLED:
+        return False
     quota = get_quota(session)
     if quota <= 0:
         return False
@@ -270,6 +280,8 @@ def is_low(session, threshold_pct: float = 0.1) -> bool:
 
 def is_exhausted(session) -> bool:
     """True nếu đã hết quota."""
+    if QUOTA_DISABLED:
+        return False   # ⚠️ tạm tắt chặn quota (test) — xem QUOTA_DISABLED ở đầu file
     return get_remaining(session) <= 0
 
 
