@@ -1187,37 +1187,45 @@
   // Hero trên trang Lập chiến dịch: Bước 1 Bóc GAP · Bước 2 Campaign tổng (list → hub).
   function campaignFirstHero() {
     const E = _eHero, gaps = M.bizGaps || [], masters = _masters();
-    const gapCards = gaps.length ? `<div class="gap-grid">${gaps.map(g => `
-      <div class="gap-card">
-        <div class="gap-head">${g.icon || '🕳️'} <b>${E(g.title)}</b> <span class="tag">${E(g.kind_label || '')}</span></div>
+    const gapCards = gaps.length ? `<div class="gap-grid">${gaps.map((g, i) => `
+      <label class="gap-card selectable${_gapSel.includes(i) ? ' on' : ''}">
+        <div class="gap-head"><input type="checkbox" class="gap-chk" data-act="gap-toggle" data-idx="${i}" ${_gapSel.includes(i) ? 'checked' : ''}> ${g.icon || '🕳️'} <b>${E(g.title)}</b> <span class="tag">${E(g.kind_label || '')}</span></div>
         ${g.desc ? `<p class="muted">${E(g.desc)}</p>` : ''}
         ${g.why ? `<p class="gap-why">💡 ${E(g.why)}</p>` : ''}
         ${g.segment ? `<p class="muted">👥 ${E(g.segment)}</p>` : ''}
-      </div>`).join('')}</div>`
+      </label>`).join('')}</div>`
       : `<p class="muted">Chưa bóc gap. Max trích các khoảng trống đáng đánh từ nghiên cứu (thị trường · đối thủ · khách · SWOT) để bạn chọn khi tạo campaign tổng.</p>`;
     const gapBtn = `<button class="${gaps.length ? 'ghost-line' : 'primary-btn'}" data-act="gen-gaps">${gaps.length ? '↻ Bóc lại gap' : '🔍 Bóc gap & cơ hội từ nghiên cứu'}</button>`;
     const masterCards = masters.length ? masters.map(m => {
       const subs = _subsOf(m.id);
       return `<div class="master-card clickable" data-act="master-hub" data-id="${m.id}">
         <div class="master-head">📦 <b>${E(m.name)}</b></div>
-        ${m.gap ? `<span class="gap-badge">${m.gap.icon || '🕳️'} ${E(m.gap.title)}</span>` : ''}
+        <div class="master-gaps">${(m.gaps || (m.gap ? [m.gap] : [])).map(g => `<span class="gap-badge">${g.icon || '🕳️'} ${E(g.title)}</span>`).join(' ')}</div>
         <div class="master-meta">${m.wedge ? `<span>🎯 ${E(m.wedge)}</span>` : ''}${m.usp ? `<span>⭐ ${E(m.usp)}</span>` : ''}</div>
         <div class="master-foot muted">${subs.length} sub-campaign · ${(m.proposed_subs || []).length} đề xuất · bấm mở hub →</div>
       </div>`;
     }).join('') : `<p class="muted">Chưa có campaign tổng. Tạo 1 cái: chọn gap muốn đánh + tệp wedge + USP → Max dựng sub-campaign + tuyến bài.</p>`;
     return `
-      ${card('🕳️ Bước 1 — Bóc GAP & cơ hội', `${gapCards}<div style="margin-top:12px">${gapBtn}</div>`, { cls: 'span-12' })}
+      ${card('🕳️ Bước 1 — Bóc GAP & cơ hội', `${gapCards}
+        ${gaps.length ? '<p class="muted" style="margin:10px 0 6px">Tick các gap muốn đánh (ngang hàng — không cần gap chính), rồi tạo campaign tổng từ chúng.</p>' : ''}
+        <div class="gap-foot">
+          ${gaps.length ? `<button id="gapSelBtn" class="primary-btn" data-act="new-master-sel" ${_gapSel.length ? '' : 'disabled'}>${_gapSel.length ? ('📦 Tạo campaign tổng từ ' + _gapSel.length + ' gap đã chọn') : '📦 Chọn gap để tạo campaign tổng'}</button>` : ''}
+          ${gapBtn}
+        </div>`, { cls: 'span-12' })}
       ${card('📦 Bước 2 — Campaign tổng (đặt cược chiến lược)', `
         <p class="muted" style="margin:0 0 12px">Mỗi campaign tổng = 1 <b>đặt cược</b>: đánh gap nào + tệp nào + USP nào. Có HUB riêng (sub-campaign · tuyến bài · brief · task). Nhiều campaign tổng chạy song song.</p>
         <div class="master-grid">${masterCards}</div>
         <button class="primary-btn full" data-act="new-master" style="margin-top:14px">📦 Tạo campaign tổng mới</button>`, { cls: 'span-12' })}`;
   }
 
-  /* ── Wizard tạo Campaign tổng (gap → đặt cược → Max đề xuất sub → chốt) ── */
-  let _masterState = { step: 'gap', gapIdx: -1, wedge: '', usp: '', name: '', masterId: '', subs: [], picked: [], busy: false };
-  function openMasterWizard() {
+  /* ── Wizard tạo Campaign tổng (chọn các gap → đặt cược → Max đề xuất sub → chốt) ── */
+  let _gapSel = [];   // gap tick ở Bước 1 (đa gap, ngang hàng — không gap chính)
+  let _masterState = { step: 'gap', gapIdxs: [], wedge: '', usp: '', name: '', masterId: '', subs: [], picked: [], busy: false };
+  function openMasterWizard(opts) {
     if (!apiAvailable || !M.bizEnabled) { toast('Bật backend (Supabase + LLM) để tạo campaign tổng'); return; }
-    _masterState = { step: 'gap', gapIdx: -1, wedge: '', usp: '', name: '', masterId: '', subs: [], picked: [], busy: false };
+    opts = opts || {};
+    _masterState = { step: opts.step || 'gap', gapIdxs: (opts.gapIdxs || _gapSel).slice(),
+      wedge: '', usp: '', name: '', masterId: '', subs: [], picked: [], busy: false };
     _ensureBizModal(); renderMasterWizard(); document.getElementById('bizModal').classList.add('show');
   }
   function _msSync() {   // giữ giá trị ô input khi re-render
@@ -1239,18 +1247,18 @@
           <button class="primary-btn sm" data-act="gen-gaps">🔍 Bóc gap ngay</button>`;
         return;
       }
-      body.innerHTML = `<p class="muted" style="margin:0 0 10px">Chọn <b>gap</b> campaign tổng này sẽ đánh:</p>
+      body.innerHTML = `<p class="muted" style="margin:0 0 10px">Tick các <b>gap</b> campaign tổng này sẽ đánh — <b>ngang hàng</b>, cấu thành 1 đặt cược (không cần gap chính):</p>
         <div class="gap-pick">${gaps.map((g, i) => `
-          <label class="gap-opt${S.gapIdx === i ? ' on' : ''}">
-            <input type="radio" name="mgap" ${S.gapIdx === i ? 'checked' : ''} data-act="master-gap" data-idx="${i}">
+          <label class="gap-opt${S.gapIdxs.includes(i) ? ' on' : ''}">
+            <input type="checkbox" ${S.gapIdxs.includes(i) ? 'checked' : ''} data-act="master-gap" data-idx="${i}">
             <span>${g.icon || '🕳️'} <b>${E(g.title)}</b> <small class="muted">${E(g.kind_label || '')}</small><br><small class="muted">${E(g.desc || '')}</small></span>
           </label>`).join('')}</div>`;
       foot.innerHTML = `<button class="ghost-line sm" data-act="master-close">Đóng</button>
-        <button class="primary-btn sm" data-act="master-next" ${S.gapIdx < 0 ? 'disabled' : ''}>Tiếp →</button>`;
+        <button class="primary-btn sm" data-act="master-next" ${S.gapIdxs.length ? '' : 'disabled'}>Tiếp →</button>`;
     } else if (S.step === 'bet') {
-      const g = (M.bizGaps || [])[S.gapIdx] || {};
+      const gsel = S.gapIdxs.map(i => (M.bizGaps || [])[i]).filter(Boolean);
       body.innerHTML = `
-        <p class="muted" style="margin:0 0 10px">Gap đã chọn: <b>${g.icon || ''} ${E(g.title)}</b></p>
+        <p class="muted" style="margin:0 0 10px">Gap đã chọn (${gsel.length}): ${gsel.map(g => `<b>${E(g.title)}</b>`).join(' · ') || '—'}</p>
         <label class="slot-axis"><span>Tệp ưu tiên (wedge) — đánh ai trước</span>
           <input id="mWedge" class="slot-topic" value="${E(S.wedge)}" placeholder="vd: chủ shop nhỏ mới mở, ngân sách hạn chế"></label>
         <label class="slot-axis" style="margin-top:10px"><span>USP — lời hứa khác biệt</span>
@@ -1287,8 +1295,9 @@
     if (!m) { ov.querySelector('.modal-body').innerHTML = '<p class="muted">Không tìm thấy campaign tổng.</p>'; return; }
     ov.querySelector('h3').textContent = `📦 ${m.name || 'Campaign tổng'}`;
     const subs = _subsOf(_hubId), committed = new Set(subs.map(s => s.type));
+    const _hgaps = m.gaps || (m.gap ? [m.gap] : []);
     const betHdr = `<div class="hub-bet">
-      ${m.gap ? `<span class="gap-badge">${m.gap.icon || '🕳️'} ${E(m.gap.title)}</span>` : ''}
+      ${_hgaps.map(g => `<span class="gap-badge">${g.icon || '🕳️'} ${E(g.title)}</span>`).join('')}
       ${m.wedge ? `<span class="hub-chip">🎯 ${E(m.wedge)}</span>` : ''}
       ${m.usp ? `<span class="hub-chip">⭐ ${E(m.usp)}</span>` : ''}</div>`;
     const addable = (m.proposed_subs || []).filter(s => !committed.has(s.type));
@@ -3040,6 +3049,7 @@
         const r = await API.post('api/biz/gaps', { user_id: _bizUserId });
         if (r.error) { toast(r.error); el.disabled = false; el.textContent = orig; return; }
         await refreshBiz();
+        _gapSel = [];   // gap mới → index cũ vô nghĩa, bỏ chọn
         toast(`✨ Đã bóc ${(r.gaps || []).length} gap`);
         // đang ở wizard bước gap → ở lại wizard; ngoài hero → re-render trang
         const _mv = document.getElementById('bizModal');
@@ -3049,22 +3059,38 @@
       return;
     }
     if (act === 'new-master') { openMasterWizard(); return; }
+    if (act === 'new-master-sel') { openMasterWizard({ step: 'bet', gapIdxs: _gapSel }); return; }
+    if (act === 'gap-toggle') {   // tick/bỏ 1 gap ở Bước 1 (cập nhật tại chỗ, không nhảy trang)
+      const i = +el.dataset.idx;
+      if (_gapSel.includes(i)) _gapSel = _gapSel.filter(x => x !== i); else _gapSel.push(i);
+      const cd = el.closest('.gap-card'); if (cd) cd.classList.toggle('on', _gapSel.includes(i));
+      const b = document.getElementById('gapSelBtn');
+      if (b) { b.disabled = !_gapSel.length; b.textContent = _gapSel.length ? ('📦 Tạo campaign tổng từ ' + _gapSel.length + ' gap đã chọn') : '📦 Chọn gap để tạo campaign tổng'; }
+      return;
+    }
     if (act === 'master-close' || act === 'master-skip') {
       const ov = document.getElementById('bizModal'); if (ov) ov.classList.remove('show');
       if (act === 'master-skip') route();
       return;
     }
-    if (act === 'master-gap') { _masterState.gapIdx = +el.dataset.idx; renderMasterWizard(); return; }
+    if (act === 'master-gap') {   // tick/bỏ gap trong wizard (đa gap, ngang hàng)
+      const i = +el.dataset.idx, S = _masterState;
+      if (S.gapIdxs.includes(i)) S.gapIdxs = S.gapIdxs.filter(x => x !== i); else S.gapIdxs.push(i);
+      renderMasterWizard();
+      return;
+    }
     if (act === 'master-next') { _masterState.step = 'bet'; renderMasterWizard(); return; }
     if (act === 'master-back') { _msSync(); _masterState.step = 'gap'; renderMasterWizard(); return; }
     if (act === 'master-genplan') {   // S-10a: tạo master row + Max đề xuất sub
       _msSync();
-      const S = _masterState, g = (M.bizGaps || [])[S.gapIdx] || {};
-      if (!g.title) { toast('Chọn gap trước'); return; }
+      const S = _masterState;
+      const gsel = S.gapIdxs.map(i => (M.bizGaps || [])[i]).filter(Boolean)
+        .map(g => ({ kind: g.kind || 'market', title: g.title || '' }));
+      if (!gsel.length) { toast('Chọn ít nhất 1 gap'); return; }
       S.busy = true; renderMasterWizard();
       try {
         const r = await API.post('api/biz/campaign/master', {
-          user_id: _bizUserId, gap_kind: g.kind || '', gap_title: g.title || '',
+          user_id: _bizUserId, gaps: gsel,
           wedge: S.wedge || '', usp: S.usp || '', name: S.name || '' });
         S.busy = false;
         if (r.error) { toast(r.error); renderMasterWizard(); return; }
@@ -3139,7 +3165,7 @@
         pillar: `${sub.type_icon || '🔴'} ${sub.type_label || 'Sub'} · ${tr.label || ''}`,
         funnel: m.name || '', title: topic, topic, angles: [topic],
         value_lens: lens, key: '',
-        campaign_gap: (m.gap || {}).title || '',
+        campaign_gap: ((m.gaps || (m.gap ? [m.gap] : [])).map(g => g.title).filter(Boolean).join(' + ')) || '',
         objective: objective ? objective.objective : '',
         track_role: tr.role || '' });
       return;

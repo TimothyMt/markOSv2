@@ -1173,13 +1173,32 @@ async def gen_gaps(user_id=None) -> dict:
 
 
 async def gen_master_plan(user_id=None, gap_kind: str = "", gap_title: str = "",
-                          wedge: str = "", usp: str = "", name: str = "") -> dict:
-    """S-10a: tạo CAMPAIGN TỔNG (đặt cược: gap+wedge+USP) — lưu campaigns_v2 row + meta(role=master).
-    1 LLM call ĐỀ XUẤT sub-campaign (theo mục tiêu) hợp gap/wedge → lưu proposed_subs. Nhiều tổng OK."""
+                          wedge: str = "", usp: str = "", name: str = "", gaps=None) -> dict:
+    """S-10a: tạo CAMPAIGN TỔNG (đặt cược: GAP(s)+wedge+USP) — lưu campaigns_v2 row + meta(role=master).
+    Campaign tổng CẤU THÀNH từ NHIỀU gap ngang hàng (không gap chính) — neo định vị = wedge+USP.
+    1 LLM call ĐỀ XUẤT sub-campaign (theo mục tiêu) hợp các gap/wedge → lưu proposed_subs. Nhiều tổng OK."""
     if not available():
         return {"error": "Chưa cấu hình Supabase."}
-    if not (gap_title or "").strip():
-        return {"error": "Thiếu gap."}
+    # chuẩn hoá danh sách gap (đa gap, ngang hàng); fallback gap đơn (tương thích ngược)
+    norm_gaps = []
+    for g in (gaps if isinstance(gaps, list) else []):
+        if not isinstance(g, dict):
+            continue
+        k = str(g.get("kind") or "").strip().lower()
+        if k not in GAP_KINDS:
+            k = "market"
+        t = str(g.get("title") or "").strip()
+        if not t:
+            continue
+        norm_gaps.append({"kind": k, "icon": GAP_KINDS[k][0], "kind_label": GAP_KINDS[k][1], "title": t[:140]})
+    if not norm_gaps and (gap_title or "").strip():
+        gk0 = (gap_kind or "").strip().lower()
+        if gk0 not in GAP_KINDS:
+            gk0 = "market"
+        norm_gaps = [{"kind": gk0, "icon": GAP_KINDS[gk0][0], "kind_label": GAP_KINDS[gk0][1],
+                      "title": (gap_title or "").strip()[:140]}]
+    if not norm_gaps:
+        return {"error": "Thiếu gap — chọn ít nhất 1 gap."}
     try:
         await ensure_client()
         uid = await pick_user_id(user_id)
@@ -1192,21 +1211,20 @@ async def gen_master_plan(user_id=None, gap_kind: str = "", gap_title: str = "",
             extra = {}
         industry = prof.get("industry") or ""
         synth = await _latest_content(uid, "synthesis")
-        gk = (gap_kind or "").strip().lower()
-        if gk not in GAP_KINDS:
-            gk = "market"
         # đề xuất sub-campaign cho master này
         sub_menu = "\n".join(f"- {k}: {CAMPAIGN_TYPES[k][2]}" for k in CAMPAIGN_TYPES if k != "branding")
         from tools.llm_router import call as router_call, TaskType
         import json as _json
         system = (
-            "Bạn là CMO. Cho 1 ĐẶT CƯỢC chiến lược (đánh GAP + tệp wedge + USP), đề xuất 2-4 SUB-CAMPAIGN "
-            "theo MỤC TIÊU để thực thi đặt cược đó (vd kéo khách mới, chuyển đổi, giữ chân, đợt theo dịp). "
+            "Bạn là CMO. Cho 1 ĐẶT CƯỢC chiến lược (đánh ĐỒNG THỜI nhiều GAP bổ trợ + tệp wedge + USP), "
+            "đề xuất 2-4 SUB-CAMPAIGN theo MỤC TIÊU để thực thi đặt cược đó (vd kéo khách mới, chuyển đổi, "
+            "giữ chân, đợt theo dịp). Mỗi sub có thể nghiêng về 1 gap phù hợp. "
             "LUÔN ngầm hiểu có 1 sub Branding nền — KHÔNG đề xuất lại branding. Chọn type từ:\n" + sub_menu + "\n"
             "Mỗi sub: type (KEY tiếng Anh) · name (tiếng Việt ngắn) · why (1 câu vì sao cần cho đặt cược này).\n"
             'Output JSON: {"subs":[{"type":"","name":"","why":""}]}.'
         )
-        user = (f"# Ngành\n{industry}\n# ĐẶT CƯỢC\n- Gap: {GAP_KINDS[gk][1]} — {gap_title}\n"
+        gaps_txt = "\n".join(f"  • {g['kind_label']} — {g['title']}" for g in norm_gaps)
+        user = (f"# Ngành\n{industry}\n# ĐẶT CƯỢC (các GAP cấu thành 1 chiến lược, ngang hàng)\n{gaps_txt}\n"
                 f"- Tệp ưu tiên (wedge): {wedge or '(theo synthesis)'}\n- USP: {usp or '(theo synthesis)'}\n\n"
                 f"# Chiến lược\n{synth[:1800]}")
         res = await router_call(task_type=TaskType.INTAKE_JSON, system=system, user=user, max_tokens=1000)
@@ -1221,9 +1239,10 @@ async def gen_master_plan(user_id=None, gap_kind: str = "", gap_title: str = "",
         except Exception:
             pass
         # tạo master row + meta
-        mname = (name or "").strip() or f"Tổng: {gap_title}"[:120]
+        gap_titles = ", ".join(g["title"] for g in norm_gaps)
+        mname = (name or "").strip() or f"Tổng: {norm_gaps[0]['title']}"[:120]
         camp = await campaigns_v2.create_campaign(uid, name=mname, industry=prof.get("industry"),
-                                                  primary_goal="master", summary=gap_title[:400])
+                                                  primary_goal="master", summary=gap_titles[:400])
         mid = str((camp or {}).get("id") or "")
         if not mid:
             return {"error": "Không tạo được campaign tổng."}
@@ -1231,7 +1250,7 @@ async def gen_master_plan(user_id=None, gap_kind: str = "", gap_title: str = "",
         if not isinstance(meta, dict):
             meta = {}
         meta[mid] = {"role": "master", "type": "master", "type_label": "Campaign tổng", "type_icon": "📦",
-                     "name": mname, "gap": {"kind": gk, "icon": GAP_KINDS[gk][0], "title": gap_title},
+                     "name": mname, "gaps": norm_gaps, "gap": norm_gaps[0],
                      "wedge": wedge, "usp": usp, "proposed_subs": subs, "sub_ids": []}
         extra["campaign_meta"] = meta
         await profiles.upsert_profile(uid, intake_extra=extra)
@@ -1294,7 +1313,8 @@ async def gen_sub_content(user_id=None, sub_id: str = "") -> dict:
         if not sub or sub.get("role") != "sub":
             return {"error": "Không tìm thấy sub-campaign."}
         master = meta.get(str(sub.get("parent"))) or {}
-        gap = (master.get("gap") or {}).get("title") or ""
+        _mgaps = master.get("gaps") or ([master.get("gap")] if master.get("gap") else [])
+        gap = " + ".join((g or {}).get("title", "") for g in _mgaps if g) or (master.get("gap") or {}).get("title") or ""
         wedge = master.get("wedge") or (extra.get("wedge") or "")
         usp = master.get("usp") or prof.get("usp") or ""
         industry = prof.get("industry") or ""

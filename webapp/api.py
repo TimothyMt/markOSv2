@@ -258,7 +258,8 @@ async def biz_master_plan(request):
     """S-10a — tạo campaign tổng (gap+wedge+USP) + đề xuất sub-campaign."""
     d = await request.json()
     res = await biz.gen_master_plan(d.get("user_id"), d.get("gap_kind", ""), d.get("gap_title", ""),
-                                    d.get("wedge", ""), d.get("usp", ""), d.get("name", ""))
+                                    d.get("wedge", ""), d.get("usp", ""), d.get("name", ""),
+                                    gaps=d.get("gaps"))
     return JSONResponse(res, status_code=400 if "error" in res else 200)
 
 
