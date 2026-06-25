@@ -3042,7 +3042,8 @@
         await refreshBiz();
         toast(`✨ Đã bóc ${(r.gaps || []).length} gap`);
         // đang ở wizard bước gap → ở lại wizard; ngoài hero → re-render trang
-        if (_masterState.step === 'gap' && document.getElementById('bizModal').classList.contains('show')) renderMasterWizard();
+        const _mv = document.getElementById('bizModal');
+        if (_masterState.step === 'gap' && _mv && _mv.classList.contains('show')) renderMasterWizard();
         else route();
       } catch (e) { toast('Không bóc được gap — thử lại sau.'); el.disabled = false; el.textContent = orig; }
       return;
