@@ -220,6 +220,12 @@ async def biz_data(user_id=None) -> dict:
         out["bizCampaignPortfolio"] = (_ie2.get("campaign_portfolio") if isinstance(_ie2, dict) else []) or []
     except Exception:
         out["bizCampaignPortfolio"] = []
+    # M-G (campaign-first): các gap đã bóc (sau research) → FE màn "Tạo campaign tổng" chọn gap.
+    try:
+        _ie3 = (out.get("bizProfile") or {}).get("intake_extra") or {}
+        out["bizGaps"] = (_ie3.get("gaps") if isinstance(_ie3, dict) else []) or []
+    except Exception:
+        out["bizGaps"] = []
     # M-D Pha2b: archetype mua hàng của ngành → FE lọc "mục đích đợt" hợp ngành (nguồn duy nhất ở frameworks/).
     try:
         from frameworks.industry_context import get_purchase_archetype
@@ -1899,7 +1905,8 @@ async def calendar_plan(user_id=None) -> dict:
 async def gen_calendar_post(user_id=None, track: str = "always", pillar: str = "",
                             campaign_id: str = "", week: str = "", day: str = "",
                             angle: str = "", value_lens: str = "", hook_style: str = "",
-                            framework: str = "", phase: str = "") -> dict:
+                            framework: str = "", phase: str = "",
+                            campaign_gap: str = "", objective: str = "", track_role: str = "") -> dict:
     """M1.2b + M-D: sinh 1 BÀI cho slot lịch — bám pillar (always-on) hoặc brief occasion.
     angle = CHỦ ĐỀ founder chọn; value_lens = GÓC KHAI THÁC; hook_style = CÁCH MỞ (1/5 nhóm);
     framework = khung copywriting ẩn. Lưu skill_run `calendar_post`. Degrade {error}."""
@@ -1942,6 +1949,15 @@ async def gen_calendar_post(user_id=None, track: str = "always", pillar: str = "
         else:
             lines.append(f"Content pillar (always-on, nền brand): {pillar or '(brand)'}")
             kind = "1 bài NỀN brand bám pillar (xây nhận biết/niềm tin — KHÔNG ép bán)"
+        # M-G (post-wiring): context chuỗi campaign tổng → bài bám đúng đặt-cược + VAI TRÒ TUYẾN.
+        if (campaign_gap or "").strip():
+            lines.append(f"Đặt cược campaign tổng (gap đang đánh): {campaign_gap}")
+        if (track_role or "").strip():
+            lines.append(f"VAI TRÒ TUYẾN của bài này: {track_role} — viết ĐÚNG vai trò này "
+                         "(Khai sáng=giáo dục/nhận biết, KHÔNG bán; Tin cậy=bằng chứng/case; "
+                         "Chuyển hoá=chốt/CTA mạnh; Lan toả=tương tác/share).")
+        elif (objective or "").strip():
+            lines.append(f"Mục tiêu sub-campaign: {objective}")
         # Trục chung cho cả 2 track (M-D Pha 2): chủ đề + góc khai thác + khung ẩn.
         if (angle or "").strip():
             lines.append(f"Chủ đề cụ thể (founder chọn — bám SÁT): {angle}")
