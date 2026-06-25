@@ -789,6 +789,9 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 .pf-why { font-size:12.5px; margin-top:5px; }
 .pf-acts { display:flex; gap:6px; flex:none; align-items:center; }
 /* ── Vision A: form đặt cược theo 5 nhóm ── */
+.bet-intro { display:flex; gap:14px; align-items:flex-start; justify-content:space-between; margin:0 0 14px; flex-wrap:wrap; }
+.bet-intro > p { flex:1; min-width:240px; }
+.bet-intro > button { flex:none; }
 .bet-grp { padding:12px 0; border-top:1px solid var(--stroke); }
 .bet-grp:first-of-type { border-top:none; padding-top:2px; }
 .bet-grp-h { font-size:13.5px; margin-bottom:9px; line-height:1.4; }

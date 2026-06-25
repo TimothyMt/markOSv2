@@ -993,14 +993,10 @@
           .every(k => (M.bizSkillRuns || []).some(r => r.skill_name === k));
         if (researchDone) {
           const running = (M.agentJobs || []).some(j => j.status === 'running' && (j.task === 'strategize' || j.task === 'full'));
-          const hasOpts = M.bizBetOptions && Object.values(M.bizBetOptions).some(a => (a || []).length);
           return `<section class="grid">
             <div class="card span-12 dir-banner">🚪 <b>Nghiên cứu xong (T1-T3).</b> Chốt <b>ĐẶT CƯỢC</b> (thị trường · tệp · định vị · giá · kênh) trên dữ liệu THẬT → Max chạy chiến lược (T4-T5) bám đúng lựa chọn → chia <b>tuyến nội dung</b> → lịch. <span class="muted">(Tin cậy/bằng chứng nằm ở tuyến nội dung, không ở đây.)</span></div>
-            ${hasOpts ? betForm() : card('🎯 Đặt cược chiến lược', `<div class="empty-cta">
-              <div class="empty-ic">🎯</div><h3>Để Max gợi ý lựa chọn từ nghiên cứu</h3>
-              <p class="muted">Max đọc T1-T3 rồi rút các hướng cho 5 nhóm (thị trường · tệp · định vị · giá · kênh) để bạn chọn — hoặc tự ghi cái mình muốn.</p>
-              <div class="empty-actions"><button class="primary-btn" data-act="gen-bet">✨ Gợi ý lựa chọn đặt cược</button></div></div>`, { cls: 'span-12' })}
-            ${hasOpts ? card('⚙️ Tinh chỉnh nâng cao (tuỳ chọn)', `
+            ${betForm()}
+            ${card('⚙️ Tinh chỉnh nâng cao (tuỳ chọn)', `
               <details><summary style="cursor:pointer;color:var(--muted)">Nhịp roadmap + trọng tâm giai đoạn — để Tự động nếu chưa chắc</summary>
                 <div class="fld" style="margin-top:10px"><span>Nhịp roadmap</span><div class="gate-usp">
                   <label class="radio-row"><input type="radio" name="gateHorizon" value="auto" checked> <b>Tự động</b></label>
@@ -1012,9 +1008,9 @@
                   <label class="radio-row"><input type="radio" name="gatePosture" value="brand"> Xây nhận biết</label>
                   <label class="radio-row"><input type="radio" name="gatePosture" value="balanced"> Cân bằng</label>
                   <label class="radio-row"><input type="radio" name="gatePosture" value="activation"> Ra đơn ngay</label></div></div>
-              </details>`, { cls: 'span-12' }) : ''}
-            ${hasOpts ? `<div class="card span-12" style="text-align:center">
-              <button class="primary-btn" data-act="run-strategize-bet" ${running ? 'disabled' : ''}>${running ? '⏳ Đang lập chiến lược…' : '🎯 Lập chiến lược (T4-T5) theo đặt cược'}</button></div>` : ''}
+              </details>`, { cls: 'span-12' })}
+            <div class="card span-12" style="text-align:center">
+              <button class="primary-btn" data-act="run-strategize-bet" ${running ? 'disabled' : ''}>${running ? '⏳ Đang lập chiến lược…' : '🎯 Lập chiến lược (T4-T5) theo đặt cược'}</button></div>
           </section>`;
         }
         return `<section class="grid">
@@ -1208,6 +1204,8 @@
     const opts = M.bizBetOptions || {};
     const chosen = M.bizBetChoices || {};
     if (!cats.length) return '';
+    const hasOpts = cats.some(c => (opts[c.key] || []).length);
+    const sugBtn = `<button class="${hasOpts ? 'ghost-line' : 'primary-btn'} sm" data-act="gen-bet">${hasOpts ? '↻ Max gợi ý lại từ nghiên cứu' : '✨ Để Max gợi ý lựa chọn từ nghiên cứu'}</button>`;
     const groups = cats.map(c => {
       const list = opts[c.key] || [];
       const sel = chosen[c.key] || [];
@@ -1226,9 +1224,11 @@
       </div>`;
     }).join('');
     return card('🎯 Đặt cược chiến lược — chọn hướng trên dữ liệu THẬT', `
-      <p class="muted" style="margin:0 0 14px">Mỗi nhóm: bấm chọn option Max rút từ nghiên cứu (rê chuột xem lý do), hoặc tự ghi. <b>Khuyên chọn 1/nhóm</b> cho tập trung. Nhóm nào chưa chắc → <b>🤖 Để Max</b> tự quyết (như bot). Để trống hết = Max lo toàn bộ.</p>
-      ${groups}
-      <button class="ghost-line sm" data-act="gen-bet" style="margin-top:4px">↻ Max gợi ý lại từ nghiên cứu</button>`, { cls: 'span-12' });
+      <div class="bet-intro">
+        <p class="muted" style="margin:0">Mỗi nhóm: <b>tự ghi</b> hướng của bạn, bấm <b>🤖 Để Max</b> tự quyết, hoặc bấm nút bên để Max <b>gợi ý option</b> từ nghiên cứu rồi chọn. <b>Khuyên 1/nhóm</b> cho tập trung; để trống hết = Max lo toàn bộ.</p>
+        ${sugBtn}
+      </div>
+      ${groups}`, { cls: 'span-12' });
   }
 
   /* ── Wizard tạo Campaign tổng (chọn các gap → đặt cược → Max đề xuất sub → chốt) ── */
