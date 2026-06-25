@@ -110,6 +110,19 @@
   KHÔNG bọc `<table>` vào `.tbl-wrap`. → Fix sau: bọc mọi `<table>` render từ markdown trong
   `<div class="tbl-wrap">` để cuộn ngang thay vì cắt. Mirror 2 file.
 
+- **[N-14] "Nhờ Max chỉnh" báo "không tìm thấy đoạn khớp" với góp ý theo TIỂU MỤC.**
+  Founder gõ "cảm thấy Messaging Gap chưa đủ sâu, chưa đánh sâu tâm lý nam" → `patch_skill_run`
+  → `agents/surgical_edit.patch_document` trả PATCH_ASK "Không tìm thấy đoạn khớp". Gốc:
+  `split_sections` chỉ tách theo `_SECTION_RE` = heading **đánh số `## N. Title`**; "Messaging Gap"
+  là **tiểu mục** nằm trong "2) Market Gap Analysis" (lại còn format `2)` không phải `2.`) → detector
+  không thấy trong outline → không map được → hỏi lại. ⇒ Góp ý theo tiểu mục / heading phụ luôn fail.
+  `surgical_edit` ở `agents/` (reference-only) → fix WEB-OWNED ở `patch_skill_run`:
+    1. Khi nhận PATCH_ASK → **fallback revise toàn-doc**: gọi llm_router viết lại CẢ doc áp dụng góp ý
+       (giữ cấu trúc/section, chỉ đào sâu phần liên quan — vd Messaging Gap) → lưu version mới. Để góp
+       ý "lỏng" vẫn ra kết quả thay vì bế tắc.
+    2. (phụ) Nếu vẫn muốn surgical: nới matcher nhận cả tiểu mục in đậm + heading `N)`/`####` —
+       nhưng cái này ở agents/, chờ rebuild. Trước mắt dùng (1).
+
 ## ✅ Đã làm (lưu vết)
 - Enter ở ô intake = nút Tiếp (fcbb3e3)
 - Báo "agent đang chạy" đúng + bỏ "90 ngày" hardcode intake (04f9a9a)
