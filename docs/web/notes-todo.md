@@ -61,6 +61,23 @@
   điểm nào (chung chung? thiếu copy thật? thiếu kênh cụ thể? test mơ hồ?) rồi nâng prompt + đảm bảo
   research đủ trước khi lập.
 
+- **[N-09] Heading `####` hiện RAW (dấu thăng lòi) trong output research — xấu.**
+  Triệu chứng (ảnh founder): các mục như `#### Tốc độ tăng trưởng (CAGR)`, `#### Xu hướng nổi
+  bật`, `#### Timing: Đây có phải thời điểm tốt không?` hiện NGUYÊN dấu `####` thay vì thành tiêu đề.
+  **Xác định "nó là cái gì":** LLM xuất heading `####` **NẰM TRONG bullet** — dòng dạng
+  `- #### Xu hướng nổi bật:` (markdown lồng sai). Renderer `renderAIContent` (web/app.js ~dòng
+  220-224) CHỈ nhận heading khi `####`/`###`/`##` ở **ĐẦU DÒNG** (`/^####\s+/`); khi đứng sau dấu
+  bullet (`- `/`•`) thì regex KHÔNG khớp → render thành `<li>#### …</li>` để lộ dấu thăng.
+  Gốc prompt: research T1-T3 đang chạy `agents/` (reference-only, KHÔNG sửa) → fix ở **renderer web**.
+  → Cách làm (sau, áp cho TẤT CẢ mục, kể cả các mục đằng sau):
+    1. Trong `renderAIContent`: khi xử lý 1 item list, nếu nội dung mở đầu bằng `#{2,6}\s+` (heading
+       lồng trong bullet) → tách ra render thành **tiểu mục có style** (vd `<h6 class="md-subh">` hoặc
+       `<p class="md-subh"><b>…</b></p>`), KHÔNG để lộ `#`.
+    2. Thêm 1 pass chuẩn hoá chung: mọi run `#` không phải heading-đầu-dòng-hợp-lệ → hoặc nâng thành
+       tiểu mục, hoặc strip. (Phủ hết các biến thể `####`/`#####` rải rác.)
+    3. Bỏ luôn dấu `:` cuối heading cho đồng nhất; thêm CSS `.md-subh` cho gọn-đẹp.
+  - Mirror app.js ↔ standalone. (Cùng họ trình bày output: cân nhắc gộp với N-04 posmap khi làm.)
+
 ## ✅ Đã làm (lưu vết)
 - Enter ở ô intake = nút Tiếp (fcbb3e3)
 - Báo "agent đang chạy" đúng + bỏ "90 ngày" hardcode intake (04f9a9a)
