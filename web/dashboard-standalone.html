@@ -4730,19 +4730,22 @@ window.MOCK = {
     if (dot) dot.classList.toggle('off', !on);
   }
   let _jobSig = '';
-  function applyStream(data) {
+  async function applyStream(data) {
     if (data === _lastStream) return;          // dedupe các bản trùng
     _lastStream = data;
     let state; try { state = JSON.parse(data); } catch (e) { return; }
     Object.assign(window.MOCK, state);
     // khi 1 job AI đổi trạng thái (running→done/error) → nạp lại dữ liệu thật
     const sig = JSON.stringify((state.agentJobs || []).map(j => [j.id, j.status, j.progress]));
+    let jobChanged = false;
     if (sig !== _jobSig) {
       _jobSig = sig;
-      if ((state.agentJobs || []).some(j => j.status === 'done')) refreshBiz();
+      if ((state.agentJobs || []).some(j => j.status === 'done' || j.status === 'error')) jobChanged = true;
     }
     const editing = document.activeElement &&
       /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName);
+    // ⬇️ AWAIT refreshBiz TRƯỚC khi route → chuyển trạng thái mượt, không cần F5
+    if (jobChanged) { try { await refreshBiz(); } catch (e) { /* giữ state cũ */ } }
     renderRail(); renderTopbar();
     if (!editing) route();                     // không phá thao tác đang gõ
     const dot = document.getElementById('liveDot');
