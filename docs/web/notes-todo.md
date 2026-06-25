@@ -123,6 +123,18 @@
     2. (phụ) Nếu vẫn muốn surgical: nới matcher nhận cả tiểu mục in đậm + heading `N)`/`####` —
        nhưng cái này ở agents/, chờ rebuild. Trước mắt dùng (1).
 
+- **[N-15] Research BỊA SỐ không nguồn, không gắn "(ước tính)".**
+  Ví dụ (ảnh customer_insight): "Thiết bị: **99% smartphone** (Android phổ biến hơn iOS ở phân khúc
+  này)" — con số bịa, KHÔNG nguồn nào đo được cho tệp ngách (GenZ nam triệt vùng kín HN); cũng KHÔNG
+  gắn "(ước tính)". Vi phạm luật cốt lõi *KHÔNG bịa số → nếu suy đoán PHẢI gắn "(ước tính)"*. Cùng họ
+  N-03/N-03b/N-11: pipeline `agents/` khi data mỏng → LLM "độn" số cho đầy section. Gốc prompt ở
+  `agents/` (reference-only). → Dứt điểm khi rebuild research WEB-OWNED:
+    1. Luật cứng: KHÔNG nêu số tuyệt đối nếu không có nguồn grounded; suy đoán → BẮT BUỘC "(ước tính)"
+       + nói rõ cơ sở suy ra.
+    2. Mục không có dữ liệu (vd tỉ lệ thiết bị tệp ngách) → ghi "_chưa đủ dữ liệu công khai_", KHÔNG
+       bịa.
+    3. (kiểm thử) thêm 1 pass tự-soát "số nào không có nguồn?" trước khi lưu.
+
 ## ✅ Đã làm (lưu vết)
 - Enter ở ô intake = nút Tiếp (fcbb3e3)
 - Báo "agent đang chạy" đúng + bỏ "90 ngày" hardcode intake (04f9a9a)
