@@ -1272,8 +1272,7 @@ async def save_bet(user_id=None, choices=None) -> dict:
             if isinstance(vals, str):
                 vals = [vals]
             norm[k] = [str(v).strip()[:160] for v in vals if str(v).strip()][:5]
-        if not any(norm.values()):
-            return {"error": "Chưa chọn gì — chọn (hoặc tự ghi) ít nhất 1 nhóm."}
+        # Bỏ trống hết = "🤖 để Max tự quyết toàn bộ" (giống bot) — KHÔNG báo lỗi, Max tự rút.
         extra["bet_choices"] = norm
         fields = {"intake_extra": extra}
         if norm.get("segment"):

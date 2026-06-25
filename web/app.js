@@ -408,7 +408,8 @@
     { key: 'business_name', tier: 'core', q: 'Doanh nghiệp của bạn tên là gì?', ph: 'vd: Cà phê An' },
     { key: 'industry', tier: 'core', q: 'Bạn kinh doanh trong ngành nào?', ph: 'vd: F&B — Quán cà phê' },
     { key: 'product_service', tier: 'core', q: 'Bạn bán sản phẩm/dịch vụ gì?', ph: 'vd: Cà phê specialty pha máy + hạt rang mộc' },
-    { key: 'target_customer', tier: 'core', q: 'Khách hàng mục tiêu của bạn là ai (độ tuổi · đặc điểm · khu vực)?', ph: 'vd: Dân văn phòng 25–34, Q.1 TP.HCM' },
+    { key: 'target_customer', tier: 'core', q: 'Khách hàng bạn ĐANG có là ai (độ tuổi · đặc điểm · khu vực)?',
+      helper: 'Mô tả tệp hiện tại — tệp ưu tiên ĐÁNH TRƯỚC sẽ chốt ở bước Chiến lược (Đặt cược).', ph: 'vd: Dân văn phòng 25–34, Q.1 TP.HCM' },
     { key: 'main_challenge', tier: 'core', q: 'Thách thức lớn nhất hiện tại của bạn là gì?', ph: 'vd: cạnh tranh chuỗi lớn, chi phí ads cao' },
 
     // ── Khối chiến lược (tầng CMO — skip→AI suy, sẽ có chip gợi ý) ──
@@ -434,14 +435,12 @@
       ph: 'vd: Highlands, Phúc Long, The Coffee House' },
 
     // ── Khối bối cảnh (optional — gọn, chỉ cái cần để ra output) ──
-    { key: 'current_channels', tier: 'context', optional: true, q: 'Hiện bạn đang dùng kênh marketing nào?', ph: 'vd: Facebook, TikTok, Zalo OA' },
+    { key: 'current_channels', tier: 'context', optional: true, q: 'Kênh marketing bạn ĐANG dùng là gì?',
+      helper: 'Mô tả kênh hiện tại — kênh muốn TRIỂN KHAI/đánh sẽ chốt ở bước Chiến lược (Đặt cược).', ph: 'vd: Facebook, TikTok, Zalo OA' },
     { key: 'team_size', tier: 'context', optional: true, q: 'Đội làm marketing/nội dung của bạn mấy người?',
       choices: ['Một mình founder', '2–3 người', '4–10 người', 'Trên 10 / có agency'],
       note: 'Giúp Max đề xuất khối lượng & kênh KHẢ THI với nguồn lực của bạn — không vẽ quá sức.' },
-    { key: 'usp', tier: 'context', optional: true,
-      q: 'Bạn đã CHỐT thành CÂU định vị / slogan / USP chưa?',
-      helper: 'Khác câu "điểm khác biệt" ở trên: đây là đã gói thành 1 CÂU CHỮ để dùng hay chưa.',
-      note: 'Có rồi thì nhập — Max sẽ LÀM SẮC THÊM (không vứt đi). Chưa có thì để trống — Max tự đề xuất. Bước Chiến lược sẽ cho bạn chọn lại.' },
+    // (Bỏ câu USP/định vị — định vị chốt ở bước Chiến lược "Đặt cược" trên dữ liệu THẬT, tránh hỏi trùng.)
   ];
   // Field nào có cột riêng trong profile; còn lại gói vào intake_extra.answers (D-032)
   const PROFILE_COLUMN_KEYS = new Set(['business_name', 'industry', 'location', 'product_service',
@@ -1223,13 +1222,14 @@
       const extra = sel.filter(s => !list.some(o => o.title === s)).join(', ');
       return `<div class="bet-grp">
         <div class="bet-grp-h">${c.icon} <b>${E(c.label)}</b> <span class="muted">— ${E(c.hint)}</span>
-          <span class="bet-tip">💡 nên chọn 1 để tập trung; hướng khác để test đợt sau</span></div>
-        <div class="bet-chips">${chips || '<span class="muted">— Max chưa rút được, tự ghi bên dưới</span>'}</div>
+          <span class="bet-tip">💡 chọn 1 để tập trung · bỏ trống = 🤖 để Max tự quyết</span></div>
+        <div class="bet-chips">${chips || '<span class="muted">— Max chưa rút được; tự ghi hoặc để Max quyết</span>'}
+          <button type="button" class="bet-chip bet-auto" data-act="bet-auto" data-cat="${c.key}" title="Bỏ chọn nhóm này → Max tự đề xuất khi lập chiến lược">🤖 Để Max</button></div>
         <input class="bet-free" id="betFree-${c.key}" data-cat="${c.key}" placeholder="✍️ Tự ghi (nếu không ưng option nào; phẩy để nhiều)" value="${E(extra)}">
       </div>`;
     }).join('');
     return card('🎯 Đặt cược chiến lược — chọn hướng trên dữ liệu THẬT', `
-      <p class="muted" style="margin:0 0 14px">Mỗi nhóm: bấm chọn option Max rút từ nghiên cứu (rê chuột xem lý do), hoặc tự ghi. <b>Khuyên chọn 1/nhóm</b> cho tập trung — tệp/hướng khác để test ở đợt sau.</p>
+      <p class="muted" style="margin:0 0 14px">Mỗi nhóm: bấm chọn option Max rút từ nghiên cứu (rê chuột xem lý do), hoặc tự ghi. <b>Khuyên chọn 1/nhóm</b> cho tập trung. Nhóm nào chưa chắc → <b>🤖 Để Max</b> tự quyết (như bot). Để trống hết = Max lo toàn bộ.</p>
       ${groups}
       <button class="ghost-line sm" data-act="gen-bet" style="margin-top:4px">↻ Max gợi ý lại từ nghiên cứu</button>`, { cls: 'span-12' });
   }
@@ -3018,6 +3018,13 @@
       return;
     }
     if (act === 'bet-chip') { el.classList.toggle('on'); return; }   // tick/bỏ 1 option
+    if (act === 'bet-auto') {   // 🤖 Để Max — bỏ chọn nhóm này (bỏ trống = Max tự đề xuất)
+      const cat = el.dataset.cat;
+      document.querySelectorAll('.bet-chip.on[data-cat="' + cat + '"]').forEach(b => b.classList.remove('on'));
+      const f = document.getElementById('betFree-' + cat); if (f) f.value = '';
+      toast('🤖 Nhóm này để Max tự đề xuất');
+      return;
+    }
     if (act === 'run-strategize-bet') {   // Vision A: lưu đặt cược (5 nhóm) → chạy T4-T5
       try {
         const cats = M.bizBetCategories || [];
@@ -3025,9 +3032,8 @@
         cats.forEach(c => {
           const on = Array.from(document.querySelectorAll('.bet-chip.on[data-cat="' + c.key + '"]')).map(b => b.dataset.val);
           const free = (((document.getElementById('betFree-' + c.key) || {}).value) || '').split(',').map(s => s.trim()).filter(Boolean);
-          choices[c.key] = [...on, ...free];
+          choices[c.key] = [...on, ...free];   // nhóm bỏ trống = [] → Max tự quyết
         });
-        if (!Object.values(choices).some(a => a.length)) { toast('Chọn (hoặc tự ghi) ít nhất 1 nhóm'); return; }
         const b = await API.post('api/biz/bet/save', { user_id: _bizUserId, choices });
         if (b.error) { toast(b.error); return; }
         const horizon = (document.querySelector('input[name="gateHorizon"]:checked') || {}).value || 'auto';
