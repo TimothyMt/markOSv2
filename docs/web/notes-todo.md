@@ -135,6 +135,28 @@
        bịa.
     3. (kiểm thử) thêm 1 pass tự-soát "số nào không có nguồn?" trước khi lưu.
 
+- **[N-16] Gợi ý "Đặt cược" (5 nhóm) còn KÉM — nâng theo cách bot làm strategy.**
+  Founder thấy option `gen_bet_options` (market/segment/positioning/price/channel) hời hợt, generic.
+  Gốc: `gen_bet_options` (webapp/business.py — WEB-OWNED, sửa được) đang dùng prompt MỎNG +
+  `TaskType.INTAKE_JSON` (GPT-5-mini, tier yếu nhất): chỉ "rút 2-4 option/nhóm: title/desc/why",
+  KHÔNG framework, KHÔNG bước suy luận CMO.
+  → Tham khảo BOT (chỉ đọc, đừng sửa `agents/`):
+    - `agents/strategy_prompts.py › CMO_STRATEGY_SYSTEM`: persona "cố vấn 10 năm", luật anti-jargon,
+      positioning theo **SAVE** (solution/access/value/education), wedge {audience/channels/not_doing/
+      rationale}, content bám **archetype**.
+    - `agents/strategy.py › generate_strategy`: nạp **frameworks** — `get_full_industry_brief`,
+      `generate_save_analysis`, `format_archetype_block`, SMART; route **Sonnet** (GENERIC_CREATIVE),
+      max_tokens 10K (KHÔNG dùng tier mini).
+    - `agents/discovery.py`: Diagnostic Brief = facts + **giả thuyết XẾP HẠNG** + gaps → input cho CMO
+      (option bám giả thuyết đã rank, không phán generic).
+  → Việc làm (web-owned) khi dọn:
+    1. Đổi model `gen_bet_options`: INTAKE_JSON → OPS_BRIEF/SYNTHESIS (GPT-5/Gemini/Sonnet).
+    2. Nhồi framework vào prompt: industry_context (archetype + market_dynamics) + SAVE cho nhóm Định
+       vị; thêm bước "suy luận CMO ngắn" trước khi rút option.
+    3. Mỗi option 'why' phải DẪN phát hiện research THẬT (chống generic), gắn "(ước tính)" nếu suy.
+    4. Cân nhắc 2 call: (a) CMO reasoning từ research → (b) chẻ thành 5 nhóm option. (Giống mạch
+       brief→funnel của bot.)
+
 ## ✅ Đã làm (lưu vết)
 - Enter ở ô intake = nút Tiếp (fcbb3e3)
 - Báo "agent đang chạy" đúng + bỏ "90 ngày" hardcode intake (04f9a9a)
