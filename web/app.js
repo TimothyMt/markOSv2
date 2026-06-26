@@ -1514,15 +1514,17 @@
   }
 
   P.calendar = {
-    title: 'Kế hoạch nội dung',
-    sub: 'Always-on (nền brand, luôn chạy) + Campaign theo dịp (cộng thêm, có khung thời gian)',
+    title: 'Kế hoạch marketing',
+    sub: 'Theo thời gian: 🟢 nền thương hiệu chạy liên tục (móng) + 🔴 đợt đắp lên đúng dịp (spike)',
     get actions() {
       return `<div class="segmented">
           <button class="${_calView==='plan'?'on':''}" data-act="cal-view" data-view="plan">Kế hoạch tháng</button>
           <button class="${_calView==='week'?'on':''}" data-act="cal-view" data-view="week">Chi tiết tuần</button>
         </div>
         ${_realCal ? `<button class="ghost-line" data-act="gen-topics">✨ Gợi ý chủ đề cả lịch</button>` : ''}
-        <button class="ghost-line" data-act="add-campaign-occasion">🎯 Tạo đợt đẩy đơn</button>`;
+        <a class="ghost-line" href="#occasion">🟢 Tuyến nền</a>
+        <button class="ghost-line" data-act="portfolio-open">🗓️ Gợi ý lịch đợt</button>
+        <button class="primary-btn" data-act="add-campaign-occasion">＋ Thêm đợt vào lịch</button>`;
     },
     render: () => `
       ${_realCal
@@ -1535,10 +1537,27 @@
         <span><i class="lg camp"></i> 🗓️ Đợt chiến dịch — bài theo mục tiêu đợt, CỘNG THÊM lên nền trong đúng dịp</span>
         <span class="cal-arc-legend">Đợt chạy theo Story Arc: 🌱 Teaser → 🔥 Build-up → 🚀 Peak → ⏰ Last-call → 💌 After (đợt ngắn gộp 3 pha)</span>
       </div>
+      ${balanceNudge()}
       ${calOrphanTray()}
       ${_calView === 'plan' ? calPlanView() : calWeekView()}`,
     mount: () => { loadRealCalendar(); },
   };
+  // Timeline-first: nhắc cân bằng brand·đơn (Binet&Field 60/40) — giá trị "có-CMO".
+  function balanceNudge() {
+    if (!_realCal) return '';
+    const P0 = calPlan();
+    const hasBrand = (P0.alwaysOn || []).length > 0;
+    const nDot = (P0.campaigns || []).length;
+    let msg = '';
+    if (hasBrand && nDot === 0)
+      msg = 'Đang chạy <b>nền thương hiệu</b> nhưng <b>chưa có đợt nào</b> — thêm đợt kích hoạt quanh dịp để tạo spike doanh thu.';
+    else if (!hasBrand && nDot > 0)
+      msg = `Có <b>${nDot} đợt</b> nhưng <b>nền thương hiệu mỏng/chưa chốt</b> — chạy đợt mà thiếu nền thì khó được nhớ lâu dài. Nên chốt tuyến nền trước.`;
+    else if (nDot >= 5)
+      msg = `<b>${nDot} đợt</b> — nhớ giữ ~60% sức cho <b>nền thương hiệu</b> để không đốt tiền ngắn hạn.`;
+    if (!msg) return '';
+    return `<div class="balance-nudge">💡 <b>Cân bằng brand · đơn (60/40):</b> ${msg} <a href="#occasion">Quản tuyến →</a></div>`;
+  }
 
   /* ---- Content generator ---- */
   // M3.1 (hybrid): "Trình tạo nội dung", "Kịch bản video", "UGC Brief" đã GỠ khỏi trang riêng.

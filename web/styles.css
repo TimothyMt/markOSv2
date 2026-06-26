@@ -823,6 +823,11 @@ body.chat-mode #view { height: calc(100vh - 64px); }
   background:color-mix(in srgb, var(--amber) 12%, var(--panel)); border-color:color-mix(in srgb, var(--amber) 45%, transparent); }
 .pb-stale .primary-btn { margin-left:auto; }
 
+/* ── Timeline-first: nhắc cân bằng brand·đơn (Binet&Field) ── */
+.balance-nudge { font-size:13px; line-height:1.5; padding:10px 14px; border-radius:10px; margin-bottom:14px;
+  background:color-mix(in srgb, var(--amber) 10%, var(--panel)); border:1px solid color-mix(in srgb, var(--amber) 38%, transparent); }
+.balance-nudge a { color:var(--primary); margin-left:6px; white-space:nowrap; }
+
 /* ── N-06: banner trạng thái tác vụ toàn cục ── */
 .job-banner { display:flex; align-items:center; gap:10px; padding:10px 16px; border-radius:10px;
   margin-bottom:16px; font-size:13px; border:1px solid var(--stroke); }
