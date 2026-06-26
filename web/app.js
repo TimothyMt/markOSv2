@@ -185,7 +185,9 @@
     const isRow = l => /^\s*\|.*\|\s*$/.test(l);
     const isSep = l => /^\s*\|?[\s:|-]*-[\s:|-]*\|?\s*$/.test(l) && l.includes('-');
     const cells = l => l.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map(c => c.trim());
-    const lines = raw.split('\n');
+    // N-09: heading lồng trong bullet/số (vd "- #### Xu hướng") → nâng thành heading thật ở đầu dòng
+    const hClean = s => inline((s || '').replace(/\s*[:：]\s*$/, ''));   // bỏ dấu ":" cuối heading
+    const lines = raw.split('\n').map(l => l.replace(/^(\s*)(?:[-*]|\d+\.)\s+(#{2,6}\s+)/, '$1$2'));
     const out = [];
     let i = 0;
     while (i < lines.length) {
@@ -219,10 +221,10 @@
       }
       // Heading
       let m;
-      if ((m = line.match(/^####\s+(.*)/))) { out.push(`<h5>${inline(m[1])}</h5>`); i++; continue; }
-      if ((m = line.match(/^###\s+(.*)/)))  { out.push(`<h4>${inline(m[1])}</h4>`); i++; continue; }
-      if ((m = line.match(/^##\s+(.*)/)))   { out.push(`<h3>${inline(m[1])}</h3>`); i++; continue; }
-      if ((m = line.match(/^#\s+(.*)/)))    { out.push(`<h2>${inline(m[1])}</h2>`); i++; continue; }
+      if ((m = line.match(/^#{4,6}\s+(.*)/))) { out.push(`<h5>${hClean(m[1])}</h5>`); i++; continue; }
+      if ((m = line.match(/^###\s+(.*)/)))  { out.push(`<h4>${hClean(m[1])}</h4>`); i++; continue; }
+      if ((m = line.match(/^##\s+(.*)/)))   { out.push(`<h3>${hClean(m[1])}</h3>`); i++; continue; }
+      if ((m = line.match(/^#\s+(.*)/)))    { out.push(`<h2>${hClean(m[1])}</h2>`); i++; continue; }
       // Horizontal rule
       if (/^\s*---+\s*$/.test(line)) { out.push('<hr>'); i++; continue; }
       // Bullet list
@@ -244,7 +246,7 @@
       // Đoạn văn (gom các dòng thường liên tiếp)
       const buf = [];
       while (i < lines.length && lines[i].trim() && !isRow(lines[i]) && !/^\s*>/.test(lines[i])
-             && !/^#{1,4}\s/.test(lines[i]) && !/^\s*[-*]\s/.test(lines[i])
+             && !/^#{1,6}\s/.test(lines[i]) && !/^\s*[-*]\s/.test(lines[i])
              && !/^\s*\d+\.\s/.test(lines[i]) && !/^\s*---+\s*$/.test(lines[i])) {
         buf.push(lines[i]); i++;
       }
@@ -365,8 +367,18 @@
         try { const j = JSON.parse(ts); if (Array.isArray(j.items) && j.items.length) map = fromJson(j); } catch (e) { /* fallback ASCII */ }
       }
       if (!map && isMap(text)) map = parseMap(text);
-      if (!map) return;
+      if (!map) {
+        // N-04: khối JSON pos-map (yTop/yBottom/xLeft/q1…) không render được → ẩn, đừng lòi JSON thô
+        if (ts.startsWith('{') && /"(yTop|yBottom|xLeft|xRight|q[1-4])"\s*:/.test(ts)) pre.remove();
+        return;
+      }
       pre.parentNode.replaceChild(buildEl(map), pre);
+    });
+    // N-13: bọc bảng rộng vào .tbl-wrap để cuộn ngang thay vì cắt cạnh phải
+    root.querySelectorAll('table').forEach(tb => {
+      if (tb.closest('.tbl-wrap')) return;
+      const w = document.createElement('div'); w.className = 'tbl-wrap';
+      tb.parentNode.insertBefore(w, tb); w.appendChild(tb);
     });
   }
   // Đổ trình đọc/sửa vào ô nhúng #docView.doc-embed trên trang chi tiết (gọi sau route)
@@ -1990,7 +2002,10 @@
     fillDocEmbeds();   // nhúng trình đọc/sửa text vào trang chi tiết (demo + thật)
     fillSkillRunSlots();   // nạp nội dung slot .ai-output[data-skill-run] (synthesis collapsible)
     injectPageNav(id);     // nút chuyển tab trước/sau cho chuỗi phân tích
-    document.querySelector('.main').scrollTo(0,0);
+    // N-10: cuộn lên đầu khi chuyển trang — reset mọi vùng cuộn có thể (main / window / view)
+    try { document.querySelector('.main').scrollTo(0,0); } catch (e) {}
+    try { window.scrollTo(0,0); } catch (e) {}
+    { const _v = document.getElementById('view'); if (_v) _v.scrollTop = 0; }
     document.body.classList.remove('nav-open');
   }
   // Nạp nội dung skill_run vào slot .ai-output[data-skill-run] (vd synthesis collapsible)
