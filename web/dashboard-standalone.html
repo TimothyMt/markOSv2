@@ -2468,8 +2468,8 @@ window.MOCK = {
   /* ---- Cầu nối: Lập chiến dịch theo dịp (M1 — đang phát triển) ---- */
   // D-040: hub 2-tuyến — Always-on (nền) + Occasion (theo dịp). Industry-aware.
   P.occasion = {
-    title: 'Lập chiến dịch', sub: '2 tuyến: 🟢 Branding (nền, chạy liên tục) + 🗓️ Kế hoạch chiến dịch (các đợt)',
-    actions: `<a class="ghost-line" href="#strategy">← Về Chiến lược</a>`,
+    title: 'Lập chiến dịch', sub: 'Set 🟢 nền thương hiệu (móng) + tạo 🔴 các đợt (spike) — xem theo thời gian ở Lịch',
+    actions: `<a class="ghost-line" href="#strategy">← Về Chiến lược</a> <a class="primary-btn" href="#calendar">📅 Xem kế hoạch trên Lịch</a>`,
     render: () => {
       if (M.bizEnabled && !(M.bizLatest || {}).synthesis) {
         return `<section class="grid">${card('', `<div class="empty-cta">
@@ -2478,7 +2478,7 @@ window.MOCK = {
           <div class="empty-actions"><a class="primary-btn" href="#strategy">🎯 Tới bước Lập chiến lược</a></div></div>`, {cls:'span-12'})}</section>`;
       }
       return `<section class="grid">
-        <div class="card span-12 dir-banner">🧭 Kế thừa Chiến lược + Playbook → 2 tuyến chạy song song: <b>🟢 Branding</b> (nền, chạy liên tục để được nhớ) + <b>🗓️ Kế hoạch chiến dịch</b> (các đợt theo mục tiêu, cộng thêm đúng dịp). Mỗi bài bám vai-trò-tuyến → lên Lịch.</div>
+        <div class="card span-12 dir-banner">🧭 Mô hình <b>móng + spike</b> (kế thừa Chiến lược + Playbook): <b>🟢 Branding</b> = nền MÓNG chạy liên tục bên dưới (để được nhớ) · <b>🔴 các đợt</b> = SPIKE đắp lên đúng dịp (ra đơn). Set ở đây → nhìn cả 2 theo <b>thời gian</b> ở <a href="#calendar">Lịch →</a></div>
         <div id="campaignPlan" class="span-12"><div class="card"><p class="muted">⏳ Đang lập tuyến nội dung theo chiến lược của bạn…</p></div></div>
       </section>`;
     },
@@ -2530,8 +2530,8 @@ window.MOCK = {
           <p class="muted" style="margin-bottom:12px">Mục đích: <b>được nhớ</b>. Chạy đều quanh năm, bám USP + archetype + <b>Tactical Playbook</b> khi viết bài. <b>Không chốt số</b>.</p>
           <div class="pillars">${pillarCards || '<p class="muted">—</p>'}</div>
           ${pillarFoot}
-          <div style="margin-top:16px">${funnelMapView('brand')}</div>`, { cls: 'span-7' })}
-        ${card('🗓️ Kế hoạch chiến dịch <span class="muted" style="font-weight:400">(các đợt — từ Chiến lược)</span>', `
+          <div style="margin-top:16px">${funnelMapView('brand')}</div>`, { cls: 'span-12' })}
+        ${card('🔴 Các đợt (spike) — đắp lên nền <span class="muted" style="font-weight:400">(theo dịp, từ Chiến lược)</span>', `
           <p class="muted" style="margin-bottom:12px">Mỗi đợt = <b>1 mục tiêu</b> (Nhận biết · Ra mắt · Sale · Thu lead · Tương tác · Giữ & Winback), cộng thêm lên tuyến nền trong đúng dịp.</p>
           <ul class="rows">${occRows || '<li class="muted">—</li>'}</ul>
           <button class="primary-btn full" data-act="new-occasion" style="margin-top:14px">＋ Tạo đợt mới</button>
@@ -2540,7 +2540,7 @@ window.MOCK = {
           <div class="occ-row" style="gap:8px;margin-top:12px">
             <button class="ghost-line sm" style="flex:1" data-act="new-lifecycle" data-mode="retention">🔁 Cẩm nang giữ chân (no-data)</button>
             <button class="ghost-line sm" style="flex:1" data-act="new-lifecycle" data-mode="winback">↩️ Kéo khách cũ</button>
-          </div>`, { cls: 'span-5' })}
+          </div>`, { cls: 'span-12' })}
       </section>`;
     } catch (e) { host.innerHTML = `<div class="card"><p class="muted">Không lập được kế hoạch — thử lại sau.</p></div>`; }
   }
