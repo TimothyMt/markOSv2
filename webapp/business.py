@@ -613,7 +613,21 @@ _RW_ANTIFAB = (
     "liệu công khai → ghi '_chưa đủ dữ liệu công khai_', KHÔNG bịa cho đầy.\n"
     "🔴 KẾT bằng so-what mức INSIGHT (1 blockquote '>'), KHÔNG xếp roadmap Quick-win/Medium/Long-term, "
     "KHÔNG ra action plan — việc đó để Synthesis (T4) + Playbook (T5).\n"
+    "🔴 BẮT ĐẦU NGAY bằng nội dung (heading đầu tiên). TUYỆT ĐỐI KHÔNG lời dẫn/mở đầu kiểu 'Chắc chắn "
+    "rồi', 'Đây là…', 'tuân thủ cấu trúc…', KHÔNG nhắc lại yêu cầu, KHÔNG ký tự/marker rác (vd dòng '*').\n"
 )
+
+
+def _strip_preamble(text: str) -> str:
+    """Bỏ lời dẫn hội thoại + marker rác trước phần nội dung thật (cắt tới heading markdown ĐẦU TIÊN).
+    Chỉ cắt khi có heading — không có heading thì giữ nguyên (an toàn)."""
+    if not text:
+        return text
+    lines = text.split("\n")
+    for i, ln in enumerate(lines):
+        if re.match(r'^\s*#{1,6}\s+\S', ln):
+            return "\n".join(lines[i:]).strip()
+    return text.strip()
 
 
 def _rw_specs():
@@ -750,7 +764,7 @@ async def research_web(user_id=None, progress=None, skills=None) -> dict:
                 res = await asyncio.wait_for(
                     router_call(task_type=tt, system=spec["sys"], user=user, max_tokens=spec["mx"]),
                     timeout=240)
-                content = (res or {}).get("output", "").strip()
+                content = _strip_preamble((res or {}).get("output", "").strip())   # bỏ lời dẫn "trả lời prompt"
             except asyncio.TimeoutError:
                 warns.append(f"{sk}: quá giờ"); content = ""
             except Exception as e:
@@ -2943,7 +2957,7 @@ async def strategize_web(user_id=None, progress=None) -> dict:
         )
         syn_res = await router_call(task_type=TaskType.SYNTHESIS_LONG_CONTEXT,
                                     system=syn_system, user=syn_user, max_tokens=3200)
-        synthesis = (syn_res or {}).get("output", "").strip()
+        synthesis = _strip_preamble((syn_res or {}).get("output", "").strip())
         if not synthesis:
             return {"error": "Chưa lập được chiến lược — thử lại."}
         syn_run = await skill_runs.insert_skill_run(uid, "synthesis", synthesis, model_used="web-strategize")
@@ -3058,7 +3072,7 @@ async def _gen_playbook(uid: int, synthesis: str, progress=None) -> dict:
         f"# Đối thủ (cho đoạn 'không copy được')\n{(research.get('competitor') or '(chưa có)')[:1500]}"
     )
     tac_res = await router_call(task_type=TaskType.OPS_BRIEF, system=_TAC_SYSTEM, user=tac_user, max_tokens=4000)
-    tactical = (tac_res or {}).get("output", "").strip()
+    tactical = _strip_preamble((tac_res or {}).get("output", "").strip())
     if not tactical:
         logger.warning("_gen_playbook: tactical rỗng (uid=%s)", uid)
         return {"error": "Playbook trống — thử lại."}
