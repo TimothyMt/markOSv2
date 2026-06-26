@@ -189,6 +189,12 @@
     lịch. Bỏ/gộp các khối chồng chéo legacy (branding-campaign packaging, occasion rời, retention để
     riêng). Mirror 2 file.
 
+- **[N-19] `<br>` hiện RAW trong ô bảng (competitor 8 chiều).**
+  Ô bảng có "…bảo hành).`<br>`Điểm yếu:…" — LLM xuất `<br>` để xuống dòng trong cell (tách Điểm mạnh/
+  Điểm yếu), nhưng `renderAIContent.inline()` chạy `esc()` escape `<` → `&lt;` ⇒ hiện chữ `<br>` thô.
+  → Fix sau (1 regex, an toàn): trong `inline()`, SAU esc thêm `.replace(/&lt;br\s*\/?&gt;/gi, '<br>')`
+  → chuyển `<br>` đã-escape về xuống dòng thật. Mirror app.js ↔ standalone. (cùng họ render N-09/N-13)
+
 ## ✅ Đã làm (lưu vết)
 - Enter ở ô intake = nút Tiếp (fcbb3e3)
 - Báo "agent đang chạy" đúng + bỏ "90 ngày" hardcode intake (04f9a9a)
