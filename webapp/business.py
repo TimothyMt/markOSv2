@@ -746,6 +746,14 @@ async def research_web(user_id=None, progress=None, skills=None) -> dict:
                 continue
             await skill_runs.insert_skill_run(uid, sk, content, model_used="web-research")
             done.append(sk)
+        # Research đổi → gợi ý đặt cược + gap cũ thành STALE → xoá để buộc gợi ý LẠI bám research mới.
+        if done and (extra.get("bet_options") or extra.get("gaps")):
+            try:
+                extra.pop("bet_options", None)
+                extra.pop("gaps", None)
+                await profiles.upsert_profile(uid, intake_extra=extra)
+            except Exception:
+                pass
         return {"ok": bool(done), "done": done, "warns": warns}
     except Exception as e:
         logger.warning("biz.research_web failed: %s", e)
@@ -1431,29 +1439,35 @@ async def gen_bet_options(user_id=None) -> dict:
         import json as _json
         # N-16: nâng theo cách bot làm strategy — persona CMO + SAVE (định vị) + archetype (kênh) + grounded.
         system = (
-            "Bạn là CMO 10 năm kinh nghiệm, cố vấn cho founder Việt. Từ RESEARCH THẬT, đề xuất các HƯỚNG "
-            "ĐẶT CƯỢC cho 5 nhóm để founder chọn. Tư duy như chiến lược gia: mỗi hướng phải SẮC, khả thi, "
-            "KHÁC đối thủ — KHÔNG generic, KHÔNG khẩu hiệu rỗng.\n"
+            "Bạn là CMO 10 năm kinh nghiệm, cố vấn cho founder Việt. Đề xuất các HƯỚNG ĐẶT CƯỢC cho 5 nhóm.\n"
+            "🔴 NGUYÊN TẮC SỐ 1 — BÁM RESEARCH THẬT: MỖI option PHẢI bắt nguồn từ 1 PHÁT HIỆN CỤ THỂ trong "
+            "phần RESEARCH dưới (gap thị trường / khoảng trống đối thủ / nỗi đau khách / điểm SWOT). TUYỆT "
+            "ĐỐI KHÔNG tự nghĩ option chung chung từ kiến thức ngành. Trong 'why' phải DẪN ĐÍCH DANH phát "
+            "hiện đó (vd 'Đối thủ X bỏ trống kênh Y (mục Channel Gap)'). Option nào không dẫn được về 1 phát "
+            "hiện research → BỎ.\n"
+            "(Bối cảnh ngành/SAVE chỉ là NỀN tham khảo — KHÔNG được lấy nó thay cho research.)\n"
             "Quy tắc theo nhóm:\n"
-            "- positioning: mỗi option là 1 GÓC chiếm tâm trí (tư duy SAVE: giải pháp/tiếp cận/giá trị/giáo "
-            "dục), câu định vị cô đọng & khác đối thủ.\n"
-            "- channel: bám ARCHETYPE ngành (impulse→video ngắn/visual; demand_gen→giáo dục/SEO/cộng đồng; "
-            "trust_building→tư vấn/case/review). Ưu tiên kênh đối thủ BỎ TRỐNG.\n"
-            "- price: mô hình giá cụ thể (gói trọn/subscription/pay-as-you-go/khoảng giá), bám sức mua tệp.\n"
-            "Mỗi nhóm 2-4 OPTION. Mỗi option: title (cụ thể, đặt được tên) · desc (1 câu rõ) · "
-            "why (DẪN phát hiện research thật — vì sao đáng đánh). KHÔNG bịa số; suy đoán gắn '(ước tính)'.\n"
+            "- positioning: 1 GÓC chiếm tâm trí (tư duy SAVE), câu định vị cô đọng & khác đối thủ — bám "
+            "khoảng-trống-định-vị research chỉ ra.\n"
+            "- channel: ưu tiên kênh đối thủ BỎ TRỐNG (theo Channel Gap), hợp archetype ngành.\n"
+            "- price: mô hình giá cụ thể bám sức mua tệp + khoảng giá đối thủ (theo research định giá).\n"
+            "Mỗi nhóm 2-4 OPTION SẮC, khả thi, KHÁC đối thủ. title (đặt được tên) · desc (1 câu) · "
+            "why (DẪN phát hiện research). KHÔNG bịa số; suy đoán gắn '(ước tính)'.\n"
             + _VN_NATURAL_RULE + "\n"
             '🔴 Output JSON DUY NHẤT: {"market":[{"title":"","desc":"","why":""}],"segment":[...],'
             '"positioning":[...],"price":[...],"channel":[...]}.\n# Các nhóm:\n' + cats_menu
         )
-        user = (f"# Ngành\n{industry} — {arche}\n{ictx}\n\n"
-                + (f"# Khung SAVE (định vị)\n{save_text}\n\n" if save_text.strip() else "")
-                + f"# Thị trường\n{(research.get('market_research') or '(chưa có)')[:2600]}\n\n"
-                f"# Đối thủ (chú ý Market Gap)\n{(research.get('competitor') or '(chưa có)')[:2600]}\n\n"
-                f"# Khách\n{(research.get('customer_insight') or '(chưa có)')[:2200]}\n\n"
-                f"# SWOT\n{(research.get('swot') or '(chưa có)')[:1800]}\n\n"
-                f"# Định giá\n{(research.get('psychology_pricing') or '(chưa có)')[:1400]}"
-                + (f"\n\n# Chiến lược nháp (nếu có)\n{synth[:1500]}" if synth.strip() else ""))
+        # RESEARCH lên ĐẦU (nguồn chính); bối cảnh ngành/SAVE xuống cuối (nền phụ).
+        user = (f"# Ngành\n{industry} — {arche}\n\n"
+                f"# ⭐ RESEARCH THẬT (NGUỒN CHÍNH — option PHẢI bám cái này)\n"
+                f"## Thị trường\n{(research.get('market_research') or '(chưa có)')[:2800]}\n\n"
+                f"## Đối thủ (Market/Channel/Segment/Product Gap)\n{(research.get('competitor') or '(chưa có)')[:2800]}\n\n"
+                f"## Khách (nỗi đau/insight)\n{(research.get('customer_insight') or '(chưa có)')[:2400]}\n\n"
+                f"## SWOT\n{(research.get('swot') or '(chưa có)')[:1800]}\n\n"
+                f"## Định giá\n{(research.get('psychology_pricing') or '(chưa có)')[:1400]}\n\n"
+                + (f"# Chiến lược nháp\n{synth[:1200]}\n\n" if synth.strip() else "")
+                + f"# Bối cảnh ngành (NỀN phụ — đừng thay research)\n{ictx[:900]}\n"
+                + (f"\n# Khung SAVE (nền phụ)\n{save_text[:800]}" if save_text.strip() else ""))
         res = await router_call(task_type=TaskType.OPS_BRIEF, system=system, user=user, max_tokens=3600)
         raw = re.sub(r'\s*```\s*$', '', re.sub(r'^```(?:json)?\s*', '', (res or {}).get("output", "").strip())).strip()
         data = _json.loads(raw)
