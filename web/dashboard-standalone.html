@@ -2505,7 +2505,9 @@ window.MOCK = {
         ${card('🔴 Đẩy đơn — theo dịp <span class="muted" style="font-weight:400">(đợt kích hoạt, ra đơn)</span>', `
           <p class="muted" style="margin-bottom:12px">Mục đích: <b>bán theo đợt</b>. Đợt có deadline — nơi <b>chốt số thật</b> (mục tiêu, ngân sách đợt). Hợp mùa vụ ngành:</p>
           <ul class="rows">${occRows || '<li class="muted">—</li>'}</ul>
-          <button class="primary-btn full" data-act="new-occasion" style="margin-top:14px">＋ Tạo đợt đẩy đơn</button>`, { cls: 'span-5' })}
+          <button class="primary-btn full" data-act="new-occasion" style="margin-top:14px">＋ Tạo đợt đẩy đơn</button>
+          <button class="ghost-line full" data-act="portfolio-open" style="margin-top:8px">🗓️ Gợi ý lịch các đợt (từ Chiến lược)</button>
+          <p class="muted" style="margin-top:6px;font-size:12px">Max suy từ roadmap → gợi ý <b>nên chạy đợt gì vào lúc nào</b>, bạn duyệt rồi tạo.</p>`, { cls: 'span-5' })}
         ${card('🔁 Giữ chân khách cũ <span class="muted" style="font-weight:400">(nuôi lại, mua tiếp)</span>', `
           <p class="muted" style="margin-bottom:12px">Mục đích: <b>khách mua tiếp</b>. Theo <b>hành vi</b> (vừa mua / im ắng / đã rời bỏ) — không cần dữ liệu đơn hàng. Max đưa <b>cẩm nang</b>: tình huống → làm gì → tin nhắn mẫu.</p>
           <div class="occ-row" style="gap:10px">
@@ -2872,8 +2874,7 @@ window.MOCK = {
           <button class="${_calView==='week'?'on':''}" data-act="cal-view" data-view="week">Chi tiết tuần</button>
         </div>
         ${_realCal ? `<button class="ghost-line" data-act="gen-topics">✨ Gợi ý chủ đề cả lịch</button>` : ''}
-        <button class="ghost-line" data-act="portfolio-open">🗂️ Danh mục chiến dịch</button>
-        <button class="ghost-line" data-act="add-campaign-occasion">🎯 Tạo campaign theo dịp</button>`;
+        <button class="ghost-line" data-act="add-campaign-occasion">🎯 Tạo đợt đẩy đơn</button>`;
     },
     render: () => `
       ${_realCal
@@ -3685,7 +3686,7 @@ window.MOCK = {
     const ov = document.getElementById('bizModal'); if (!ov) return;
     const E = s => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     const list = (window.MOCK && window.MOCK.bizCampaignPortfolio) || [];
-    ov.querySelector('h3').textContent = '🗂️ Danh mục chiến dịch (Max đề xuất)';
+    ov.querySelector('h3').textContent = '🗓️ Gợi ý lịch các đợt (từ Chiến lược)';
     const cards = list.map((c, i) => `
       <div class="pf-card">
         <div class="pf-main"><b>${c.type_icon || '🔴'} ${E(c.name)}</b>
@@ -3696,12 +3697,12 @@ window.MOCK = {
           <button class="ghost-line sm" data-act="pf-drop" data-idx="${i}">✕</button></div>
       </div>`).join('');
     ov.querySelector('.modal-body').innerHTML = list.length
-      ? `<p class="muted" style="margin:0 0 10px">Max suy từ roadmap — bám giai đoạn chiến lược. Duyệt cái nào thì <b>Tạo chiến dịch</b> (mở wizard điền sẵn), bỏ cái không hợp.</p>${cards}`
-      : `<p class="muted">Chưa có danh mục. Bấm <b>✨ Đề xuất danh mục</b> để Max suy từ roadmap chiến lược.</p>`;
+      ? `<p class="muted" style="margin:0 0 10px">Max gợi ý <b>nên chạy đợt gì vào lúc nào</b> — đi từ roadmap Chiến lược ra kế hoạch. Duyệt cái nào thì <b>Tạo đợt</b> (mở wizard điền sẵn), bỏ cái không hợp.</p>${cards}`
+      : `<p class="muted">Chưa có gợi ý. Bấm <b>✨ Gợi ý lịch các đợt</b> để Max suy từ roadmap Chiến lược.</p>`;
     const foot = ov.querySelector('.modal-foot'); if (foot) {
       foot.style.display = 'flex';
-      foot.innerHTML = `<div class="rate-group"><span class="muted">${list.length} chiến dịch</span></div>
-        <div class="modal-foot-r"><button class="primary-btn sm" data-act="pf-gen">${list.length ? '↻ Đề xuất lại' : '✨ Đề xuất danh mục'}</button></div>`;
+      foot.innerHTML = `<div class="rate-group"><span class="muted">${list.length} đợt</span></div>
+        <div class="modal-foot-r"><button class="primary-btn sm" data-act="pf-gen">${list.length ? '↻ Gợi ý lại' : '✨ Gợi ý lịch các đợt'}</button></div>`;
     }
   }
   // D-044b: ví dụ chỉ tiêu khác nhau theo mục đích đã chọn — tránh nhầm "mục đích" với "mục tiêu"
