@@ -196,6 +196,11 @@
 - Bắt + log lý do dừng research (2f28497)
 
 ## ⏳ Tính năng đã hoãn (chờ ưu tiên)
+- **[Lô I+ — Vòng phản hồi AUTO-PULL] nền `content_feedback` ĐÃ CÓ (nhập tay = tạm, "không ai nhập").**
+  Founder chốt: bản thật phải **TỰ KÉO SỐ từ FB/TikTok** (đã có nền kết nối FB Ads + ads_snapshots) →
+  map số liệu post ↔ bài (skill_run content) → tự gọi `content_feedback` → Max chấm + tối ưu, KHÔNG
+  bắt nhập tay. Nâng thêm: gom nhiều bài → rút quy luật "loại nội dung/hook/kênh nào ăn nhất". Giữ ô
+  nhập tay làm fallback. → Làm khi ưu tiên (cần map FB post id ↔ skill_run).
 - "C hoàn chỉnh" — lịch kéo-thả (nền dữ liệu M-E đã có)
 - Theme tháng mềm (always-on nghiêng theo roadmap phase)
 - M-D Pha 4 full (phân nhóm khách — bản nhẹ đã lồng vào campaign F2)
