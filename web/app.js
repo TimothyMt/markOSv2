@@ -1077,7 +1077,7 @@
   /* ---- Cầu nối: Lập chiến dịch theo dịp (M1 — đang phát triển) ---- */
   // D-040: hub 2-tuyến — Always-on (nền) + Occasion (theo dịp). Industry-aware.
   P.occasion = {
-    title: 'Lập chiến dịch', sub: '2 tuyến chạy song song: Always-on (nền) + Theo dịp (occasion)',
+    title: 'Lập chiến dịch', sub: '2 tuyến: 🟢 Branding (nền, chạy liên tục) + 🗓️ Kế hoạch chiến dịch (các đợt)',
     actions: `<a class="ghost-line" href="#strategy">← Về Chiến lược</a>`,
     render: () => {
       if (M.bizEnabled && !(M.bizLatest || {}).synthesis) {
@@ -1087,7 +1087,7 @@
           <div class="empty-actions"><a class="primary-btn" href="#strategy">🎯 Tới bước Lập chiến lược</a></div></div>`, {cls:'span-12'})}</section>`;
       }
       return `<section class="grid">
-        <div class="card span-12 dir-banner">🧭 <b>Tuyến nội dung</b> (kế thừa Chiến lược T4-T5) chia 2 tuyến chạy song song: <b>Always-on</b> (nền — Byron Sharp) + <b>Theo dịp</b> (occasion — Binet&Field). Mỗi bài bám vai-trò-tuyến (Khai sáng/Tin cậy/Chuyển hoá/Lan toả) → lên Lịch.</div>
+        <div class="card span-12 dir-banner">🧭 Kế thừa Chiến lược + Playbook → 2 tuyến chạy song song: <b>🟢 Branding</b> (nền, chạy liên tục để được nhớ) + <b>🗓️ Kế hoạch chiến dịch</b> (các đợt theo mục tiêu, cộng thêm đúng dịp). Mỗi bài bám vai-trò-tuyến → lên Lịch.</div>
         <div id="campaignPlan" class="span-12"><div class="card"><p class="muted">⏳ Đang lập tuyến nội dung theo chiến lược của bạn…</p></div></div>
       </section>`;
     },
@@ -1140,18 +1140,16 @@
           <div class="pillars">${pillarCards || '<p class="muted">—</p>'}</div>
           ${pillarFoot}
           <div style="margin-top:16px">${funnelMapView('brand')}</div>`, { cls: 'span-7' })}
-        ${card('🔴 Đẩy đơn — theo dịp <span class="muted" style="font-weight:400">(đợt kích hoạt, ra đơn)</span>', `
-          <p class="muted" style="margin-bottom:12px">Mục đích: <b>bán theo đợt</b>. Đợt có deadline — nơi <b>chốt số thật</b> (mục tiêu, ngân sách đợt). Hợp mùa vụ ngành:</p>
+        ${card('🗓️ Kế hoạch chiến dịch <span class="muted" style="font-weight:400">(các đợt — từ Chiến lược)</span>', `
+          <p class="muted" style="margin-bottom:12px">Mỗi đợt = <b>1 mục tiêu</b> (Nhận biết · Ra mắt · Sale · Thu lead · Tương tác · Giữ & Winback), cộng thêm lên tuyến nền trong đúng dịp.</p>
           <ul class="rows">${occRows || '<li class="muted">—</li>'}</ul>
-          <button class="primary-btn full" data-act="new-occasion" style="margin-top:14px">＋ Tạo đợt đẩy đơn</button>
+          <button class="primary-btn full" data-act="new-occasion" style="margin-top:14px">＋ Tạo đợt mới</button>
           <button class="ghost-line full" data-act="portfolio-open" style="margin-top:8px">🗓️ Gợi ý lịch các đợt (từ Chiến lược)</button>
-          <p class="muted" style="margin-top:6px;font-size:12px">Max suy từ roadmap → gợi ý <b>nên chạy đợt gì vào lúc nào</b>, bạn duyệt rồi tạo.</p>`, { cls: 'span-5' })}
-        ${card('🔁 Giữ chân khách cũ <span class="muted" style="font-weight:400">(nuôi lại, mua tiếp)</span>', `
-          <p class="muted" style="margin-bottom:12px">Mục đích: <b>khách mua tiếp</b>. Theo <b>hành vi</b> (vừa mua / im ắng / đã rời bỏ) — không cần dữ liệu đơn hàng. Max đưa <b>cẩm nang</b>: tình huống → làm gì → tin nhắn mẫu.</p>
-          <div class="occ-row" style="gap:10px">
-            <button class="primary-btn" style="flex:1" data-act="new-lifecycle" data-mode="retention">🔁 Cẩm nang giữ chân</button>
-            <button class="ghost-line" style="flex:1" data-act="new-lifecycle" data-mode="winback">↩️ Kéo khách cũ quay lại</button>
-          </div>`, { cls: 'span-12' })}
+          <p class="muted" style="margin-top:6px;font-size:12px">Max suy từ roadmap → gợi ý <b>nên chạy đợt gì vào lúc nào</b>, bạn duyệt rồi tạo.</p>
+          <div class="occ-row" style="gap:8px;margin-top:12px">
+            <button class="ghost-line sm" style="flex:1" data-act="new-lifecycle" data-mode="retention">🔁 Cẩm nang giữ chân (no-data)</button>
+            <button class="ghost-line sm" style="flex:1" data-act="new-lifecycle" data-mode="winback">↩️ Kéo khách cũ</button>
+          </div>`, { cls: 'span-5' })}
       </section>`;
     } catch (e) { host.innerHTML = `<div class="card"><p class="muted">Không lập được kế hoạch — thử lại sau.</p></div>`; }
   }
@@ -1521,8 +1519,8 @@
         ? `<div class="cal-note">${badge('Chưa có dữ liệu thật','amber')} <span class="muted"> Lập + chốt Chiến lược (và chốt tuyến nền) để lịch hiện thật. Đang xem mẫu.</span></div>`
         : `<div class="cal-note">${badge('Bản thiết kế UX','amber')} <span class="muted"> Mô hình kế hoạch — dữ liệu mẫu, nối thật khi bật backend.</span></div>`)}
       <div class="cal-legend">
-        <span><i class="lg on"></i> 🟢 Always-on — bài brand chạy đều mỗi tuần (content pillars), KHÔNG tắt khi có campaign</span>
-        <span><i class="lg camp"></i> 🔴 Campaign theo dịp — bài đẩy offer, CỘNG THÊM lên nền trong đúng đợt</span>
+        <span><i class="lg on"></i> 🟢 Branding (nền) — bài brand chạy đều mỗi tuần, KHÔNG tắt khi có đợt</span>
+        <span><i class="lg camp"></i> 🗓️ Đợt chiến dịch — bài theo mục tiêu đợt, CỘNG THÊM lên nền trong đúng dịp</span>
         <span class="cal-arc-legend">Đợt chạy theo Story Arc: 🌱 Teaser → 🔥 Build-up → 🚀 Peak → ⏰ Last-call → 💌 After (đợt ngắn gộp 3 pha)</span>
       </div>
       ${calOrphanTray()}
@@ -2477,25 +2475,21 @@
     const typeBtn = (t) => `
       <button class="occ-type ${S.campaignType === t.key ? 'on' : ''}" data-act="occ-type" data-type="${t.key}" data-obj="${t.objective}">
         <span class="occ-obj-ic">${t.icon}</span><b>${E(t.label)}</b></button>`;
-    const grpA = types.filter(t => t.group === 'A'), grpB = types.filter(t => t.group === 'B');
+    const grpA = types.filter(t => t.group === 'A');   // Lô H: chỉ còn loại theo MỤC TIÊU (digital)
     const typeCustomOn = !!(S.campaignTypeCustom || '').trim();
     const typeSection = types.length ? `
-      <div class="occ-step"><label class="occ-lbl">1 · Loại chiến dịch <span class="muted" style="font-weight:400">(định hình playbook + việc cần làm — chọn 1)</span></label>
-        <div class="occ-types-grp muted">Theo mục tiêu</div>
+      <div class="occ-step"><label class="occ-lbl">1 · Mục tiêu đợt <span class="muted" style="font-weight:400">(chọn 1 — định hình playbook + việc cần làm)</span></label>
         <div class="occ-types">${grpA.map(typeBtn).join('')}</div>
-        <div class="occ-types-grp muted" style="margin-top:8px">Theo hình thức đặc thù</div>
-        <div class="occ-types">${grpB.map(typeBtn).join('')}</div>
-        <label class="occ-sublbl" style="margin-top:10px">…hoặc tự mô tả loại khác (Max tự dựng playbook)</label>
+        <label class="occ-sublbl" style="margin-top:10px">…hoặc tự mô tả mục tiêu riêng (Max tự dựng playbook)</label>
         <input class="occ-inp ${typeCustomOn ? 'occ-custom-on' : ''}" data-occfield="campaignTypeCustom"
-          placeholder="vd: chiến dịch affiliate, chiến dịch tri ân đại lý…" value="${E(S.campaignTypeCustom)}">
-        <label class="occ-sublbl" style="margin-top:10px">🎯 Tệp nhắm chính (Pha 4)</label>
+          placeholder="vd: tuyển cộng tác viên bán hàng, tri ân đại lý…" value="${E(S.campaignTypeCustom)}">
+        <label class="occ-sublbl" style="margin-top:10px">🎯 Tệp nhắm chính</label>
         <select class="occ-inp" data-occfield="audience">
-          ${['', 'Mới', 'Active', 'Nguy cơ', 'VIP', 'Tất cả'].map(a => `<option value="${a}" ${S.audience === a ? 'selected' : ''}>${a || '— theo loại (Max tự suy) —'}</option>`).join('')}
+          ${['', 'Mới', 'Active', 'Nguy cơ', 'VIP', 'Tất cả'].map(a => `<option value="${a}" ${S.audience === a ? 'selected' : ''}>${a || '— theo mục tiêu (Max tự suy) —'}</option>`).join('')}
         </select>
       </div>` : '';
     body.innerHTML = `
-      <div class="dir-banner" style="margin-bottom:14px">🧭 Đợt này <b>kế thừa la bàn + cách đánh</b> (pre-fill).
-        Bạn nhập <b>lever</b> (dịp, window, ngân sách, baseline) — đây là cái khoá để chốt <b>SMART thật</b>. Mọi giá trị <b>bạn quyết</b>.</div>
+      <div class="dir-banner" style="margin-bottom:14px">🧭 Đợt này <b>kế thừa Chiến lược + Playbook</b> (pre-fill). Chọn <b>mục tiêu</b> + <b>dịp</b> là Max viết được brief — <b>số liệu để sau cũng được</b>.</div>
 
       ${typeSection}
 
@@ -2504,24 +2498,25 @@
         <input id="occName" class="occ-inp" data-occfield="occasion" placeholder="vd: Tết Nguyên Đán, 20/10, Mừng khai trương…" value="${E(S.occasion)}">
       </div>
 
-      <div class="occ-step"><label class="occ-lbl">Window (ngày chạy)</label>
+      <div class="occ-step"><label class="occ-lbl">3 · Thời gian chạy (window)</label>
         <div class="occ-row">
           <input type="date" class="occ-inp" data-occfield="ws" value="${E(S.ws)}">
           <span class="muted">→</span>
           <input type="date" class="occ-inp" data-occfield="we" value="${E(S.we)}">
         </div></div>
 
-      ${objSection}
-
-      <div class="occ-step"><label class="occ-lbl">4 · Lever (khoá SMART) <span class="muted" style="font-weight:400">— mục đích ở trên quyết LOẠI chỉ tiêu, đây là SỐ cụ thể</span></label>
-        <label class="occ-sublbl">Ngân sách đợt</label>
-        <input class="occ-inp" data-occfield="budget" placeholder="vd: 30 triệu — gợi ý từ % burst nếu để trống" value="${E(S.budget)}">
-        <label class="occ-sublbl">Baseline hiện tại (trước đợt)</label>
-        <input class="occ-inp" data-occfield="baseline" placeholder="vd: 200 đơn/tháng, AOV 350k — chưa rõ thì để trống" value="${E(S.baseline)}">
-        <label class="occ-sublbl">Chỉ tiêu cụ thể đợt này <span class="muted" style="font-weight:400">(số liệu — khác mục đích ở trên)</span></label>
-        <input class="occ-inp" data-occfield="goal" placeholder="${E(_occGoalPlaceholder(S.objective))}" value="${E(S.goal)}">
-        <p class="muted occ-hint">Để trống = Max tự suy chỉ tiêu theo <b>mục đích</b> đã chọn + giai đoạn roadmap. Chưa có baseline cũng được — Max sẽ để dạng <b>khoảng + nhãn (ước tính)</b>.</p>
-      </div>
+      <details class="occ-step occ-optnum">
+        <summary class="occ-lbl" style="cursor:pointer">4 · Số liệu chốt SMART <span class="muted" style="font-weight:400">(tuỳ chọn — để trống thì Max tự suy theo mục tiêu + roadmap)</span></summary>
+        <div style="margin-top:8px">
+          <label class="occ-sublbl">Ngân sách đợt</label>
+          <input class="occ-inp" data-occfield="budget" placeholder="vd: 30 triệu — để trống thì Max gợi ý" value="${E(S.budget)}">
+          <label class="occ-sublbl">Baseline hiện tại (trước đợt)</label>
+          <input class="occ-inp" data-occfield="baseline" placeholder="vd: 200 đơn/tháng, AOV 350k — chưa rõ thì để trống" value="${E(S.baseline)}">
+          <label class="occ-sublbl">Chỉ tiêu cụ thể đợt này</label>
+          <input class="occ-inp" data-occfield="goal" placeholder="${E(_occGoalPlaceholder(S.objective))}" value="${E(S.goal)}">
+          <p class="muted occ-hint">Để trống = Max tự suy theo <b>mục tiêu</b> + giai đoạn roadmap, để dạng <b>khoảng + (ước tính)</b>.</p>
+        </div>
+      </details>
 
       <div class="occ-foot">
         <button class="ghost-line" data-act="occ-close">Huỷ</button>

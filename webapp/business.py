@@ -889,20 +889,14 @@ OCCASION_OBJECTIVES = {
 CAMPAIGN_TYPES = {
     # Nhóm Nền — XUYÊN SUỐT (M-G): không window/deadline, là campaign nền chạy liên tục
     "branding":    ("nền", "🟢", "Branding nền (xuyên suốt)", "brand", 0, ["calendar_post", "video_script", "ugc_brief"]),
-    # Nhóm A — theo mục tiêu
+    # Lô H: loại đợt = CHỈ theo MỤC TIÊU (6 cái, toàn digital). Các "hình thức" (influencer/UGC/SEO/
+    # event…) KHÔNG còn là loại — chúng là TÁC VỤ bên trong đợt (sinh theo từng loại). Retention = 1 loại.
     "awareness":   ("A", "📣", "Nhận biết",        "brand",      5, ["calendar_post", "video_script", "ugc_brief"]),
     "launch":      ("A", "🚀", "Ra mắt sản phẩm",  "brand",      4, ["calendar_post", "video_script", "ads_copy", "ugc_brief", "email_zalo_sequence", "landing_copy"]),
     "promo":       ("A", "💰", "Sale/Khuyến mãi",  "conversion", 2, ["calendar_post", "ads_copy", "email_zalo_sequence", "sales_inbox_script", "action:setup_ads"]),
     "leadgen":     ("A", "📞", "Thu lead/Tư vấn",  "leadgen",    4, ["calendar_post", "ads_copy", "landing_copy", "email_zalo_sequence", "sales_inbox_script"]),
     "engagement":  ("A", "✨", "Tương tác/Viral",  "engagement", 2, ["calendar_post", "ugc_brief"]),
     "retention":   ("A", "🔁", "Giữ & Winback",    "retention",  0, ["email_zalo_sequence", "sales_inbox_script", "calendar_post", "referral_plan"]),
-    # Nhóm B — theo hình thức đặc thù
-    "rebrand":     ("B", "🔄", "Tái định vị",       "brand",      6, ["calendar_post", "video_script", "ugc_brief", "pr_pitch"]),
-    "influencer":  ("B", "🤝", "Influencer/KOL",    "engagement", 4, ["ugc_brief", "calendar_post", "action:contact_kol"]),
-    "event":       ("B", "🎪", "Event/Trải nghiệm", "engagement", 3, ["event_plan", "calendar_post", "video_script", "email_zalo_sequence", "action:run_event"]),
-    "csr":         ("B", "❤️", "CSR/Vì cộng đồng",  "brand",      4, ["calendar_post", "video_script", "pr_pitch"]),
-    "content_seo": ("B", "📚", "Content/SEO dài hơi", "leadgen",  8, ["seo_outline", "calendar_post", "email_zalo_sequence"]),
-    "ugc":         ("B", "👥", "UGC/Cộng đồng",      "engagement", 3, ["ugc_brief", "calendar_post", "action:contact_kol"]),
 }
 
 # Nhãn task (kind → label tiếng Việt). content task móc generator sẵn; 'action:*' = người làm + Max ra brief.
