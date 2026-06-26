@@ -42,6 +42,12 @@
   (JSON có `items` / ASCII có `^`+`GÓC`); khối JSON pos-map không khớp (thiếu items/parse lỗi/bản
   spec thứ 2) thì `return` bỏ qua → để nguyên `<pre>` JSON thô hiện ra. → Thêm nhánh: khối trông
   như pos-map JSON (có `yTop`/`xLeft`) mà không render được thì ẩn/gỡ, không để lòi.
+  - **N-04b (CÒN LỖI — fix Lô A chưa đủ):** fix Lô A chỉ quét `<pre>`. Nhưng LLM nhiều khi xuất khối
+    JSON pos-map **KHÔNG có fence ```** → renderAIContent gom nó thành ĐOẠN VĂN `<p>` (không phải
+    `<pre>`) → vẫn lòi JSON thô (ảnh founder: `{"yTop":…,"items":[…]}` hiện full). → Fix đầy đủ: trong
+    `renderAIContent`, ở nhánh gom đoạn văn, nếu đoạn bắt đầu `{` + chứa `"yTop"`/`"items"`/`"xLeft"`
+    thì BỎ QUA (không render) — vì khối map đúng đã render từ bản fenced ở trên. (Hoặc enhancePosMaps
+    quét thêm `<p>` text match JSON pos-map → gỡ.) Mirror 2 file.
 
 - **[N-05] Bỏ HẲN "Đối thủ đang theo dõi (Ads Library)" ở T1-T3.** Section trên trang competitor
   (`P.competitor`) hiện DATA MOCK (`M.tracked` từ `web/data.js`: Phúc Long/Katinat) — không liên
