@@ -5,8 +5,8 @@
 ## ✅ TRẠNG THÁI (dọn 2026-06-26 — founder "làm các note")
 - **ĐÃ LÀM:** N-01, N-02, N-03, N-03b, N-04, N-05, N-06, N-08, N-09, N-10, N-11, N-12, N-13, N-14,
   N-15, N-16, N-17 ·
-  N-18 (declutter — đã gỡ leftover; **rebuild 4-tuyến đầy đủ còn để slice riêng**) ·
-  N-07 (timeout xong; **regen/badge playbook gộp vào rebuild**).
+  N-07 (✅ đủ: timeout + regen + badge playbook) ·
+  N-18 (declutter — đã gỡ leftover; **rebuild 4-tuyến đầy đủ còn để slice riêng**).
 - **N-03/N-03b/N-15 ĐÃ XỬ (Lô F):** viết lại Research T1-T3 WEB-OWNED (`research_web`) — 5 skill prompt
   riêng khoá scope (competitor không ICP/JTBD; research kết so-what, không roadmap) + chống bịa số
   (kèm nguồn/'(ước tính)'; thiếu data → '_chưa đủ dữ liệu công khai_'). `_execute` bỏ pipeline agents/.
