@@ -1464,18 +1464,18 @@
         <div class="pw-head"><b>Tuần ${w}</b>
           <button class="ghost-line sm" data-act="cal-open-week" data-week="${w}">Mở chi tiết →</button></div>
         <div class="pw-tracks">
-          <div class="pw-track on"><span class="trk on">🟢 Always-on</span> ${alwaysWeekCount(P0, w)} bài brand
+          <div class="pw-track on"><span class="trk on">🟢 Branding nền</span> ${alwaysWeekCount(P0, w)} bài brand
             <button class="chip-btn sm" data-act="cal-gen" data-week="${w}" data-track="always" data-pillar="${alwaysWeekFirstPillar(P0, w).replace(/"/g,'&quot;')}">⚡ Tạo bài tuần ${w}</button></div>
           ${camps.length ? camps.map(c => `<div class="pw-track camp" style="--c:${c.color}">
-            <span class="trk camp" style="--c:${c.color}">🔴 ${c.name}</span> ${campCount} bài đẩy offer
-            <button class="chip-btn sm" data-act="cal-gen" data-week="${w}" data-track="camp" data-camp-id="${c.campaignId||''}">⚡ Tạo bài campaign</button></div>`).join('')
-          : `<div class="pw-track muted">Không có campaign — chỉ chạy nền Always-on</div>`}
+            <span class="trk camp" style="--c:${c.color}">🔴 ${c.name}</span> ${campCount} bài theo mục tiêu đợt
+            <button class="chip-btn sm" data-act="cal-gen" data-week="${w}" data-track="camp" data-camp-id="${c.campaignId||''}">⚡ Tạo bài cho đợt</button></div>`).join('')
+          : `<div class="pw-track muted">Không có đợt — chỉ chạy nền Branding</div>`}
         </div></div>`;
     }).join('');
     return `
       <section class="calboard">
         <div class="cal-bands" style="grid-template-columns:repeat(${W},1fr)">
-          <div class="band-base" style="grid-column:1 / -1"><span>🟢 Always-on · chạy liên tục cả ${W} tuần — KHÔNG tắt khi có campaign</span></div>
+          <a class="band-base band-brand clickable" style="grid-column:1 / -1" href="#occasion" title="Chiến dịch nền — bấm xem tuyến nền + bản đồ phễu"><span>🟢 <b>Branding nền</b> · liên tục · không deadline — chạy suốt cả ${W} tuần, KHÔNG tắt khi có đợt</span></a>
           ${bands}
         </div>
         <div class="plan-weekhead" style="grid-template-columns:repeat(${W},1fr)">
