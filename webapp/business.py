@@ -1211,6 +1211,14 @@ async def gen_gaps(user_id=None) -> dict:
         return {"error": str(e)}
 
 
+# N-11: luật TIẾNG VIỆT TỰ NHIÊN — chèn vào prompt output web-owned để bớt dịch sát/ghép từ Tây.
+_VN_NATURAL_RULE = (
+    "🔴 TIẾNG VIỆT TỰ NHIÊN: viết như người Việt nói, KHÔNG dịch sát / ghép từ Tây "
+    "(vd 'đầu-đầu' → 'đối đầu trực tiếp'; 'generalist' → 'làm tất, không chuyên'). "
+    "Thuật ngữ tiếng Anh chỉ dùng khi thật cần, kèm giải thích ngắn gọn. "
+)
+
+
 # ════ Vision A: ĐẶT CƯỢC THEO NHÓM → T4-T5 → tuyến → lịch ════
 # 5 nhóm đặt cược (trust XUỐNG tầng tuyến nội dung = CONTENT_TRACKS['tin_cay'], không ở đây).
 BET_CATEGORIES = {
@@ -1244,22 +1252,46 @@ async def gen_bet_options(user_id=None) -> dict:
         if not isinstance(extra, dict):
             extra = {}
         industry = prof.get("industry") or ""
+        research["psychology_pricing"] = await _latest_content(uid, "psychology_pricing")
+        synth = await _latest_content(uid, "synthesis")
+        # N-16: bám archetype + bối cảnh ngành để gợi ý SẮC, không generic.
+        arche, ictx = "", ""
+        try:
+            from frameworks.industry_context import get_purchase_archetype, ARCHETYPE_LABEL, INDUSTRY_CONTEXT
+            arche = ARCHETYPE_LABEL.get(get_purchase_archetype(industry) or "", "")
+            ic = INDUSTRY_CONTEXT.get((industry or "").lower())
+            if ic:
+                ictx = f"Archetype mua: {ic.purchase_archetype}. Động lực/mùa vụ ngành: {ic.market_dynamics[:400]}"
+        except Exception:
+            pass
         cats_menu = "\n".join(f"- {k}: {v[1]} ({v[2]})" for k, v in BET_CATEGORIES.items())
         from tools.llm_router import call as router_call, TaskType
         import json as _json
+        # N-16: nâng theo cách bot làm strategy — persona CMO + SAVE (định vị) + archetype (kênh) + grounded.
         system = (
-            "Bạn là Chief Strategist. Từ RESEARCH (thị trường/đối thủ/khách/SWOT), với MỖI NHÓM dưới đây "
-            "rút 2-4 OPTION (lựa chọn) ĐÁNG ĐÁNH — bám phát hiện research THẬT, KHÔNG bịa. Đây là các hướng "
-            "để founder CHỌN khi đặt cược chiến lược.\n" + cats_menu + "\n"
-            "Mỗi option: title (ngắn, cụ thể) · desc (1 câu) · why (vì sao đáng — bám research). TIẾNG VIỆT.\n"
-            'Output JSON DUY NHẤT: {"market":[{"title":"","desc":"","why":""}],"segment":[...],'
-            '"positioning":[...],"price":[...],"channel":[...]}.'
+            "Bạn là CMO 10 năm kinh nghiệm, cố vấn cho founder Việt. Từ RESEARCH THẬT, đề xuất các HƯỚNG "
+            "ĐẶT CƯỢC cho 5 nhóm để founder chọn. Tư duy như chiến lược gia: mỗi hướng phải SẮC, khả thi, "
+            "KHÁC đối thủ — KHÔNG generic, KHÔNG khẩu hiệu rỗng.\n"
+            "Quy tắc theo nhóm:\n"
+            "- positioning: mỗi option là 1 GÓC chiếm tâm trí (tư duy SAVE: giải pháp/tiếp cận/giá trị/giáo "
+            "dục), câu định vị cô đọng & khác đối thủ.\n"
+            "- channel: bám ARCHETYPE ngành (impulse→video ngắn/visual; demand_gen→giáo dục/SEO/cộng đồng; "
+            "trust_building→tư vấn/case/review). Ưu tiên kênh đối thủ BỎ TRỐNG.\n"
+            "- price: mô hình giá cụ thể (gói trọn/subscription/pay-as-you-go/khoảng giá), bám sức mua tệp.\n"
+            "Mỗi nhóm 2-4 OPTION. Mỗi option: title (cụ thể, đặt được tên) · desc (1 câu rõ) · "
+            "why (DẪN phát hiện research thật — vì sao đáng đánh). KHÔNG bịa số; suy đoán gắn '(ước tính)'.\n"
+            + _VN_NATURAL_RULE + "\n"
+            '🔴 Output JSON DUY NHẤT: {"market":[{"title":"","desc":"","why":""}],"segment":[...],'
+            '"positioning":[...],"price":[...],"channel":[...]}.\n# Các nhóm:\n' + cats_menu
         )
-        user = (f"# Ngành\n{industry}\n\n# Thị trường\n{(research.get('market_research') or '(chưa có)')[:2200]}\n\n"
-                f"# Đối thủ (chú ý Market Gap)\n{(research.get('competitor') or '(chưa có)')[:2200]}\n\n"
-                f"# Khách\n{(research.get('customer_insight') or '(chưa có)')[:1800]}\n\n"
-                f"# SWOT\n{(research.get('swot') or '(chưa có)')[:1600]}")
-        res = await router_call(task_type=TaskType.INTAKE_JSON, system=system, user=user, max_tokens=2200)
+        user = (f"# Ngành\n{industry} — {arche}\n{ictx}\n\n"
+                f"# Thị trường\n{(research.get('market_research') or '(chưa có)')[:2400]}\n\n"
+                f"# Đối thủ (chú ý Market Gap)\n{(research.get('competitor') or '(chưa có)')[:2400]}\n\n"
+                f"# Khách\n{(research.get('customer_insight') or '(chưa có)')[:2000]}\n\n"
+                f"# SWOT\n{(research.get('swot') or '(chưa có)')[:1600]}\n\n"
+                f"# Định giá\n{(research.get('psychology_pricing') or '(chưa có)')[:1200]}"
+                + (f"\n\n# Chiến lược nháp (nếu có)\n{synth[:1500]}" if synth.strip() else ""))
+        res = await router_call(task_type=TaskType.OPS_BRIEF, system=system, user=user, max_tokens=3200)
         raw = re.sub(r'\s*```\s*$', '', re.sub(r'^```(?:json)?\s*', '', (res or {}).get("output", "").strip())).strip()
         data = _json.loads(raw)
         options = {}
@@ -2586,6 +2618,7 @@ async def strategize_web(user_id=None, progress=None) -> dict:
             "🔴 Cụ thể > chung chung; actionable > lý thuyết; ngắn gọn > dài dòng. Bám archetype + mùa vụ "
             "ngành. Đừng đề xuất thứ không khả thi với team/ngân sách của họ. Diễn đạt tự nhiên, đừng quăng "
             "thuật ngữ trần (archetype/SAVE) mà không giải thích. Roadmap = đề xuất ('có thể/nên cân nhắc').\n"
+            + _VN_NATURAL_RULE + "\n"
             "🔴 Viết TOÀN BỘ bằng TIẾNG VIỆT."
         )
         syn_user = (
@@ -2636,7 +2669,10 @@ async def strategize_web(user_id=None, progress=None) -> dict:
             "7. PHỦ HẾT mọi tệp — TUYỆT ĐỐI KHÔNG cụt. Số tệp lấy đúng từ Synthesis; nếu sắp dài thì RÚT GỌN tệp "
             "ưu tiên (vẫn giữ copy mẫu + khung test + KPI) để chừa đủ chỗ cho mọi tệp — thà mỗi tệp ngắn còn hơn cụt.\n"
             "8. 🔴 KHÔNG ghi số tiền tuyệt đối (ngân sách thật chốt khi lập chiến dịch). KPI nêu ĐO GÌ, KHÔNG chốt target.\n"
-            "9. 🔴 Viết TOÀN BỘ bằng TIẾNG VIỆT. MARKDOWN.\n\n"
+            "8b. 🔴 CỤ THỂ, KHÔNG CHUNG CHUNG (N-08): copy mẫu phải VIẾT ĐƯỢC NGAY (câu thật, hook thật — "
+            "KHÔNG placeholder kiểu '[chèn lợi ích]'); kênh nêu ĐÍCH DANH (tên nền tảng + định dạng, vd "
+            "'Reels 15s', 'bài dài Group FB'); khung test nêu NGƯỠNG so sánh được (vd 'CTR mục A > mục B').\n"
+            "9. " + _VN_NATURAL_RULE + "Viết TOÀN BỘ bằng TIẾNG VIỆT. MARKDOWN.\n\n"
             "FORMAT mỗi tệp:\n"
             "# [TÊN TỆP — mô tả ngắn] (cách mua: <archetype diễn đạt tự nhiên>)\n"
             "### 🧠 Insight cốt lõi\n"
@@ -2909,6 +2945,28 @@ async def list_skill_versions(user_id, skill_name: str) -> list:
         return []
 
 
+async def _revise_full_doc(content: str, comment: str) -> str:
+    """N-14: viết lại TOÀN tài liệu áp dụng 1 góp ý 'lỏng' (khi surgical không định vị được đoạn — vd góp
+    ý theo tiểu mục). Giữ NGUYÊN cấu trúc + mọi phần khác; chỉ chỉnh/đào sâu phần liên quan."""
+    if not (content or "").strip():
+        return ""
+    try:
+        from tools.llm_router import call as router_call, TaskType
+        system = (
+            "Bạn là biên tập viên tài liệu chiến lược. Người dùng đưa 1 GÓP Ý cho tài liệu dưới. Viết lại "
+            "TOÀN BỘ tài liệu, GIỮ NGUYÊN cấu trúc (heading/section/bảng) và mọi phần KHÔNG liên quan; chỉ "
+            "CHỈNH/ĐÀO SÂU đúng phần góp ý nhắc tới. KHÔNG bịa số. " + _VN_NATURAL_RULE +
+            "Trả về DUY NHẤT tài liệu mới (markdown), không lời dẫn."
+        )
+        user = f"# GÓP Ý\n{comment}\n\n# TÀI LIỆU HIỆN TẠI\n{content[:12000]}"
+        res = await router_call(task_type=TaskType.OPS_BRIEF, system=system, user=user, max_tokens=8000)
+        out = (res or {}).get("output", "").strip()
+        return out if len(out) > 80 else ""
+    except Exception as e:
+        logger.warning("_revise_full_doc failed: %s", e)
+        return ""
+
+
 async def patch_skill_run(run_id: str, comment: str) -> dict:
     """Nhờ Max chỉnh 1 đoạn (surgical_edit.patch_document) → lưu version mới.
 
@@ -2924,7 +2982,13 @@ async def patch_skill_run(run_id: str, comment: str) -> dict:
         from agents.surgical_edit import patch_document, summarize_changes, PATCH_OK, PATCH_ASK
         status, payload, meta = await patch_document(run.get("content") or "", comment)
         if status == PATCH_ASK:
-            return {"status": "ask", "question": payload}
+            # N-14: surgical không khớp (góp ý theo tiểu mục / lỏng) → fallback viết lại cả doc áp dụng góp ý.
+            revised = await _revise_full_doc(run.get("content") or "", comment)
+            if not revised:
+                return {"status": "ask", "question": payload}   # vẫn bí → mới hỏi lại
+            from storage.v2 import skill_runs
+            row = await skill_runs.insert_skill_run(run["user_id"], run["skill_name"], revised, model_used="web-revise")
+            return {"status": "ok", "summary": "Đã chỉnh theo góp ý (viết lại phần liên quan).", "run": row}
         if status != PATCH_OK:
             return {"status": "noop"}
         from storage.v2 import skill_runs
