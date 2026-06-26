@@ -361,6 +361,13 @@ async def biz_skillrun_patch(request):
     return JSONResponse(res, status_code=400 if "error" in res else 200)
 
 
+async def biz_content_feedback(request):
+    """Lô I — founder nhập số liệu bài → Max chấm + tối ưu bài kế (vòng phản hồi hiệu suất)."""
+    d = await request.json()
+    res = await biz.content_feedback(d.get("user_id"), d.get("run_id", ""), d.get("metrics", ""))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
 async def biz_agent_run(request):
     """Khởi chạy pipeline/skill THẬT cho user. Trả jobId; theo dõi qua SSE agentJobs."""
     data = await request.json()
@@ -555,6 +562,7 @@ def api_routes() -> list:
         Route("/api/biz/skillrun/set-current",     biz_skillrun_set_current, methods=["POST"]),
         Route("/api/biz/skillruns",                biz_skill_versions, methods=["GET"]),
         Route("/api/biz/skillrun/{id:str}/patch",  biz_skillrun_patch, methods=["POST"]),
+        Route("/api/biz/content/feedback",          biz_content_feedback, methods=["POST"]),
         Route("/api/biz/agent",                    biz_agent_run,      methods=["POST"]),
         Route("/api/biz/ads",                      biz_ads,            methods=["GET"]),
         Route("/api/biz/fb/connect-url",           biz_fb_connect_url, methods=["GET"]),

@@ -833,10 +833,20 @@
         <input id="docPatchBox" type="text" placeholder="Nhờ Max chỉnh: vd 'viết lại phần định giá ngắn hơn'…">
         <button class="primary-btn sm" data-act="doc-patch" ${_docPatching?'disabled':''}>${_docPatching?'Đang sửa…':'🤖 Nhờ Max chỉnh'}</button>
       </div>
-      ${_docAsk ? `<p class="doc-ask">🤖 Max cần rõ thêm: ${_docAsk}</p>` : ''}`}
+      ${_docAsk ? `<p class="doc-ask">🤖 Max cần rõ thêm: ${_docAsk}</p>` : ''}
+      ${_CONTENT_SKILLS.has(r.skill_name) ? `<details class="doc-feedback">
+        <summary>📊 Đo hiệu quả & tối ưu bài kế <span class="muted" style="font-weight:400">— bài đã đăng rồi thì nhập số liệu, Max chấm + gợi ý bài sau</span></summary>
+        <div style="margin-top:8px">
+          <input id="docMetricsBox" class="occ-inp" type="text" placeholder="vd: reach 12k, CTR 1.8%, 45 comment, 6 lưu, 8 đơn — nhập cái bạn có">
+          <button class="primary-btn sm" data-act="content-feedback" data-id="${r.id}" style="margin-top:8px">📊 Max chấm & gợi ý bài kế</button>
+        </div>
+      </details>` : ''}`}
       <div class="doc-grid">${bodyOrEditor}${versions}</div>`;
     enhancePosMaps(el);   // D-034 #4: ASCII map → visual
   }
+  // Lô I: skill nội dung đủ điều kiện "đo hiệu quả" (bài đăng được) → hiện panel phản hồi.
+  const _CONTENT_SKILLS = new Set(['calendar_post', 'ads_copy', 'email_zalo_sequence', 'video_script',
+    'ugc_brief', 'post_channels', 'sales_inbox_script', 'landing_copy']);
 
   /* ---- Market research ---- */
   P.market = {
@@ -2111,7 +2121,8 @@
   // nhãn tiếng Việt cho tiêu đề Tài liệu (content skills sinh từ Lịch/trang đặc thù)
   const SKILL_VI = { calendar_post:'Bài đăng (lịch)', post_channels:'Biến thể đa kênh',
     video_script:'Kịch bản video', ugc_brief:'UGC brief', ads_copy:'Quảng cáo (copy theo phễu)',
-    email_zalo_sequence:'Chuỗi Email/Zalo', sales_inbox_script:'Kịch bản Sales Inbox' };
+    email_zalo_sequence:'Chuỗi Email/Zalo', sales_inbox_script:'Kịch bản Sales Inbox',
+    content_feedback:'📊 Đo hiệu quả & tối ưu' };
   const skillVi = (s) => SKILL_VI[s] || s;
   let _modalRun = null;
   let _postBase = null;   // M3.1: bài gốc đang mở (để bung biến thể / quay lại)
@@ -3353,6 +3364,20 @@
         _docAsk = ''; toast('Đã sửa: ' + (r.summary || 'xong')); refreshBiz();
         if (r.run && r.run.id) { _docId = r.run.id; loadDoc(); }   // tải lại tại chỗ (version mới)
       } catch (e) { _docPatching = false; renderDoc(); toast('Không sửa được'); }
+      return;
+    }
+    if (act === 'content-feedback') {   // Lô I: nhập số liệu bài → Max chấm + tối ưu bài kế
+      if (!apiAvailable || !M.bizEnabled) { toast('Bật backend để Max chấm'); return; }
+      const box = document.getElementById('docMetricsBox');
+      const metrics = box ? box.value.trim() : '';
+      if (!metrics) { toast('Nhập số liệu của bài (reach, CTR, comment, đơn…)'); return; }
+      const orig = el.textContent; el.disabled = true; el.textContent = '⏳ Max đang chấm…';
+      try {
+        const r = await API.post('api/biz/content/feedback', { user_id: _bizUserId, run_id: el.dataset.id, metrics });
+        if (r.error) { toast(r.error); el.disabled = false; el.textContent = orig; return; }
+        showModal('📊 Đo hiệu quả & tối ưu bài kế', r.content, { run: true, id: r.run_id });
+        toast('✅ Đã chấm — lưu vào Tài liệu'); refreshBiz();
+      } catch (e) { toast('Không chấm được — thử lại sau.'); el.disabled = false; el.textContent = orig; }
       return;
     }
     if (act === 'regen-skillrun') {

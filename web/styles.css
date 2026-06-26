@@ -788,6 +788,10 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 .pf-meta { display:block; font-size:11.5px; color:var(--muted); margin-top:2px; }
 .pf-why { font-size:12.5px; margin-top:5px; }
 .pf-acts { display:flex; gap:6px; flex:none; align-items:center; }
+/* ── Lô I: panel đo hiệu quả & tối ưu (vòng phản hồi) ── */
+.doc-feedback { border:1px solid var(--stroke); border-radius:10px; padding:10px 14px; margin-bottom:16px; background:var(--panel-2); }
+.doc-feedback > summary { cursor:pointer; font-size:13px; }
+
 /* ── Lô G: bản đồ phễu × kênh ── */
 .fmap, .fmap-empty { border-top:1px solid var(--stroke); padding-top:12px; }
 .fmap-head { display:flex; align-items:center; gap:8px; font-size:13.5px; margin-bottom:8px; }

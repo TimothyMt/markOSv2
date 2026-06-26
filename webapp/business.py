@@ -2468,6 +2468,48 @@ async def gen_calendar_post(user_id=None, track: str = "always", pillar: str = "
         return {"error": str(e)}
 
 
+async def content_feedback(user_id=None, run_id: str = "", metrics: str = "") -> dict:
+    """Lô I (skill 4+19 — VÒNG PHẢN HỒI HIỆU SUẤT): founder nhập SỐ LIỆU thật của 1 bài → Max CHẤM
+    (cái gì hiệu quả / chưa, vì sao — bám nội dung × số) + đề xuất TỐI ƯU BÀI KẾ. Lưu skill_run."""
+    if not available():
+        return {"error": "Chưa cấu hình Supabase."}
+    if not (metrics or "").strip():
+        return {"error": "Nhập số liệu của bài (vd: reach 12k, CTR 1.8%, 45 comment, 8 đơn)."}
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {"error": "Chưa có user."}
+        run = await skill_run_content(run_id)
+        if not run or not (run.get("content") or "").strip():
+            return {"error": "Không tìm thấy bài."}
+        from tools.llm_router import call as router_call, TaskType
+        from storage.v2 import skill_runs
+        system = (
+            "Bạn là Performance Marketer. Cho 1 BÀI nội dung + SỐ LIỆU THẬT founder cung cấp, hãy CHẤM "
+            "thẳng thắn để tối ưu lần sau. Xuất MARKDOWN gọn:\n"
+            "## 🟢 Hiệu quả ở đâu (bám SỐ — chỉ rõ chỉ số nào tốt + vì sao phần nội dung nào kéo được nó)\n"
+            "## 🔴 Chưa ổn ở đâu (bám SỐ — chỉ số nào yếu + đoán nguyên nhân từ nội dung: hook? góc? CTA? "
+            "tệp? kênh?)\n"
+            "## 📌 Bài học (1-2 câu rút ra)\n"
+            "## ✨ Tối ưu cho BÀI KẾ (2-3 đề xuất CỤ THỂ, viết được ngay — hook mới/góc/CTA/format/kênh)\n"
+            "🔴 CHỈ phân tích số founder cấp — KHÔNG bịa thêm số. Nếu số quá ít để kết luận, nói rõ 'cần "
+            "thêm dữ liệu X'. " + _VN_NATURAL_RULE)
+        user = (f"# Bài (nội dung đã đăng)\n{(run.get('content') or '')[:3500]}\n\n"
+                f"# Số liệu thật founder cung cấp\n{metrics[:1200]}")
+        res = await router_call(task_type=TaskType.OPS_BRIEF, system=system, user=user, max_tokens=1800)
+        out = (res or {}).get("output", "").strip()
+        if not out:
+            return {"error": "Chưa chấm được — thử lại."}
+        # lưu kèm số liệu để truy vết
+        saved = f"> 📊 Số liệu: {metrics.strip()[:300]}\n\n{out}"
+        runrow = await skill_runs.insert_skill_run(uid, "content_feedback", saved, model_used="web-feedback")
+        return {"ok": True, "content": out, "run_id": (runrow or {}).get("id")}
+    except Exception as e:
+        logger.warning("biz.content_feedback failed: %s", e)
+        return {"error": str(e)}
+
+
 # M3.1 (hybrid): biến thể PHÁI SINH từ 1 bài — đa kênh / video / UGC (gộp vào Lịch)
 _DERIVATIVES = {
     "channels": ("post_channels", "CHANNEL_ADAPT",
