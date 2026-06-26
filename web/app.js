@@ -1129,16 +1129,12 @@
           <div class="occ-row" style="gap:8px;margin-top:8px">
             <button class="primary-btn" style="flex:1" data-act="lock-pillars">✅ Chốt tuyến nền (đã chọn)</button>
             ${locked ? `<button class="ghost-line" data-act="unlock-pillars">Bỏ chốt</button>` : ''}
-            <a class="ghost-line" href="#calendar">→ Lên lịch nội dung</a>
+            <a class="primary-btn" href="#calendar">→ Lên lịch nội dung</a>
           </div>
-          <div class="occ-row" style="margin-top:10px">
-            <button class="primary-btn full" data-act="new-branding">🟢 Tạo campaign Branding nền (xuyên suốt)</button>
-          </div>
-          <p class="muted" style="margin-top:6px;font-size:12px">Đóng gói tuyến nền này thành 1 <b>campaign Branding</b> chạy liên tục — Max viết brief thương hiệu (big idea + định vị nền), gom kênh + lịch + task vào 1 chỗ.</p>
         </div>`;
       host.innerHTML = `<section class="grid" style="margin:0">
         ${card('🟢 Always-on — tuyến NỀN (content pillars)', `
-          <p class="muted" style="margin-bottom:12px">Chạy đều quanh năm để thương hiệu được nhớ. Bám USP + JTBD + archetype ngành. <b>Không chốt số</b> — đây là nền (D-029).</p>
+          <p class="muted" style="margin-bottom:12px">Chạy đều quanh năm để thương hiệu được nhớ. Bám USP + JTBD + archetype ngành, và <b>tự bám Tactical Playbook</b> (cách đánh) khi viết bài. <b>Không chốt số</b> — đây là nền.</p>
           <div class="pillars">${pillarCards || '<p class="muted">—</p>'}</div>
           ${pillarFoot}`, { cls: 'span-7' })}
         ${card('🔴 Theo dịp — Occasion (gợi ý theo ngành)', `

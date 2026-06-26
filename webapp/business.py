@@ -2186,9 +2186,20 @@ async def gen_calendar_post(user_id=None, track: str = "always", pillar: str = "
             "→ bám ĐÚNG. Bám USP + đúng tệp khách + ngành. Viết TIẾNG VIỆT tự nhiên. Trả MARKDOWN gọn."
             + hook_rule
         )
+        # N-17: PLAYBOOK + Synthesis làm NỀN NGẦM — bài bám cách-đánh tactical, không chỉ pillar/USP.
+        strat_anchor = ""
+        try:
+            _syn = await _latest_content(uid, "synthesis")
+            _tac = await _latest_content(uid, "tactical_playbook")
+            if _syn.strip() or _tac.strip():
+                strat_anchor = ("\n\n# Định hướng chiến lược NỀN (bám NGẦM cho nhất quán — ĐỪNG chép nguyên)\n"
+                                + (f"Định vị/chiến lược: {_syn[:900]}\n" if _syn.strip() else "")
+                                + (f"Cách đánh (Tactical Playbook): {_tac[:1400]}" if _tac.strip() else ""))
+        except Exception:
+            pass
         user = (f"# Ngành\n{industry}\n# Sản phẩm/dịch vụ\n{product or '(chưa rõ)'}\n"
                 f"# Khách mục tiêu\n{target or '(chưa rõ)'}\n# USP\n{usp or '(chưa rõ)'}{voice_ctx}\n\n"
-                f"# Bối cảnh slot\n{ctx}")
+                f"# Bối cảnh slot\n{ctx}{strat_anchor}")
         res = await router_call(task_type=TaskType.OPS_CONTENT_CREATIVE, system=system, user=user, max_tokens=900)
         content = (res or {}).get("output", "").strip()
         if not content:
