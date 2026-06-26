@@ -340,6 +340,13 @@ async def biz_skill_versions(request):
         request.query_params.get("user_id"), request.query_params.get("skill", ""))})
 
 
+async def biz_skillrun_set_current(request):
+    """N-01: đặt 1 version cũ làm hiện hành (re-stamp version, không đẻ bản copy)."""
+    d = await request.json()
+    res = await biz.set_current_run(d.get("user_id"), d.get("run_id") or d.get("content_id"))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
 async def biz_skillrun_patch(request):
     """Nhờ Max chỉnh 1 đoạn → version mới (surgical_edit)."""
     data = await request.json()
@@ -537,6 +544,7 @@ def api_routes() -> list:
         Route("/api/biz/content/asset",            biz_content_asset,  methods=["POST"]),
         Route("/api/biz/skillrun/{id:str}/rate",   biz_skillrun_rate,  methods=["POST"]),
         Route("/api/biz/skillrun/save",            biz_skillrun_save,  methods=["POST"]),
+        Route("/api/biz/skillrun/set-current",     biz_skillrun_set_current, methods=["POST"]),
         Route("/api/biz/skillruns",                biz_skill_versions, methods=["GET"]),
         Route("/api/biz/skillrun/{id:str}/patch",  biz_skillrun_patch, methods=["POST"]),
         Route("/api/biz/agent",                    biz_agent_run,      methods=["POST"]),

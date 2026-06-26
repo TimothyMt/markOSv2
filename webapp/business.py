@@ -559,6 +559,36 @@ async def _latest_content(uid: int, skill_name: str) -> str:
     return ""
 
 
+async def set_current_run(user_id=None, run_id: str = "") -> dict:
+    """N-01: ĐẶT 1 version cũ làm HIỆN HÀNH mà KHÔNG đẻ bản copy. Re-stamp version của run đã chọn
+    lên cao nhất (mô hình newest-wins) → mọi nơi đọc 'mới nhất' tự trỏ vào nó. Không tạo row mới."""
+    if not available():
+        return {"error": "Chưa cấu hình Supabase."}
+    if not run_id:
+        return {"error": "Thiếu version."}
+    try:
+        c = await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {"error": "Chưa có user."}
+        row = (await c.table("skill_runs").select("id,skill_name,version")
+               .eq("id", run_id).eq("user_id", uid).limit(1).execute())
+        if not row.data:
+            return {"error": "Không tìm thấy version."}
+        sk = row.data[0].get("skill_name")
+        cur_ver = row.data[0].get("version") or 0
+        top = (await c.table("skill_runs").select("version")
+               .eq("user_id", uid).eq("skill_name", sk)
+               .order("version", desc=True).limit(1).execute())
+        cur_top = (top.data[0].get("version") if top.data else 0) or 0
+        if cur_ver < cur_top:
+            await c.table("skill_runs").update({"version": cur_top + 1}).eq("id", run_id).execute()
+        return {"ok": True, "run_id": run_id}
+    except Exception as e:
+        logger.warning("biz.set_current_run failed: %s", e)
+        return {"error": str(e)}
+
+
 def _strategy_fp(*parts) -> int:
     """M5-B1 — chữ ký NGUỒN chiến lược + input, dùng làm khoá cache.
 

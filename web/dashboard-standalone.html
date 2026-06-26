@@ -955,6 +955,7 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 
 /* ── Trang đọc output research (#doc/<id>) ── */
 .doc-wrap { max-width: 900px; margin: 0 auto; }
+.doc-wrap:has(.doc-versions) { max-width: 1180px; }   /* N-02: nới khi có panel version để khỏi bóp */
 .doc-head { display:flex; align-items:flex-start; justify-content:space-between; gap:16px;
   padding-bottom:14px; margin-bottom:18px; border-bottom:1px solid var(--stroke); flex-wrap:wrap; }
 .doc-title { font-size:20px; margin:0 0 4px; text-transform:capitalize; }
@@ -977,7 +978,8 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 
 /* ── Doc page: editor + nhờ Max chỉnh + lịch sử version ── */
 .doc-grid { display:grid; grid-template-columns: 1fr; gap:20px; }
-.doc-grid:has(.doc-versions) { grid-template-columns: 1fr 230px; }
+/* N-02: minmax(0,1fr) cho cột nội dung co đúng (table/map cuộn trong .tbl-wrap, không bị bóp/vỡ) */
+.doc-grid:has(.doc-versions) { grid-template-columns: minmax(0,1fr) 230px; }
 .doc-patch { display:flex; gap:8px; margin-bottom:16px; }
 .doc-patch input { flex:1; background:var(--panel); border:1px solid var(--stroke); border-radius:10px;
   padding:9px 13px; color:var(--txt); font-size:13.5px; font-family:inherit; }
@@ -2195,21 +2197,13 @@ window.MOCK = {
 
   /* ---- Competitor ---- */
   P.competitor = {
-    title: 'Phân tích đối thủ', sub: '8 chiều cạnh tranh + theo dõi Ads Library',
-    actions: `<a class="ghost-line" href="#dossier">← Hồ sơ</a> <button class="primary-btn" data-act="add-tracked">＋ Thêm đối thủ theo dõi</button>`,
+    title: 'Phân tích đối thủ', sub: '8 chiều cạnh tranh',
+    actions: `<a class="ghost-line" href="#dossier">← Hồ sơ</a>`,
+    // N-05: bỏ hẳn section "Đối thủ đang theo dõi (Ads Library)" — đó là DATA MOCK (web/data.js),
+    // không liên quan business thật ở giai đoạn T1-T3. (Theo dõi Ads thật vẫn ở trang #tracked.)
     render: () => `
       <section class="grid">
         ${agentSection('competitor','competitor')}
-        ${(M.tracked||[]).length ? card('Đối thủ đang theo dõi (Ads Library)', `
-          <ul class="rows">
-            ${M.tracked.map(t=>`
-              <li class="row">
-                <span class="s-dot ${t.status==='online'?'online':''}"></span>
-                <div class="row-main"><p>${t.name}</p><span class="muted">${t.last}</span></div>
-                <span class="tag">${t.ads} ads</span>
-                ${t.id?`<button class="icon-btn" data-act="del-tracked" data-id="${t.id}" title="Bỏ theo dõi">✕</button>`:''}
-              </li>`).join('')}
-          </ul>`, {cls:'span-12'}) : ''}
       </section>`,
     mount: () => {},
   };
@@ -4599,15 +4593,13 @@ window.MOCK = {
       return;
     }
     if (act === 'doc-set-current') {
-      // copy nội dung bản cũ → tạo version mới trên đầu
+      // N-01: REPOINT version đã chọn làm hiện hành (re-stamp), KHÔNG đẻ bản copy mới
       try {
-        const old = await API.get('api/biz/skillrun/' + el.dataset.contentId);
-        if (!old.id) { toast('Không tải được bản cũ'); return; }
-        const r = await API.post('api/biz/skillrun/save',
-          { user_id: _bizUserId, skill_name: old.skill_name, content: old.content });
+        const r = await API.post('api/biz/skillrun/set-current',
+          { user_id: _bizUserId, run_id: el.dataset.contentId });
         if (r.error) { toast(r.error); return; }
-        toast('Đã đặt làm hiện hành (version mới)'); refreshBiz();
-        if (r.id) { _docId = r.id; loadDoc(); }
+        toast('Đã đặt làm hiện hành'); _docId = el.dataset.contentId;
+        await refreshBiz(); loadDoc();
       } catch (e) { toast('Thất bại'); }
       return;
     }

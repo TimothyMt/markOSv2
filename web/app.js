@@ -868,21 +868,13 @@
 
   /* ---- Competitor ---- */
   P.competitor = {
-    title: 'Phân tích đối thủ', sub: '8 chiều cạnh tranh + theo dõi Ads Library',
-    actions: `<a class="ghost-line" href="#dossier">← Hồ sơ</a> <button class="primary-btn" data-act="add-tracked">＋ Thêm đối thủ theo dõi</button>`,
+    title: 'Phân tích đối thủ', sub: '8 chiều cạnh tranh',
+    actions: `<a class="ghost-line" href="#dossier">← Hồ sơ</a>`,
+    // N-05: bỏ hẳn section "Đối thủ đang theo dõi (Ads Library)" — đó là DATA MOCK (web/data.js),
+    // không liên quan business thật ở giai đoạn T1-T3. (Theo dõi Ads thật vẫn ở trang #tracked.)
     render: () => `
       <section class="grid">
         ${agentSection('competitor','competitor')}
-        ${(M.tracked||[]).length ? card('Đối thủ đang theo dõi (Ads Library)', `
-          <ul class="rows">
-            ${M.tracked.map(t=>`
-              <li class="row">
-                <span class="s-dot ${t.status==='online'?'online':''}"></span>
-                <div class="row-main"><p>${t.name}</p><span class="muted">${t.last}</span></div>
-                <span class="tag">${t.ads} ads</span>
-                ${t.id?`<button class="icon-btn" data-act="del-tracked" data-id="${t.id}" title="Bỏ theo dõi">✕</button>`:''}
-              </li>`).join('')}
-          </ul>`, {cls:'span-12'}) : ''}
       </section>`,
     mount: () => {},
   };
@@ -3278,15 +3270,13 @@
       return;
     }
     if (act === 'doc-set-current') {
-      // copy nội dung bản cũ → tạo version mới trên đầu
+      // N-01: REPOINT version đã chọn làm hiện hành (re-stamp), KHÔNG đẻ bản copy mới
       try {
-        const old = await API.get('api/biz/skillrun/' + el.dataset.contentId);
-        if (!old.id) { toast('Không tải được bản cũ'); return; }
-        const r = await API.post('api/biz/skillrun/save',
-          { user_id: _bizUserId, skill_name: old.skill_name, content: old.content });
+        const r = await API.post('api/biz/skillrun/set-current',
+          { user_id: _bizUserId, run_id: el.dataset.contentId });
         if (r.error) { toast(r.error); return; }
-        toast('Đã đặt làm hiện hành (version mới)'); refreshBiz();
-        if (r.id) { _docId = r.id; loadDoc(); }
+        toast('Đã đặt làm hiện hành'); _docId = el.dataset.contentId;
+        await refreshBiz(); loadDoc();
       } catch (e) { toast('Thất bại'); }
       return;
     }
