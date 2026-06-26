@@ -589,6 +589,168 @@ async def set_current_run(user_id=None, run_id: str = "") -> dict:
         return {"error": str(e)}
 
 
+# ════ N-03/N-15: RESEARCH T1-T3 WEB-OWNED (thay pipeline agents/) ════
+# Mỗi skill prompt KHOÁ SCOPE (không lấn mảng kế cận) + chống bịa số + TV tự nhiên.
+# Anti-bịa + so-what dùng chung cho cả 5 skill.
+_RW_ANTIFAB = (
+    "🔴 CHỐNG BỊA SỐ: MỌI con số định lượng PHẢI kèm NGAY SAU NÓ nguồn (link/tên nguồn) HOẶC "
+    "'(ước tính)' + cơ sở suy ra — TUYỆT ĐỐI không nêu số 'trần' như sự thật. Mục nào KHÔNG có dữ "
+    "liệu công khai → ghi '_chưa đủ dữ liệu công khai_', KHÔNG bịa cho đầy.\n"
+    "🔴 KẾT bằng so-what mức INSIGHT (1 blockquote '>'), KHÔNG xếp roadmap Quick-win/Medium/Long-term, "
+    "KHÔNG ra action plan — việc đó để Synthesis (T4) + Playbook (T5).\n"
+)
+
+
+def _rw_specs():
+    """Spec 5 skill research web-owned (dựng tại call-time để dùng _VN_NATURAL_RULE/_RW_ANTIFAB)."""
+    g = _RW_ANTIFAB + _VN_NATURAL_RULE
+    posmap = (
+        'Cuối phần, thêm BẢN ĐỒ ĐỊNH VỊ — 1 khối JSON máy-đọc trong fence ```json đúng các key: '
+        '{"yTop":"<nhãn trục dọc trên>","yBottom":"<nhãn dưới>","xLeft":"<nhãn trục ngang trái>",'
+        '"xRight":"<phải>","q1":"<mô tả góc I>","q2":"<góc II>","q3":"<góc III>","q4":"<góc IV>",'
+        '"items":[{"name":"SẾP","q":1,"self":true},{"name":"<tên đối thủ>","q":2}]} '
+        '(SẾP = vị trí business; đặt đối thủ vào q1..q4 theo 2 trục).'
+    )
+    return {
+        "market_research": {
+            "label": "Nghiên cứu thị trường", "tt": "MARKET_RESEARCH_DATA", "mx": 16000, "prior": [],
+            "sys": (
+                "Bạn là Market Research Analyst cho thị trường Việt Nam. Dùng dữ liệu tìm được (Google "
+                "Search) phân tích QUY MÔ thị trường. CHỈ phân tích thị trường — KHÔNG sa vào đối thủ chi "
+                "tiết / chân dung khách (ICP) / định giá (đã có agent riêng).\nXuất MARKDOWN:\n"
+                "### TAM — Tổng cầu (top-down + bottom-up, kèm cách tính)\n"
+                "### SAM — Phục vụ được (lọc theo địa bàn + phân khúc)\n"
+                "### SOM — Giành được 12–24 tháng (thực tế: MVP <1%, Growth 1–5%, Scale 5–15%)\n"
+                "### Market Dynamics — CAGR, xu hướng nổi bật, thời điểm vào\n\n" + g),
+        },
+        "competitor": {
+            "label": "Phân tích đối thủ", "tt": "COMPETITOR_RESEARCH", "mx": 16000, "prior": [],
+            "sys": (
+                "Bạn là Competitive Intelligence Researcher VN. Dùng Google Search thu thập thông tin "
+                "CÔNG KHAI THẬT về đối thủ. CHỈ phân tích đối thủ + khoảng trống cạnh tranh — TUYỆT ĐỐI "
+                "KHÔNG viết ICP/JTBD/chân dung khách (đó là Customer Insight), KHÔNG đào sâu định giá.\n"
+                "🔴 KHÔNG bịa tên đối thủ — không nguồn thì ghi '_chưa đủ dữ liệu công khai_'.\nXuất MARKDOWN:\n"
+                "#### Đối thủ Trực tiếp (Direct) — 1 bảng 8 chiều (Định vị · Mạnh-Yếu · Content · Kênh · "
+                "Quy mô chi · Tệp · Giá-mô hình · Mức đe doạ)\n"
+                "#### Đối thủ Gián tiếp (Indirect) — 1 bảng riêng 8 chiều\n"
+                "#### Đối thủ Tiềm năng (Potential) — 1 bảng riêng 8 chiều\n"
+                "(3 nhóm TÁCH RIÊNG, mỗi nhóm 1 bảng — KHÔNG gộp)\n"
+                "#### Messaging Gap · #### Channel Gap · #### Segment Gap · #### Product Gap "
+                "(mỗi mục 3–5 gạch đầu dòng)\n" + posmap + "\n\n" + g),
+        },
+        "customer_insight": {
+            "label": "Customer Insight", "tt": "SYNTHESIS_LONG_CONTEXT", "mx": 16000,
+            "prior": ["market_research", "competitor"],
+            "sys": (
+                "Bạn là Customer Insight Analyst (consumer psychology VN). CHỈ phân tích KHÁCH HÀNG — "
+                "KHÔNG phân tích đối thủ, KHÔNG định giá, KHÔNG quy mô thị trường.\nXuất MARKDOWN:\n"
+                "### 1. ICP — Chân dung khách lý tưởng (#### Nhân khẩu · #### Tâm lý · #### Hành vi)\n"
+                "### 2. Jobs-to-be-Done (#### Chức năng · #### Cảm xúc · #### Xã hội)\n"
+                "### 3. Pain–Gain (#### Nỗi đau · #### Lợi ích mong đợi · #### Giảm lo lắng)\n"
+                "### 4. Hành trình mua (#### Lạnh · #### Ấm · #### Nóng)\n"
+                "### 5. Bối cảnh văn hoá VN (thể diện · gia đình/cộng đồng)\n"
+                "🔴 Cụ thể, ví dụ THẬT ở VN — không generic.\n\n" + g),
+        },
+        "psychology_pricing": {
+            "label": "Định giá & Tâm lý", "tt": "SYNTHESIS_LONG_CONTEXT", "mx": 16000,
+            "prior": ["market_research", "customer_insight"],
+            "sys": (
+                "Bạn là chuyên gia Tâm lý hành vi + Định giá cho thị trường VN. KHÔNG viết copy thực thi "
+                "(headline/CTA/email — để Playbook T5), KHÔNG lập lịch nội dung / bảng KPI.\nXuất MARKDOWN:\n"
+                "## A. Tâm lý marketing — CHỌN LỌC 2–3 nguyên tắc Cialdini đắt nhất (vì sao khớp + nhấn ở "
+                "phễu nào) + vài hiệu ứng behavioral economics liên quan + điều chỉnh văn hoá VN\n"
+                "## B. Định giá — Step1 mô hình giá (chọn 1–2) · Step2 thủ thuật tâm lý giá (theo B2C/B2B "
+                "THẬT của business) · Step3 tâm lý người mua · Step4 định vị giá (premium/mid/value) · "
+                "Step5 tối ưu doanh thu\n\n" + g),
+        },
+        "swot": {
+            "label": "SWOT", "tt": "SYNTHESIS_LONG_CONTEXT", "mx": 22000,
+            "prior": ["market_research", "competitor", "customer_insight", "psychology_pricing"],
+            "sys": (
+                "Bạn là Strategic Analyst — tổng hợp SWOT từ research phía trên. Mọi điểm phải SPECIFIC, "
+                "dẫn chứng từ research (KHÔNG generic). S/W = nội tại (sếp kiểm soát được), O/T = bên "
+                "ngoài. 3–4 điểm mỗi góc (không quá 4), mỗi điểm 1–2 câu súc tích.\nXuất MARKDOWN:\n"
+                "## 💪 STRENGTHS — Điểm Mạnh\n## ⚠️ WEAKNESSES — Điểm Yếu\n## 🌟 OPPORTUNITIES — Cơ Hội\n"
+                "## ⚡ THREATS — Thách Thức\n"
+                "## 🔀 MA TRẬN CHIẾN LƯỢC (TOWS) — BẮT BUỘC đủ 4 ô:\n"
+                "### SO (2–3 mũi, định dạng 'SOx (Sa × Ob): …')\n### WO (2–3)\n### ST (1–2)\n### WT (1–2)\n"
+                "🔴 Nếu dài → RÚT GỌN S/W/O/T để CHẮC còn đủ 4 ô TOWS (đừng cụt mất TOWS).\n"
+                "🔴 Số chỉ lấy từ research phía trên hoặc user cấp; tự thêm → '(ước tính)'.\n\n" + _VN_NATURAL_RULE),
+        },
+    }
+
+
+async def research_web(user_id=None, progress=None, skills=None) -> dict:
+    """N-03/N-15: chạy Research T1-T3 WEB-OWNED. skills=list skill_name (None = cả 5 theo thứ tự).
+    Trả {ok, done:[skill...], warns:[...]} (+ error nếu hỏng sạch). Lưu skill_run mỗi skill."""
+    async def _say(msg):
+        if progress:
+            try:
+                r = progress(msg)
+                if hasattr(r, "__await__"):
+                    await r
+            except Exception:
+                pass
+    if not available():
+        return {"error": "Chưa cấu hình Supabase.", "done": [], "warns": []}
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {"error": "Chưa có user.", "done": [], "warns": []}
+        from storage.v2 import profiles, skill_runs
+        from tools.llm_router import call as router_call, TaskType
+        prof = await profiles.get_profile(uid) or {}
+        extra = prof.get("intake_extra") if isinstance(prof.get("intake_extra"), dict) else {}
+        if not isinstance(extra, dict):
+            extra = {}
+        ans = (extra.get("answers") if isinstance(extra.get("answers"), dict) else {}) or {}
+        industry = prof.get("industry") or ""
+        product = prof.get("product_service") or ""
+        target = prof.get("target_customer") or ""
+        location = prof.get("location") or ""
+        known_comp = prof.get("competitors") or ans.get("competitors") or ""
+        biz_block = (f"# Doanh nghiệp\n- Ngành: {industry}\n- Sản phẩm/dịch vụ: {product or '(chưa rõ)'}\n"
+                     f"- Khách đang có: {target or '(chưa rõ)'}\n- Địa bàn: {location or target or '(VN)'}\n")
+        specs = _rw_specs()
+        order = ["market_research", "competitor", "customer_insight", "psychology_pricing", "swot"]
+        run_list = [s for s in order if (skills is None or s in skills)]
+        done, warns = [], []
+        for sk in run_list:
+            spec = specs[sk]
+            await _say(f"Đang chạy: {spec['label']}…")
+            # prior research context (chỉ các skill cần)
+            prior_txt = ""
+            for p in spec["prior"]:
+                pc = await _latest_content(uid, p)
+                if pc.strip():
+                    prior_txt += f"\n# {specs[p]['label']} (đã có)\n{pc[:3000]}\n"
+            extra_hint = ""
+            if sk == "competitor" and (known_comp or "").strip():
+                extra_hint = f"\n# Đối thủ founder nêu (ưu tiên tra)\n{known_comp}\n"
+            user = (biz_block + extra_hint + prior_txt +
+                    f"\n# Yêu cầu\nViết phần '{spec['label']}' đúng cấu trúc + luật ở system. TIẾNG VIỆT.")
+            try:
+                tt = getattr(TaskType, spec["tt"])
+                res = await asyncio.wait_for(
+                    router_call(task_type=tt, system=spec["sys"], user=user, max_tokens=spec["mx"]),
+                    timeout=240)
+                content = (res or {}).get("output", "").strip()
+            except asyncio.TimeoutError:
+                warns.append(f"{sk}: quá giờ"); content = ""
+            except Exception as e:
+                warns.append(f"{sk}: {str(e)[:120]}"); content = ""
+            if not content:
+                warns.append(f"{sk}: trống")
+                continue
+            await skill_runs.insert_skill_run(uid, sk, content, model_used="web-research")
+            done.append(sk)
+        return {"ok": bool(done), "done": done, "warns": warns}
+    except Exception as e:
+        logger.warning("biz.research_web failed: %s", e)
+        return {"error": str(e), "done": [], "warns": []}
+
+
 def _strategy_fp(*parts) -> int:
     """M5-B1 — chữ ký NGUỒN chiến lược + input, dùng làm khoá cache.
 
@@ -3232,12 +3394,12 @@ async def _execute(job: dict):
         async def progress(msg):
             job["progress"] = str(msg)[:160]
 
-        # M5: Synthesis + Tactical do WEB sở hữu (strategize_web) — horizon linh hoạt,
-        # tách định vị bền/roadmap, posture-aware. KHÔNG qua pipeline bot (bot = tham
-        # khảo, sẽ rebuild). Research (T1-T3) vẫn để pipeline lo.
+        # N-03/N-15: TOÀN BỘ Research (T1-T3) + Strategy (T4-T5) giờ WEB-OWNED (research_web +
+        # strategize_web). KHÔNG còn qua pipeline agents/ → khoá scope từng skill, chống bịa số.
         #   • 'strategize'/'strategy' → chỉ lập chiến lược (research phải có sẵn).
-        #   • 'full'                  → research (pipeline) → rồi strategize_web.
-        #   • còn lại (research/market/competitor/swot…) → pipeline như cũ.
+        #   • 'full'                  → research_web (cả 5) → rồi strategize_web.
+        #   • market/competitor/customer/pricing/swot → chạy lẻ skill đó.
+        #   • 'research'              → cả 5 skill research.
         if task in ("strategize", "strategy"):
             # N-06: timeout để job không kẹt 'running' mãi nếu LLM treo (2 call ~ vài phút).
             try:
@@ -3250,43 +3412,17 @@ async def _execute(job: dict):
             job["summary"] = (f"Đã lập Chiến lược + Playbook "
                               f"(nhịp {res.get('horizon')}, posture {res.get('posture')}).")
         else:
-            from storage.session import get_session, save_session
-            from agents.pipeline import run_targeted_pipeline
+            _TASK_SKILLS = {"market": ["market_research"], "competitor": ["competitor"],
+                            "customer": ["customer_insight"], "pricing": ["psychology_pricing"],
+                            "swot": ["swot"]}
+            skills = _TASK_SKILLS.get(task)   # None cho 'research'/'full' → cả 5 skill
+            rres = await research_web(uid, progress, skills)
+            done = rres.get("done", [])
+            warns = rres.get("warns", [])
+            if rres.get("error") and not done:
+                raise RuntimeError(rres["error"])
 
-            session = await get_session(uid)
-            # 'full' = research trước rồi web-strategize → pipeline chỉ chạy phần research.
-            session.selected_task = "research" if task == "full" else task
-
-            try:
-                from tools.token_tracker import begin_job
-                begin_job(session)
-            except Exception:
-                pass
-
-            agen = run_targeted_pipeline(session, progress_callback=progress)
-            done: list[str] = []
-            warns: list[str] = []
-            stop_reason = None
-            async for stage_key, result in agen:
-                # M-fix: BẮT lý do dừng (trước đây nuốt _result → không truy nguyên được).
-                if stage_key in ("pipeline_abort", "quota_stop"):
-                    stop_reason = str(result or stage_key)
-                    job["progress"] = f"Dừng: {stage_key}"
-                    logger.warning("research stopped (user=%s task=%s): %s — %s",
-                                   uid, task, stage_key, stop_reason[:300])
-                    break
-                # bước lỗi/timeout: pipeline vẫn yield stage_key nhưng result là chuỗi '⚠️ …'
-                if isinstance(result, str) and result.lstrip().startswith("⚠️"):
-                    warns.append(f"{stage_key}: {result.strip()[:160]}")
-                    job["progress"] = f"⚠️ {stage_key}"
-                    logger.warning("research stage warn (user=%s): %s — %s",
-                                   uid, stage_key, result[:300])
-                else:
-                    done.append(stage_key)
-                    job["progress"] = f"Hoàn tất bước: {stage_key}"
-            await save_session(session)
-
-            if task == "full" and not stop_reason:
+            if task == "full" and done:
                 try:
                     res = await asyncio.wait_for(strategize_web(uid, progress), timeout=300)
                 except asyncio.TimeoutError:
@@ -3295,18 +3431,13 @@ async def _execute(job: dict):
                     raise RuntimeError(res["error"])
                 done.append("strategy_web")
 
-            if stop_reason:
-                job["status"] = "error"
-                job["error"] = stop_reason[:300]
-                job["summary"] = f"Dừng sớm sau {len(done)} bước ({', '.join(done) or '—'})."
-            else:
-                parts = [f"Hoàn tất {len(done)} bước: {', '.join(done)}" if done else "Hoàn tất."]
-                if warns:
-                    parts.append(f"⚠️ {len(warns)} bước cảnh báo — {' | '.join(warns)}")
-                job["status"] = "done"
-                job["summary"] = " ".join(parts)
-                if warns:
-                    job["error"] = "; ".join(warns)[:300]   # để hiện cảnh báo dù status done
+            parts = [f"Hoàn tất {len(done)} bước: {', '.join(done)}" if done else "Không có bước nào hoàn tất."]
+            if warns:
+                parts.append(f"⚠️ {len(warns)} cảnh báo — {' | '.join(warns)}")
+            job["status"] = "done" if done else "error"
+            job["summary"] = " ".join(parts)
+            if warns or not done:
+                job["error"] = ("; ".join(warns) or "Research không ra kết quả.")[:300]
     except Exception as e:
         logger.exception("AI agent job failed (user=%s task=%s)", uid, task)
         job["status"] = "error"
