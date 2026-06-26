@@ -3,12 +3,15 @@
 > Quy ước: "note" = chỉ ghi vào đây, KHÔNG tự sửa/push code. Chỉ code khi founder nói "làm các note".
 
 ## ✅ TRẠNG THÁI (dọn 2026-06-26 — founder "làm các note")
-- **ĐÃ LÀM:** N-01, N-02, N-04, N-05, N-06, N-08, N-09, N-10, N-11, N-12, N-13, N-14, N-16, N-17 ·
+- **ĐÃ LÀM:** N-01, N-02, N-03, N-03b, N-04, N-05, N-06, N-08, N-09, N-10, N-11, N-12, N-13, N-14,
+  N-15, N-16, N-17 ·
   N-18 (declutter — đã gỡ leftover; **rebuild 4-tuyến đầy đủ còn để slice riêng**) ·
   N-07 (timeout xong; **regen/badge playbook gộp vào rebuild**).
-- **HOÃN (cần rebuild research WEB-OWNED — lớn, ngoài lô này):** **N-03 / N-03b** (scope-drift) ·
-  **N-15** (bịa số). Gốc prompt ở `agents/` không sửa được lẻ; phải viết lại T1-T3 web-owned mới khoá
-  cứng scope + chống bịa. → để 1 slice riêng "Research web-owned".
+- **N-03/N-03b/N-15 ĐÃ XỬ (Lô F):** viết lại Research T1-T3 WEB-OWNED (`research_web`) — 5 skill prompt
+  riêng khoá scope (competitor không ICP/JTBD; research kết so-what, không roadmap) + chống bịa số
+  (kèm nguồn/'(ước tính)'; thiếu data → '_chưa đủ dữ liệu công khai_'). `_execute` bỏ pipeline agents/.
+  ⚠️ CẦN TEST THẬT trên Railway (sandbox không chạy LLM được).
+- **CÒN LẠI (slice riêng):** rebuild 4-tuyến nội dung đầy đủ (N-18 sâu) · regen/badge playbook (N-07b).
 
 ## 🔴 Bug đang mở
 - **[N-01] "Đặt hiện hành" version tạo bản MỚI thay vì repoint.**
