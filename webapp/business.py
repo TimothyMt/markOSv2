@@ -236,6 +236,12 @@ async def biz_data(user_id=None) -> dict:
         out["bizBetOptions"] = {}; out["bizBetChoices"] = {}
     out["bizBetCategories"] = [{"key": k, "icon": v[0], "label": v[1], "hint": v[2]}
                                for k, v in BET_CATEGORIES.items()]
+    # Lô G: bản đồ phễu × kênh đã dựng (theo mục đích tuyến) → FE render.
+    try:
+        _ie7 = (out.get("bizProfile") or {}).get("intake_extra") or {}
+        out["bizFunnelMap"] = (_ie7.get("funnel_map") if isinstance(_ie7, dict) else {}) or {}
+    except Exception:
+        out["bizFunnelMap"] = {}
     # N-07b: Playbook lệch chiến lược? (playbook bám synthesis_id cũ ≠ synthesis hiện hành) → FE badge.
     try:
         _ie6 = (out.get("bizProfile") or {}).get("intake_extra") or {}
@@ -2269,6 +2275,91 @@ async def calendar_plan(user_id=None) -> dict:
     except Exception as e:
         logger.warning("biz.calendar_plan failed (non-fatal): %s", e)
         return {}
+
+
+# ════ Lô G: FUNNEL MAPPER web-owned — map TOFU/MOFU/BOFU × kênh cho 1 tuyến (mục đích) ════
+# 3 tuyến gán theo MỤC ĐÍCH: brand=Branding(nền) · activation=Đẩy đơn(theo dịp) · retention=Giữ chân.
+_TUYEN_OBJECTIVES = {
+    "brand":      ("🟢", "Branding — xây thương hiệu", "chạy nền, để được nhớ"),
+    "activation": ("🔴", "Đẩy đơn — theo dịp", "đợt kích hoạt, ra đơn"),
+    "retention":  ("🔁", "Giữ chân khách cũ", "nuôi lại, mua tiếp"),
+}
+
+
+async def gen_funnel_map(user_id=None, objective: str = "brand") -> dict:
+    """Lô G: dựng BẢN ĐỒ PHỄU × KÊNH cho 1 tuyến (mục đích) — mỗi kênh có TOFU/MOFU/BOFU
+    (goal/formats/angles/cta/volume), bám Playbook + archetype + kênh founder đang dùng. 1 LLM call JSON.
+    Lưu intake_extra.funnel_map[objective]."""
+    if not available():
+        return {"error": "Chưa cấu hình Supabase."}
+    obj = objective if objective in _TUYEN_OBJECTIVES else "brand"
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {"error": "Chưa có user."}
+        synth = await _latest_content(uid, "synthesis")
+        tact = await _latest_content(uid, "tactical_playbook")
+        if not (synth.strip() or tact.strip()):
+            return {"error": "Cần Chiến lược (+ Playbook) trước khi dựng bản đồ phễu."}
+        from storage.v2 import profiles
+        prof = await profiles.get_profile(uid) or {}
+        extra = prof.get("intake_extra") if isinstance(prof.get("intake_extra"), dict) else {}
+        if not isinstance(extra, dict):
+            extra = {}
+        industry = prof.get("industry") or ""
+        _ans = (extra.get("answers") if isinstance(extra.get("answers"), dict) else {}) or {}
+        cur_channels = prof.get("current_channels") or _ans.get("current_channels") or ""
+        arche = ""
+        try:
+            from frameworks.industry_context import get_purchase_archetype, ARCHETYPE_LABEL
+            arche = ARCHETYPE_LABEL.get(get_purchase_archetype(industry) or "", "") or (get_purchase_archetype(industry) or "")
+        except Exception:
+            pass
+        from tools.llm_router import call as router_call, TaskType
+        import json as _json
+        obj_label = _TUYEN_OBJECTIVES[obj][1]
+        system = (
+            f"Bạn là Content Strategist. Cho TUYẾN '{obj_label}', map nội dung theo PHỄU 3 tầng "
+            "TOFU (nhận biết/khơi) → MOFU (nuôi/thuyết phục) → BOFU (chốt) × theo TỪNG KÊNH founder dùng. "
+            "Bám Playbook (cách đánh) + ARCHETYPE ngành (chọn kênh + format + nhịp HỢP archetype) + thực tế "
+            "nguồn lực. Mỗi (kênh × tầng): goal (1 câu) · formats (2-3, đích danh vd 'Reels 15s') · angles "
+            "(2-3 góc) · cta (1 câu) · volume (vd '3/tuần').\n"
+            + _VN_NATURAL_RULE + "🔴 KHÔNG bịa số. 2-4 kênh.\n"
+            'Output JSON DUY NHẤT: {"ratio":"<vd 60/30/10>","channels":[{"channel":"","tofu":{"goal":"",'
+            '"formats":[],"angles":[],"cta":"","volume":""},"mofu":{...},"bofu":{...}}]}'
+        )
+        user = (f"# Ngành\n{industry} — {arche}\n# Tuyến\n{obj_label} ({_TUYEN_OBJECTIVES[obj][2]})\n"
+                f"# Kênh đang dùng\n{cur_channels or '(chưa rõ — đề xuất kênh hợp archetype)'}\n\n"
+                f"# Chiến lược\n{synth[:1600]}\n\n# Tactical Playbook (cách đánh)\n{(tact or '(chưa có)')[:2400]}")
+        res = await router_call(task_type=TaskType.OPS_BRIEF, system=system, user=user, max_tokens=2600)
+        raw = re.sub(r'\s*```\s*$', '', re.sub(r'^```(?:json)?\s*', '', (res or {}).get("output", "").strip())).strip()
+        data = _json.loads(raw)
+        def _stage(s):
+            s = s if isinstance(s, dict) else {}
+            return {"goal": str(s.get("goal") or "")[:200],
+                    "formats": [str(x)[:60] for x in (s.get("formats") or [])][:4],
+                    "angles": [str(x)[:80] for x in (s.get("angles") or [])][:4],
+                    "cta": str(s.get("cta") or "")[:120], "volume": str(s.get("volume") or "")[:40]}
+        channels = []
+        for c in (data.get("channels") or [])[:4]:
+            if not isinstance(c, dict) or not str(c.get("channel") or "").strip():
+                continue
+            channels.append({"channel": str(c.get("channel"))[:60],
+                             "tofu": _stage(c.get("tofu")), "mofu": _stage(c.get("mofu")), "bofu": _stage(c.get("bofu"))})
+        if not channels:
+            return {"error": "Chưa dựng được bản đồ phễu — thử lại."}
+        fmap = {"objective": obj, "label": obj_label, "ratio": str(data.get("ratio") or "")[:20], "channels": channels}
+        store = extra.get("funnel_map") if isinstance(extra.get("funnel_map"), dict) else {}
+        if not isinstance(store, dict):
+            store = {}
+        store[obj] = fmap
+        extra["funnel_map"] = store
+        await profiles.upsert_profile(uid, intake_extra=extra)
+        return {"ok": True, "funnel": fmap}
+    except Exception as e:
+        logger.warning("biz.gen_funnel_map failed: %s", e)
+        return {"error": str(e)}
 
 
 async def gen_calendar_post(user_id=None, track: str = "always", pillar: str = "",

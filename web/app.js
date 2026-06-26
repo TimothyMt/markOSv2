@@ -1135,22 +1135,53 @@
           </div>
         </div>`;
       host.innerHTML = `<section class="grid" style="margin:0">
-        ${card('🟢 Always-on — tuyến NỀN (content pillars)', `
-          <p class="muted" style="margin-bottom:12px">Chạy đều quanh năm để thương hiệu được nhớ. Bám USP + JTBD + archetype ngành, và <b>tự bám Tactical Playbook</b> (cách đánh) khi viết bài. <b>Không chốt số</b> — đây là nền.</p>
+        ${card('🟢 Branding — xây thương hiệu <span class="muted" style="font-weight:400">(chạy nền, để được nhớ)</span>', `
+          <p class="muted" style="margin-bottom:12px">Mục đích: <b>được nhớ</b>. Chạy đều quanh năm, bám USP + archetype + <b>Tactical Playbook</b> khi viết bài. <b>Không chốt số</b>.</p>
           <div class="pillars">${pillarCards || '<p class="muted">—</p>'}</div>
-          ${pillarFoot}`, { cls: 'span-7' })}
-        ${card('🔴 Theo dịp — Occasion (gợi ý theo ngành)', `
-          <p class="muted" style="margin-bottom:12px">Đợt có window — nơi <b>chốt SMART thật</b> (số, ngân sách đợt, deadline). Hợp mùa vụ ngành:</p>
+          ${pillarFoot}
+          <div style="margin-top:16px">${funnelMapView('brand')}</div>`, { cls: 'span-7' })}
+        ${card('🔴 Đẩy đơn — theo dịp <span class="muted" style="font-weight:400">(đợt kích hoạt, ra đơn)</span>', `
+          <p class="muted" style="margin-bottom:12px">Mục đích: <b>bán theo đợt</b>. Đợt có deadline — nơi <b>chốt số thật</b> (mục tiêu, ngân sách đợt). Hợp mùa vụ ngành:</p>
           <ul class="rows">${occRows || '<li class="muted">—</li>'}</ul>
-          <button class="primary-btn full" data-act="new-occasion" style="margin-top:14px">＋ Tạo chiến dịch theo dịp</button>`, { cls: 'span-5' })}
-        ${card('🔁 Giữ chân khách cũ — Retention (behavior-triggered)', `
-          <p class="muted" style="margin-bottom:12px">Khác 2 tuyến trên (theo lịch): đây là tuyến theo <b>HÀNH VI khách</b> (vừa mua / im ắng / đã rời bỏ). <b>Không cần dữ liệu đơn hàng</b> — Max đưa <b>cẩm nang</b>: tình huống nào → làm gì → tin nhắn mẫu, bạn tự áp.</p>
+          <button class="primary-btn full" data-act="new-occasion" style="margin-top:14px">＋ Tạo đợt đẩy đơn</button>`, { cls: 'span-5' })}
+        ${card('🔁 Giữ chân khách cũ <span class="muted" style="font-weight:400">(nuôi lại, mua tiếp)</span>', `
+          <p class="muted" style="margin-bottom:12px">Mục đích: <b>khách mua tiếp</b>. Theo <b>hành vi</b> (vừa mua / im ắng / đã rời bỏ) — không cần dữ liệu đơn hàng. Max đưa <b>cẩm nang</b>: tình huống → làm gì → tin nhắn mẫu.</p>
           <div class="occ-row" style="gap:10px">
             <button class="primary-btn" style="flex:1" data-act="new-lifecycle" data-mode="retention">🔁 Cẩm nang giữ chân</button>
             <button class="ghost-line" style="flex:1" data-act="new-lifecycle" data-mode="winback">↩️ Kéo khách cũ quay lại</button>
           </div>`, { cls: 'span-12' })}
       </section>`;
     } catch (e) { host.innerHTML = `<div class="card"><p class="muted">Không lập được kế hoạch — thử lại sau.</p></div>`; }
+  }
+
+  /* ── Lô G: bản đồ phễu × kênh (TOFU/MOFU/BOFU) cho 1 tuyến mục đích ── */
+  const _ROLE_LBL = { khai_sang: 'Khai sáng', tin_cay: 'Tin cậy', chuyen_hoa: 'Chuyển hoá', lan_toa: 'Lan toả' };
+  function funnelMapView(obj) {
+    const E = s => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const fm = (M.bizFunnelMap || {})[obj];
+    if (!fm || !(fm.channels || []).length) {
+      return `<div class="fmap-empty"><p class="muted" style="margin:0 0 8px">📊 <b>Bản đồ phễu × kênh</b> — Max map nội dung theo TOFU→MOFU→BOFU cho từng kênh, bám Playbook + archetype.</p>
+        <button class="ghost-line sm" data-act="gen-funnel" data-obj="${obj}">📊 Dựng bản đồ phễu × kênh</button></div>`;
+    }
+    const STAGES = [['tofu', 'khai_sang'], ['mofu', 'tin_cay'], ['bofu', 'chuyen_hoa']];
+    const rows = fm.channels.map(c => `
+      <div class="fmap-row">
+        <div class="fmap-ch">📡 ${E(c.channel)}</div>
+        ${STAGES.map(([k, role]) => { const s = c[k] || {}; return `
+          <div class="fmap-cell">
+            <div class="fmap-goal">${E(s.goal || '')}</div>
+            ${(s.formats || []).length ? `<div class="fmap-fmt">${s.formats.map(f => `<span class="tag">${E(f)}</span>`).join('')}</div>` : ''}
+            ${(s.angles || []).length ? `<ul class="fmap-ang">${s.angles.map(a => `<li>${E(a)}</li>`).join('')}</ul>` : ''}
+            ${s.cta ? `<div class="fmap-cta">📣 ${E(s.cta)}</div>` : ''}
+            <div class="fmap-foot"><span class="muted">${E(s.volume || '')}</span>
+              <button class="chip-btn sm" data-act="funnel-post" data-ch="${encodeURIComponent(c.channel)}" data-stage="${k}" data-role="${role}" data-obj="${obj}" data-topic="${encodeURIComponent((s.angles || [])[0] || s.goal || '')}">⚡ Tạo bài</button></div>
+          </div>`; }).join('')}
+      </div>`).join('');
+    return `<div class="fmap">
+      <div class="fmap-head"><b>📊 Bản đồ phễu × kênh</b>${fm.ratio ? ` <span class="tag">tỷ lệ ${E(fm.ratio)}</span>` : ''}
+        <button class="ghost-line sm" data-act="gen-funnel" data-obj="${obj}" style="margin-left:auto">↻ Dựng lại</button></div>
+      <div class="fmap-grid-h"><span></span><span>TOFU · Khơi</span><span>MOFU · Nuôi</span><span>BOFU · Chốt</span></div>
+      ${rows}</div>`;
   }
 
   /* ════ M-G/S-10/11/12: CAMPAIGN-FIRST — Bóc GAP → Campaign tổng → sub → tuyến → bài ════ */
@@ -3029,6 +3060,28 @@
         if (r.error) { toast(r.error); el.disabled = false; el.textContent = orig; return; }
         await refreshBiz(); toast('✨ Đã gợi ý lựa chọn đặt cược'); route();
       } catch (e) { toast('Không gợi ý được — thử lại sau.'); el.disabled = false; el.textContent = orig; }
+      return;
+    }
+    if (act === 'gen-funnel') {   // Lô G: dựng bản đồ phễu × kênh cho 1 tuyến
+      if (!apiAvailable || !M.bizEnabled) { toast('Bật backend để Max dựng phễu'); return; }
+      const orig = el.textContent; el.disabled = true; el.textContent = '⏳ Max đang dựng phễu × kênh…';
+      try {
+        const r = await API.post('api/biz/funnel-map', { user_id: _bizUserId, objective: el.dataset.obj || 'brand' });
+        if (r.error) { toast(r.error); el.disabled = false; el.textContent = orig; return; }
+        await refreshBiz(); toast('📊 Đã dựng bản đồ phễu × kênh'); route();
+      } catch (e) { toast('Không dựng được — thử lại sau.'); el.disabled = false; el.textContent = orig; }
+      return;
+    }
+    if (act === 'funnel-post') {   // tạo bài từ 1 ô phễu (kênh × tầng) — bám vai-trò-tuyến + playbook
+      let ch = '', topic = '';
+      try { ch = decodeURIComponent(el.dataset.ch || ''); } catch (e) { ch = el.dataset.ch || ''; }
+      try { topic = decodeURIComponent(el.dataset.topic || ''); } catch (e) { topic = el.dataset.topic || ''; }
+      const stage = (el.dataset.stage || '').toUpperCase();
+      const role = _ROLE_LBL[el.dataset.role] || '';
+      openSlotModal({
+        track: 'always', pillar: `📡 ${ch} · ${stage}`, funnel: stage,
+        title: topic, topic, angles: [topic], key: '',
+        track_role: role, objective: el.dataset.obj || 'brand' });
       return;
     }
     if (act === 'bet-chip') { el.classList.toggle('on'); return; }   // tick/bỏ 1 option

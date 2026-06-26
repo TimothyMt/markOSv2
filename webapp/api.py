@@ -268,6 +268,13 @@ async def biz_bet_save(request):
     return JSONResponse(res, status_code=400 if "error" in res else 200)
 
 
+async def biz_funnel_map(request):
+    """Lô G — dựng bản đồ phễu × kênh cho 1 tuyến (mục đích)."""
+    d = await request.json()
+    res = await biz.gen_funnel_map(d.get("user_id"), d.get("objective", "brand"))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
 async def biz_master_plan(request):
     """S-10a — tạo campaign tổng (gap+wedge+USP) + đề xuất sub-campaign."""
     d = await request.json()
@@ -528,6 +535,7 @@ def api_routes() -> list:
         Route("/api/biz/gaps",                     biz_gaps,           methods=["POST"]),
         Route("/api/biz/bet/options",              biz_bet_options,    methods=["POST"]),
         Route("/api/biz/bet/save",                 biz_bet_save,       methods=["POST"]),
+        Route("/api/biz/funnel-map",               biz_funnel_map,     methods=["POST"]),
         Route("/api/biz/campaign/master",          biz_master_plan,    methods=["POST"]),
         Route("/api/biz/campaign/sub",             biz_subcampaign,    methods=["POST"]),
         Route("/api/biz/campaign/sub-content",     biz_sub_content,    methods=["POST"]),

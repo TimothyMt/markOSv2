@@ -788,6 +788,24 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 .pf-meta { display:block; font-size:11.5px; color:var(--muted); margin-top:2px; }
 .pf-why { font-size:12.5px; margin-top:5px; }
 .pf-acts { display:flex; gap:6px; flex:none; align-items:center; }
+/* ── Lô G: bản đồ phễu × kênh ── */
+.fmap, .fmap-empty { border-top:1px solid var(--stroke); padding-top:12px; }
+.fmap-head { display:flex; align-items:center; gap:8px; font-size:13.5px; margin-bottom:8px; }
+.fmap-grid-h, .fmap-row { display:grid; grid-template-columns:110px 1fr 1fr 1fr; gap:8px; }
+.fmap-grid-h { font-size:11px; color:var(--muted); margin-bottom:6px; }
+.fmap-grid-h span { padding:0 4px; }
+.fmap-row { margin-bottom:8px; align-items:stretch; }
+.fmap-ch { font-size:12.5px; font-weight:600; display:flex; align-items:center; }
+.fmap-cell { border:1px solid var(--stroke); border-radius:8px; padding:8px 9px; background:var(--panel); font-size:12px; line-height:1.4; }
+.fmap-goal { font-weight:600; margin-bottom:5px; }
+.fmap-fmt { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:5px; }
+.fmap-fmt .tag { font-size:10px; }
+.fmap-ang { list-style:disc; margin:0 0 5px; padding-left:16px; color:var(--txt-2); }
+.fmap-cta { font-size:11.5px; color:var(--amber); margin-bottom:6px; }
+.fmap-foot { display:flex; align-items:center; gap:6px; }
+.fmap-foot .muted { font-size:11px; }
+@media (max-width:920px){ .fmap-grid-h, .fmap-row { grid-template-columns:1fr; } .fmap-ch { margin-top:6px; } }
+
 /* ── N-07b: badge Playbook lệch chiến lược ── */
 .pb-stale { display:flex; align-items:center; gap:12px; flex-wrap:wrap; font-size:13px;
   background:color-mix(in srgb, var(--amber) 12%, var(--panel)); border-color:color-mix(in srgb, var(--amber) 45%, transparent); }
