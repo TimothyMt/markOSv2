@@ -292,7 +292,9 @@ def _calc_thinking_budget(max_tokens: int) -> int:
     if max_tokens < 5000:
         return int(max_tokens * 0.3)
     if max_tokens < 20000:
-        return min(8000, int(max_tokens * 0.4))
+        # N-12: dải giữa (research 16K + content assets) — giảm cap 8000→4000 / 40%→25% để chừa
+        # output (Gemini tính thinking VÀO max_output) → bớt cụt giữa câu. Không đụng ≥20K (synthesis/playbook).
+        return min(4000, int(max_tokens * 0.25))
     return min(12000, int(max_tokens * 0.25))
 
 

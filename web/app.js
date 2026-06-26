@@ -1974,6 +1974,17 @@
           <li><span class="s-dot ${_sseLive?'online':''}"></span>Realtime<span class="muted">${_sseLive?'Live':'SSE'}</span></li>
         </ul></section>`;
   }
+  // N-06: banner trạng thái tác vụ toàn cục (đang chạy / lỗi) — hiện trên mọi trang, tự cập nhật qua SSE.
+  let _jobDismiss = {};
+  function jobBanner() {
+    const E = s => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const jobs = M.agentJobs || [];
+    const run = jobs.find(j => j.status === 'running');
+    if (run) return `<div class="job-banner job-run"><span class="job-spin"></span><b>${E(run.label || 'Agent đang chạy')}</b>${run.progress ? ` — <span class="muted">${E(run.progress)}</span>` : ''}</div>`;
+    const err = jobs.find(j => j.status === 'error' && j.error && !_jobDismiss[j.id]);
+    if (err) return `<div class="job-banner job-err">⚠️ <b>${E(err.label || 'Tác vụ lỗi')}</b> — ${E(err.error)}<button class="icon-btn job-x" data-act="job-dismiss" data-id="${err.id}">✕</button></div>`;
+    return '';
+  }
   function route() {
     const raw = (location.hash.replace('#','') || 'dossier');
     const [seg0, seg1] = raw.split('/');
@@ -1989,7 +2000,7 @@
     document.body.classList.remove('chat-mode');
     const actions = page.actions || '';
     document.getElementById('view').innerHTML =
-      pageHead(page.title, page.sub, actions) + page.render();
+      jobBanner() + pageHead(page.title, page.sub, actions) + page.render();
     if (page.mount) page.mount();
     fillDocEmbeds();   // nhúng trình đọc/sửa text vào trang chi tiết (demo + thật)
     fillSkillRunSlots();   // nạp nội dung slot .ai-output[data-skill-run] (synthesis collapsible)
@@ -2700,6 +2711,7 @@
       if (out) { const open = out.classList.toggle('expanded'); el.textContent = open ? 'Thu gọn ▴' : 'Xem đầy đủ ▾'; }
       return;
     }
+    if (act === 'job-dismiss') { _jobDismiss[el.dataset.id] = true; route(); return; }   // N-06: tắt banner lỗi
     if (act === 'cal-view') { _calView = el.dataset.view; route(); return; }
     if (act === 'cal-open-week') { _calWeek = parseInt(el.dataset.week) || 1; _calView = 'week'; route(); return; }
     if (act === 'slot-open') {   // M-C: bấm thẻ lịch → chọn chủ đề

@@ -3164,7 +3164,11 @@ async def _execute(job: dict):
         #   • 'full'                  → research (pipeline) → rồi strategize_web.
         #   • còn lại (research/market/competitor/swot…) → pipeline như cũ.
         if task in ("strategize", "strategy"):
-            res = await strategize_web(uid, progress)
+            # N-06: timeout để job không kẹt 'running' mãi nếu LLM treo (2 call ~ vài phút).
+            try:
+                res = await asyncio.wait_for(strategize_web(uid, progress), timeout=300)
+            except asyncio.TimeoutError:
+                raise RuntimeError("Lập chiến lược quá giờ (timeout 5 phút) — thử lại.")
             if res.get("error"):
                 raise RuntimeError(res["error"])
             job["status"] = "done"
@@ -3208,7 +3212,10 @@ async def _execute(job: dict):
             await save_session(session)
 
             if task == "full" and not stop_reason:
-                res = await strategize_web(uid, progress)
+                try:
+                    res = await asyncio.wait_for(strategize_web(uid, progress), timeout=300)
+                except asyncio.TimeoutError:
+                    raise RuntimeError("Lập chiến lược quá giờ (timeout) — research xong nhưng chiến lược treo.")
                 if res.get("error"):
                     raise RuntimeError(res["error"])
                 done.append("strategy_web")

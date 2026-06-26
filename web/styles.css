@@ -788,6 +788,16 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 .pf-meta { display:block; font-size:11.5px; color:var(--muted); margin-top:2px; }
 .pf-why { font-size:12.5px; margin-top:5px; }
 .pf-acts { display:flex; gap:6px; flex:none; align-items:center; }
+/* ── N-06: banner trạng thái tác vụ toàn cục ── */
+.job-banner { display:flex; align-items:center; gap:10px; padding:10px 16px; border-radius:10px;
+  margin-bottom:16px; font-size:13px; border:1px solid var(--stroke); }
+.job-banner.job-run { background:color-mix(in srgb, var(--primary) 10%, var(--panel)); border-color:color-mix(in srgb, var(--primary) 40%, transparent); }
+.job-banner.job-err { background:color-mix(in srgb, var(--red) 10%, var(--panel)); border-color:color-mix(in srgb, var(--red) 40%, transparent); }
+.job-banner .job-x { margin-left:auto; }
+.job-spin { width:14px; height:14px; border:2px solid color-mix(in srgb, var(--primary) 30%, transparent);
+  border-top-color:var(--primary); border-radius:50%; animation:job-spin .8s linear infinite; flex:none; }
+@keyframes job-spin { to { transform:rotate(360deg); } }
+
 /* ── Vision A: form đặt cược theo 5 nhóm ── */
 .bet-intro { display:flex; gap:14px; align-items:flex-start; justify-content:space-between; margin:0 0 14px; flex-wrap:wrap; }
 .bet-intro > p { flex:1; min-width:240px; }
