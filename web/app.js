@@ -179,6 +179,8 @@
     if (raw.startsWith('<')) return raw;          // skill xuất HTML → render trực tiếp
     const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     const inline = s => esc(s)
+      .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a class="md-link" href="$2" target="_blank" rel="noopener">$1</a>')   // [tên](url) → hyperlink nguồn
+      .replace(/(^|[\s(])(https?:\/\/[^\s)<]+)/g, '$1<a class="md-link" href="$2" target="_blank" rel="noopener">$2</a>')        // URL trần → tự link
       .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
       .replace(/\*(.+?)\*/g, '<i>$1</i>')
       .replace(/(^|[\s(>])_([^_\n]+?)_(?=[\s).,;:!?]|$)/g, '$1<i>$2</i>');   // _nghiêng_ (không đụng snake_case)
@@ -1261,7 +1263,7 @@
       return `<div class="bet-grp">
         <div class="bet-grp-h">${c.icon} <b>${E(c.label)}</b> <span class="muted">— ${E(c.hint)}</span>
           <span class="bet-tip">💡 chọn 1 để tập trung · bỏ trống = 🤖 để Max tự quyết</span></div>
-        <div class="bet-chips">${chips || '<span class="muted">— Max chưa rút được; tự ghi hoặc để Max quyết</span>'}
+        <div class="bet-chips">${chips || '<span class="muted">— chưa có gợi ý (tự ghi · 🤖 Để Max · hoặc bấm "gợi ý" ở trên)</span>'}
           <button type="button" class="bet-chip bet-auto" data-act="bet-auto" data-cat="${c.key}" title="Bỏ chọn nhóm này → Max tự đề xuất khi lập chiến lược">🤖 Để Max</button></div>
         <input class="bet-free" id="betFree-${c.key}" data-cat="${c.key}" placeholder="✍️ Tự ghi (nếu không ưng option nào; phẩy để nhiều)" value="${E(extra)}">
       </div>`;

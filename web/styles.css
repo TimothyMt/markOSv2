@@ -792,6 +792,10 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 .pf-meta { display:block; font-size:11.5px; color:var(--muted); margin-top:2px; }
 .pf-why { font-size:12.5px; margin-top:5px; }
 .pf-acts { display:flex; gap:6px; flex:none; align-items:center; }
+/* hyperlink nguồn trong output research (markdown link + URL trần) */
+.ai-output .md-link, .doc-body .md-link, .ai-pre .md-link { color:var(--primary); text-decoration:underline; word-break:break-word; }
+.ai-output .md-link:hover, .doc-body .md-link:hover { color:var(--primary-2); }
+
 /* ── Lô I: panel đo hiệu quả & tối ưu (vòng phản hồi) ── */
 .doc-feedback { border:1px solid var(--stroke); border-radius:10px; padding:10px 14px; margin-bottom:16px; background:var(--panel-2); }
 .doc-feedback > summary { cursor:pointer; font-size:13px; }

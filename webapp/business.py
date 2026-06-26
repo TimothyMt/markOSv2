@@ -631,81 +631,53 @@ def _strip_preamble(text: str) -> str:
 
 
 def _rw_specs():
-    """Spec 5 skill research web-owned (dựng tại call-time để dùng _VN_NATURAL_RULE/_RW_ANTIFAB)."""
-    g = _RW_ANTIFAB + _VN_NATURAL_RULE
-    posmap = (
-        'Cuối phần, thêm BẢN ĐỒ ĐỊNH VỊ — 1 khối JSON máy-đọc trong fence ```json đúng các key: '
-        '{"yTop":"<nhãn trục dọc trên>","yBottom":"<nhãn dưới>","xLeft":"<nhãn trục ngang trái>",'
-        '"xRight":"<phải>","q1":"<mô tả góc I>","q2":"<góc II>","q3":"<góc III>","q4":"<góc IV>",'
-        '"items":[{"name":"SẾP","q":1,"self":true},{"name":"<tên đối thủ>","q":2}]} '
-        '(SẾP = vị trí business; đặt đối thủ vào q1..q4 theo 2 trục).'
+    """Spec 5 skill research web-owned. DÙNG LẠI prompt GỐC GIÀU CHI TIẾT của bot (agents/prompts.py —
+    chỉ ĐỌC, không sửa) để giữ độ sâu; chèn guard (khoá scope + sạch lời dẫn + hyperlink)."""
+    # guard chèn SAU prompt gốc bot — dựng tại call-time (cần _VN_NATURAL_RULE đã load).
+    _RW_GUARD = (
+        "\n\n— RÀNG BUỘC WEB-OWNED (bổ sung, KHÔNG thay phần trên) —\n"
+        + _VN_NATURAL_RULE +
+        "🔴 BẮT ĐẦU NGAY bằng heading nội dung — KHÔNG lời dẫn ('Chắc chắn rồi', 'Đây là…', 'tuân thủ "
+        "cấu trúc…'), KHÔNG nhắc lại yêu cầu, KHÔNG marker rác (dòng '*').\n"
+        "🔴 KHOÁ SCOPE: chỉ viết đúng phần của mục này — đối thủ KHÔNG viết ICP/JTBD; KHÔNG xếp roadmap "
+        "Quick-win/Medium/Long-term (việc của Synthesis T4/Playbook T5); kết bằng so-what.\n"
+        "🔴 Số liệu: kèm nguồn dạng hyperlink markdown [tên](URL) NGAY tại chỗ con số, HOẶC '(ước tính)'. "
+        "Thiếu dữ liệu → '_chưa đủ dữ liệu công khai_', KHÔNG bịa.\n"
     )
+    try:
+        from agents.prompts import (MARKET_RESEARCH_SYSTEM, COMPETITOR_SYSTEM, CUSTOMER_INSIGHT_SYSTEM,
+                                     MARKETING_PSYCHOLOGY_SYSTEM, PRICING_STRATEGY_SYSTEM, SWOT_SYSTEM)
+    except Exception as e:
+        logger.warning("import bot prompts failed (%s) — dùng prompt rút gọn", e)
+        MARKET_RESEARCH_SYSTEM = COMPETITOR_SYSTEM = CUSTOMER_INSIGHT_SYSTEM = ""
+        MARKETING_PSYCHOLOGY_SYSTEM = PRICING_STRATEGY_SYSTEM = SWOT_SYSTEM = ""
+    pricing_combo = (MARKETING_PSYCHOLOGY_SYSTEM + "\n\n══════════\n\n" + PRICING_STRATEGY_SYSTEM
+                     if (MARKETING_PSYCHOLOGY_SYSTEM or PRICING_STRATEGY_SYSTEM) else "")
     return {
         "market_research": {
             "label": "Nghiên cứu thị trường", "tt": "MARKET_RESEARCH_DATA", "mx": 16000, "prior": [],
-            "sys": (
-                "Bạn là Market Research Analyst cho thị trường Việt Nam. Dùng dữ liệu tìm được (Google "
-                "Search) phân tích QUY MÔ thị trường. CHỈ phân tích thị trường — KHÔNG sa vào đối thủ chi "
-                "tiết / chân dung khách (ICP) / định giá (đã có agent riêng).\nXuất MARKDOWN:\n"
-                "### TAM — Tổng cầu (top-down + bottom-up, kèm cách tính)\n"
-                "### SAM — Phục vụ được (lọc theo địa bàn + phân khúc)\n"
-                "### SOM — Giành được 12–24 tháng (thực tế: MVP <1%, Growth 1–5%, Scale 5–15%)\n"
-                "### Market Dynamics — CAGR, xu hướng nổi bật, thời điểm vào\n\n" + g),
-        },
+            "sys": (MARKET_RESEARCH_SYSTEM or "Bạn là Market Research Analyst VN — phân tích TAM/SAM/SOM "
+                    "+ Market Dynamics (CAGR/xu hướng/timing), có cách tính.") + _RW_GUARD},
         "competitor": {
             "label": "Phân tích đối thủ", "tt": "COMPETITOR_RESEARCH", "mx": 16000, "prior": [],
-            "sys": (
-                "Bạn là Competitive Intelligence Researcher VN. Dùng Google Search thu thập thông tin "
-                "CÔNG KHAI THẬT về đối thủ. CHỈ phân tích đối thủ + khoảng trống cạnh tranh — TUYỆT ĐỐI "
-                "KHÔNG viết ICP/JTBD/chân dung khách (đó là Customer Insight), KHÔNG đào sâu định giá.\n"
-                "🔴 KHÔNG bịa tên đối thủ — không nguồn thì ghi '_chưa đủ dữ liệu công khai_'.\nXuất MARKDOWN:\n"
-                "#### Đối thủ Trực tiếp (Direct) — 1 bảng 8 chiều (Định vị · Mạnh-Yếu · Content · Kênh · "
-                "Quy mô chi · Tệp · Giá-mô hình · Mức đe doạ)\n"
-                "#### Đối thủ Gián tiếp (Indirect) — 1 bảng riêng 8 chiều\n"
-                "#### Đối thủ Tiềm năng (Potential) — 1 bảng riêng 8 chiều\n"
-                "(3 nhóm TÁCH RIÊNG, mỗi nhóm 1 bảng — KHÔNG gộp)\n"
-                "#### Messaging Gap · #### Channel Gap · #### Segment Gap · #### Product Gap "
-                "(mỗi mục 3–5 gạch đầu dòng)\n" + posmap + "\n\n" + g),
-        },
+            "sys": (COMPETITOR_SYSTEM or "Bạn là Competitor Intelligence Agent — 3 nhóm đối thủ (Direct/"
+                    "Indirect/Potential) mỗi nhóm 1 bảng 8 chiều + Messaging/Channel/Segment/Product Gap + "
+                    "bản đồ định vị JSON.") + _RW_GUARD},
         "customer_insight": {
             "label": "Customer Insight", "tt": "SYNTHESIS_LONG_CONTEXT", "mx": 16000,
             "prior": ["market_research", "competitor"],
-            "sys": (
-                "Bạn là Customer Insight Analyst (consumer psychology VN). CHỈ phân tích KHÁCH HÀNG — "
-                "KHÔNG phân tích đối thủ, KHÔNG định giá, KHÔNG quy mô thị trường.\nXuất MARKDOWN:\n"
-                "### 1. ICP — Chân dung khách lý tưởng (#### Nhân khẩu · #### Tâm lý · #### Hành vi)\n"
-                "### 2. Jobs-to-be-Done (#### Chức năng · #### Cảm xúc · #### Xã hội)\n"
-                "### 3. Pain–Gain (#### Nỗi đau · #### Lợi ích mong đợi · #### Giảm lo lắng)\n"
-                "### 4. Hành trình mua (#### Lạnh · #### Ấm · #### Nóng)\n"
-                "### 5. Bối cảnh văn hoá VN (thể diện · gia đình/cộng đồng)\n"
-                "🔴 Cụ thể, ví dụ THẬT ở VN — không generic.\n\n" + g),
-        },
+            "sys": (CUSTOMER_INSIGHT_SYSTEM or "Bạn là Customer Insight Agent — ICP + JTBD + Pain-Gain + "
+                    "hành trình mua + bối cảnh văn hoá VN.") + _RW_GUARD},
         "psychology_pricing": {
             "label": "Định giá & Tâm lý", "tt": "SYNTHESIS_LONG_CONTEXT", "mx": 16000,
             "prior": ["market_research", "customer_insight"],
-            "sys": (
-                "Bạn là chuyên gia Tâm lý hành vi + Định giá cho thị trường VN. KHÔNG viết copy thực thi "
-                "(headline/CTA/email — để Playbook T5), KHÔNG lập lịch nội dung / bảng KPI.\nXuất MARKDOWN:\n"
-                "## A. Tâm lý marketing — CHỌN LỌC 2–3 nguyên tắc Cialdini đắt nhất (vì sao khớp + nhấn ở "
-                "phễu nào) + vài hiệu ứng behavioral economics liên quan + điều chỉnh văn hoá VN\n"
-                "## B. Định giá — Step1 mô hình giá (chọn 1–2) · Step2 thủ thuật tâm lý giá (theo B2C/B2B "
-                "THẬT của business) · Step3 tâm lý người mua · Step4 định vị giá (premium/mid/value) · "
-                "Step5 tối ưu doanh thu\n\n" + g),
-        },
+            "sys": (pricing_combo or "Bạn là chuyên gia Tâm lý hành vi + Định giá VN — Cialdini chọn lọc + "
+                    "behavioral economics + mô hình giá + tâm lý giá + định vị giá.") + _RW_GUARD},
         "swot": {
             "label": "SWOT", "tt": "SYNTHESIS_LONG_CONTEXT", "mx": 22000,
             "prior": ["market_research", "competitor", "customer_insight", "psychology_pricing"],
-            "sys": (
-                "Bạn là Strategic Analyst — tổng hợp SWOT từ research phía trên. Mọi điểm phải SPECIFIC, "
-                "dẫn chứng từ research (KHÔNG generic). S/W = nội tại (sếp kiểm soát được), O/T = bên "
-                "ngoài. 3–4 điểm mỗi góc (không quá 4), mỗi điểm 1–2 câu súc tích.\nXuất MARKDOWN:\n"
-                "## 💪 STRENGTHS — Điểm Mạnh\n## ⚠️ WEAKNESSES — Điểm Yếu\n## 🌟 OPPORTUNITIES — Cơ Hội\n"
-                "## ⚡ THREATS — Thách Thức\n"
-                "## 🔀 MA TRẬN CHIẾN LƯỢC (TOWS) — BẮT BUỘC đủ 4 ô:\n"
-                "### SO (2–3 mũi, định dạng 'SOx (Sa × Ob): …')\n### WO (2–3)\n### ST (1–2)\n### WT (1–2)\n"
-                "🔴 Nếu dài → RÚT GỌN S/W/O/T để CHẮC còn đủ 4 ô TOWS (đừng cụt mất TOWS).\n"
-                "🔴 Số chỉ lấy từ research phía trên hoặc user cấp; tự thêm → '(ước tính)'.\n\n" + _VN_NATURAL_RULE),
-        },
+            "sys": (SWOT_SYSTEM or "Bạn là Strategic Analyst — SWOT (S/W nội tại, O/T bên ngoài, 3-4 điểm/"
+                    "góc, dẫn chứng research) + MA TRẬN TOWS đủ 4 ô SO/WO/ST/WT.") + _RW_GUARD},
     }
 
 
@@ -1439,14 +1411,19 @@ async def gen_bet_options(user_id=None) -> dict:
         industry = prof.get("industry") or ""
         research["psychology_pricing"] = await _latest_content(uid, "psychology_pricing")
         synth = await _latest_content(uid, "synthesis")
-        # N-16: bám archetype + bối cảnh ngành để gợi ý SẮC, không generic.
-        arche, ictx = "", ""
+        # N-16 + nâng: bám archetype + bối cảnh ngành ĐẦY ĐỦ + khung SAVE (như bot) để gợi ý SẮC.
+        arche, ictx, save_text = "", "", ""
         try:
-            from frameworks.industry_context import get_purchase_archetype, ARCHETYPE_LABEL, INDUSTRY_CONTEXT
+            from frameworks.industry_context import get_purchase_archetype, ARCHETYPE_LABEL, get_full_industry_brief
             arche = ARCHETYPE_LABEL.get(get_purchase_archetype(industry) or "", "")
-            ic = INDUSTRY_CONTEXT.get((industry or "").lower())
-            if ic:
-                ictx = f"Archetype mua: {ic.purchase_archetype}. Động lực/mùa vụ ngành: {ic.market_dynamics[:400]}"
+            ictx = (get_full_industry_brief(industry) or "")[:1400] if industry else ""
+        except Exception:
+            pass
+        try:
+            from frameworks.save_framework import generate_save_analysis
+            save_text = (generate_save_analysis(industry=industry, business_description=prof.get("product_service") or "",
+                                                target_customer=prof.get("target_customer") or "",
+                                                product_service=prof.get("product_service") or "") or "")[:1200]
         except Exception:
             pass
         cats_menu = "\n".join(f"- {k}: {v[1]} ({v[2]})" for k, v in BET_CATEGORIES.items())
@@ -1470,13 +1447,14 @@ async def gen_bet_options(user_id=None) -> dict:
             '"positioning":[...],"price":[...],"channel":[...]}.\n# Các nhóm:\n' + cats_menu
         )
         user = (f"# Ngành\n{industry} — {arche}\n{ictx}\n\n"
-                f"# Thị trường\n{(research.get('market_research') or '(chưa có)')[:2400]}\n\n"
-                f"# Đối thủ (chú ý Market Gap)\n{(research.get('competitor') or '(chưa có)')[:2400]}\n\n"
-                f"# Khách\n{(research.get('customer_insight') or '(chưa có)')[:2000]}\n\n"
-                f"# SWOT\n{(research.get('swot') or '(chưa có)')[:1600]}\n\n"
-                f"# Định giá\n{(research.get('psychology_pricing') or '(chưa có)')[:1200]}"
+                + (f"# Khung SAVE (định vị)\n{save_text}\n\n" if save_text.strip() else "")
+                + f"# Thị trường\n{(research.get('market_research') or '(chưa có)')[:2600]}\n\n"
+                f"# Đối thủ (chú ý Market Gap)\n{(research.get('competitor') or '(chưa có)')[:2600]}\n\n"
+                f"# Khách\n{(research.get('customer_insight') or '(chưa có)')[:2200]}\n\n"
+                f"# SWOT\n{(research.get('swot') or '(chưa có)')[:1800]}\n\n"
+                f"# Định giá\n{(research.get('psychology_pricing') or '(chưa có)')[:1400]}"
                 + (f"\n\n# Chiến lược nháp (nếu có)\n{synth[:1500]}" if synth.strip() else ""))
-        res = await router_call(task_type=TaskType.OPS_BRIEF, system=system, user=user, max_tokens=3200)
+        res = await router_call(task_type=TaskType.OPS_BRIEF, system=system, user=user, max_tokens=3600)
         raw = re.sub(r'\s*```\s*$', '', re.sub(r'^```(?:json)?\s*', '', (res or {}).get("output", "").strip())).strip()
         data = _json.loads(raw)
         options = {}

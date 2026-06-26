@@ -801,6 +801,10 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 .pf-meta { display:block; font-size:11.5px; color:var(--muted); margin-top:2px; }
 .pf-why { font-size:12.5px; margin-top:5px; }
 .pf-acts { display:flex; gap:6px; flex:none; align-items:center; }
+/* hyperlink nguồn trong output research (markdown link + URL trần) */
+.ai-output .md-link, .doc-body .md-link, .ai-pre .md-link { color:var(--primary); text-decoration:underline; word-break:break-word; }
+.ai-output .md-link:hover, .doc-body .md-link:hover { color:var(--primary-2); }
+
 /* ── Lô I: panel đo hiệu quả & tối ưu (vòng phản hồi) ── */
 .doc-feedback { border:1px solid var(--stroke); border-radius:10px; padding:10px 14px; margin-bottom:16px; background:var(--panel-2); }
 .doc-feedback > summary { cursor:pointer; font-size:13px; }
@@ -1549,6 +1553,8 @@ window.MOCK = {
     if (raw.startsWith('<')) return raw;          // skill xuất HTML → render trực tiếp
     const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     const inline = s => esc(s)
+      .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a class="md-link" href="$2" target="_blank" rel="noopener">$1</a>')   // [tên](url) → hyperlink nguồn
+      .replace(/(^|[\s(])(https?:\/\/[^\s)<]+)/g, '$1<a class="md-link" href="$2" target="_blank" rel="noopener">$2</a>')        // URL trần → tự link
       .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
       .replace(/\*(.+?)\*/g, '<i>$1</i>')
       .replace(/(^|[\s(>])_([^_\n]+?)_(?=[\s).,;:!?]|$)/g, '$1<i>$2</i>');   // _nghiêng_ (không đụng snake_case)
@@ -2631,7 +2637,7 @@ window.MOCK = {
       return `<div class="bet-grp">
         <div class="bet-grp-h">${c.icon} <b>${E(c.label)}</b> <span class="muted">— ${E(c.hint)}</span>
           <span class="bet-tip">💡 chọn 1 để tập trung · bỏ trống = 🤖 để Max tự quyết</span></div>
-        <div class="bet-chips">${chips || '<span class="muted">— Max chưa rút được; tự ghi hoặc để Max quyết</span>'}
+        <div class="bet-chips">${chips || '<span class="muted">— chưa có gợi ý (tự ghi · 🤖 Để Max · hoặc bấm "gợi ý" ở trên)</span>'}
           <button type="button" class="bet-chip bet-auto" data-act="bet-auto" data-cat="${c.key}" title="Bỏ chọn nhóm này → Max tự đề xuất khi lập chiến lược">🤖 Để Max</button></div>
         <input class="bet-free" id="betFree-${c.key}" data-cat="${c.key}" placeholder="✍️ Tự ghi (nếu không ưng option nào; phẩy để nhiều)" value="${E(extra)}">
       </div>`;
