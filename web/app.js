@@ -1060,6 +1060,8 @@
       return `<section class="grid">
         <div class="card span-12 dir-banner">🔨 Đây là <b>cách đánh chi tiết</b> (bản đồ) — đi sau <b>Chiến lược định hướng</b> (la bàn).
           Mỗi phân khúc có copy mẫu, kênh, khung thử nghiệm, KPI. Con số/ngân sách thật chốt khi lập chiến dịch theo dịp.</div>
+        ${M.bizPlaybookStale ? `<div class="card span-12 pb-stale">⚠️ <b>Playbook đang bám chiến lược CŨ</b> — Chiến lược đã đổi sau lần lập Playbook gần nhất.
+          <button class="primary-btn sm" data-act="run-agent" data-task="regen_playbook">🔄 Cập nhật Playbook theo chiến lược mới</button></div>` : ''}
         ${agentSection('full','tactical_playbook')}
         ${nextStepCard({
           done: 'Đã có Tactical Playbook — cách đánh chi tiết theo từng tệp.',

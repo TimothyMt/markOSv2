@@ -40,6 +40,7 @@ TASK_LABELS = {
     "full":       "Phân tích toàn diện",
     "research":   "Nghiên cứu (T1-T3)",
     "strategize": "Lập chiến lược (T4-T5)",
+    "regen_playbook": "Cập nhật Playbook",
     "market":     "Nghiên cứu thị trường",
     "competitor": "Phân tích đối thủ",
     "customer":   "Customer Insight",
@@ -235,6 +236,14 @@ async def biz_data(user_id=None) -> dict:
         out["bizBetOptions"] = {}; out["bizBetChoices"] = {}
     out["bizBetCategories"] = [{"key": k, "icon": v[0], "label": v[1], "hint": v[2]}
                                for k, v in BET_CATEGORIES.items()]
+    # N-07b: Playbook lệch chiến lược? (playbook bám synthesis_id cũ ≠ synthesis hiện hành) → FE badge.
+    try:
+        _ie6 = (out.get("bizProfile") or {}).get("intake_extra") or {}
+        _pb_syn = (_ie6.get("playbook_synth_id") if isinstance(_ie6, dict) else "") or ""
+        _cur_syn = str((latest.get("synthesis") or {}).get("id") or "")
+        out["bizPlaybookStale"] = bool(("tactical_playbook" in latest) and _cur_syn and _cur_syn != str(_pb_syn))
+    except Exception:
+        out["bizPlaybookStale"] = False
     # M-D Pha2b: archetype mua hàng của ngành → FE lọc "mục đích đợt" hợp ngành (nguồn duy nhất ở frameworks/).
     try:
         from frameworks.industry_context import get_purchase_archetype
@@ -2812,9 +2821,18 @@ async def strategize_web(user_id=None, progress=None) -> dict:
             return {"error": "Chưa lập được chiến lược — thử lại."}
         syn_run = await skill_runs.insert_skill_run(uid, "synthesis", synthesis, model_used="web-strategize")
 
-        # ───────── (2) TACTICAL PLAYBOOK ─────────
-        await _say("Đang viết Tactical Playbook (cách đánh chi tiết)…")
-        tac_system = (
+        # ───────── (2) TACTICAL PLAYBOOK ─────────  (N-07b: tách ra _gen_playbook để regen lại được)
+        pb = await _gen_playbook(uid, synthesis, progress)
+        return {"ok": True,
+                "synthesis_run_id": (syn_run or {}).get("id"),
+                "tactical_run_id": pb.get("tactical_run_id"),
+                "horizon": horizon, "posture": posture}
+    except Exception as e:
+        logger.exception("biz.strategize_web failed (uid=%s)", user_id)
+        return {"error": str(e)}
+
+
+_TAC_SYSTEM = (
             "Bạn là CMO senior viết TACTICAL PLAYBOOK — cách đánh CHI TIẾT, xuống tới level thực thi, "
             "bám Chiến lược (Synthesis) + SWOT đã có. Nói thẳng với founder, sắc, không vòng vo.\n\n"
             "XƯƠNG SỐNG bắt buộc: **Segment (tệp khách) → Phễu TOFU/MOFU/BOFU**. KHÔNG tổ chức theo "
@@ -2856,31 +2874,90 @@ async def strategize_web(user_id=None, progress=None) -> dict:
             "Kết bằng **# BẢNG TỔNG HỢP**: cột Tệp | Tầng | Mũi chính | Phục vụ (TOWS) | Mức đầu tư (Thấp/Trung/Cao — "
             "định tính, ghi chú số tiền cụ thể chốt khi lập chiến dịch)."
         )
-        tac_user = (
-            f"# Ngành\n{industry}\n{ictx}\n\n"
-            f"{bet_block}"
-            f"{resource_block}"
-            f"# Tệp ƯU TIÊN (wedge founder chọn)\n{wedge or '(chưa chọn — lấy tệp ưu tiên từ Synthesis)'}\n\n"
-            f"# Chiến lược (Synthesis — vừa lập)\n{synthesis[:3500]}\n\n"
-            f"# SWOT (dùng mã TOWS SO/WO/ST/WT để gắn tag mũi)\n{(research.get('swot') or '(chưa có)')[:2200]}\n\n"
-            f"# Customer Insight (hiểu tệp + insight)\n{(research.get('customer_insight') or '(chưa có)')[:1800]}\n\n"
-            f"# Đối thủ (cho đoạn 'không copy được')\n{(research.get('competitor') or '(chưa có)')[:1500]}"
-        )
-        tac_res = await router_call(task_type=TaskType.OPS_BRIEF,
-                                    system=tac_system, user=tac_user, max_tokens=4000)
-        tactical = (tac_res or {}).get("output", "").strip()
-        tac_run = None
-        if tactical:
-            tac_run = await skill_runs.insert_skill_run(uid, "tactical_playbook", tactical, model_used="web-strategize")
-        else:
-            logger.warning("strategize_web: tactical rỗng (uid=%s) — synthesis vẫn lưu", uid)
+async def _gen_playbook(uid: int, synthesis: str, progress=None) -> dict:
+    """N-07b: sinh Tactical Playbook từ synthesis + research (tách khỏi strategize_web để REGEN lại
+    được khi synthesis đổi). Dùng _TAC_SYSTEM. Lưu skill_run + fingerprint synthesis đã dựa vào."""
+    async def _say(msg):
+        if progress:
+            try:
+                r = progress(msg)
+                if hasattr(r, "__await__"):
+                    await r
+            except Exception:
+                pass
+    from storage.v2 import profiles, skill_runs
+    from tools.llm_router import call as router_call, TaskType
+    prof = await profiles.get_profile(uid) or {}
+    extra = prof.get("intake_extra") if isinstance(prof.get("intake_extra"), dict) else {}
+    if not isinstance(extra, dict):
+        extra = {}
+    industry = prof.get("industry") or ""
+    wedge = extra.get("wedge") or ""
+    research = {}
+    for sk in _RESEARCH_SKILLS:
+        research[sk] = await _latest_content(uid, sk)
+    _ans = (extra.get("answers") if isinstance(extra.get("answers"), dict) else {}) or {}
+    team_size = _ans.get("team_size") or ""
+    cur_channels = prof.get("current_channels") or _ans.get("current_channels") or ""
+    resource_block = (f"# Nguồn lực (đề xuất phải KHẢ THI với cái này)\n"
+                      f"- Đội làm marketing: {team_size or '(chưa rõ — giả định nhỏ)'}\n"
+                      f"- Kênh đang dùng: {cur_channels or '(chưa rõ)'}\n\n")
+    bet_block = ""
+    _bc = extra.get("bet_choices") if isinstance(extra.get("bet_choices"), dict) else {}
+    if _bc and any(_bc.values()):
+        _lines = [f"- {BET_CATEGORIES[_k][1]}: {' · '.join(_bc.get(_k) or [])}"
+                  for _k in BET_CATEGORIES if _bc.get(_k)]
+        if _lines:
+            bet_block = ("# ĐẶT CƯỢC FOUNDER ĐÃ CHỌN (bám CHẶT — đây là kim chỉ nam, KHÔNG đi lệch)\n"
+                         + "\n".join(_lines) + "\n\n")
+    ictx = ""
+    try:
+        from frameworks.industry_context import INDUSTRY_CONTEXT
+        ic = INDUSTRY_CONTEXT.get((industry or "").lower())
+        if ic:
+            ictx = (f"Archetype mua hàng: {ic.purchase_archetype}. "
+                    f"Động lực/mùa vụ ngành: {ic.market_dynamics[:500]}")
+    except Exception:
+        pass
+    await _say("Đang viết Tactical Playbook (cách đánh chi tiết)…")
+    tac_user = (
+        f"# Ngành\n{industry}\n{ictx}\n\n"
+        f"{bet_block}"
+        f"{resource_block}"
+        f"# Tệp ƯU TIÊN (wedge founder chọn)\n{wedge or '(chưa chọn — lấy tệp ưu tiên từ Synthesis)'}\n\n"
+        f"# Chiến lược (Synthesis)\n{(synthesis or '')[:3500]}\n\n"
+        f"# SWOT (dùng mã TOWS SO/WO/ST/WT để gắn tag mũi)\n{(research.get('swot') or '(chưa có)')[:2200]}\n\n"
+        f"# Customer Insight (hiểu tệp + insight)\n{(research.get('customer_insight') or '(chưa có)')[:1800]}\n\n"
+        f"# Đối thủ (cho đoạn 'không copy được')\n{(research.get('competitor') or '(chưa có)')[:1500]}"
+    )
+    tac_res = await router_call(task_type=TaskType.OPS_BRIEF, system=_TAC_SYSTEM, user=tac_user, max_tokens=4000)
+    tactical = (tac_res or {}).get("output", "").strip()
+    if not tactical:
+        logger.warning("_gen_playbook: tactical rỗng (uid=%s)", uid)
+        return {"error": "Playbook trống — thử lại."}
+    tac_run = await skill_runs.insert_skill_run(uid, "tactical_playbook", tactical, model_used="web-strategize")
+    # N-07b: ghi synthesis run id mà playbook này bám → FE so lệch để hiện badge "cập nhật?".
+    syn = await skill_runs.get_latest_skill_run(uid, "synthesis")
+    extra["playbook_synth_id"] = str((syn or {}).get("id") or "")
+    await profiles.upsert_profile(uid, intake_extra=extra)
+    return {"ok": True, "tactical_run_id": (tac_run or {}).get("id")}
 
-        return {"ok": True,
-                "synthesis_run_id": (syn_run or {}).get("id"),
-                "tactical_run_id": (tac_run or {}).get("id"),
-                "horizon": horizon, "posture": posture}
+
+async def regen_playbook(user_id=None, progress=None) -> dict:
+    """N-07b: sinh lại Tactical Playbook bám SYNTHESIS mới nhất (sau khi chốt/sửa chiến lược)."""
+    if not available():
+        return {"error": "Chưa cấu hình Supabase."}
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {"error": "Chưa có user."}
+        syn = await _latest_content(uid, "synthesis")
+        if not syn.strip():
+            return {"error": "Chưa có Chiến lược (Synthesis) để dựng Playbook."}
+        return await _gen_playbook(uid, syn, progress)
     except Exception as e:
-        logger.exception("biz.strategize_web failed (uid=%s)", user_id)
+        logger.warning("biz.regen_playbook failed: %s", e)
         return {"error": str(e)}
 
 
@@ -3411,6 +3488,16 @@ async def _execute(job: dict):
             job["status"] = "done"
             job["summary"] = (f"Đã lập Chiến lược + Playbook "
                               f"(nhịp {res.get('horizon')}, posture {res.get('posture')}).")
+        elif task == "regen_playbook":
+            # N-07b: chạy lại Playbook bám synthesis mới nhất (sau khi chốt/sửa chiến lược).
+            try:
+                res = await asyncio.wait_for(regen_playbook(uid, progress), timeout=240)
+            except asyncio.TimeoutError:
+                raise RuntimeError("Cập nhật Playbook quá giờ — thử lại.")
+            if res.get("error"):
+                raise RuntimeError(res["error"])
+            job["status"] = "done"
+            job["summary"] = "Đã cập nhật Tactical Playbook theo chiến lược mới nhất."
         else:
             _TASK_SKILLS = {"market": ["market_research"], "competitor": ["competitor"],
                             "customer": ["customer_insight"], "pricing": ["psychology_pricing"],

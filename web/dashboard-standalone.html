@@ -797,6 +797,11 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 .pf-meta { display:block; font-size:11.5px; color:var(--muted); margin-top:2px; }
 .pf-why { font-size:12.5px; margin-top:5px; }
 .pf-acts { display:flex; gap:6px; flex:none; align-items:center; }
+/* ── N-07b: badge Playbook lệch chiến lược ── */
+.pb-stale { display:flex; align-items:center; gap:12px; flex-wrap:wrap; font-size:13px;
+  background:color-mix(in srgb, var(--amber) 12%, var(--panel)); border-color:color-mix(in srgb, var(--amber) 45%, transparent); }
+.pb-stale .primary-btn { margin-left:auto; }
+
 /* ── N-06: banner trạng thái tác vụ toàn cục ── */
 .job-banner { display:flex; align-items:center; gap:10px; padding:10px 16px; border-radius:10px;
   margin-bottom:16px; font-size:13px; border:1px solid var(--stroke); }
@@ -2399,6 +2404,8 @@ window.MOCK = {
       return `<section class="grid">
         <div class="card span-12 dir-banner">🔨 Đây là <b>cách đánh chi tiết</b> (bản đồ) — đi sau <b>Chiến lược định hướng</b> (la bàn).
           Mỗi phân khúc có copy mẫu, kênh, khung thử nghiệm, KPI. Con số/ngân sách thật chốt khi lập chiến dịch theo dịp.</div>
+        ${M.bizPlaybookStale ? `<div class="card span-12 pb-stale">⚠️ <b>Playbook đang bám chiến lược CŨ</b> — Chiến lược đã đổi sau lần lập Playbook gần nhất.
+          <button class="primary-btn sm" data-act="run-agent" data-task="regen_playbook">🔄 Cập nhật Playbook theo chiến lược mới</button></div>` : ''}
         ${agentSection('full','tactical_playbook')}
         ${nextStepCard({
           done: 'Đã có Tactical Playbook — cách đánh chi tiết theo từng tệp.',
