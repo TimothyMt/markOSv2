@@ -2568,6 +2568,27 @@ _MSG_WEB_ADAPT = (
     '"voice":{"do":["<4-5 điều NÊN>"],"dont":["<4-5 điều TRÁNH>"]}}\n'
     "🔴 KHÔNG bịa số/proof. Mọi thứ truy vết được về USP/Chiến lược trong context."
 )
+# Bước 1 — chỉ MÁI (cốt lõi + tagline). Chốt cái này trước rồi mới dựng trụ.
+_MSG_ADAPT_CORE = (
+    "\n\n════════ BẢN WEB — CHỈ DỰNG MÁI (CỐT LÕI) ════════\n"
+    "Giữ tinh thần Messaging House (refine-không-bịa · truy vết USP/SAVE · tiếng Việt tự nhiên). "
+    "Bước này CHỈ chốt 1 thông điệp CỐT LÕI (định vị ra tiếng khách) + vài tagline — CHƯA dựng trụ.\n"
+    'Xuất JSON DUY NHẤT: {"core":"<1 câu cốt lõi, ≤14 từ, điều bao trùm khách phải nhớ>",'
+    '"taglines":["<2-3 tagline ≤8 từ, mài từ USP>"]}\n'
+    "🔴 KHÔNG bịa. Cốt lõi truy vết được về USP/Chiến lược."
+)
+# Bước 2 — dựng TRỤ + giọng CHỐNG ĐỠ cốt lõi đã chốt (cốt lõi nằm trong user msg).
+_MSG_ADAPT_PILLARS = (
+    "\n\n════════ BẢN WEB — DỰNG TRỤ THEO CỐT LÕI ĐÃ CHỐT ════════\n"
+    "CỐT LÕI đã chốt (trong user msg) là MÁI — mọi trụ phải CHỐNG ĐỠ nó, KHÔNG đổi hướng cốt lõi.\n"
+    "Dựng N TRỤ thông điệp (LÃNH ĐỊA nội dung thương hiệu đóng cọc để nói — rộng: có trụ DẠY, KỂ/cảm "
+    "xúc, CHỨNG MINH, GẮN KẾT; KHÔNG bó ở proof). Số trụ LINH HOẠT 2–5 theo khác biệt THẬT, không ép 3. "
+    "Mỗi trụ: icon (1 emoji) · territory (≤6 từ) · angle (góc nói/quan điểm, 1 câu) · proof (CHỈ khi có "
+    "thật, không có để \"\"). Kèm bộ GIỌNG (do/don't).\n"
+    'Xuất JSON DUY NHẤT: {"pillars":[{"icon":"","territory":"","angle":"","proof":""}],'
+    '"voice":{"do":["<4-5 điều NÊN>"],"dont":["<4-5 điều TRÁNH>"]}}\n'
+    "🔴 KHÔNG bịa số/proof. Mọi trụ truy vết được về cốt lõi + Chiến lược."
+)
 
 
 def _norm_messaging(data) -> dict:
@@ -2621,9 +2642,12 @@ def _messaging_anchor_from(extra) -> str:
             + "\n".join(lines))
 
 
-async def gen_messaging(user_id=None, steer: str = "") -> dict:
-    """Sinh THÔNG ĐIỆP (Messaging House) web-owned: cốt lõi + N trụ lãnh địa {icon·territory·angle·proof} +
-    giọng. Tái dùng prompt bot + đè output JSON + bơm archetype ngành. Lưu intake_extra.messaging. 1 LLM call."""
+async def gen_messaging(user_id=None, steer: str = "", stage: str = "all", core: str = "") -> dict:
+    """Sinh THÔNG ĐIỆP (Messaging House) web-owned. 2 bước (đúng message house: chốt MÁI trước, dựng CỘT sau):
+    - stage='core': chỉ cốt lõi + tagline.
+    - stage='pillars': dựng N trụ + giọng CHỐNG ĐỠ `core` đã chốt (giữ core/tagline/focus cũ).
+    - stage='all' (mặc định cũ): full 1 phát.
+    Tái dùng prompt bot + đè output JSON + bơm archetype ngành. Lưu intake_extra.messaging."""
     if not available():
         return {"error": "Chưa cấu hình Supabase."}
     try:
@@ -2660,18 +2684,42 @@ async def gen_messaging(user_id=None, steer: str = "") -> dict:
             bets = " · ".join(parts)
         from tools.llm_router import call as router_call, TaskType
         import json as _json
-        system = (_BOT_MSG_SYSTEM or _MSG_FALLBACK) + _MSG_WEB_ADAPT + f"\n# KIỂU trụ theo archetype: {arche_hint}\n" + _VN_NATURAL_RULE
+        stored = extra.get("messaging") if isinstance(extra.get("messaging"), dict) else {}
+        # cốt lõi cho bước dựng trụ: ưu tiên core founder vừa sửa, fallback bản đã lưu
+        core_in = (core or (stored.get("core") if isinstance(stored, dict) else "") or "").strip()
+        adapt = (_MSG_ADAPT_CORE if stage == "core"
+                 else _MSG_ADAPT_PILLARS if stage == "pillars"
+                 else _MSG_WEB_ADAPT)
+        system = (_BOT_MSG_SYSTEM or _MSG_FALLBACK) + adapt + f"\n# KIỂU trụ theo archetype: {arche_hint}\n" + _VN_NATURAL_RULE
         user = (f"# Ngành\n{industry} — {arche_label}\n# Sản phẩm/dịch vụ\n{product or '(chưa rõ)'}\n"
                 f"# Khách mục tiêu\n{target or '(chưa rõ)'}\n# USP đã chốt\n{usp or '(chưa rõ)'}\n"
                 + (f"# Đặt cược chiến lược\n{bets}\n" if bets else "")
+                + (f"\n# CỐT LÕI ĐÃ CHỐT (mọi trụ phải CHỐNG ĐỠ — KHÔNG đổi)\n{core_in}\n" if stage == "pillars" and core_in else "")
                 + (f"\n# Chiến lược (synthesis)\n{synth[:2200]}\n" if synth.strip() else "")
                 + (f"\n# Tactical Playbook (cách đánh)\n{tact[:1800]}\n" if tact.strip() else "")
                 + (f"\n# Customer Insight (chia góc theo tệp)\n{cust[:1200]}\n" if cust.strip() else "")
                 + (f"\n# Định hướng founder muốn nhấn\n{steer.strip()[:300]}\n" if (steer or "").strip() else ""))
-        res = await router_call(task_type=TaskType.OPS_BRIEF, system=system, user=user, max_tokens=2600)
+        if stage == "pillars" and not core_in:
+            return {"error": "Cần cốt lõi trước khi dựng trụ."}
+        res = await router_call(task_type=TaskType.OPS_BRIEF, system=system, user=user,
+                                max_tokens=(1400 if stage == "core" else 2600))
         raw = re.sub(r'\s*```\s*$', '', re.sub(r'^```(?:json)?\s*', '', (res or {}).get("output", "").strip())).strip()
         data = _json.loads(raw)
-        msg = _norm_messaging(data)
+        if stage == "core":
+            merged = {"core": str(data.get("core") or "").strip(),
+                      "taglines": data.get("taglines") or [],
+                      "pillars": (stored.get("pillars") if isinstance(stored, dict) else []) or [],
+                      "focus": (stored.get("focus") if isinstance(stored, dict) else "") or "",
+                      "voice": (stored.get("voice") if isinstance(stored, dict) else {}) or {}}
+        elif stage == "pillars":
+            merged = {"core": core_in,
+                      "taglines": (stored.get("taglines") if isinstance(stored, dict) else []) or [],
+                      "pillars": data.get("pillars") or [],
+                      "focus": (stored.get("focus") if isinstance(stored, dict) else "") or "",
+                      "voice": data.get("voice") or {}}
+        else:
+            merged = data
+        msg = _norm_messaging(merged)
         if not (msg.get("core") or msg.get("pillars")):
             return {"error": "Chưa dựng được Thông điệp — thử lại."}
         extra["messaging"] = msg

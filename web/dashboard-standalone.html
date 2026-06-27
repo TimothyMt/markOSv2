@@ -1022,6 +1022,7 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 .msg-lbl { display:block; font-size:13px; font-weight:700; margin:0 0 10px; }
 .msg-lbl .muted { font-weight:400; }
 .msg-core { width:100%; font-size:16px; font-weight:600; padding:11px 14px; border:1px solid var(--stroke); border-radius:10px; background:var(--panel-2); color:var(--text); }
+.msg-core-act { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:12px; padding-top:12px; border-top:1px dashed var(--stroke-2); }
 .msg-taglines { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
 .msg-tag { font-size:12px; padding:3px 10px; border-radius:999px; background:color-mix(in srgb, var(--primary) 12%, transparent); color:var(--primary-2); font-style:italic; }
 .msg-pillars { display:flex; flex-direction:column; gap:10px; }
@@ -3117,7 +3118,7 @@ window.MOCK = {
     get actions() {
       return `<a class="ghost-line" href="#strategy">← Chiến lược</a>`
         + (msgHas() || _msg
-          ? ` <button class="ghost-line" data-act="msg-gen">↻ Max nháp lại</button> <button class="primary-btn" data-act="msg-save">✅ Chốt thông điệp</button> <a class="ghost-line" href="#occasion">→ Lập chiến dịch</a>`
+          ? ` <button class="ghost-line" data-act="msg-gen" data-stage="core">↻ Nháp lại cốt lõi</button> <button class="primary-btn" data-act="msg-save">✅ Chốt thông điệp</button> <a class="ghost-line" href="#occasion">→ Lập chiến dịch</a>`
           : '');
     },
     render: () => `<div id="msgWrap">${msgInner()}</div>`,
@@ -3136,7 +3137,8 @@ window.MOCK = {
         <h3>Chưa có Thông điệp</h3>
         <p class="muted">Max rút từ Chiến lược thành câu chữ nói với khách — <b>cốt lõi</b> + các <b>trụ</b> (lãnh địa nói) + <b>giọng</b>. Bạn chỉnh rồi chốt; mọi bài sẽ bám theo.</p>
         <input id="msgSteer" class="occ-inp" style="max-width:480px;margin:0 auto 12px" placeholder="(tuỳ chọn) định hướng: vd nhấn cảm xúc hơn, giọng trẻ…">
-        <div class="empty-actions"><button class="primary-btn" data-act="msg-gen">🏛️ Để Max nháp Thông điệp từ chiến lược</button></div></div></section>`;
+        <div class="empty-actions"><button class="primary-btn" data-act="msg-gen" data-stage="core">🏛️ Để Max nháp cốt lõi từ chiến lược</button></div>
+        <p class="muted" style="margin-top:10px;font-size:12px">Chốt <b>cốt lõi (mái)</b> trước → rồi dựng <b>trụ cột</b> chống đỡ.</p></div></section>`;
     }
     const S = msgState();
     const tagline = (S.taglines || []).length
@@ -3154,13 +3156,17 @@ window.MOCK = {
     return `
       <div class="dir-banner" style="margin-bottom:14px">🏛️ Max nháp từ Chiến lược → bạn chỉnh từng ô cho "ra chất mình" → <b>Chốt</b>. Mọi bài (móng + đợt) sẽ tự bám cốt lõi + giọng này.</div>
       <section class="card msg-card">
-        <label class="msg-lbl">🏠 CỐT LÕI <span class="muted">(1 điều bao trùm khách phải nhớ)</span></label>
+        <label class="msg-lbl">🏠 CỐT LÕI (MÁI) <span class="muted">(1 điều bao trùm khách phải nhớ — chốt trước)</span></label>
         <input class="msg-core" data-msgfield="core" value="${E(S.core)}" placeholder="vd: Tường nhà kể chuyện của bạn">
         ${tagline}
+        <div class="msg-core-act">
+          <button class="primary-btn sm" data-act="msg-gen-pillars">${(S.pillars || []).length ? '↻ Chạy lại trụ cột theo cốt lõi' : '🏛️ Chạy trụ cột theo cốt lõi →'}</button>
+          <span class="muted" style="font-size:12px">Sửa cốt lõi xong nhấn <b>Enter</b> để Max dựng lại trụ.</span>
+        </div>
       </section>
       <section class="card msg-card">
-        <label class="msg-lbl">🏛️ TRỤ THÔNG ĐIỆP <span class="muted">(lãnh địa mình "đóng cọc" để nói — linh hoạt 2–5)</span></label>
-        <div class="msg-pillars">${pillars || '<p class="muted">—</p>'}</div>
+        <label class="msg-lbl">🏛️ TRỤ THÔNG ĐIỆP (CỘT) <span class="muted">(lãnh địa "đóng cọc" để nói, chống đỡ cốt lõi — linh hoạt 2–5)</span></label>
+        <div class="msg-pillars">${pillars || '<p class="muted">Chưa có trụ — chốt cốt lõi rồi bấm “🏛️ Chạy trụ cột theo cốt lõi” ở trên (hoặc ＋ thêm trụ tay).</p>'}</div>
         <button class="ghost-line sm" data-act="msg-pillar-add" style="margin-top:8px">＋ thêm trụ</button>
       </section>
       <section class="card msg-card">
@@ -3179,6 +3185,19 @@ window.MOCK = {
       </section>`;
   }
   function rerenderMsg() { const w = document.getElementById('msgWrap'); if (w) w.innerHTML = msgInner(); }
+  // Bước 2: dựng TRỤ theo CỐT LÕI hiện tại (Enter trong ô cốt lõi hoặc nút "Chạy trụ cột").
+  async function msgGenPillars() {
+    _msgSync();
+    const core = (msgState().core || '').trim();
+    if (!core) { toast('Nhập/nháp cốt lõi trước'); return; }
+    const btn = document.querySelector('[data-act="msg-gen-pillars"]');
+    let _t; if (btn) { btn.disabled = true; _t = btn.textContent; btn.textContent = '⏳ Max đang dựng trụ…'; }
+    try {
+      const r = await API.post('api/biz/messaging/gen', { user_id: _bizUserId, stage: 'pillars', core });
+      if (r && r.error) { toast(r.error); if (btn) { btn.disabled = false; btn.textContent = _t; } return; }
+      await refreshBiz(); _msg = null; toast('🏛️ Đã dựng trụ theo cốt lõi'); rerenderMsg();
+    } catch (e) { toast('Chưa dựng được trụ — thử lại'); if (btn) { btn.disabled = false; btn.textContent = _t; } }
+  }
   // Dải tóm tắt "đang nói gì với khách" — hiện trên Lập chiến dịch / Lịch, bấm sang #message.
   function messagingBand() {
     const m = (window.MOCK && M.bizMessaging) || {};
@@ -4778,18 +4797,20 @@ window.MOCK = {
       } catch (e) { toast('Lưu nhịp nền lỗi — thử lại'); el.disabled = false; el.textContent = _t; }
       return;
     }
-    if (act === 'msg-gen') {   // Thông điệp: Max nháp (lần đầu hoặc nháp lại)
+    if (act === 'msg-gen') {   // Thông điệp: Max nháp CỐT LÕI (mái) — bước 1
       const steer = ((document.getElementById('msgSteer') || {}).value) || '';
+      const stage = el.dataset.stage || 'all';
       el.disabled = true; const _t = el.textContent; el.textContent = '⏳ Max đang nháp…';
       try {
-        const r = await API.post('api/biz/messaging/gen', { user_id: _bizUserId, steer });
+        const r = await API.post('api/biz/messaging/gen', { user_id: _bizUserId, steer, stage });
         if (r && r.error) { toast(r.error); el.disabled = false; el.textContent = _t; return; }
         await refreshBiz(); _msg = null;
-        toast('🏛️ Max đã nháp Thông điệp — chỉnh rồi chốt');
+        toast('🏛️ Max đã nháp cốt lõi — chỉnh rồi bấm "Chạy trụ cột"');
         route();
       } catch (e) { toast('Chưa nháp được — thử lại'); el.disabled = false; el.textContent = _t; }
       return;
     }
+    if (act === 'msg-gen-pillars') { await msgGenPillars(); return; }   // bước 2: dựng trụ theo cốt lõi
     if (act === 'msg-pillar-add') { _msgSync(); msgState().pillars.push({ icon: '📌', territory: '', angle: '', proof: '' }); rerenderMsg(); return; }
     if (act === 'msg-pillar-remove') { _msgSync(); const i = +el.dataset.idx; msgState().pillars.splice(i, 1); rerenderMsg(); return; }
     if (act === 'msg-save') {   // Thông điệp: chốt bản đã chỉnh
@@ -5187,6 +5208,13 @@ window.MOCK = {
   document.addEventListener('change', (e) => {
     const el = e.target.closest('input[data-act]');
     if (el) handleAction(el);
+  });
+  // Thông điệp: Enter trong ô CỐT LÕI → dựng lại trụ theo cốt lõi mới
+  document.addEventListener('keydown', (e) => {
+    const t = e.target;
+    if (e.key === 'Enter' && t && t.matches && t.matches('[data-msgfield="core"]')) {
+      e.preventDefault(); msgGenPillars();
+    }
   });
   // Enter trong ô intake (#intakeBox) = Tiếp (form tĩnh) / Gửi (AI) — CAPTURE-phase để ăn TRƯỚC
   // default của textarea + extension (Grammarly…), và luôn ăn dù mount re-render.

@@ -1024,6 +1024,7 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 .msg-lbl .muted { font-weight:400; }
 .msg-core { width:100%; font-size:16px; font-weight:600; padding:11px 14px; border:1px solid var(--stroke);
   border-radius:10px; background:var(--panel-2); color:var(--text); }
+.msg-core-act { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:12px; padding-top:12px; border-top:1px dashed var(--stroke-2); }
 .msg-taglines { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
 .msg-tag { font-size:12px; padding:3px 10px; border-radius:999px; background:color-mix(in srgb, var(--primary) 12%, transparent);
   color:var(--primary-2); font-style:italic; }

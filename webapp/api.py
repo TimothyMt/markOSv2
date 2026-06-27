@@ -283,9 +283,10 @@ async def biz_rhythm_save(request):
 
 
 async def biz_messaging_gen(request):
-    """Thông điệp — Max nháp Messaging House (cốt lõi + trụ + giọng) từ chiến lược."""
+    """Thông điệp — Max nháp Messaging House. stage='core' (mái) → 'pillars' (cột chống đỡ core)."""
     d = await request.json()
-    res = await biz.gen_messaging(d.get("user_id"), d.get("steer", ""))
+    res = await biz.gen_messaging(d.get("user_id"), d.get("steer", ""),
+                                  stage=d.get("stage", "all"), core=d.get("core", ""))
     return JSONResponse(res, status_code=400 if "error" in res else 200)
 
 
