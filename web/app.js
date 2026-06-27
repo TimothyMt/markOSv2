@@ -1477,7 +1477,7 @@
     return `
       <section class="calboard">
         <div class="cal-bands" style="grid-template-columns:repeat(${W},1fr)">
-          <a class="band-base band-brand clickable" style="grid-column:1 / -1" href="#occasion" title="Chiến dịch nền — bấm xem tuyến nền + bản đồ phễu"><span>🟢 <b>Branding nền</b> · liên tục · không deadline — chạy suốt cả ${W} tuần, KHÔNG tắt khi có đợt</span></a>
+          <a class="band-base band-brand clickable" style="grid-column:1 / -1" href="#rhythm" title="Nhịp nền — bấm để chỉnh 6 tuyến chạy quanh năm"><span>🟢 <b>Branding nền</b> · liên tục · không deadline — chạy suốt cả ${W} tuần, KHÔNG tắt khi có đợt · 🎛️ chỉnh nhịp</span></a>
           ${bands}
         </div>
         <div class="plan-weekhead" style="grid-template-columns:repeat(${W},1fr)">
@@ -1522,7 +1522,7 @@
           <button class="${_calView==='week'?'on':''}" data-act="cal-view" data-view="week">Chi tiết tuần</button>
         </div>
         ${_realCal ? `<button class="ghost-line" data-act="gen-topics">✨ Gợi ý chủ đề cả lịch</button>` : ''}
-        <a class="ghost-line" href="#occasion">🟢 Tuyến nền</a>
+        <a class="ghost-line" href="#rhythm">🎛️ Nhịp nền</a>
         <button class="ghost-line" data-act="portfolio-open">🗓️ Gợi ý lịch đợt</button>
         <button class="primary-btn" data-act="add-campaign-occasion">＋ Thêm đợt vào lịch</button>`;
     },
@@ -1557,6 +1557,104 @@
       msg = `<b>${nDot} đợt</b> — nhớ giữ ~60% sức cho <b>nền thương hiệu</b> để không đốt tiền ngắn hạn.`;
     if (!msg) return '';
     return `<div class="balance-nudge">💡 <b>Cân bằng brand · đơn (60/40):</b> ${msg} <a href="#occasion">Quản tuyến →</a></div>`;
+  }
+
+  /* ════════ Tầng ③ — BẢNG ĐIỀU KHIỂN NHỊP NỀN (6 tuyến chạy quanh năm) ════════ */
+  // Đệm chỉnh cục bộ; null = chưa nạp → lấy từ MOCK.bizContentRhythm. Lưu xong reset về null.
+  let _rhythm = null;
+  function rhythmState() {
+    if (_rhythm) return _rhythm;
+    const base = ((window.MOCK && M.bizContentRhythm) || {}).rhythm || {};
+    _rhythm = {};
+    ((window.MOCK && M.bizContentDang) || []).forEach(d => {
+      const r = base[d.key] || {};
+      _rhythm[d.key] = { on: !!r.on, freq: (r.freq != null ? +r.freq : 1) };
+    });
+    return _rhythm;
+  }
+  function rhythmStats() {
+    const S = rhythmState();
+    let brand = 0, sales = 0;
+    ((window.MOCK && M.bizContentDang) || []).forEach(d => {
+      const r = S[d.key]; if (!r || !r.on) return;
+      if (d.group === 'sales') sales += r.freq; else brand += r.freq;
+    });
+    const total = brand + sales;
+    return { brand, sales, total,
+      brandPct: total ? Math.round(brand / total * 100) : 0,
+      salesPct: total ? Math.round(sales / total * 100) : 0,
+      perMonth: Math.round(total * 4.3 * 10) / 10 };
+  }
+  const _fmtFreq = n => (Math.round(n * 10) / 10);
+  function freqLabel(f) {
+    f = +f || 0;
+    if (f <= 0) return '—';
+    if (f === 0.5) return '1 / 2 tuần';
+    return _fmtFreq(f) + ' / tuần';
+  }
+  P.rhythm = {
+    title: 'Nhịp nền nội dung',
+    sub: 'Bảng điều khiển 6 tuyến chạy quanh năm — bật/tắt & chỉnh nhịp. Max rải đều lên Lịch rồi soạn sẵn từng bài để bạn duyệt',
+    get actions() {
+      return `<a class="ghost-line" href="#calendar">← Về Lịch</a>
+        <button class="primary-btn" data-act="rhythm-save">✅ Chốt nhịp nền → rải lên Lịch</button>`;
+    },
+    render: () => `
+      <div class="dir-banner" style="margin-bottom:14px">🎛️ Bật/tắt &amp; chỉnh nhịp từng tuyến. Max <b>rải đều lên Lịch</b> + <b>soạn sẵn từng bài</b> để bạn duyệt. Đợt sale/ra mắt thì vặn to ở mục <a href="#occasion">Đợt →</a>.</div>
+      <div id="rhyWrap">${rhythmInner()}</div>`,
+    mount: () => {},
+  };
+  function rhythmInner() {
+    const dangs = (window.MOCK && M.bizContentDang) || [];
+    if (!dangs.length) return `<section class="card"><p class="muted">Chưa có dữ liệu dạng nội dung — bật backend để chỉnh nhịp nền.</p></section>`;
+    const S = rhythmState();
+    const sug = ((window.MOCK && M.bizContentRhythm) || {}).suggest || {};
+    const E = s => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const row = (d) => {
+      const r = S[d.key] || { on: false, freq: 1 };
+      const sf = sug[d.key];
+      return `<div class="rhy-row ${r.on ? 'on' : ''}">
+        <div class="rhy-main">
+          <span class="rhy-ic">${d.icon}</span>
+          <div class="rhy-txt"><b>${E(d.label)}</b> <span class="rhy-role">${E(d.role_label)}</span>
+            <small class="rhy-desc">${E(d.desc)}</small></div>
+          <button class="rhy-toggle ${r.on ? 'on' : ''}" data-act="rhythm-toggle" data-dang="${d.key}" role="switch" aria-checked="${r.on}"><i></i></button>
+        </div>
+        <div class="rhy-freq ${r.on ? '' : 'off'}">
+          <span class="rhy-freq-lbl">Nhịp</span>
+          <button class="rhy-step" data-act="rhythm-freq" data-dang="${d.key}" data-dir="-1" ${r.on ? '' : 'disabled'}>−</button>
+          <span class="rhy-freq-val">${freqLabel(r.freq)}</span>
+          <button class="rhy-step" data-act="rhythm-freq" data-dang="${d.key}" data-dir="1" ${r.on ? '' : 'disabled'}>＋</button>
+          ${sf != null ? `<span class="rhy-sug" title="Max gợi ý">✦ ${freqLabel(sf)}</span>` : ''}
+        </div>
+      </div>`;
+    };
+    const brand = dangs.filter(d => d.group === 'brand');
+    const sales = dangs.filter(d => d.group === 'sales');
+    const st = rhythmStats();
+    const barB = st.total ? Math.round(st.brand / st.total * 100) : 0;
+    return `
+      <section class="grid rhy-grid">
+        <div class="card span-6 rhy-col">
+          <div class="rhy-col-head rhy-brand">🟢 Xây thương hiệu <span class="muted">nhớ &amp; tin</span></div>
+          ${brand.map(row).join('')}
+        </div>
+        <div class="card span-6 rhy-col">
+          <div class="rhy-col-head rhy-sales">🔴 Bán &amp; Giữ <span class="muted">chốt &amp; quay lại</span></div>
+          ${sales.map(row).join('')}
+        </div>
+      </section>
+      <section class="card rhy-summary">
+        <div class="rhy-sum-l">📊 Tổng nhịp nền: <b>${_fmtFreq(st.total)} bài/tuần</b> · ~${st.perMonth} bài/tháng</div>
+        <div class="rhy-balance">
+          <div class="rhy-bar" title="Tỉ lệ brand · bán"><div class="rhy-bar-brand" style="width:${barB}%"></div></div>
+          <span class="rhy-bal-txt">Thương hiệu ${st.brandPct}% · Bán-Giữ ${st.salesPct}%</span>
+        </div>
+      </section>`;
+  }
+  function rerenderRhythm() {
+    const w = document.getElementById('rhyWrap');
+    if (w) w.innerHTML = rhythmInner();
   }
 
   /* ---- Content generator ---- */
@@ -3122,6 +3220,32 @@
         track: 'always', pillar: `📡 ${ch} · ${stage}`, funnel: stage,
         title: topic, topic, angles: [topic], key: '',
         track_role: role, objective: el.dataset.obj || 'brand' });
+      return;
+    }
+    if (act === 'rhythm-toggle') {   // Tầng ③: bật/tắt 1 tuyến nền
+      const k = el.dataset.dang; const S = rhythmState();
+      if (S[k]) { S[k].on = !S[k].on; if (S[k].on && (!S[k].freq || S[k].freq < 0.5)) S[k].freq = 0.5; }
+      rerenderRhythm();
+      return;
+    }
+    if (act === 'rhythm-freq') {   // Tầng ③: chỉnh nhịp tuyến (bước 0.5, 0.5..7 bài/tuần)
+      const k = el.dataset.dang; const dir = +el.dataset.dir; const S = rhythmState();
+      if (S[k] && S[k].on) {
+        S[k].freq = Math.max(0.5, Math.min(7, Math.round((S[k].freq + dir * 0.5) * 2) / 2));
+        rerenderRhythm();
+      }
+      return;
+    }
+    if (act === 'rhythm-save') {   // Tầng ③: chốt nhịp nền → lưu → về Lịch
+      el.disabled = true; const _t = el.textContent; el.textContent = '⏳ Đang lưu…';
+      try {
+        const r = await API.post('api/biz/rhythm/save', { user_id: _bizUserId, rhythm: rhythmState() });
+        if (r && r.error) throw 0;
+        await refreshBiz();
+        _rhythm = null;   // reset đệm → lần sau lấy lại từ MOCK đã lưu
+        toast('✅ Đã chốt nhịp nền — Max sẽ rải lên Lịch');
+        location.hash = '#calendar';
+      } catch (e) { toast('Lưu nhịp nền lỗi — thử lại'); el.disabled = false; el.textContent = _t; }
       return;
     }
     if (act === 'bet-chip') { el.classList.toggle('on'); return; }   // tick/bỏ 1 option

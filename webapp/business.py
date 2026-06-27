@@ -218,6 +218,11 @@ async def biz_data(user_id=None) -> dict:
     out["bizCampaignTypes"] = campaign_types_list()
     out["bizContentDang"] = content_dang_list()   # tầng ③: 6 dạng nội dung (1 lớp)
     try:
+        _ier = (out.get("bizProfile") or {}).get("intake_extra") or {}
+        out["bizContentRhythm"] = content_rhythm_view(_ier.get("content_rhythm") if isinstance(_ier, dict) else None)
+    except Exception:
+        out["bizContentRhythm"] = content_rhythm_view(None)
+    try:
         _ie2 = (out.get("bizProfile") or {}).get("intake_extra") or {}
         out["bizCampaignPortfolio"] = (_ie2.get("campaign_portfolio") if isinstance(_ie2, dict) else []) or []
     except Exception:
@@ -1300,14 +1305,92 @@ CONTENT_DANG = {
 }
 
 
+# Nhóm 60/40 (Binet&Field): brand = xây thương hiệu (nhớ & tin) · sales = bán & giữ (chốt & quay lại).
+_DANG_GROUP = {"story": "brand", "educate": "brand", "review": "brand", "engage": "brand",
+               "sell": "sales", "retain": "sales"}
+_GROUP_LABEL = {"brand": "Xây thương hiệu", "sales": "Bán & Giữ"}
+
+
 def content_dang_list() -> list:
-    """Cho FE: 6 dạng nội dung (1 lớp) — kèm vai trò phễu (role) + map campaign_type/objective ngầm."""
+    """Cho FE: 6 dạng nội dung (1 lớp) — kèm vai trò phễu (role) + map campaign_type/objective ngầm + nhóm 60/40."""
     out = []
     for k, (ic, lbl, role, obj, ctype, desc) in CONTENT_DANG.items():
         rl = CONTENT_TRACKS.get(role, ("", role, ""))
+        grp = _DANG_GROUP.get(k, "brand")
         out.append({"key": k, "icon": ic, "label": lbl, "role": role, "role_label": rl[1],
-                    "objective": obj, "campaign_type": ctype, "desc": desc})
+                    "objective": obj, "campaign_type": ctype, "desc": desc,
+                    "group": grp, "group_label": _GROUP_LABEL.get(grp, grp)})
     return out
+
+
+# ───────── Nhịp nền (content rhythm) — bảng điều khiển 6 tuyến chạy quanh năm ─────────
+# Lưu intake_extra.content_rhythm = {<dang_key>: {"on": bool, "freq": <bài/tuần, cho phép 0.5>}}.
+# Mặc định nghiêng ~60/40 (brand/sales) nhưng user tự chỉnh thoải mái, KHÔNG cảnh báo.
+CONTENT_RHYTHM_DEFAULT = {
+    "story":   {"on": True,  "freq": 1.0},
+    "educate": {"on": True,  "freq": 2.0},
+    "review":  {"on": False, "freq": 1.0},
+    "engage":  {"on": False, "freq": 0.5},
+    "sell":    {"on": True,  "freq": 1.0},
+    "retain":  {"on": False, "freq": 0.5},
+}
+# nhịp Max GỢI Ý (✦) — hiển thị cạnh mỗi tuyến để user khỏi phải nghĩ
+CONTENT_RHYTHM_SUGGEST = {k: v["freq"] for k, v in CONTENT_RHYTHM_DEFAULT.items()}
+
+
+def _norm_rhythm(raw) -> dict:
+    """Chuẩn hoá config nhịp nền về đúng 6 key; clamp freq 0..7 (bài/tuần); thiếu thì lấy default."""
+    raw = raw if isinstance(raw, dict) else {}
+    out = {}
+    for k in CONTENT_DANG:
+        d = raw.get(k) if isinstance(raw.get(k), dict) else {}
+        dflt = CONTENT_RHYTHM_DEFAULT[k]
+        try:
+            f = float(d.get("freq", dflt["freq"]))
+        except (TypeError, ValueError):
+            f = dflt["freq"]
+        f = max(0.0, min(7.0, round(f * 2) / 2))   # bước 0.5, trần 7/tuần
+        out[k] = {"on": bool(d.get("on", dflt["on"])), "freq": f}
+    return out
+
+
+def content_rhythm_view(raw) -> dict:
+    """Cho FE: nhịp nền hiện tại + nhịp gợi ý + tổng/tuần + tỉ lệ brand/sales (chỉ hiển thị, không ép)."""
+    rh = _norm_rhythm(raw)
+    brand = sum(rh[k]["freq"] for k in rh if rh[k]["on"] and _DANG_GROUP.get(k) == "brand")
+    sales = sum(rh[k]["freq"] for k in rh if rh[k]["on"] and _DANG_GROUP.get(k) == "sales")
+    total = brand + sales
+    return {
+        "rhythm": rh,
+        "suggest": CONTENT_RHYTHM_SUGGEST,
+        "per_week": round(total, 1),
+        "per_month": round(total * 4.3, 1),
+        "brand_pct": round(brand / total * 100) if total else 0,
+        "sales_pct": round(sales / total * 100) if total else 0,
+    }
+
+
+async def save_content_rhythm(user_id=None, rhythm=None) -> dict:
+    """Lưu nhịp nền (bảng điều khiển 6 tuyến) vào intake_extra.content_rhythm. User tự set, không cảnh báo."""
+    if not available():
+        return {"error": "Chưa cấu hình Supabase."}
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {"error": "Chưa có user."}
+        from storage.v2 import profiles
+        prof = await profiles.get_profile(uid) or {}
+        extra = prof.get("intake_extra") if isinstance(prof.get("intake_extra"), dict) else {}
+        if not isinstance(extra, dict):
+            extra = {}
+        norm = _norm_rhythm(rhythm)
+        extra["content_rhythm"] = norm
+        await profiles.upsert_profile(uid, intake_extra=extra)
+        return {"ok": True, **content_rhythm_view(norm)}
+    except Exception as e:
+        logger.warning("biz.save_content_rhythm failed: %s", e)
+        return {"error": str(e)}
 # objective của sub → bộ tuyến mặc định (mix phễu theo mục tiêu)
 _OBJ_TRACKS = {
     "brand":      ["khai_sang", "tin_cay", "lan_toa"],
