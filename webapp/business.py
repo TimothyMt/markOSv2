@@ -2209,12 +2209,17 @@ def _normalize_saved(key: str, val, pillars_by_name: dict) -> dict | None:
 _ROLE_FUNNEL = {"khai_sang": "TOFU", "tin_cay": "MOFU", "chuyen_hoa": "BOFU", "lan_toa": "Engage"}
 
 
-def _build_rhythm_always(rhythm, trus, max_week, idx_always, consumed) -> list:
+def _build_rhythm_always(rhythm, trus, max_week, idx_always, consumed, focus: str = "") -> list:
     """Lịch NỀN dựng từ NHỊP NỀN (6 dạng × tần suất) thay cho pillars cũ — mỗi slot mang 1 DẠNG (hình thức +
-    vai trò phễu) × 1 TRỤ thông điệp (lãnh địa nói, xoay vòng). freq 0.5 = 1 bài/2 tuần (tuần lẻ)."""
+    vai trò phễu) × 1 TRỤ thông điệp (lãnh địa nói, xoay vòng). freq 0.5 = 1 bài/2 tuần (tuần lẻ).
+    focus = trụ ĐANG ĐẨY (Khối B) → xuất hiện gấp đôi trong vòng xoay."""
     dang_meta = content_dang_list()
     trus = [t for t in (trus or []) if isinstance(t, dict) and t.get("territory")]
-    tru_n = len(trus)
+    # vòng xoay trụ: trụ trọng tâm lặp 2 lần → nghiêng tần suất về nó (vẫn xoay các trụ khác)
+    rot = list(trus)
+    if focus:
+        rot += [t for t in trus if t.get("territory") == focus]
+    tru_n = len(rot)
     out = []
     for w in range(1, max_week + 1):
         weekly = []
@@ -2233,7 +2238,7 @@ def _build_rhythm_always(rhythm, trus, max_week, idx_always, consumed) -> list:
         weekly = weekly[:14]
         day_of = _assign_days(len(weekly))
         for idx, d in enumerate(weekly):
-            tru = trus[(idx + w) % tru_n] if tru_n else {}
+            tru = rot[(idx + w) % tru_n] if tru_n else {}
             terr = (tru.get("territory") if tru else "") or "Thương hiệu"
             pid = f"rhy|{d['key']}|{terr}"
             angle = (tru.get("angle") if tru else "") or ""
@@ -2353,10 +2358,11 @@ async def calendar_plan(user_id=None) -> dict:
         _rhythm_cfg = (_extra or {}).get("content_rhythm") if isinstance(_extra, dict) else None
         _rhythm_on = isinstance(_rhythm_cfg, dict) and any(
             isinstance(v, dict) and v.get("on") for v in _rhythm_cfg.values())
-        _trus = (((_extra or {}).get("messaging") or {}).get("pillars")
-                 if isinstance(_extra, dict) else None) or []
+        _msg_obj = ((_extra or {}).get("messaging") if isinstance(_extra, dict) else None) or {}
+        _trus = (_msg_obj.get("pillars") if isinstance(_msg_obj, dict) else None) or []
+        _focus = (_msg_obj.get("focus") if isinstance(_msg_obj, dict) else "") or ""
         if _rhythm_on:
-            always = _build_rhythm_always(_rhythm_cfg, _trus, max_week, idx_always, consumed)
+            always = _build_rhythm_always(_rhythm_cfg, _trus, max_week, idx_always, consumed, _focus)
         elif pillars:
             weekly = []                      # 1 phần tử = 1 slot/tuần (lặp theo nhịp trụ)
             for p in pillars:
@@ -2578,10 +2584,14 @@ def _norm_messaging(data) -> dict:
                         "angle": str(p.get("angle") or "").strip()[:220],
                         "proof": str(p.get("proof") or "").strip()[:180]})
     voice = data.get("voice") if isinstance(data.get("voice"), dict) else {}
+    focus = str(data.get("focus") or "").strip()[:60]
+    if focus and focus not in [p["territory"] for p in pillars]:
+        focus = ""   # trọng tâm phải là 1 trụ đang có
     return {
         "core": str(data.get("core") or "").strip()[:240],
         "taglines": [str(t).strip()[:90] for t in (data.get("taglines") or []) if str(t).strip()][:3],
         "pillars": pillars,
+        "focus": focus,   # Khối B: trụ đang ĐẨY kỳ này ("" = chạy đều)
         "voice": {"do": [str(x).strip()[:140] for x in (voice.get("do") or []) if str(x).strip()][:6],
                   "dont": [str(x).strip()[:140] for x in (voice.get("dont") or []) if str(x).strip()][:6]},
     }
@@ -2598,6 +2608,8 @@ def _messaging_anchor_from(extra) -> str:
     ps = " · ".join(p.get("territory", "") for p in (m.get("pillars") or [])[:5] if p.get("territory"))
     if ps:
         lines.append(f"Trụ thông điệp (lãnh địa nói): {ps}")
+    if m.get("focus"):
+        lines.append(f"ĐANG ĐẨY trọng tâm kỳ này: {m['focus']} — ưu tiên nghiêng góc/lãnh địa này.")
     v = m.get("voice") or {}
     if v.get("do"):
         lines.append("Giọng NÊN: " + "; ".join(v["do"][:4]))

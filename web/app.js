@@ -1653,6 +1653,7 @@
       core: m.core || '',
       taglines: (m.taglines || []).slice(),
       pillars: (m.pillars || []).map(p => ({ icon: p.icon || '📌', territory: p.territory || '', angle: p.angle || '', proof: p.proof || '' })),
+      focus: m.focus || '',
       voice: { do: ((m.voice || {}).do || []).slice(), dont: ((m.voice || {}).dont || []).slice() },
     };
     return _msg;
@@ -1666,6 +1667,7 @@
         const el = w.querySelector(`[data-msgp="${f}"][data-idx="${i}"]`); if (el) p[f] = el.value;
       });
     });
+    const fEl = w.querySelector('[data-msgfield="focus"]'); if (fEl) S.focus = fEl.value;
     const dEl = w.querySelector('[data-msgfield="do"]'); if (dEl) S.voice.do = dEl.value.split('\n').map(s => s.trim()).filter(Boolean);
     const nEl = w.querySelector('[data-msgfield="dont"]'); if (nEl) S.voice.dont = nEl.value.split('\n').map(s => s.trim()).filter(Boolean);
   }
@@ -1722,6 +1724,13 @@
         <button class="ghost-line sm" data-act="msg-pillar-add" style="margin-top:8px">＋ thêm trụ</button>
       </section>
       <section class="card msg-card">
+        <label class="msg-lbl">🎯 TRỌNG TÂM KỲ NÀY <span class="muted">(đẩy mạnh 1 trụ — Lịch sẽ nghiêng tần suất về nó; để "đều" nếu chưa cần)</span></label>
+        <select class="occ-inp" data-msgfield="focus" style="max-width:420px">
+          <option value="" ${!S.focus ? 'selected' : ''}>— Chạy đều tất cả trụ —</option>
+          ${(S.pillars || []).filter(p => p.territory).map(p => `<option value="${E(p.territory)}" ${S.focus === p.territory ? 'selected' : ''}>${E(p.icon)} ${E(p.territory)}</option>`).join('')}
+        </select>
+      </section>
+      <section class="card msg-card">
         <label class="msg-lbl">🎙️ GIỌNG <span class="muted">(mỗi dòng 1 ý)</span></label>
         <div class="msg-voice">
           <div><span class="msg-voice-h ok">✅ Nên</span><textarea class="msg-ta" data-msgfield="do" rows="4" placeholder="mỗi dòng 1 ý">${E((S.voice.do || []).join('\n'))}</textarea></div>
@@ -1738,7 +1747,8 @@
     }
     const E = s => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     const ps = (m.pillars || []).slice(0, 4).map(p => `${p.icon || ''} ${E(p.territory)}`).join(' · ');
-    return `<a class="msg-band clickable" href="#message">🏛️ <b>Đang nói:</b> "${E(m.core || '—')}"${ps ? ` · <span class="muted">${ps}</span>` : ''} <span class="msg-band-edit">✎ chỉnh</span></a>`;
+    const foc = m.focus ? ` · 🎯 <b>đẩy:</b> ${E(m.focus)}` : '';
+    return `<a class="msg-band clickable" href="#message">🏛️ <b>Đang nói:</b> "${E(m.core || '—')}"${ps ? ` · <span class="muted">${ps}</span>` : ''}${foc} <span class="msg-band-edit">✎ chỉnh</span></a>`;
   }
 
   /* ---- Content generator ---- */
