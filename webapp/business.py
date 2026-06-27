@@ -220,8 +220,9 @@ async def biz_data(user_id=None) -> dict:
     try:
         _ier = (out.get("bizProfile") or {}).get("intake_extra") or {}
         out["bizContentRhythm"] = content_rhythm_view(_ier.get("content_rhythm") if isinstance(_ier, dict) else None)
+        out["bizMessaging"] = (_ier.get("messaging") if isinstance(_ier, dict) else None) or {}
     except Exception:
-        out["bizContentRhythm"] = content_rhythm_view(None)
+        out["bizContentRhythm"] = content_rhythm_view(None); out["bizMessaging"] = {}
     try:
         _ie2 = (out.get("bizProfile") or {}).get("intake_extra") or {}
         out["bizCampaignPortfolio"] = (_ie2.get("campaign_portfolio") if isinstance(_ie2, dict) else []) or []
@@ -2468,6 +2469,170 @@ async def gen_funnel_map(user_id=None, objective: str = "brand") -> dict:
         return {"error": str(e)}
 
 
+# ════ THÔNG ĐIỆP (Messaging House web-owned) — lớp "nói gì với khách" giữa Chiến lược ↔ Sản xuất ════
+# Tái dùng prompt bot (BRAND_POSITIONING_SYSTEM) để giữ chất lượng; đè phần OUTPUT sang JSON theo model
+# trụ-lãnh-địa của web + bơm archetype ngành. Lưu intake_extra.messaging.
+try:
+    from agents.operational_prompts import BRAND_POSITIONING_SYSTEM as _BOT_MSG_SYSTEM
+except Exception:
+    _BOT_MSG_SYSTEM = ""
+_MSG_FALLBACK = (
+    "Bạn là Brand Manager build Messaging House cho founder Việt. REFINE (không làm lại) positioning + USP "
+    "trong context thành nguồn thông điệp chuẩn để mọi bài viết nhất quán. KHÔNG đổi hướng định vị, KHÔNG bịa.")
+# archetype ngành → KIỂU trụ nên nghiêng (bám frameworks.industry_context)
+_ARCHE_PILLAR_HINT = {
+    "impulse": "ngành mua cảm xúc nhanh → trụ nghiêng: trend · thèm muốn · sống ảo · UGC · khách khoe",
+    "demand_gen": "ngành khơi gợi nhu cầu → trụ nghiêng: giáo dục · khơi vấn đề · 'vì sao cần' · so sánh giải pháp",
+    "trust_building": "ngành xây niềm tin → trụ nghiêng: chuyên môn/authority · case/proof · giải thích đúng-sai · hậu trường nghề",
+}
+_MSG_WEB_ADAPT = (
+    "\n\n════════ BẢN WEB — ĐÈ PHẦN OUTPUT (bỏ markdown 5 phần) ════════\n"
+    "Giữ NGUYÊN tinh thần Messaging House (persona · refine-không-bịa · truy vết về USP/SAVE · tiếng Việt tự "
+    "nhiên), nhưng xuất JSON DUY NHẤT theo schema dưới — KHÔNG xuất markdown.\n"
+    "KHÁI NIỆM 'trụ' ở bản web RỘNG hơn 'điều khách cần tin': mỗi trụ là 1 LÃNH ĐỊA nội dung thương hiệu đóng "
+    "cọc để nói — có trụ để DẠY, trụ KỂ/cảm xúc, trụ CHỨNG MINH, trụ GẮN KẾT — KHÔNG bó hẹp ở proof.\n"
+    "Mỗi trụ: icon (1 emoji hợp lãnh địa) · territory (tên lãnh địa ≤6 từ) · angle (góc nói/quan điểm thương "
+    "hiệu trong lãnh địa đó, 1 câu) · proof (bằng chứng CHỈ KHI có thật trong context; không có để \"\").\n"
+    "Số trụ LINH HOẠT 2–5 theo số khác biệt THẬT — KHÔNG ép đúng 3.\n"
+    'Schema JSON: {"core":"<1 thông điệp cốt lõi, định vị ra tiếng khách, ≤14 từ>",'
+    '"taglines":["<2-3 tagline ≤8 từ, mài từ USP>"],'
+    '"pillars":[{"icon":"","territory":"","angle":"","proof":""}],'
+    '"voice":{"do":["<4-5 điều NÊN>"],"dont":["<4-5 điều TRÁNH>"]}}\n'
+    "🔴 KHÔNG bịa số/proof. Mọi thứ truy vết được về USP/Chiến lược trong context."
+)
+
+
+def _norm_messaging(data) -> dict:
+    data = data if isinstance(data, dict) else {}
+    pillars = []
+    for p in (data.get("pillars") or [])[:5]:
+        if not isinstance(p, dict):
+            continue
+        terr = str(p.get("territory") or "").strip()[:60]
+        if not terr:
+            continue
+        pillars.append({"icon": (str(p.get("icon") or "").strip()[:4] or "📌"),
+                        "territory": terr,
+                        "angle": str(p.get("angle") or "").strip()[:220],
+                        "proof": str(p.get("proof") or "").strip()[:180]})
+    voice = data.get("voice") if isinstance(data.get("voice"), dict) else {}
+    return {
+        "core": str(data.get("core") or "").strip()[:240],
+        "taglines": [str(t).strip()[:90] for t in (data.get("taglines") or []) if str(t).strip()][:3],
+        "pillars": pillars,
+        "voice": {"do": [str(x).strip()[:140] for x in (voice.get("do") or []) if str(x).strip()][:6],
+                  "dont": [str(x).strip()[:140] for x in (voice.get("dont") or []) if str(x).strip()][:6]},
+    }
+
+
+def _messaging_anchor_from(extra) -> str:
+    """Text NỀN ngầm chèn vào prompt gen bài — mọi bài bám cùng cốt lõi/giọng (ưu tiên hơn định vị thô)."""
+    m = (extra.get("messaging") if isinstance(extra, dict) else None) or {}
+    if not isinstance(m, dict) or not (m.get("core") or m.get("pillars")):
+        return ""
+    lines = []
+    if m.get("core"):
+        lines.append(f"Thông điệp cốt lõi: {m['core']}")
+    ps = " · ".join(p.get("territory", "") for p in (m.get("pillars") or [])[:5] if p.get("territory"))
+    if ps:
+        lines.append(f"Trụ thông điệp (lãnh địa nói): {ps}")
+    v = m.get("voice") or {}
+    if v.get("do"):
+        lines.append("Giọng NÊN: " + "; ".join(v["do"][:4]))
+    if v.get("dont"):
+        lines.append("Giọng TRÁNH: " + "; ".join(v["dont"][:4]))
+    if not lines:
+        return ""
+    return ("\n\n# THÔNG ĐIỆP (bám NGẦM — mọi bài cùng 1 cốt lõi/giọng; ƯU TIÊN hơn định vị thô)\n"
+            + "\n".join(lines))
+
+
+async def gen_messaging(user_id=None, steer: str = "") -> dict:
+    """Sinh THÔNG ĐIỆP (Messaging House) web-owned: cốt lõi + N trụ lãnh địa {icon·territory·angle·proof} +
+    giọng. Tái dùng prompt bot + đè output JSON + bơm archetype ngành. Lưu intake_extra.messaging. 1 LLM call."""
+    if not available():
+        return {"error": "Chưa cấu hình Supabase."}
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {"error": "Chưa có user."}
+        synth = await _latest_content(uid, "synthesis")
+        tact = await _latest_content(uid, "tactical_playbook")
+        cust = await _latest_content(uid, "customer_insight")
+        if not (synth.strip() or tact.strip()):
+            return {"error": "Cần Chiến lược trước khi dựng Thông điệp."}
+        from storage.v2 import profiles
+        prof = await profiles.get_profile(uid) or {}
+        extra = prof.get("intake_extra") if isinstance(prof.get("intake_extra"), dict) else {}
+        if not isinstance(extra, dict):
+            extra = {}
+        industry = prof.get("industry") or ""
+        usp = prof.get("usp") or ""
+        product = prof.get("product_service") or ""
+        target = prof.get("target_customer") or ""
+        arche_key, arche_label = "", ""
+        try:
+            from frameworks.industry_context import get_purchase_archetype, ARCHETYPE_LABEL
+            arche_key = get_purchase_archetype(industry) or ""
+            arche_label = ARCHETYPE_LABEL.get(arche_key, "") or arche_key
+        except Exception:
+            pass
+        arche_hint = _ARCHE_PILLAR_HINT.get(arche_key, "chọn trụ hợp ngành + tệp khách")
+        bets = ""
+        bc = extra.get("bet_choices") if isinstance(extra.get("bet_choices"), dict) else {}
+        if isinstance(bc, dict):
+            parts = [f"{k}: {', '.join(v)}" for k, v in bc.items() if v]
+            bets = " · ".join(parts)
+        from tools.llm_router import call as router_call, TaskType
+        import json as _json
+        system = (_BOT_MSG_SYSTEM or _MSG_FALLBACK) + _MSG_WEB_ADAPT + f"\n# KIỂU trụ theo archetype: {arche_hint}\n" + _VN_NATURAL_RULE
+        user = (f"# Ngành\n{industry} — {arche_label}\n# Sản phẩm/dịch vụ\n{product or '(chưa rõ)'}\n"
+                f"# Khách mục tiêu\n{target or '(chưa rõ)'}\n# USP đã chốt\n{usp or '(chưa rõ)'}\n"
+                + (f"# Đặt cược chiến lược\n{bets}\n" if bets else "")
+                + (f"\n# Chiến lược (synthesis)\n{synth[:2200]}\n" if synth.strip() else "")
+                + (f"\n# Tactical Playbook (cách đánh)\n{tact[:1800]}\n" if tact.strip() else "")
+                + (f"\n# Customer Insight (chia góc theo tệp)\n{cust[:1200]}\n" if cust.strip() else "")
+                + (f"\n# Định hướng founder muốn nhấn\n{steer.strip()[:300]}\n" if (steer or "").strip() else ""))
+        res = await router_call(task_type=TaskType.OPS_BRIEF, system=system, user=user, max_tokens=2600)
+        raw = re.sub(r'\s*```\s*$', '', re.sub(r'^```(?:json)?\s*', '', (res or {}).get("output", "").strip())).strip()
+        data = _json.loads(raw)
+        msg = _norm_messaging(data)
+        if not (msg.get("core") or msg.get("pillars")):
+            return {"error": "Chưa dựng được Thông điệp — thử lại."}
+        extra["messaging"] = msg
+        await profiles.upsert_profile(uid, intake_extra=extra)
+        return {"ok": True, "messaging": msg}
+    except Exception as e:
+        logger.warning("biz.gen_messaging failed: %s", e)
+        return {"error": str(e)}
+
+
+async def save_messaging(user_id=None, messaging=None) -> dict:
+    """Lưu Thông điệp founder đã chỉnh tay (cốt lõi/trụ/giọng). Chuẩn hoá rồi ghi intake_extra.messaging."""
+    if not available():
+        return {"error": "Chưa cấu hình Supabase."}
+    try:
+        await ensure_client()
+        uid = await pick_user_id(user_id)
+        if uid is None:
+            return {"error": "Chưa có user."}
+        from storage.v2 import profiles
+        prof = await profiles.get_profile(uid) or {}
+        extra = prof.get("intake_extra") if isinstance(prof.get("intake_extra"), dict) else {}
+        if not isinstance(extra, dict):
+            extra = {}
+        msg = _norm_messaging(messaging)
+        if not (msg.get("core") or msg.get("pillars")):
+            return {"error": "Thông điệp trống — cần ít nhất cốt lõi hoặc 1 trụ."}
+        extra["messaging"] = msg
+        await profiles.upsert_profile(uid, intake_extra=extra)
+        return {"ok": True, "messaging": msg}
+    except Exception as e:
+        logger.warning("biz.save_messaging failed: %s", e)
+        return {"error": str(e)}
+
+
 async def gen_calendar_post(user_id=None, track: str = "always", pillar: str = "",
                             campaign_id: str = "", week: str = "", day: str = "",
                             angle: str = "", value_lens: str = "", hook_style: str = "",
@@ -2489,6 +2654,8 @@ async def gen_calendar_post(user_id=None, track: str = "always", pillar: str = "
         usp = prof.get("usp") or ""
         target = prof.get("target_customer") or ""
         product = prof.get("product_service") or ""
+        _pe = prof.get("intake_extra") if isinstance(prof.get("intake_extra"), dict) else {}
+        msg_anchor = _messaging_anchor_from(_pe)   # THÔNG ĐIỆP nền ngầm — bài bám cốt lõi/giọng
         # Brand voice (nếu có) → giọng nhất quán
         voice_ctx = ""
         try:
@@ -2567,7 +2734,7 @@ async def gen_calendar_post(user_id=None, track: str = "always", pillar: str = "
             pass
         user = (f"# Ngành\n{industry}\n# Sản phẩm/dịch vụ\n{product or '(chưa rõ)'}\n"
                 f"# Khách mục tiêu\n{target or '(chưa rõ)'}\n# USP\n{usp or '(chưa rõ)'}{voice_ctx}\n\n"
-                f"# Bối cảnh slot\n{ctx}{strat_anchor}")
+                f"# Bối cảnh slot\n{ctx}{msg_anchor}{strat_anchor}")
         res = await router_call(task_type=TaskType.OPS_CONTENT_CREATIVE, system=system, user=user, max_tokens=900)
         content = (res or {}).get("output", "").strip()
         if not content:

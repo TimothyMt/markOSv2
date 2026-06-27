@@ -1017,6 +1017,43 @@ body.chat-mode #view { height: calc(100vh - 64px); }
 .rhy-bar { width:160px; height:9px; border-radius:999px; overflow:hidden; background:#d8694a; }
 .rhy-bar-brand { height:100%; background:#2f9e6e; border-radius:0; }
 .rhy-bal-txt { font-size:12px; color:var(--muted); white-space:nowrap; }
+
+/* ── THÔNG ĐIỆP (Messaging House) ── */
+.msg-card { padding:16px 18px; margin-bottom:14px; }
+.msg-lbl { display:block; font-size:13px; font-weight:700; margin:0 0 10px; }
+.msg-lbl .muted { font-weight:400; }
+.msg-core { width:100%; font-size:16px; font-weight:600; padding:11px 14px; border:1px solid var(--stroke);
+  border-radius:10px; background:var(--panel-2); color:var(--text); }
+.msg-taglines { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+.msg-tag { font-size:12px; padding:3px 10px; border-radius:999px; background:color-mix(in srgb, var(--primary) 12%, transparent);
+  color:var(--primary-2); font-style:italic; }
+.msg-pillars { display:flex; flex-direction:column; gap:10px; }
+.msg-pillar { display:flex; align-items:flex-start; gap:9px; padding:10px; border:1px solid var(--stroke);
+  border-radius:10px; background:var(--panel-2); }
+.msg-ic { width:42px; flex:0 0 auto; text-align:center; font-size:18px; padding:7px 0; border:1px solid var(--stroke);
+  border-radius:8px; background:var(--panel); color:var(--text); }
+.msg-pillar-body { flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:6px; }
+.msg-pillar-body input { width:100%; padding:8px 11px; border:1px solid var(--stroke); border-radius:8px;
+  background:var(--panel); color:var(--text); font-size:13px; }
+.msg-terr { font-weight:600; }
+.msg-proof { font-size:12.5px !important; color:var(--muted); }
+.msg-rm { flex:0 0 auto; width:28px; height:28px; border-radius:7px; border:1px solid var(--stroke);
+  background:var(--panel); color:var(--muted); cursor:pointer; font-size:13px; }
+.msg-rm:hover { border-color:#d8694a; color:#d8694a; }
+.msg-voice { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.msg-voice-h { display:inline-block; font-size:12px; font-weight:600; margin-bottom:6px; }
+.msg-voice-h.ok { color:#2f9e6e; }
+.msg-voice-h.no { color:#d8694a; }
+.msg-ta { width:100%; padding:9px 12px; border:1px solid var(--stroke); border-radius:9px; background:var(--panel-2);
+  color:var(--text); font-size:13px; font-family:inherit; resize:vertical; }
+@media (max-width:680px){ .msg-voice{ grid-template-columns:1fr; } }
+/* dải tóm tắt trên Lịch / Lập chiến dịch */
+.msg-band { display:block; padding:10px 14px; border-radius:10px; font-size:13px; text-decoration:none;
+  border:1px solid color-mix(in srgb, var(--primary) 35%, var(--stroke)); background:color-mix(in srgb, var(--primary) 8%, transparent);
+  color:var(--text); margin-bottom:12px; }
+.msg-band:hover { border-color:var(--primary); }
+.msg-band-empty { border-style:dashed; color:var(--muted); background:transparent; }
+.msg-band-edit { float:right; color:var(--primary-2); font-size:12px; }
 .occ-tasks-prev { margin:12px 0 0; padding:10px 14px; border:1px dashed var(--stroke-2); border-radius:10px; font-size:13px; }
 .occ-tasks-prev ul { margin:6px 0 0; padding-left:18px; }
 .occ-tasks-prev li { margin:2px 0; }

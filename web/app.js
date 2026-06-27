@@ -973,7 +973,7 @@
 
   P.strategy = {
     title: 'Chiến lược tổng hợp', sub: 'Định vị (bền) · SAVE · Roadmap theo nhịp · KPI cần theo dõi',
-    actions: `<a class="ghost-line" href="#tactical">🔨 Tactical Playbook</a> <a class="primary-btn" href="#occasion">→ Bước tiếp: Lập chiến dịch</a>`,
+    actions: `<a class="ghost-line" href="#tactical">🔨 Tactical Playbook</a> <a class="primary-btn" href="#message">→ Bước tiếp: 🏛️ Thông điệp</a>`,
     render: () => {
       const latest = (M.bizLatest || {}).synthesis;
       if (M.bizEnabled && latest) {
@@ -1053,7 +1053,7 @@
   /* ---- Tactical Playbook (T5 — cách đánh chi tiết theo từng tệp) ---- */
   P.tactical = {
     title: 'Tactical Playbook', sub: 'Cách đánh chi tiết theo từng phân khúc — copy, kênh, khung test, KPI',
-    actions: `<a class="ghost-line" href="#strategy">← Về Chiến lược</a> <a class="primary-btn" href="#occasion">→ Bước tiếp: Lập chiến dịch</a>`,
+    actions: `<a class="ghost-line" href="#strategy">← Về Chiến lược</a> <a class="primary-btn" href="#message">→ Bước tiếp: 🏛️ Thông điệp</a>`,
     render: () => {
       const has = (M.bizSkillRuns || []).some(r => r.skill_name === 'tactical_playbook');
       if (M.bizEnabled && !has) {
@@ -1100,6 +1100,7 @@
       }
       return `<section class="grid">
         <div class="card span-12 dir-banner">🧭 Mô hình <b>móng + spike</b> (kế thừa Chiến lược + Playbook): <b>🟢 Branding</b> = nền MÓNG chạy liên tục bên dưới (để được nhớ) · <b>🔴 các đợt</b> = SPIKE đắp lên đúng dịp (ra đơn). Set ở đây → nhìn cả 2 theo <b>thời gian</b> ở <a href="#calendar">Lịch →</a></div>
+        <div class="span-12">${messagingBand()}</div>
         <div id="campaignPlan" class="span-12"><div class="card"><p class="muted">⏳ Đang lập tuyến nội dung theo chiến lược của bạn…</p></div></div>
       </section>`;
     },
@@ -1537,6 +1538,7 @@
         <span><i class="lg camp"></i> 🗓️ Đợt chiến dịch — bài theo mục tiêu đợt, CỘNG THÊM lên nền trong đúng dịp</span>
         <span class="cal-arc-legend">Đợt chạy theo Story Arc: 🌱 Teaser → 🔥 Build-up → 🚀 Peak → ⏰ Last-call → 💌 After (đợt ngắn gộp 3 pha)</span>
       </div>
+      ${messagingBand()}
       ${balanceNudge()}
       ${calOrphanTray()}
       ${_calView === 'plan' ? calPlanView() : calWeekView()}`,
@@ -1655,6 +1657,104 @@
   function rerenderRhythm() {
     const w = document.getElementById('rhyWrap');
     if (w) w.innerHTML = rhythmInner();
+  }
+
+  /* ════════ THÔNG ĐIỆP (Messaging House) — "nói gì với khách", content bám vào ════════ */
+  let _msg = null;   // đệm chỉnh; null = lấy từ MOCK.bizMessaging
+  function msgHas() { const m = (window.MOCK && M.bizMessaging) || {}; return !!(m.core || (m.pillars || []).length); }
+  function msgState() {
+    if (_msg) return _msg;
+    const m = (window.MOCK && M.bizMessaging) || {};
+    _msg = {
+      core: m.core || '',
+      taglines: (m.taglines || []).slice(),
+      pillars: (m.pillars || []).map(p => ({ icon: p.icon || '📌', territory: p.territory || '', angle: p.angle || '', proof: p.proof || '' })),
+      voice: { do: ((m.voice || {}).do || []).slice(), dont: ((m.voice || {}).dont || []).slice() },
+    };
+    return _msg;
+  }
+  function _msgSync() {   // gom giá trị input vào đệm (giữ khi thêm/bớt trụ)
+    const w = document.getElementById('msgWrap'); if (!w) return;
+    const S = msgState();
+    const core = w.querySelector('[data-msgfield="core"]'); if (core) S.core = core.value;
+    S.pillars.forEach((p, i) => {
+      ['icon', 'territory', 'angle', 'proof'].forEach(f => {
+        const el = w.querySelector(`[data-msgp="${f}"][data-idx="${i}"]`); if (el) p[f] = el.value;
+      });
+    });
+    const dEl = w.querySelector('[data-msgfield="do"]'); if (dEl) S.voice.do = dEl.value.split('\n').map(s => s.trim()).filter(Boolean);
+    const nEl = w.querySelector('[data-msgfield="dont"]'); if (nEl) S.voice.dont = nEl.value.split('\n').map(s => s.trim()).filter(Boolean);
+  }
+  P.message = {
+    title: 'Thông điệp',
+    sub: 'Cốt lõi nói với khách — MỌI bài bám vào đây. Max nháp từ Chiến lược, bạn chỉnh cho "ra chất mình" rồi chốt.',
+    get actions() {
+      return `<a class="ghost-line" href="#strategy">← Chiến lược</a>`
+        + (msgHas() || _msg
+          ? ` <button class="ghost-line" data-act="msg-gen">↻ Max nháp lại</button> <button class="primary-btn" data-act="msg-save">✅ Chốt thông điệp</button> <a class="ghost-line" href="#occasion">→ Lập chiến dịch</a>`
+          : '');
+    },
+    render: () => `<div id="msgWrap">${msgInner()}</div>`,
+    mount: () => {},
+  };
+  function msgInner() {
+    const E = s => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    if (M.bizEnabled && !(M.bizLatest || {}).synthesis) {
+      return `<section class="card"><div class="empty-cta"><div class="empty-ic">🧭</div>
+        <h3>Cần có Chiến lược trước</h3>
+        <p class="muted">Thông điệp là bản dịch chiến lược ra "tiếng khách". Hãy lập + chốt Chiến lược trước.</p>
+        <div class="empty-actions"><a class="primary-btn" href="#strategy">🎯 Tới bước Lập chiến lược</a></div></div></section>`;
+    }
+    if (!msgHas() && !_msg) {
+      return `<section class="card"><div class="empty-cta"><div class="empty-ic">🏛️</div>
+        <h3>Chưa có Thông điệp</h3>
+        <p class="muted">Max rút từ Chiến lược thành câu chữ nói với khách — <b>cốt lõi</b> + các <b>trụ</b> (lãnh địa nói) + <b>giọng</b>. Bạn chỉnh rồi chốt; mọi bài sẽ bám theo.</p>
+        <input id="msgSteer" class="occ-inp" style="max-width:480px;margin:0 auto 12px" placeholder="(tuỳ chọn) định hướng: vd nhấn cảm xúc hơn, giọng trẻ…">
+        <div class="empty-actions"><button class="primary-btn" data-act="msg-gen">🏛️ Để Max nháp Thông điệp từ chiến lược</button></div></div></section>`;
+    }
+    const S = msgState();
+    const tagline = (S.taglines || []).length
+      ? `<div class="msg-taglines">${S.taglines.map(t => `<span class="msg-tag">“${E(t)}”</span>`).join('')}</div>` : '';
+    const pillars = (S.pillars || []).map((p, i) => `
+      <div class="msg-pillar">
+        <input class="msg-ic" data-msgp="icon" data-idx="${i}" value="${E(p.icon)}" maxlength="3" title="emoji">
+        <div class="msg-pillar-body">
+          <input class="msg-terr" data-msgp="territory" data-idx="${i}" value="${E(p.territory)}" placeholder="Lãnh địa (vd: Sống đẹp nhà nhỏ)">
+          <input class="msg-angle" data-msgp="angle" data-idx="${i}" value="${E(p.angle)}" placeholder="Góc nói / quan điểm trong lãnh địa này">
+          <input class="msg-proof" data-msgp="proof" data-idx="${i}" value="${E(p.proof)}" placeholder="Proof — chỉ khi có thật (để trống nếu không)">
+        </div>
+        <button class="msg-rm" data-act="msg-pillar-remove" data-idx="${i}" title="Bớt trụ">✕</button>
+      </div>`).join('');
+    return `
+      <div class="dir-banner" style="margin-bottom:14px">🏛️ Max nháp từ Chiến lược → bạn chỉnh từng ô cho "ra chất mình" → <b>Chốt</b>. Mọi bài (móng + đợt) sẽ tự bám cốt lõi + giọng này.</div>
+      <section class="card msg-card">
+        <label class="msg-lbl">🏠 CỐT LÕI <span class="muted">(1 điều bao trùm khách phải nhớ)</span></label>
+        <input class="msg-core" data-msgfield="core" value="${E(S.core)}" placeholder="vd: Tường nhà kể chuyện của bạn">
+        ${tagline}
+      </section>
+      <section class="card msg-card">
+        <label class="msg-lbl">🏛️ TRỤ THÔNG ĐIỆP <span class="muted">(lãnh địa mình "đóng cọc" để nói — linh hoạt 2–5)</span></label>
+        <div class="msg-pillars">${pillars || '<p class="muted">—</p>'}</div>
+        <button class="ghost-line sm" data-act="msg-pillar-add" style="margin-top:8px">＋ thêm trụ</button>
+      </section>
+      <section class="card msg-card">
+        <label class="msg-lbl">🎙️ GIỌNG <span class="muted">(mỗi dòng 1 ý)</span></label>
+        <div class="msg-voice">
+          <div><span class="msg-voice-h ok">✅ Nên</span><textarea class="msg-ta" data-msgfield="do" rows="4" placeholder="mỗi dòng 1 ý">${E((S.voice.do || []).join('\n'))}</textarea></div>
+          <div><span class="msg-voice-h no">❌ Tránh</span><textarea class="msg-ta" data-msgfield="dont" rows="4" placeholder="mỗi dòng 1 ý">${E((S.voice.dont || []).join('\n'))}</textarea></div>
+        </div>
+      </section>`;
+  }
+  function rerenderMsg() { const w = document.getElementById('msgWrap'); if (w) w.innerHTML = msgInner(); }
+  // Dải tóm tắt "đang nói gì với khách" — hiện trên Lập chiến dịch / Lịch, bấm sang #message.
+  function messagingBand() {
+    const m = (window.MOCK && M.bizMessaging) || {};
+    if (!m.core && !(m.pillars || []).length) {
+      return `<a class="msg-band msg-band-empty clickable" href="#message">🏛️ <b>Chưa có Thông điệp</b> — bấm để Max nháp "nói gì với khách" (mọi bài sẽ bám theo) →</a>`;
+    }
+    const E = s => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const ps = (m.pillars || []).slice(0, 4).map(p => `${p.icon || ''} ${E(p.territory)}`).join(' · ');
+    return `<a class="msg-band clickable" href="#message">🏛️ <b>Đang nói:</b> "${E(m.core || '—')}"${ps ? ` · <span class="muted">${ps}</span>` : ''} <span class="msg-band-edit">✎ chỉnh</span></a>`;
   }
 
   /* ---- Content generator ---- */
@@ -3246,6 +3346,32 @@
         toast('✅ Đã chốt nhịp nền — Max sẽ rải lên Lịch');
         location.hash = '#calendar';
       } catch (e) { toast('Lưu nhịp nền lỗi — thử lại'); el.disabled = false; el.textContent = _t; }
+      return;
+    }
+    if (act === 'msg-gen') {   // Thông điệp: Max nháp (lần đầu hoặc nháp lại)
+      const steer = ((document.getElementById('msgSteer') || {}).value) || '';
+      el.disabled = true; const _t = el.textContent; el.textContent = '⏳ Max đang nháp…';
+      try {
+        const r = await API.post('api/biz/messaging/gen', { user_id: _bizUserId, steer });
+        if (r && r.error) { toast(r.error); el.disabled = false; el.textContent = _t; return; }
+        await refreshBiz(); _msg = null;
+        toast('🏛️ Max đã nháp Thông điệp — chỉnh rồi chốt');
+        route();
+      } catch (e) { toast('Chưa nháp được — thử lại'); el.disabled = false; el.textContent = _t; }
+      return;
+    }
+    if (act === 'msg-pillar-add') { _msgSync(); msgState().pillars.push({ icon: '📌', territory: '', angle: '', proof: '' }); rerenderMsg(); return; }
+    if (act === 'msg-pillar-remove') { _msgSync(); const i = +el.dataset.idx; msgState().pillars.splice(i, 1); rerenderMsg(); return; }
+    if (act === 'msg-save') {   // Thông điệp: chốt bản đã chỉnh
+      _msgSync();
+      el.disabled = true; const _t = el.textContent; el.textContent = '⏳ Đang lưu…';
+      try {
+        const r = await API.post('api/biz/messaging/save', { user_id: _bizUserId, messaging: msgState() });
+        if (r && r.error) { toast(r.error); el.disabled = false; el.textContent = _t; return; }
+        await refreshBiz(); _msg = null;
+        toast('✅ Đã chốt Thông điệp — mọi bài sẽ bám theo');
+        route();
+      } catch (e) { toast('Lưu lỗi — thử lại'); el.disabled = false; el.textContent = _t; }
       return;
     }
     if (act === 'bet-chip') { el.classList.toggle('on'); return; }   // tick/bỏ 1 option
