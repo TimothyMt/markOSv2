@@ -216,6 +216,7 @@ async def biz_data(user_id=None) -> dict:
     except Exception:
         out["bizCampaignMeta"] = {}
     out["bizCampaignTypes"] = campaign_types_list()
+    out["bizContentDang"] = content_dang_list()   # tầng ③: 6 dạng nội dung (1 lớp)
     try:
         _ie2 = (out.get("bizProfile") or {}).get("intake_extra") or {}
         out["bizCampaignPortfolio"] = (_ie2.get("campaign_portfolio") if isinstance(_ie2, dict) else []) or []
@@ -1285,6 +1286,28 @@ CONTENT_TRACKS = {
     "chuyen_hoa": ("🎯", "Chuyển hoá", "BOFU — chốt · CTA mềm"),
     "lan_toa":    ("✨", "Lan toả", "Engage — tương tác · UGC · cộng đồng"),
 }
+
+# Tầng ③ Creation: 6 DẠNG nội dung = LỚP DUY NHẤT (thay "vai trò tuyến" + "mục tiêu đợt").
+# Mỗi dạng TỰ mang vai trò phễu (role) + map ngầm campaign_type/objective (để task/playbook/brief cũ chạy).
+#   key: (icon, label, role_key, objective, campaign_type, mô tả ngắn)
+CONTENT_DANG = {
+    "story":   ("📖", "Câu chuyện / Branding", "khai_sang", "brand",      "awareness", "kể chuyện thương hiệu · giá trị → được nhớ"),
+    "educate": ("🎓", "Giáo dục / Mẹo hay",    "khai_sang", "leadgen",    "leadgen",   "dạy khách điều hữu ích → xây uy tín"),
+    "review":  ("🤝", "Bằng chứng / Review",   "tin_cay",   "leadgen",    "awareness", "testimonial · case · trước-sau · UGC → niềm tin"),
+    "sell":    ("💰", "Đẩy đơn / Ưu đãi",       "chuyen_hoa","conversion", "promo",     "offer · CTA mạnh · sale → chốt đơn"),
+    "engage":  ("✨", "Tương tác / Viral",      "lan_toa",   "engagement", "engagement","minigame · trend · meme → reach/engagement"),
+    "retain":  ("🔁", "Giữ chân / Chăm sóc",   "tin_cay",   "retention",  "retention", "nhắc mua lại · tri ân · winback → khách cũ"),
+}
+
+
+def content_dang_list() -> list:
+    """Cho FE: 6 dạng nội dung (1 lớp) — kèm vai trò phễu (role) + map campaign_type/objective ngầm."""
+    out = []
+    for k, (ic, lbl, role, obj, ctype, desc) in CONTENT_DANG.items():
+        rl = CONTENT_TRACKS.get(role, ("", role, ""))
+        out.append({"key": k, "icon": ic, "label": lbl, "role": role, "role_label": rl[1],
+                    "objective": obj, "campaign_type": ctype, "desc": desc})
+    return out
 # objective của sub → bộ tuyến mặc định (mix phễu theo mục tiêu)
 _OBJ_TRACKS = {
     "brand":      ["khai_sang", "tin_cay", "lan_toa"],

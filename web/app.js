@@ -2287,7 +2287,7 @@
     demand_gen:     ['engagement', 'acquisition', 'conversion'],
     trust_building: ['leadgen', 'brand', 'retention'],
   };
-  let _occState = { occasion: '', ws: '', we: '', budget: '', baseline: '', goal: '', objective: '', objectiveCustom: '', campaignType: '', campaignTypeCustom: '', audience: '', brief: '', busy: false };
+  let _occState = { occasion: '', ws: '', we: '', budget: '', baseline: '', goal: '', objective: '', objectiveCustom: '', campaignType: '', campaignTypeCustom: '', dang: '', audience: '', brief: '', busy: false };
 
   // M-F (F1b): modal chi tiết campaign — bảng task móc generator + status.
   let _campDetailId = null;
@@ -2392,7 +2392,7 @@
   const _occTypeByKey = (k) => ((window.MOCK && window.MOCK.bizCampaignTypes) || []).find(t => t.key === k) || null;
   function openOccasionWizard(preset) {
     const _pp = (preset && typeof preset === 'object') ? preset : { occasion: preset || '' };
-    _occState = { occasion: _pp.occasion || '', ws: _pp.ws || '', we: _pp.we || '', budget: '', baseline: '', goal: '', objective: _pp.objective || '', objectiveCustom: '', campaignType: _pp.campaignType || '', campaignTypeCustom: '', audience: _pp.audience || '', brief: '', busy: false };
+    _occState = { occasion: _pp.occasion || '', ws: _pp.ws || '', we: _pp.we || '', budget: '', baseline: '', goal: '', objective: _pp.objective || '', objectiveCustom: '', campaignType: _pp.campaignType || '', campaignTypeCustom: '', dang: _pp.dang || '', audience: _pp.audience || '', brief: '', busy: false };
     let ov = document.getElementById('occWizard');
     if (!ov) {
       ov = document.createElement('div');
@@ -2425,8 +2425,21 @@
           ov.querySelectorAll('[data-act="occ-chip"]').forEach(c => c.classList.toggle('on', c === chip));
           return;
         }
+        const dbtn = e.target.closest('[data-act="occ-dang"]');
+        if (dbtn) {   // Tầng ③: chọn DẠNG chủ đạo → set campaign_type/objective ngầm; chọn lại = bỏ
+          const dk = dbtn.dataset.dang;
+          if (_occState.dang === dk) { _occState.dang = ''; _occState.campaignType = ''; }
+          else {
+            _occState.dang = dk;
+            _occState.campaignType = dbtn.dataset.type || '';
+            _occState.objective = dbtn.dataset.obj || _occState.objective;
+            _occState.campaignTypeCustom = '';
+          }
+          renderOccWizard();
+          return;
+        }
         const tbtn = e.target.closest('[data-act="occ-type"]');
-        if (tbtn) {   // M-F: chọn loại campaign → pre-fill mục đích; chọn lại = bỏ
+        if (tbtn) {   // (cũ) chọn loại campaign — giữ tương thích
           const k = tbtn.dataset.type;
           if (_occState.campaignType === k) { _occState.campaignType = ''; }
           else { _occState.campaignType = k; _occState.objective = tbtn.dataset.obj || _occState.objective; _occState.campaignTypeCustom = ''; }
@@ -2502,22 +2515,21 @@
         <input class="occ-inp ${customOn ? 'occ-custom-on' : ''}" data-occfield="objectiveCustom"
           placeholder="vd: tuyển 50 cộng tác viên bán hàng, gom data khách quan tâm khoá học…" value="${E(S.objectiveCustom)}">
       </div>`;
-    // M-F (F1): chọn LOẠI chiến dịch (2 nhóm + tự mô tả) — pre-fill mục đích + định hình task.
-    const types = (window.MOCK && window.MOCK.bizCampaignTypes) || [];
-    const typeBtn = (t) => `
-      <button class="occ-type ${S.campaignType === t.key ? 'on' : ''}" data-act="occ-type" data-type="${t.key}" data-obj="${t.objective}">
-        <span class="occ-obj-ic">${t.icon}</span><b>${E(t.label)}</b></button>`;
-    const grpA = types.filter(t => t.group === 'A');   // Lô H: chỉ còn loại theo MỤC TIÊU (digital)
+    // Tầng ③: chọn DẠNG nội dung chủ đạo (1 lớp). Mỗi dạng TỰ mang vai trò phễu; set campaign_type/objective ngầm.
+    const dangs = (window.MOCK && window.MOCK.bizContentDang) || [];
+    const dangBtn = (d) => `
+      <button class="occ-type occ-dang ${S.dang === d.key ? 'on' : ''}" data-act="occ-dang" data-dang="${d.key}" data-type="${d.campaign_type}" data-obj="${d.objective}" data-role="${E(d.role_label)}" title="${E(d.desc)}">
+        <span class="occ-obj-ic">${d.icon}</span><b>${E(d.label)}</b><span class="occ-dang-role">${E(d.role_label)}</span></button>`;
     const typeCustomOn = !!(S.campaignTypeCustom || '').trim();
-    const typeSection = types.length ? `
-      <div class="occ-step"><label class="occ-lbl">1 · Mục tiêu đợt <span class="muted" style="font-weight:400">(chọn 1 — định hình playbook + việc cần làm)</span></label>
-        <div class="occ-types">${grpA.map(typeBtn).join('')}</div>
-        <label class="occ-sublbl" style="margin-top:10px">…hoặc tự mô tả mục tiêu riêng (Max tự dựng playbook)</label>
+    const typeSection = dangs.length ? `
+      <div class="occ-step"><label class="occ-lbl">1 · Dạng nội dung chủ đạo <span class="muted" style="font-weight:400">(chọn 1 — Max trộn thêm dạng phụ theo arc; vai trò phễu tự có)</span></label>
+        <div class="occ-types">${dangs.map(dangBtn).join('')}</div>
+        <label class="occ-sublbl" style="margin-top:10px">…hoặc tự mô tả dạng riêng (Max tự dựng)</label>
         <input class="occ-inp ${typeCustomOn ? 'occ-custom-on' : ''}" data-occfield="campaignTypeCustom"
-          placeholder="vd: tuyển cộng tác viên bán hàng, tri ân đại lý…" value="${E(S.campaignTypeCustom)}">
+          placeholder="vd: tuyển cộng tác viên, tri ân đại lý…" value="${E(S.campaignTypeCustom)}">
         <label class="occ-sublbl" style="margin-top:10px">🎯 Tệp nhắm chính</label>
         <select class="occ-inp" data-occfield="audience">
-          ${['', 'Mới', 'Active', 'Nguy cơ', 'VIP', 'Tất cả'].map(a => `<option value="${a}" ${S.audience === a ? 'selected' : ''}>${a || '— theo mục tiêu (Max tự suy) —'}</option>`).join('')}
+          ${['', 'Mới', 'Active', 'Nguy cơ', 'VIP', 'Tất cả'].map(a => `<option value="${a}" ${S.audience === a ? 'selected' : ''}>${a || '— theo dạng (Max tự suy) —'}</option>`).join('')}
         </select>
       </div>` : '';
     body.innerHTML = `
