@@ -973,6 +973,8 @@ async def occasion_draft(user_id=None, occasion: str = "", window_start: str = "
         extra = prof.get("intake_extra") or {}
         wedge = (extra.get("wedge") if isinstance(extra, dict) else "") or ""
         usp = prof.get("usp") or ""
+        msg_anchor = _messaging_anchor_from(extra)   # THÔNG ĐIỆP nền — đợt rút 1 trụ làm trọng tâm
+        _msg_fp = str((extra.get("messaging") if isinstance(extra, dict) else None) or {}).__hash__()
         has_base = bool((baseline or "").strip())
         # M-F: loại campaign → mặc định objective nếu founder chưa chọn + playbook vào prompt.
         ct = CAMPAIGN_TYPES.get((campaign_type or "").strip().lower())
@@ -1000,7 +1002,7 @@ async def occasion_draft(user_id=None, occasion: str = "", window_start: str = "
         # M5-B1: trước đây key KHÔNG băm synthesis → đổi chiến lược, brief đợt vẫn cũ.
         # Thêm chữ ký nguồn (synth+tact+wedge+usp+ngành+horizon+posture) vào key.
         src_fp = _strategy_fp(synth, tact, wedge, usp, industry, horizon, posture)
-        cache_key = f"{uid}:{src_fp}:{hash((occasion, window_start, window_end, budget, baseline, goal, obj_key, obj_custom))}"
+        cache_key = f"{uid}:{src_fp}:{_msg_fp}:{hash((occasion, window_start, window_end, budget, baseline, goal, obj_key, obj_custom))}"
         if cache_key in _occasion_cache:
             return _occasion_cache[cache_key]
         ictx = ""
@@ -1029,7 +1031,9 @@ async def occasion_draft(user_id=None, occasion: str = "", window_start: str = "
             "BOFU chốt).\n\n"
             "Brief tốt = team không cần hỏi lại 1 câu để bắt đầu. Xuất MARKDOWN gồm:\n"
             "## 1. Big idea & Key message\n"
-            "1 BIG IDEA xuyên suốt đợt (concept, KHÔNG phải tagline) + Key message (điều khách phải nhớ sau đợt).\n"
+            "1 BIG IDEA xuyên suốt đợt (concept, KHÔNG phải tagline) + Key message (điều khách phải nhớ sau đợt). "
+            "🔴 NẾU có THÔNG ĐIỆP nền trong context: chọn 1 TRỤ làm trọng tâm đợt + key message PHẢI nhất quán "
+            "với cốt lõi/giọng đó — KHÔNG tạo thông điệp lạc.\n"
             "## 2. Tệp nhắm + insight ngầm\n"
             "Demographic + psychographic + pain cốt lõi + 1 insight ngầm dẫn dắt creative.\n"
             "## 3. Mục tiêu SMART (đợt này)\n"
@@ -1065,7 +1069,7 @@ async def occasion_draft(user_id=None, occasion: str = "", window_start: str = "
             f"{('- ' + ct_hint + chr(10)) if ct_hint else ''}"
             f"{('- TỆP NHẮM chính: ' + audience + ' — bám đúng nhóm khách này (thông điệp/offer/kênh).' + chr(10)) if (audience or '').strip() else ''}\n"
             f"# Chiến lược (Synthesis — la bàn)\n{synth[:3000]}\n\n"
-            f"# Tactical Playbook (cách đánh)\n{(tact or '(chưa có)')[:2000]}"
+            f"# Tactical Playbook (cách đánh)\n{(tact or '(chưa có)')[:2000]}{msg_anchor}"
         )
         res = await router_call(task_type=TaskType.OPS_BRIEF, system=system,
                                 user=user, max_tokens=3200)
@@ -2202,8 +2206,57 @@ def _normalize_saved(key: str, val, pillars_by_name: dict) -> dict | None:
     return None
 
 
+_ROLE_FUNNEL = {"khai_sang": "TOFU", "tin_cay": "MOFU", "chuyen_hoa": "BOFU", "lan_toa": "Engage"}
+
+
+def _build_rhythm_always(rhythm, trus, max_week, idx_always, consumed) -> list:
+    """Lịch NỀN dựng từ NHỊP NỀN (6 dạng × tần suất) thay cho pillars cũ — mỗi slot mang 1 DẠNG (hình thức +
+    vai trò phễu) × 1 TRỤ thông điệp (lãnh địa nói, xoay vòng). freq 0.5 = 1 bài/2 tuần (tuần lẻ)."""
+    dang_meta = content_dang_list()
+    trus = [t for t in (trus or []) if isinstance(t, dict) and t.get("territory")]
+    tru_n = len(trus)
+    out = []
+    for w in range(1, max_week + 1):
+        weekly = []
+        for d in dang_meta:
+            cfg = rhythm.get(d["key"]) if isinstance(rhythm.get(d["key"]), dict) else {}
+            if not cfg.get("on"):
+                continue
+            try:
+                f = float(cfg.get("freq") or 0)
+            except (TypeError, ValueError):
+                f = 0
+            n = int(f)
+            if (f - n) >= 0.5 and (w % 2 == 1):   # nửa nhịp → tuần lẻ thêm 1
+                n += 1
+            weekly.extend([d] * n)
+        weekly = weekly[:14]
+        day_of = _assign_days(len(weekly))
+        for idx, d in enumerate(weekly):
+            tru = trus[(idx + w) % tru_n] if tru_n else {}
+            terr = (tru.get("territory") if tru else "") or "Thương hiệu"
+            pid = f"rhy|{d['key']}|{terr}"
+            angle = (tru.get("angle") if tru else "") or ""
+            key = f"aw|{pid}|{w}|{day_of[idx]}"
+            slot = {"week": w, "day": day_of[idx],
+                    "pillar": f"{d['label']} · {terr}", "pillarId": pid,
+                    "title": f"{d['icon']} {terr}".strip(), "topic": terr,
+                    "angles": [a for a in [terr, angle] if a],
+                    "funnel": _ROLE_FUNNEL.get(d["role"], ""), "framework": "",
+                    "value_lens": angle, "track": "always",
+                    "track_role": d["role_label"], "objective": d["objective"],
+                    "dang": d["key"], "key": key}
+            card = idx_always.get((pid, w, day_of[idx]))
+            if card:
+                slot["saved"] = True
+                slot["post"] = card["content"]
+                consumed.add(card["key"])
+            out.append(slot)
+    return out
+
+
 async def calendar_plan(user_id=None) -> dict:
-    """M1.2: ghép lịch 2-track THẬT = always-on pillars (D-040) + occasion bands (window thật).
+    """M1.2: ghép lịch 2-track THẬT = always-on (NHỊP NỀN nếu có, fallback pillars) + occasion bands.
 
     Anchor = thứ Hai tuần hiện tại; map start/end_date của campaign → tuần. Campaign không
     window (retention) KHÔNG lên lịch. Degrade {} (FE giữ mock). Tái dùng campaign_plan +
@@ -2295,7 +2348,16 @@ async def calendar_plan(user_id=None) -> dict:
             topics_map = {}
         occ = {}   # đếm lần xuất hiện mỗi pillar (để lấy topic thứ k)
         always = []
-        if pillars:
+        # NHỊP NỀN: nếu founder đã set content_rhythm (≥1 dạng bật) → lịch nền dựng từ dạng × nhịp
+        # (mỗi slot mang dạng + trụ thông điệp), THAY pillars cũ. Chưa set → fallback pillars (cũ).
+        _rhythm_cfg = (_extra or {}).get("content_rhythm") if isinstance(_extra, dict) else None
+        _rhythm_on = isinstance(_rhythm_cfg, dict) and any(
+            isinstance(v, dict) and v.get("on") for v in _rhythm_cfg.values())
+        _trus = (((_extra or {}).get("messaging") or {}).get("pillars")
+                 if isinstance(_extra, dict) else None) or []
+        if _rhythm_on:
+            always = _build_rhythm_always(_rhythm_cfg, _trus, max_week, idx_always, consumed)
+        elif pillars:
             weekly = []                      # 1 phần tử = 1 slot/tuần (lặp theo nhịp trụ)
             for p in pillars:
                 for _ in range(_ppw(p.get("posts_per_week"))):

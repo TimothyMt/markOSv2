@@ -20,7 +20,8 @@
    │ ② CHIẾN LƯỢC (Strategy) ~20% — VAI TRÒ + MỤC TIÊU       [Trang: Chiến lược]  │
    │   Đặt cược 5 nhóm (Thị trường·Tệp·Định vị·Giá·Kênh)                     ✅    │
    │   → T4-T5: Synthesis (định vị bền + roadmap) + Tactical Playbook        ✅    │
-   │   → trụ nội dung (content pillars) · messaging/định vị · brand narrative ✅   │
+   │   → 🏛️ THÔNG ĐIỆP (Messaging House): cốt lõi + N trụ lãnh địa + giọng    ✅    │
+   │      = lớp "nói gì với khách" — content (móng+đợt) tự bám  [Trang: Thông điệp]│
    │   ⚠️ THIẾU: Keyword / Demand (search intent)                                 │
    └─────────────────────────────────────┬─────────────────────────────────────┘
                                          │
@@ -36,6 +37,7 @@
                                          │
    ┌─────────────────────────────────────▼─────────────────────────────────────┐
    │ ④ PHÂN PHỐI & ĐO (Distribution) ~15% — ĐÚNG NGƯỜI + TEST-HỌC   [Trang: Lịch] │
+   │   🎛️ NHỊP NỀN: 6 dạng × tần suất → rải lịch nền (dạng×trụ)             ✅    │
    │   Lịch timeline: 🟢 nền MÓNG (liên tục) + 🔴 đợt SPIKE (đúng dịp)       ✅    │
    │   Cảnh báo cân bằng brand · đơn 60/40 (Binet&Field)                     ✅    │
    │   Vòng ĐO-HỌC: số liệu bài → Max chấm → tối ưu BÀI KẾ                   ⚠️ nền có; auto-pull FB pending │

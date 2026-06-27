@@ -1124,35 +1124,19 @@
       if (!pillars.length && !occ.length) {
         host.innerHTML = `<div class="card"><p class="muted">Chưa lập được 2 tuyến — chạy lại Chiến lược (T4) rồi quay lại.</p></div>`; return;
       }
-      const pillarCards = pillars.map(x => `
-        <div class="pillar">
-          <label class="pillar-keep"><input type="checkbox" class="pillar-chk" data-pillar="${enc(x)}" checked> Giữ</label>
-          <div class="pillar-head"><b>${E(x.name)}</b> ${x.funnel ? `<span class="tag">${E(x.funnel)}</span>` : ''}</div>
-          ${x.role ? `<p class="muted">${E(x.role)}</p>` : ''}
-          ${x.cadence ? `<p class="pillar-cad">🔁 ${E(x.cadence)}</p>` : ''}
-          ${(x.angles || []).length ? `<ul class="bullet">${x.angles.map(a => `<li>${E(a)}</li>`).join('')}</ul>` : ''}
-        </div>`).join('');
       const occRows = occ.map(o => `
         <li class="row"><div class="row-main"><p>🔴 ${E(o.name)} ${o.when ? `<span class="muted">· ${E(o.when)}</span>` : ''}</p>${o.why ? `<span class="muted">${E(o.why)}</span>` : ''}</div></li>`).join('');
-      const pillarFoot = `
-        <div class="pillar-foot">
-          ${locked ? `<span class="pill green" style="margin-bottom:8px;display:inline-block">✓ Đã chốt tuyến nền</span>` : `<p class="muted" style="margin-bottom:8px">Bỏ tick trụ không muốn chạy, rồi <b>Chốt tuyến nền</b> — bản đã chốt mới chảy vào Lịch.</p>`}
-          <div class="occ-row" style="gap:8px">
-            <input id="pillarSteer" class="occ-inp" style="flex:1" placeholder="↻ Sinh lại có định hướng (vd: nhấn mạnh tin cậy pháp lý hơn)">
-            <button class="ghost-line" data-act="regen-pillars">↻ Sinh lại</button>
-          </div>
-          <div class="occ-row" style="gap:8px;margin-top:8px">
-            <button class="primary-btn" style="flex:1" data-act="lock-pillars">✅ Chốt tuyến nền (đã chọn)</button>
-            ${locked ? `<button class="ghost-line" data-act="unlock-pillars">Bỏ chốt</button>` : ''}
-            <a class="primary-btn" href="#calendar">→ Lên lịch nội dung</a>
-          </div>
-        </div>`;
+      const _rhy = (window.MOCK && M.bizContentRhythm) || {};
+      const _msgCore = ((window.MOCK && M.bizMessaging) || {}).core || '';
       host.innerHTML = `<section class="grid" style="margin:0">
-        ${card('🟢 Branding — xây thương hiệu <span class="muted" style="font-weight:400">(chạy nền, để được nhớ)</span>', `
-          <p class="muted" style="margin-bottom:12px">Mục đích: <b>được nhớ</b>. Chạy đều quanh năm, bám USP + archetype + <b>Tactical Playbook</b> khi viết bài. <b>Không chốt số</b>.</p>
-          <div class="pillars">${pillarCards || '<p class="muted">—</p>'}</div>
-          ${pillarFoot}
-          <div style="margin-top:16px">${funnelMapView('brand')}</div>`, { cls: 'span-12' })}
+        ${card('🟢 Nền thương hiệu (móng) <span class="muted" style="font-weight:400">(chạy quanh năm — để được nhớ)</span>', `
+          <p class="muted" style="margin-bottom:12px">Nền giờ điều khiển ở <b>2 trang riêng</b> (gọn, không trùng): <b>🎛️ nhịp</b> (bao lâu/lần) + <b>🏛️ thông điệp</b> (nói gì với khách). Max rải nhịp lên Lịch + bám thông điệp khi viết bài.</p>
+          <div class="occ-row" style="gap:10px;flex-wrap:wrap">
+            <a class="primary-btn" href="#rhythm">🎛️ Nhịp nền${_rhy.per_week ? ` · ${_rhy.per_week} bài/tuần` : ''}</a>
+            <a class="primary-btn" href="#message">🏛️ Thông điệp${_msgCore ? ` · "${E(_msgCore)}"` : ''}</a>
+          </div>
+          <p class="muted" style="margin:14px 0 6px;font-size:12px">📊 Bản đồ phễu × kênh (tham khảo khi lên bài):</p>
+          <div>${funnelMapView('brand')}</div>`, { cls: 'span-12' })}
         ${card('🔴 Các đợt (spike) — đắp lên nền <span class="muted" style="font-weight:400">(theo dịp, từ Chiến lược)</span>', `
           <p class="muted" style="margin-bottom:12px">Mỗi đợt = <b>1 mục tiêu</b> (Nhận biết · Ra mắt · Sale · Thu lead · Tương tác · Giữ & Winback), cộng thêm lên tuyến nền trong đúng dịp.</p>
           <ul class="rows">${occRows || '<li class="muted">—</li>'}</ul>
@@ -1531,7 +1515,7 @@
       ${_realCal
         ? `<div class="cal-note">${badge('Dựng từ chiến lược','green')} <span class="muted"> Always-on lấy từ <b>${(_realCal.alwaysOn||[]).length? new Set((_realCal.alwaysOn||[]).map(s=>s.pillar)).size : 0} trụ đã chốt</b>, rải theo nhịp đăng suốt <b>${({'30':'30 ngày','60':'60 ngày','90':'90 ngày'})[_realCal.horizon]||(_realCal.weeks+' tuần')}</b>. Mỗi ô bấm ⚡ để sinh bài thật.</span></div>`
         : (M.bizEnabled
-        ? `<div class="cal-note">${badge('Chưa có dữ liệu thật','amber')} <span class="muted"> Lập + chốt Chiến lược (và chốt tuyến nền) để lịch hiện thật. Đang xem mẫu.</span></div>`
+        ? `<div class="cal-note">${badge('Chưa có dữ liệu thật','amber')} <span class="muted"> Lập + chốt Chiến lược, rồi set <a href="#rhythm">🎛️ Nhịp nền</a> để lịch nền hiện thật. Đang xem mẫu.</span></div>`
         : `<div class="cal-note">${badge('Bản thiết kế UX','amber')} <span class="muted"> Mô hình kế hoạch — dữ liệu mẫu, nối thật khi bật backend.</span></div>`)}
       <div class="cal-legend">
         <span><i class="lg on"></i> 🟢 Branding (nền) — bài brand chạy đều mỗi tuần, KHÔNG tắt khi có đợt</span>
