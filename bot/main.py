@@ -9,6 +9,7 @@ import asyncio
 import logging
 from pathlib import Path
 from contextlib import asynccontextmanager
+from typing import Optional
 
 import uvicorn
 from starlette.applications import Starlette
@@ -52,12 +53,11 @@ from bot.handlers import (
     cmd_video_script_gen,
     cmd_content_generator,
 )
+from agents.logger import create_logger, error as log_error, info as log_info
 
-logging.basicConfig(
-    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
-    level=logging.INFO,
-)
-logger = logging.getLogger(__name__)
+
+# Create structured logger with correlation ID support
+logger = create_logger(__name__)
 
 # ── Build PTB Application ────────────────────────────────────────
 
@@ -112,16 +112,25 @@ ptb_app = _build_app()
 
 async def telegram_webhook(request: Request) -> PlainTextResponse:
     """Nhận Telegram updates và đẩy vào PTB update queue."""
-    data = await request.json()
-    update = Update.de_json(data, ptb_app.bot)
-    await ptb_app.update_queue.put(update)
-    return PlainTextResponse("OK")
+    try:
+        data = await request.json()
+        update = Update.de_json(data, ptb_app.bot)
+        await ptb_app.update_queue.put(update)
+        return PlainTextResponse("OK")
+    except Exception as e:
+        log_error(logger, "Telegram webhook error", exc_info=True, error=str(e))
+        return PlainTextResponse("ERROR", status_code=500)
 
 
 async def oauth_fb_callback(request: Request):
     """FB OAuth 2.0 callback — exchange code → lưu token → notify user."""
-    from services.fb_oauth import handle_callback
-    return await handle_callback(request, ptb_app.bot)
+    try:
+        from services.fb_oauth import handle_callback
+        return await handle_callback(request, ptb_app.bot)
+    except Exception as e:
+        log_error(logger, "FB OAuth callback error", exc_info=True, error=str(e))
+        from starlette.responses import JSONResponse
+        return JSONResponse({"error": str(e)}, status_code=500)
 
 
 # ── Web dashboard (Auto Ads Facebook) ────────────────────────────
@@ -144,34 +153,41 @@ from webapp import store as web_store  # noqa: E402
 @asynccontextmanager
 async def lifespan(app: Starlette):
     # ── Startup ──────────────────────────────────────────────────
-    await init_pool()
-    await init_db()
-    logger.info("DB pool ready.")
+    try:
+        await init_pool()
+        await init_db()
+        log_info(logger, "DB pool ready.")
 
-    web_store.configure()
-    await web_store.init()
-    logger.info("Web dashboard store ready (%s).", web_store.backend_name())
+        web_store.configure()
+        await web_store.init()
+        log_info(logger, "Web dashboard store ready (%s).", web_store.backend_name())
 
-    await ptb_app.initialize()
-    await ptb_app.bot.set_webhook(
-        url=f"{WEBHOOK_URL}/{TELEGRAM_BOT_TOKEN}",
-        drop_pending_updates=True,
-    )
-    await ptb_app.start()
-    logger.info("PTB webhook registered: %s", f"{WEBHOOK_URL}/{TELEGRAM_BOT_TOKEN}")
+        await ptb_app.initialize()
+        await ptb_app.bot.set_webhook(
+            url=f"{WEBHOOK_URL}/{TELEGRAM_BOT_TOKEN}",
+            drop_pending_updates=True,
+        )
+        await ptb_app.start()
+        log_info(logger, "PTB webhook registered: %s", f"{WEBHOOK_URL}/{TELEGRAM_BOT_TOKEN}")
 
-    from workers.monitor_competitors import start_background_monitor
-    from services.ads_scheduler import start_ads_scheduler
-    asyncio.create_task(start_background_monitor(ptb_app.bot, interval_seconds=3600))
-    asyncio.create_task(start_ads_scheduler(ptb_app.bot))
-    logger.info("Background tasks started (competitor monitor + ads scheduler).")
+        from workers.monitor_competitors import start_background_monitor
+        from services.ads_scheduler import start_ads_scheduler
+        asyncio.create_task(start_background_monitor(ptb_app.bot, interval_seconds=3600))
+        asyncio.create_task(start_ads_scheduler(ptb_app.bot))
+        log_info(logger, "Background tasks started (competitor monitor + ads scheduler).")
+    except Exception as e:
+        log_error(logger, "Startup error", exc_info=True, error=str(e))
+        raise
 
     yield  # app is running
 
     # ── Shutdown ─────────────────────────────────────────────────
-    await ptb_app.stop()
-    await ptb_app.shutdown()
-    logger.info("PTB shutdown complete.")
+    try:
+        await ptb_app.stop()
+        await ptb_app.shutdown()
+        log_info(logger, "PTB shutdown complete.")
+    except Exception as e:
+        log_error(logger, "Shutdown error", exc_info=True, error=str(e))
 
 
 # ── Starlette app ────────────────────────────────────────────────
@@ -194,8 +210,12 @@ def main():
     if not WEBHOOK_URL:
         raise ValueError("WEBHOOK_URL is not set.")
 
-    logger.info("Starting server on port %d", PORT)
-    uvicorn.run(starlette_app, host="0.0.0.0", port=PORT, log_level="info")
+    log_info(logger, "Starting server on port %d", PORT)
+    try:
+        uvicorn.run(starlette_app, host="0.0.0.0", port=PORT, log_level="info")
+    except Exception as e:
+        log_error(logger, "Server failed to start", exc_info=True, error=str(e))
+        raise
 
 
 if __name__ == "__main__":

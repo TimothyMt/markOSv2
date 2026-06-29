@@ -1,30 +1,31 @@
+```
+# Database
+dev.db
+
 # Environment
 .env
-*.env
+.env.local
+*.env.*
 
-# Database
-*.db
-*.sqlite3
-
-# Python
-__pycache__/
-*.py[cod]
-*.pyo
-*.pyd
-.Python
-*.egg-info/
-dist/
-build/
-.eggs/
-*.egg
-
-# Virtual environments
-venv/
+# Dependencies
 .venv/
-env/
-.env/
+venv/
+__pycache__/
+*.pyc
+*$py.class
 
-# IDE
+# Logs
+*.log
+
+# Coverage
+.coverage
+htmlcov/
+coverage/
+
+# Alembic
+alembic/versions/
+
+# Editors
 .vscode/
 .idea/
 *.swp
@@ -34,25 +35,11 @@ env/
 .DS_Store
 Thumbs.db
 
-# Logs
-*.log
-logs/
-
-# Test artifacts
-.pytest_cache/
-.coverage
-htmlcov/
-# .claude: ignore local config, but VERSION the vendored agent-skills
-.claude/*
-!.claude/skills
-!.claude/commands
-!.claude/agents
-
-# Demo harness scratch output (not source)
-demo_out/
-
-# Demo harness output (throwaway artifacts)
-demo_out/
-
-# web dashboard SQLite
-webapp/*.db
+# Build artifacts
+dist/
+build/
+target/
+*.o
+*.obj
+*.out
+```

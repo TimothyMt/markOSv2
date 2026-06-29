@@ -27,6 +27,22 @@ SPY_CHECK_INTERVAL_MINUTES = int(os.getenv("SPY_CHECK_INTERVAL_MINUTES", "15"))
 SUPABASE_URL       = os.getenv("SUPABASE_URL", "")
 SUPABASE_KEY       = os.getenv("SUPABASE_SERVICE_KEY", "")  # service_role key
 
+# Database URL for Alembic migrations
+# Priority: DATABASE_URL > constructed from SUPABASE_URL > SQLite for local dev
+DATABASE_URL = os.getenv("DATABASE_URL", "")
+if not DATABASE_URL and SUPABASE_URL:
+    # Construct PostgreSQL URL from Supabase
+    # Supabase URL format: https://xxx.supabase.co
+    # DB host format: db.xxx.supabase.co
+    try:
+        host_part = SUPABASE_URL.split("//")[1].split(".")[0]
+        DATABASE_URL = f"postgresql://postgres:{SUPABASE_KEY}@db.{host_part}.supabase.co:5432/postgres"
+    except (IndexError, AttributeError):
+        DATABASE_URL = ""
+if not DATABASE_URL:
+    # Fallback to SQLite for local development
+    DATABASE_URL = "sqlite:///./dev.db"
+
 # Webhook — Railway public domain (no trailing slash)
 WEBHOOK_URL = os.getenv("WEBHOOK_URL", "")
 
