@@ -425,6 +425,10 @@
     { key: 'target_customer', tier: 'core', q: 'Khách hàng bạn ĐANG có là ai (độ tuổi · đặc điểm · khu vực)?',
       helper: 'Mô tả tệp hiện tại — tệp ưu tiên ĐÁNH TRƯỚC sẽ chốt ở bước Chiến lược (Đặt cược).', ph: 'vd: Dân văn phòng 25–34, Q.1 TP.HCM' },
     { key: 'main_challenge', tier: 'core', q: 'Thách thức lớn nhất hiện tại của bạn là gì?', ph: 'vd: cạnh tranh chuỗi lớn, chi phí ads cao' },
+    { key: 'monthly_revenue', tier: 'core', q: 'Doanh thu trung bình hàng tháng của bạn?', ph: 'vd: 200 triệu/tháng' },
+    { key: 'primary_goal', tier: 'core', q: 'Mục tiêu marketing chính của bạn là gì?', ph: 'vd: tăng nhận diện thương hiệu' },
+    { key: 'monthly_marketing_budget', tier: 'core', q: 'Ngân sách marketing hàng tháng của bạn?', ph: 'vd: 20 triệu/tháng' },
+    { key: 'current_channels', tier: 'core', q: 'Kênh marketing bạn ĐANG dùng là gì?', ph: 'vd: Facebook, TikTok, Zalo OA' },
 
     // ── Khối chiến lược (tầng CMO — skip→AI suy, sẽ có chip gợi ý) ──
     { key: 'jtbd', tier: 'strategic', strategic: true,
@@ -449,8 +453,6 @@
       ph: 'vd: Highlands, Phúc Long, The Coffee House' },
 
     // ── Khối bối cảnh (optional — gọn, chỉ cái cần để ra output) ──
-    { key: 'current_channels', tier: 'context', optional: true, q: 'Kênh marketing bạn ĐANG dùng là gì?',
-      helper: 'Mô tả kênh hiện tại — kênh muốn TRIỂN KHAI/đánh sẽ chốt ở bước Chiến lược (Đặt cược).', ph: 'vd: Facebook, TikTok, Zalo OA' },
     { key: 'team_size', tier: 'context', optional: true, q: 'Đội làm marketing/nội dung của bạn mấy người?',
       choices: ['Một mình founder', '2–3 người', '4–10 người', 'Trên 10 / có agency'],
       note: 'Giúp Max đề xuất khối lượng & kênh KHẢ THI với nguồn lực của bạn — không vẽ quá sức.' },

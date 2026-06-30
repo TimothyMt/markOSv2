@@ -10,7 +10,11 @@ Each TaskConfig defines:
 - Pipeline behavior (for full-mode pipeline composition)
 """
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Dict, List
+
+from agents.logger import create_logger, error as log_error
+
+logger = create_logger(__name__)
 
 
 @dataclass
@@ -34,17 +38,17 @@ class TaskConfig:
     skill_class_name: str = ""
 
     # Pipeline composition (for "full" task that runs multiple stages)
-    pipeline_stages: list[str] = field(default_factory=list)
+    pipeline_stages: List[str] = field(default_factory=list)
 
     # Intake fields (declared upfront — used by SingleShotIntake to build template)
-    intake_fields: list[dict] = field(default_factory=list)
+    intake_fields: List[dict] = field(default_factory=list)
     # Each field: {key, label, example, required}
 
     # Profile fields ESSENTIAL để task này chạy (Phase 1.2)
     # Khi check needs_intake(): nếu session.profile có ĐỦ các fields này → skip intake
     # Strategic tasks: ánh xạ sang BusinessProfile fields
     # Operational tasks: thường rỗng vì dùng pending_intake template paste
-    intake_required_fields: list[str] = field(default_factory=list)
+    intake_required_fields: List[str] = field(default_factory=list)
 
 
 # ─────────────────────────────────────────────────────────────────
@@ -557,13 +561,24 @@ TASK_REGISTRY: dict[str, TaskConfig] = {
 
 
 def get_task(name: str) -> Optional[TaskConfig]:
-    """Lookup task by name."""
-    return TASK_REGISTRY.get(name)
+    """Lookup task by name with error handling."""
+    try:
+        task = TASK_REGISTRY.get(name)
+        if task is None:
+            log_error(logger, f"Task not found: {name}", task_name=name)
+        return task
+    except Exception as e:
+        log_error(logger, f"Error looking up task: {name}", exc_info=True, error=str(e))
+        return None
 
 
-def list_by_category(category: str) -> list[TaskConfig]:
+def list_by_category(category: str) -> List[TaskConfig]:
     """List all tasks in a category, preserving registration order."""
-    return [t for t in TASK_REGISTRY.values() if t.category == category]
+    try:
+        return [t for t in TASK_REGISTRY.values() if t.category == category]
+    except Exception as e:
+        log_error(logger, f"Error listing tasks for category: {category}", exc_info=True)
+        return []
 
 
 def needs_intake(session, task_name: str) -> bool:
@@ -571,14 +586,18 @@ def needs_intake(session, task_name: str) -> bool:
     If all required fields present → user has done intake before → SKIP repeat intake.
     Returns True = need intake; False = can skip and go straight to confirm/execute.
     """
-    task = get_task(task_name)
-    if not task or not task.intake_required_fields:
-        return True  # safe default — if no requirements declared, do intake
-    profile = session.profile
-    if not profile:
-        return True
-    for field_key in task.intake_required_fields:
-        value = getattr(profile, field_key, None)
-        if not value or (isinstance(value, str) and not value.strip()):
-            return True  # missing field → need intake
-    return False  # all required fields present → skip intake
+    try:
+        task = get_task(task_name)
+        if not task or not task.intake_required_fields:
+            return True  # safe default — if no requirements declared, do intake
+        profile = session.profile
+        if not profile:
+            return True
+        for field_key in task.intake_required_fields:
+            value = getattr(profile, field_key, None)
+            if not value or (isinstance(value, str) and not value.strip()):
+                return True  # missing field → need intake
+        return False  # all required fields present → skip intake
+    except Exception as e:
+        log_error(logger, f"Error checking intake for task: {task_name}", exc_info=True)
+        return True  # safe default on error

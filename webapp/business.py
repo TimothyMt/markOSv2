@@ -878,9 +878,7 @@ _occasion_cache: dict = {}
 OCCASION_OBJECTIVES = {
     "acquisition": "Kéo KHÁCH MỚI (demand-gen): nặng TOFU/MOFU, mở rộng reach, lead/CPL là KPI chính; offer hút thử.",
     "conversion":  "CHỐT ĐƠN (activation spike): nặng BOFU, ROAS/CPA/doanh số là KPI chính; offer mạnh, deadline gấp.",
-    "leadgen":     "THU LEAD / ĐẶT TƯ VẤN (high-consideration): mục tiêu là form/booking/lịch hẹn/demo, KPI = số lead, cost-per-lead, tỉ lệ đặt lịch — KHÔNG ép chốt đơn ngay; nuôi để sales theo sau.",
     "brand":       "RA MẮT / PHỦ NHẬN BIẾT: launch sản phẩm hoặc phủ tệp mới; KPI = reach/tần suất/nhớ thương hiệu, KHÔNG ép chốt; ưu tiên thông điệp định vị.",
-    "engagement":  "TƯƠNG TÁC & LAN TOẢ (earned/viral): UGC, minigame/giveaway, share/tag bạn, livestream; KPI = reach earned, lượt tương tác/chia sẻ, người tham gia — KHÔNG lấy đơn hàng làm thước đo chính.",
     "retention":   "GIỮ & KÉO LẠI khách CŨ: nhắm tệp đã mua (giữ active: repeat/AOV/CLV) và kéo lại khách đã rời (winback); ưu đãi loyalty, KHÔNG đốt ngân sách acquisition.",
 }
 

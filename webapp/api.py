@@ -5,18 +5,41 @@ GET /api/bootstrap trả về state động; các endpoint còn lại ghi và tr
 """
 import asyncio
 import json
+import logging
+import traceback
+from typing import Any, Callable, Dict
 
 from starlette.responses import JSONResponse, StreamingResponse
 from starlette.routing import Route
+from starlette.requests import Request
 
 from webapp import store
 from webapp import notify as tg
 from webapp import business as biz
 from webapp.events import hub
+from agents.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 def _ok(state):
     return JSONResponse(state)
+
+
+def _error(message: str, status_code: int = 400) -> JSONResponse:
+    """Helper tạo response lỗi chuẩn."""
+    return JSONResponse({"error": message}, status_code=status_code)
+
+
+def wrap_handler(handler: Callable, name: str) -> Callable:
+    """Wrapper tự động try/except + log lỗi cho tất cả handlers."""
+    async def wrapped(request: Request) -> Any:
+        try:
+            return await handler(request)
+        except Exception as e:
+            logger.error(f"API error in {name}: {str(e)}", extra={"traceback": traceback.format_exc()})
+            return _error(f"Internal error: {str(e)}", status_code=500)
+    return wrapped
 
 
 async def full_state() -> dict:
@@ -541,7 +564,8 @@ async def reset_usage(request):
 
 
 def api_routes() -> list:
-    return [
+    """Trả về danh sách routes API đã được wrap với error handling."""
+    raw_routes = [
         Route("/api/bootstrap",                    bootstrap,          methods=["GET"]),
         Route("/api/stream",                       stream,             methods=["GET"]),
         Route("/api/notify/test",                  notify_test,        methods=["POST"]),
@@ -613,3 +637,5 @@ def api_routes() -> list:
         Route("/api/users/{id:int}/addquota",      add_quota,          methods=["POST"]),
         Route("/api/users/{id:int}/reset",         reset_usage,        methods=["POST"]),
     ]
+    # Wrap tất cả handlers với error handling tự động
+    return [Route(r.path, wrap_handler(r.endpoint, r.path), methods=r.methods) for r in raw_routes]
