@@ -1,24 +1,19 @@
-# Marketing OS — Web Dashboard
+# Marketing OS — Web Dashboard (Max, AI CMO)
 
-Giao diện web đặt **Max (CMO ảo)** làm trung tâm — không phải bảng số liệu
-kiểu Ads Manager. Người dùng trò chuyện với Max, Max dẫn qua **5 chặng hành
-trình**: 🔍 Khám phá → 🩺 Chẩn đoán → 🎯 Chiến lược → ✍️ Sản xuất → 📡 Vận hành.
+Giao diện web đặt **Max (CMO ảo)** làm trung tâm. Người dùng đi theo **hành trình
+4 tầng Content Marketing**, sidebar tổ chức theo tầng (bắt đầu từ **Hồ sơ doanh
+nghiệp**, không phải khung chat):
 
-- Trang chủ `#home` = khung chat với Max + thanh tiến trình hành trình + gợi ý
-  "bước tiếp theo" (next-best-action) theo trạng thái doanh nghiệp.
-- Sidebar được tổ chức theo 5 chặng (không còn là danh sách phẳng 22 mục).
-- Max tái dùng đúng lõi của bot: `agents.discovery.run_discovery_turn` (phỏng vấn
-  dựng hồ sơ) + `tools.llm_router` (trả lời cố vấn) + `webapp.business.run_agent`
-  (chạy phân tích/skill thật khi Sếp bấm gợi ý).
+**① Nghiên cứu** (Thị trường · Đối thủ · Customer · Tâm lý-Giá · SWOT) →
+**② Chiến lược** (Đặt cược → Synthesis + Playbook → 🏛️ Thông điệp) →
+**③ Sáng tạo** (6 dạng nội dung · 🎛️ Nhịp nền) →
+**④ Phân phối & Đo** (Lịch: nền móng + đợt spike · vòng đo-học).
 
-| Method | Path | Mô tả |
-|--------|------|-------|
-| POST | `/api/chat` | Một lượt hội thoại với Max `{user_id, message}` |
-| GET  | `/api/chat/history?user_id=` | Transcript hội thoại web hiện tại |
+> Chi tiết hành trình: [`../docs/web/product-journey-4-tang.md`](../docs/web/product-journey-4-tang.md).
 
-> Max chỉ hoạt động khi server có Supabase + 1 API key LLM (ANTHROPIC/OpenAI/
-> Gemini). Trên bản demo tĩnh (GitHub Pages), Max tạm nghỉ; các trang khác vẫn
-> xem được bằng dữ liệu mẫu.
+Mỗi trang phân tích có nút **⚡ Chạy bằng AI**; output thật render thẳng trong trang.
+Cần server có ≥ 1 API key LLM (ANTHROPIC / OpenAI / Gemini). Trên bản demo tĩnh
+(GitHub Pages) không có backend, các trang vẫn xem được bằng dữ liệu mẫu.
 
 ## Chạy với backend (đầy đủ — có lưu dữ liệu)
 
@@ -26,18 +21,11 @@ Không cần Telegram token hay credentials nào:
 
 ```bash
 pip install starlette uvicorn        # nếu chưa có
-python run_web.py                     # chạy ở repo root
-# mở http://localhost:8000
+python run_web.py                     # chạy ở repo root → http://localhost:8000
 ```
 
-Backend dùng SQLite (`webapp/markos_web.db`, tự tạo lần đầu). Các thao tác sau
-lưu thật và còn sau khi tải lại trang:
-
-- Thêm / bỏ đối thủ theo dõi (trang *Phân tích đối thủ*)
-- Bật / tắt tác vụ tự động (trang *Lịch trình & cảnh báo*)
-- Áp dụng / bỏ qua đề xuất tối ưu (trang *Tối ưu tự động*)
-- Đóng cảnh báo
-- Lưu cài đặt thông báo (trang *Cài đặt*)
+Mặc định dùng SQLite (`webapp/markos_web.db`, tự tạo lần đầu). Set `SUPABASE_URL`
++ `SUPABASE_SERVICE_KEY` (và chạy `webapp/supabase_schema.sql`) để dùng Supabase.
 
 ## Xem nhanh không cần backend
 
@@ -55,115 +43,44 @@ web/                 # frontend (HTML/CSS/JS, SPA hash-router)
   app.js             # router + render các trang + gọi API
   dashboard-standalone.html  # bản gộp 1 file (cho GitHub Pages / mở offline)
 webapp/              # backend
-  store.py           # SQLite store (mock-first), seed + CRUD
-  api.py             # JSON API: /api/bootstrap, /api/tracked, /api/jobs/... ...
+  api.py             # JSON API /api/biz/* (business thật) + /api/chat
+  business.py        # logic nghiệp vụ (research, strategy, messaging, rhythm, calendar…)
+  store*.py          # lớp lưu trữ (SQLite / Supabase)
+  events.py          # SSE realtime
 run_web.py           # server độc lập: static web/ + /api/* (port 8000)
 ```
 
-`bot/main.py` (server Telegram production) cũng mount sẵn `/api/*` và `/web`,
-nên dashboard chạy chung cùng bot khi deploy.
-
-## API (tóm tắt)
+## API (tóm tắt — business thật)
 
 | Method | Path | Mô tả |
 |--------|------|-------|
-| GET    | `/api/bootstrap` | Lấy state động (tracked, jobs, optimizations, alerts, settings) |
-| POST   | `/api/tracked` | Thêm đối thủ theo dõi `{name}` |
-| DELETE | `/api/tracked/{id}` | Bỏ theo dõi |
-| POST   | `/api/jobs/{name}/toggle` | Bật/tắt tác vụ nền |
-| POST   | `/api/optimizations/{id}/apply` | Áp dụng / bỏ đề xuất |
-| POST   | `/api/alerts/{id}/dismiss` | Đóng cảnh báo |
-| POST   | `/api/settings` | Lưu cài đặt `{key, value}` |
-
-> Dữ liệu hiện là **mock-first**. Khi nối nguồn thật (Supabase, Facebook
-> Marketing API, AI agents), chỉ cần thay phần đọc/ghi trong `webapp/store.py` —
-> hợp đồng JSON với frontend giữ nguyên.
-
-## Điều khiển 2 chiều với Telegram
-
-**Web → Telegram (thông báo):** đặt `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID`
-→ các thao tác (tạo chiến dịch, áp dụng tối ưu, kết nối tài khoản) gửi thông
-báo về Telegram. Thử ở trang *Cài đặt* → *Gửi thông báo test*.
-
-**Telegram → Web (điều khiển từ điện thoại):** bot có các lệnh `/web_*` ghi vào
-cùng store với web (`bot/web_control.py`):
-
-| Lệnh | Tác dụng |
-|------|----------|
-| `/web_status` | Tổng quan: số chiến dịch, đối thủ, cảnh báo, tài khoản |
-| `/web_campaign <tên>` | Tạo chiến dịch mới |
-| `/web_track <tên>` | Thêm đối thủ theo dõi |
-| `/web_optimize` | Áp dụng đề xuất tối ưu đầu tiên |
-| `/web_alerts` | Xem cảnh báo hiện tại |
-| `/web_help` | Danh sách lệnh |
-
-> Để bot và web **thấy chung dữ liệu**, cả hai phải cùng cấu hình Supabase
-> (`SUPABASE_URL` + `SUPABASE_SERVICE_KEY`). Nếu mỗi bên dùng SQLite riêng
-> (2 service tách biệt) thì dữ liệu không chia sẻ.
-
-## AI Agent & dữ liệu nghiệp vụ thật
-
-Khi web dùng **cùng Supabase với bot** (`SUPABASE_URL` + `SUPABASE_SERVICE_KEY`),
-trang **🤖 AI Agent & Dữ liệu thật** đọc trực tiếp dữ liệu thật của bot và chạy
-được pipeline/skill thật (`agents/`). Module: `webapp/business.py`.
-
-**Dữ liệu thật hiển thị** (đọc các bảng của bot, không phải `web_*`):
-
-| Nguồn (bảng thật) | Hiển thị |
-|--------|------|
-| `users` | Danh sách user + quota token; chọn user để xem |
-| `user_business_profile` | Hồ sơ doanh nghiệp (ngành, USP, mục tiêu, ngân sách…) |
-| `campaigns` | Chiến dịch thật |
-| `tracked_competitors` | Đối thủ đang theo dõi |
-| `skill_runs` | Lịch sử output AI đã tạo (xem full nội dung) |
-| `user_brand_voice` | Brand Voice đang active |
-
-Output thật còn được map vào đúng trang phân tích (Nghiên cứu thị trường, Đối thủ,
-Customer Insight, Định giá, SWOT, Chiến lược) qua thanh **AI Agent (dữ liệu thật)**.
-
-**Chạy AI agent thật** — mỗi nút gọi pipeline/skill trong `agents/`, chạy nền,
-lưu kết quả vào Supabase, đẩy tiến độ realtime qua SSE và bắn thông báo Telegram:
-
-| Method | Path | Mô tả |
-|--------|------|-------|
-| GET    | `/api/biz?user_id=` | Dữ liệu thật của 1 user |
+| GET    | `/api/biz?user_id=` | Toàn bộ dữ liệu thật của 1 user (profile, campaigns, skill_runs, messaging, rhythm…) |
 | GET    | `/api/biz/skillrun/{id}` | Full nội dung 1 skill_run |
-| POST   | `/api/biz/agent` | Chạy agent `{task, user_id}` — task: full/market/competitor/customer/pricing/swot/strategy |
-| GET    | `/api/biz/ads?days=7&user_id=` | Ads thật: KPI, winners/losers, biểu đồ theo ngày |
-| GET    | `/api/biz/fb/connect-url?user_id=` | Link FB OAuth để user kết nối Ads từ web |
+| POST   | `/api/biz/agent` | Chạy phân tích `{task, user_id}` — full/market/competitor/customer/pricing/swot/strategy |
+| POST   | `/api/biz/messaging/gen` | Nháp Messaging House (stage=core → pillars) |
+| POST   | `/api/biz/rhythm/save` | Lưu Nhịp nền (6 dạng × tần suất) |
+| GET    | `/api/biz/calendar` | Lịch 2-track (nền + đợt) |
+| POST   | `/api/chat` | Một lượt hội thoại tư vấn với Max `{user_id, message}` |
 
-Output AI thật được **render thẳng trong các trang chiến lược** (Nghiên cứu thị
-trường, Đối thủ, Customer Insight, Định giá, SWOT, Chiến lược tổng hợp) — mỗi
-trang có nút *⚡ Chạy bằng AI* và hiển thị kết quả ngay khi xong.
-
-> Chọn user mặc định: query `?user_id=` → env `WEB_DEFAULT_USER_ID` → user active
-> gần nhất.
-
-## Kết nối Facebook Ads (per-user)
-
-Mỗi user tự kết nối FB Ads của họ để xem số liệu: nút **🔗 Kết nối Facebook Ads**
-(trang *Ads Analytics*) gọi `/api/biz/fb/connect-url` → mở OAuth → user đồng ý →
-callback `/oauth/fb/callback` lưu token (mã hoá Fernet) vào `user_fb_connections`.
-Scheduler của bot pull số liệu hằng ngày vào `ads_snapshots`; web đọc snapshot đó.
-
-Cần server cấu hình `FB_APP_ID` + `FB_APP_SECRET` + `WEBHOOK_BASE_URL` (redirect URI
-đã đăng ký với Facebook App). Khi web mount chung server với bot, callback dùng
-luôn bot để báo Telegram; web standalone vẫn lưu token nhưng bỏ qua notify.
-
-> **Token Anthropic vs token FB:** AI agent dùng 1 `ANTHROPIC_API_KEY` của chủ
-> hệ thống, tính usage theo quota từng user (`users.token_quota/used`). Còn token
-> **Facebook** là OAuth riêng của từng user — user phải tự kết nối để xem ads của họ.
+> Chọn user mặc định: query `?user_id=` → env `WEB_DEFAULT_USER_ID` → user active gần nhất.
 
 ## Tự cập nhật realtime (SSE)
 
 Web mở 1 kết nối `EventSource('/api/stream')` và tự cập nhật khi dữ liệu đổi —
 không cần F5. Chỉ báo **● Live** ở góc trên phải.
 
-- **Watcher** (luôn chạy): server đọc store mỗi ~4s, đẩy khi đổi. Hoạt động với
-  cả SQLite lẫn Supabase, kể cả thay đổi đến từ bot (process khác).
-- **Supabase Realtime** (gần như tức thì): chạy phần cuối `supabase_schema.sql`
-  để bật realtime cho bảng `web_*`. Khi có Supabase, server lắng nghe
-  `postgres_changes` và đẩy ngay. Nếu realtime lỗi, watcher vẫn đảm bảo cập nhật.
+- **Watcher** (luôn chạy): server đọc store mỗi ~4s, đẩy khi đổi. Hoạt động với cả SQLite lẫn Supabase.
+- **Supabase Realtime** (gần như tức thì): chạy phần cuối `supabase_schema.sql` để bật realtime. Nếu lỗi, watcher vẫn đảm bảo cập nhật.
 
-> Realtime/SSE chỉ chạy khi có backend (`run_web.py`/cloud). Trên GitHub Pages
-> tĩnh, web tự bỏ qua SSE và dùng dữ liệu mock.
+## Kết nối Facebook Ads (per-user, tuỳ chọn)
+
+Nút **🔗 Kết nối Facebook Ads** gọi `/api/biz/fb/connect-url` → OAuth → callback
+`/oauth/fb/callback` lưu token (mã hoá Fernet) vào `user_fb_connections`. Số liệu
+Ads pull định kỳ vào `ads_snapshots`; web đọc snapshot đó. Cần server cấu hình
+`FB_APP_ID` + `FB_APP_SECRET` + redirect URI đã đăng ký.
+
+---
+
+> **Legacy — tích hợp Telegram:** repo còn phần điều khiển 2 chiều với bot Telegram
+> (`bot/web_control.py`, các lệnh `/web_*`, notify về Telegram). Phần này thuộc
+> **bot đời đầu** và sẽ được tách khỏi web khi chia repo — web **không cần** nó để chạy.
