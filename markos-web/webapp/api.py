@@ -1,0 +1,615 @@
+"""
+JSON API cho web dashboard. Mount vào Starlette (run_web.py hoặc bot/main.py).
+
+GET /api/bootstrap trả về state động; các endpoint còn lại ghi và trả state mới.
+"""
+import asyncio
+import json
+
+from starlette.responses import JSONResponse, StreamingResponse
+from starlette.routing import Route
+
+from webapp import store
+from webapp import notify as tg
+from webapp import business as biz
+from webapp.events import hub
+
+
+def _ok(state):
+    return JSONResponse(state)
+
+
+async def full_state() -> dict:
+    """State đầy đủ dùng cho bootstrap, SSE snapshot và watcher.
+
+    Chỉ chứa phần NHẸ (web_* + cờ + danh sách job in-memory). Dữ liệu nghiệp vụ
+    THẬT (nhiều query Supabase) lấy on-demand qua /api/biz để watcher 4s không
+    nện DB liên tục — nhưng tiến độ AI agent (in-memory) vẫn đẩy live qua SSE.
+    """
+    state = await store.get_state()
+    state["telegramEnabled"] = tg.enabled()
+    state["bizEnabled"] = biz.available()
+    state["agentJobs"] = biz.jobs_public()
+    return state
+
+
+async def bootstrap(request):
+    return JSONResponse(await full_state())
+
+
+async def stream(request):
+    """SSE: gửi snapshot ngay, sau đó đẩy state mới khi có thay đổi."""
+    async def gen():
+        q = hub.subscribe()
+        try:
+            yield f"data: {json.dumps(await full_state(), ensure_ascii=False)}\n\n"
+            while True:
+                try:
+                    data = await asyncio.wait_for(q.get(), timeout=15)
+                    yield f"data: {data}\n\n"
+                except asyncio.TimeoutError:
+                    yield ": heartbeat\n\n"  # giữ kết nối qua proxy Railway
+                if await request.is_disconnected():
+                    break
+        finally:
+            hub.unsubscribe(q)
+
+    return StreamingResponse(gen(), media_type="text/event-stream", headers={
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+        "X-Accel-Buffering": "no",
+    })
+
+
+async def notify_test(request):
+    ok = await tg.notify("✅ <b>Marketing OS</b> — kết nối thông báo Telegram thành công!")
+    return JSONResponse({"ok": ok, "enabled": tg.enabled()})
+
+
+# ── Dữ liệu nghiệp vụ thật + AI agent ───────────────────────────────
+async def biz_data(request):
+    """Dữ liệu thật của 1 user (profile, campaigns, đối thủ, skill runs, brand voice)."""
+    return JSONResponse(await biz.biz_data(request.query_params.get("user_id")))
+
+
+async def biz_skillrun(request):
+    """Full content 1 skill_run (để xem chi tiết output AI đã tạo)."""
+    return JSONResponse(await biz.skill_run_content(request.path_params["id"]))
+
+
+async def biz_save_profile(request):
+    """Lưu hồ sơ doanh nghiệp (điểm khởi đầu form-first)."""
+    data = await request.json()
+    res = await biz.save_profile(data.get("user_id"), data.get("fields") or {})
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_intake(request):
+    """Một lượt phỏng vấn AI-adaptive của Max (onboarding)."""
+    data = await request.json()
+    res = await biz.intake_turn(data.get("user_id"), data.get("message", ""))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_intake_suggest(request):
+    """D-032 step 2 — chip gợi ý cho câu chiến lược (bám ngành/sản phẩm/khách)."""
+    data = await request.json()
+    res = await biz.intake_suggestions(data.get("fields") or {})
+    return JSONResponse({"suggestions": res})
+
+
+async def biz_market_kpis(request):
+    """D-034 #2 — TAM/SAM/SOM số thật trích từ output market_research (cache)."""
+    res = await biz.market_kpis(request.query_params.get("run_id", ""))
+    return JSONResponse({"kpis": res})
+
+
+async def biz_save_gate(request):
+    """D-041 — lưu lựa chọn GATE (phân khúc + định vị) trước khi lập chiến lược."""
+    data = await request.json()
+    res = await biz.save_gate(data.get("user_id"), data.get("wedge", ""),
+                              data.get("usp_stance", ""), data.get("usp_text", ""),
+                              data.get("horizon", ""), data.get("posture", ""))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_campaign_plan(request):
+    """D-040 — content pillars (always-on) + gợi ý occasion theo ngành.
+    M4(2): ?steer= định hướng thêm khi 'sinh lại có định hướng'."""
+    res = await biz.campaign_plan(request.query_params.get("user_id"),
+                                  request.query_params.get("steer", ""))
+    return JSONResponse({"plan": res})
+
+
+async def biz_synthesis_approve(request):
+    """M4(1) — founder chốt bản Chiến lược hiện tại."""
+    data = await request.json()
+    res = await biz.approve_synthesis(data.get("user_id"))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_pillars_lock(request):
+    """M4(2) — chốt tuyến nền (curate pillars). pillars=[] hoặc thiếu = bỏ chốt."""
+    data = await request.json()
+    res = await biz.save_pillars(data.get("user_id"), data.get("pillars"))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_occasion_draft(request):
+    """M1.1 (D-043) — sinh Campaign Brief đợt theo dịp (chốt SMART thật)."""
+    d = await request.json()
+    res = await biz.occasion_draft(d.get("user_id"), d.get("occasion", ""),
+                                   d.get("window_start", ""), d.get("window_end", ""),
+                                   d.get("budget", ""), d.get("baseline", ""), d.get("goal", ""),
+                                   d.get("objective", ""), d.get("objective_custom", ""),
+                                   d.get("campaign_type", ""), d.get("audience", ""))
+    return JSONResponse({"draft": res})
+
+
+async def biz_occasion_save(request):
+    """M1.1 — lưu Campaign Brief đợt → skill_runs + campaigns."""
+    d = await request.json()
+    res = await biz.save_occasion(d.get("user_id"), d.get("occasion", ""),
+                                  d.get("window_start", ""), d.get("window_end", ""),
+                                  d.get("budget", ""), d.get("goal", ""), d.get("brief", ""),
+                                  d.get("objective", ""), d.get("objective_custom", ""),
+                                  d.get("campaign_type", ""), d.get("audience", ""))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_retention_draft(request):
+    """M2.1 (D-045) — sinh cẩm nang if-then giữ chân/winback (không cần order data)."""
+    d = await request.json()
+    res = await biz.retention_draft(d.get("user_id"), d.get("mode", "retention"),
+                                    d.get("cycle", ""), d.get("channels", ""), d.get("offer", ""))
+    return JSONResponse({"draft": res})
+
+
+async def biz_retention_save(request):
+    """M2.1 — lưu cẩm nang → skill_runs + campaigns."""
+    d = await request.json()
+    res = await biz.save_retention(d.get("user_id"), d.get("mode", "retention"),
+                                   d.get("cycle", ""), d.get("channels", ""),
+                                   d.get("offer", ""), d.get("brief", ""))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_calendar(request):
+    """M1.2 (D-017/018) — lịch 2-track THẬT (always-on pillars + occasion bands)."""
+    res = await biz.calendar_plan(request.query_params.get("user_id"))
+    return JSONResponse({"calendar": res})
+
+
+async def biz_calendar_gen(request):
+    """M1.2b — sinh 1 bài cho slot lịch (bám pillar/brief), lưu skill_run."""
+    d = await request.json()
+    res = await biz.gen_calendar_post(d.get("user_id"), d.get("track", "always"),
+                                      d.get("pillar", ""), d.get("campaign_id", ""),
+                                      d.get("week", ""), d.get("day", ""), d.get("angle", ""),
+                                      d.get("value_lens", ""), d.get("hook_style", ""),
+                                      d.get("framework", ""), d.get("phase", ""),
+                                      d.get("campaign_gap", ""), d.get("objective", ""),
+                                      d.get("track_role", ""))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_calendar_post_save(request):
+    """M-E (nâng từ M-C) — lưu/duyệt bài tại ô lịch dưới dạng thẻ (ref ổn định + place)."""
+    d = await request.json()
+    res = await biz.save_calendar_post(d.get("user_id"), d.get("slot_key", ""),
+                                       d.get("content", ""), bool(d.get("delete")),
+                                       d.get("track", ""), d.get("pillar_id", ""),
+                                       d.get("campaign_id", ""), d.get("phase", ""),
+                                       d.get("week"), d.get("day"))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_calendar_post_archive(request):
+    """M-E (Q4) — chuyển bài orphan sang Tài liệu (skill_runs) rồi gỡ khỏi lịch."""
+    d = await request.json()
+    res = await biz.archive_calendar_post(d.get("user_id"), d.get("slot_key", ""))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_calendar_topics(request):
+    """M-E Pha 2 — Max sinh loạt chủ đề cụ thể cho always-on (lưu intake_extra.calendar_topics)."""
+    d = await request.json()
+    res = await biz.gen_calendar_topics(d.get("user_id"))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_campaign_task_gen(request):
+    """M-F (F1b) — sinh deliverable cho 1 task của campaign (bám brief đợt)."""
+    d = await request.json()
+    res = await biz.gen_campaign_task(d.get("user_id"), d.get("campaign_id", ""), d.get("task_id", ""))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_campaign_task_update(request):
+    """M-F (F1b) — đổi status task campaign (todo/draft/approved)."""
+    d = await request.json()
+    res = await biz.update_campaign_task(d.get("user_id"), d.get("campaign_id", ""),
+                                         d.get("task_id", ""), d.get("status", ""))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_campaign_portfolio(request):
+    """M-F (F2) — Max đề xuất danh mục chiến dịch từ roadmap."""
+    d = await request.json()
+    res = await biz.gen_campaign_portfolio(d.get("user_id"))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_campaign_branding(request):
+    """M-G (G1) — tạo/cập nhật campaign Branding nền (xuyên suốt)."""
+    d = await request.json()
+    res = await biz.gen_branding_brief(d.get("user_id"))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_gaps(request):
+    """S-05 — bóc GAP/cơ hội từ research để tạo campaign tổng."""
+    d = await request.json()
+    res = await biz.gen_gaps(d.get("user_id"))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_bet_options(request):
+    """Vision A — Max rút option đặt cược theo 5 nhóm từ research T1-T3."""
+    d = await request.json()
+    res = await biz.gen_bet_options(d.get("user_id"))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_bet_save(request):
+    """Vision A — lưu lựa chọn đặt cược (5 nhóm) trước khi chạy T4-T5."""
+    d = await request.json()
+    res = await biz.save_bet(d.get("user_id"), d.get("choices"))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_funnel_map(request):
+    """Lô G — dựng bản đồ phễu × kênh cho 1 tuyến (mục đích)."""
+    d = await request.json()
+    res = await biz.gen_funnel_map(d.get("user_id"), d.get("objective", "brand"))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_rhythm_save(request):
+    """Tầng ③ — lưu nhịp nền (bảng điều khiển 6 tuyến chạy quanh năm)."""
+    d = await request.json()
+    res = await biz.save_content_rhythm(d.get("user_id"), d.get("rhythm"))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_messaging_gen(request):
+    """Thông điệp — Max nháp Messaging House. stage='core' (mái) → 'pillars' (cột chống đỡ core)."""
+    d = await request.json()
+    res = await biz.gen_messaging(d.get("user_id"), d.get("steer", ""),
+                                  stage=d.get("stage", "all"), core=d.get("core", ""))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_messaging_save(request):
+    """Thông điệp — lưu bản founder đã chỉnh tay."""
+    d = await request.json()
+    res = await biz.save_messaging(d.get("user_id"), d.get("messaging"))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_master_plan(request):
+    """S-10a — tạo campaign tổng (gap+wedge+USP) + đề xuất sub-campaign."""
+    d = await request.json()
+    res = await biz.gen_master_plan(d.get("user_id"), d.get("gap_kind", ""), d.get("gap_title", ""),
+                                    d.get("wedge", ""), d.get("usp", ""), d.get("name", ""),
+                                    gaps=d.get("gaps"))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_subcampaign(request):
+    """S-10b — chốt 1 sub-campaign vào master."""
+    d = await request.json()
+    res = await biz.commit_subcampaign(d.get("user_id"), d.get("master_id", ""),
+                                       d.get("type", ""), d.get("name", ""))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_sub_content(request):
+    """S-10c — sinh brief + topics theo tuyến cho 1 sub-campaign."""
+    d = await request.json()
+    res = await biz.gen_sub_content(d.get("user_id"), d.get("sub_id", ""))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_campaign_portfolio_clear(request):
+    """M-F (F2) — bỏ 1 mục (index) hoặc cả danh mục đề xuất."""
+    d = await request.json()
+    res = await biz.clear_campaign_portfolio(d.get("user_id"), int(d.get("index", -1)))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_reset(request):
+    """Reset dữ liệu test: full=False giữ hồ sơ, full=True xoá hẳn."""
+    d = await request.json()
+    res = await biz.reset_business(d.get("user_id"), bool(d.get("full")))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_content_derive(request):
+    """M3.1 — sinh biến thể từ 1 bài gốc (đa kênh/video/UGC), lưu skill_run."""
+    d = await request.json()
+    res = await biz.gen_derivative(d.get("user_id"), d.get("kind", "channels"), d.get("source", ""))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_content_asset(request):
+    """M3.2 — sinh tài sản content đặc thù (ads_copy/sequence/inbox) bám strategy/USP."""
+    d = await request.json()
+    res = await biz.gen_content_asset(d.get("user_id"), d.get("kind", "ads_copy"))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_skillrun_rate(request):
+    """Chấm điểm 1 output research (👍/👎 → 5/1)."""
+    data = await request.json()
+    res = await biz.rate_skill_run(request.path_params["id"], data.get("rating", 0), data.get("feedback"))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_skillrun_save(request):
+    """Lưu chỉnh sửa output thành version mới (sửa tay / đặt làm hiện hành)."""
+    data = await request.json()
+    res = await biz.save_skill_edit(data.get("user_id"), data.get("skill_name", ""), data.get("content", ""))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_skill_versions(request):
+    """Danh sách version của 1 skill cho user."""
+    return JSONResponse({"versions": await biz.list_skill_versions(
+        request.query_params.get("user_id"), request.query_params.get("skill", ""))})
+
+
+async def biz_skillrun_set_current(request):
+    """N-01: đặt 1 version cũ làm hiện hành (re-stamp version, không đẻ bản copy)."""
+    d = await request.json()
+    res = await biz.set_current_run(d.get("user_id"), d.get("run_id") or d.get("content_id"))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_skillrun_patch(request):
+    """Nhờ Max chỉnh 1 đoạn → version mới (surgical_edit)."""
+    data = await request.json()
+    res = await biz.patch_skill_run(request.path_params["id"], data.get("comment", ""))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_content_feedback(request):
+    """Lô I — founder nhập số liệu bài → Max chấm + tối ưu bài kế (vòng phản hồi hiệu suất)."""
+    d = await request.json()
+    res = await biz.content_feedback(d.get("user_id"), d.get("run_id", ""), d.get("metrics", ""))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def biz_agent_run(request):
+    """Khởi chạy pipeline/skill THẬT cho user. Trả jobId; theo dõi qua SSE agentJobs."""
+    data = await request.json()
+    task = (data.get("task") or "full").strip()
+    res = await biz.run_agent(data.get("user_id"), task)
+    if "error" in res:
+        return JSONResponse(res, status_code=400)
+    await tg.notify(
+        f"🤖 <b>AI Agent</b> bắt đầu: {biz.TASK_LABELS.get(task, task)} "
+        f"(user <code>{res['job']['userId']}</code>)."
+    )
+    return JSONResponse(res)
+
+
+async def biz_ads(request):
+    """Ads analytics thật: snapshots, KPI, winners/losers, biểu đồ theo ngày."""
+    days = int(request.query_params.get("days", 7))
+    user_id = request.query_params.get("user_id")
+    return JSONResponse(await biz.ads_data(user_id=user_id, days=days))
+
+
+async def biz_fb_connect_url(request):
+    """Trả link FB OAuth để user kết nối tài khoản Ads từ web."""
+    res = await biz.fb_connect_url(request.query_params.get("user_id"))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+# ── Max (đối thoại cố vấn) ──────────────────────────────────────────
+async def chat(request):
+    """Một lượt hội thoại với Max. Body: {user_id, message}."""
+    from webapp import chat as chat_mod
+    data = await request.json()
+    res = await chat_mod.chat_turn(data.get("user_id"), data.get("message", ""))
+    return JSONResponse(res, status_code=400 if "error" in res else 200)
+
+
+async def chat_history(request):
+    """Lịch sử hội thoại web (đọc bền từ Supabase, fallback in-memory)."""
+    from webapp import chat as chat_mod
+    return JSONResponse({"history": await chat_mod.load_history(request.query_params.get("user_id"))})
+
+
+# ── Tracked competitors ─────────────────────────────────────────────
+async def add_tracked(request):
+    data = await request.json()
+    name = (data.get("name") or "").strip()
+    if not name:
+        return JSONResponse({"error": "name required"}, status_code=400)
+    return _ok(await store.add_tracked(name))
+
+async def del_tracked(request):
+    return _ok(await store.del_tracked(int(request.path_params["id"])))
+
+
+# ── Jobs / optimizations / alerts / settings ────────────────────────
+async def toggle_job(request):
+    return _ok(await store.toggle_job(request.path_params["name"]))
+
+async def apply_optimization(request):
+    state = await store.remove_optimization(int(request.path_params["id"]))
+    await tg.notify("⚡ Đã áp dụng một đề xuất tối ưu quảng cáo.")
+    return _ok(state)
+
+async def dismiss_alert(request):
+    return _ok(await store.dismiss_alert(int(request.path_params["id"])))
+
+async def set_setting(request):
+    data = await request.json()
+    key = data.get("key")
+    if not key:
+        return JSONResponse({"error": "key required"}, status_code=400)
+    return _ok(await store.set_setting(key, int(data.get("value", 0))))
+
+
+# ── Campaigns ───────────────────────────────────────────────────────
+async def add_campaign(request):
+    data = await request.json()
+    name = (data.get("name") or "").strip()
+    if not name:
+        return JSONResponse({"error": "name required"}, status_code=400)
+    state = await store.add_campaign(name)
+    await tg.notify(f"🚀 Chiến dịch mới: <b>{name}</b>")
+    return _ok(state)
+
+async def del_campaign(request):
+    return _ok(await store.del_campaign(int(request.path_params["id"])))
+
+
+# ── Calendar posts ──────────────────────────────────────────────────
+async def add_calendar_post(request):
+    data = await request.json()
+    title = (data.get("title") or "").strip()
+    if not title:
+        return JSONResponse({"error": "title required"}, status_code=400)
+    return _ok(await store.add_calendar_post(
+        int(data.get("day", 0)), data.get("pillar", "Educate"), title))
+
+async def del_calendar_post(request):
+    return _ok(await store.del_calendar_post(int(request.path_params["id"])))
+
+
+# ── Content generation ──────────────────────────────────────────────
+async def generate_content(request):
+    data = await request.json()
+    topic = (data.get("topic") or "Khuyến mãi").strip()
+    return _ok(await store.generate_content(topic))
+
+
+# ── Reports ─────────────────────────────────────────────────────────
+async def add_report(request):
+    data = await request.json()
+    name = (data.get("name") or "").strip()
+    if not name:
+        return JSONResponse({"error": "name required"}, status_code=400)
+    return _ok(await store.add_report(name, data.get("type", "Tuần")))
+
+async def del_report(request):
+    return _ok(await store.del_report(int(request.path_params["id"])))
+
+
+# ── Ad accounts ─────────────────────────────────────────────────────
+async def connect_account(request):
+    data = await request.json()
+    name = (data.get("name") or "").strip()
+    if not name:
+        return JSONResponse({"error": "name required"}, status_code=400)
+    state = await store.connect_account(name)
+    await tg.notify(f"🔗 Đã kết nối tài khoản quảng cáo: <b>{name}</b>")
+    return _ok(state)
+
+async def toggle_account(request):
+    return _ok(await store.toggle_account(int(request.path_params["id"])))
+
+async def disconnect_account(request):
+    return _ok(await store.disconnect_account(int(request.path_params["id"])))
+
+
+# ── Admin: user quota ───────────────────────────────────────────────
+async def set_quota(request):
+    data = await request.json()
+    return _ok(await store.set_quota(int(request.path_params["id"]), int(data.get("value", 0))))
+
+async def add_quota(request):
+    data = await request.json()
+    return _ok(await store.add_quota(int(request.path_params["id"]), int(data.get("value", 0))))
+
+async def reset_usage(request):
+    return _ok(await store.reset_usage(int(request.path_params["id"])))
+
+
+def api_routes() -> list:
+    return [
+        Route("/api/bootstrap",                    bootstrap,          methods=["GET"]),
+        Route("/api/stream",                       stream,             methods=["GET"]),
+        Route("/api/notify/test",                  notify_test,        methods=["POST"]),
+        Route("/api/biz",                          biz_data,           methods=["GET"]),
+        Route("/api/biz/skillrun/{id:str}",        biz_skillrun,       methods=["GET"]),
+        Route("/api/biz/profile",                  biz_save_profile,   methods=["POST"]),
+        Route("/api/biz/intake",                   biz_intake,         methods=["POST"]),
+        Route("/api/biz/intake/suggest",           biz_intake_suggest, methods=["POST"]),
+        Route("/api/biz/market-kpis",              biz_market_kpis,    methods=["GET"]),
+        Route("/api/biz/gate",                     biz_save_gate,      methods=["POST"]),
+        Route("/api/biz/synthesis-approve",        biz_synthesis_approve, methods=["POST"]),
+        Route("/api/biz/pillars-lock",             biz_pillars_lock,   methods=["POST"]),
+        Route("/api/biz/calendar/post-save",       biz_calendar_post_save, methods=["POST"]),
+        Route("/api/biz/calendar/post-archive",    biz_calendar_post_archive, methods=["POST"]),
+        Route("/api/biz/calendar/topics",          biz_calendar_topics, methods=["POST"]),
+        Route("/api/biz/campaign/task-gen",        biz_campaign_task_gen, methods=["POST"]),
+        Route("/api/biz/campaign/task-update",     biz_campaign_task_update, methods=["POST"]),
+        Route("/api/biz/campaign/portfolio",       biz_campaign_portfolio, methods=["POST"]),
+        Route("/api/biz/campaign/branding",        biz_campaign_branding, methods=["POST"]),
+        Route("/api/biz/gaps",                     biz_gaps,           methods=["POST"]),
+        Route("/api/biz/bet/options",              biz_bet_options,    methods=["POST"]),
+        Route("/api/biz/bet/save",                 biz_bet_save,       methods=["POST"]),
+        Route("/api/biz/funnel-map",               biz_funnel_map,     methods=["POST"]),
+        Route("/api/biz/rhythm/save",              biz_rhythm_save,    methods=["POST"]),
+        Route("/api/biz/messaging/gen",            biz_messaging_gen,  methods=["POST"]),
+        Route("/api/biz/messaging/save",           biz_messaging_save, methods=["POST"]),
+        Route("/api/biz/campaign/master",          biz_master_plan,    methods=["POST"]),
+        Route("/api/biz/campaign/sub",             biz_subcampaign,    methods=["POST"]),
+        Route("/api/biz/campaign/sub-content",     biz_sub_content,    methods=["POST"]),
+        Route("/api/biz/campaign/portfolio-clear", biz_campaign_portfolio_clear, methods=["POST"]),
+        Route("/api/biz/reset",                    biz_reset,          methods=["POST"]),
+        Route("/api/biz/campaign-plan",            biz_campaign_plan,  methods=["GET"]),
+        Route("/api/biz/occasion",                 biz_occasion_draft, methods=["POST"]),
+        Route("/api/biz/occasion/save",            biz_occasion_save,  methods=["POST"]),
+        Route("/api/biz/retention",                biz_retention_draft, methods=["POST"]),
+        Route("/api/biz/retention/save",           biz_retention_save, methods=["POST"]),
+        Route("/api/biz/calendar",                 biz_calendar,       methods=["GET"]),
+        Route("/api/biz/calendar/gen",             biz_calendar_gen,   methods=["POST"]),
+        Route("/api/biz/content/derive",           biz_content_derive, methods=["POST"]),
+        Route("/api/biz/content/asset",            biz_content_asset,  methods=["POST"]),
+        Route("/api/biz/skillrun/{id:str}/rate",   biz_skillrun_rate,  methods=["POST"]),
+        Route("/api/biz/skillrun/save",            biz_skillrun_save,  methods=["POST"]),
+        Route("/api/biz/skillrun/set-current",     biz_skillrun_set_current, methods=["POST"]),
+        Route("/api/biz/skillruns",                biz_skill_versions, methods=["GET"]),
+        Route("/api/biz/skillrun/{id:str}/patch",  biz_skillrun_patch, methods=["POST"]),
+        Route("/api/biz/content/feedback",          biz_content_feedback, methods=["POST"]),
+        Route("/api/biz/agent",                    biz_agent_run,      methods=["POST"]),
+        Route("/api/biz/ads",                      biz_ads,            methods=["GET"]),
+        Route("/api/biz/fb/connect-url",           biz_fb_connect_url, methods=["GET"]),
+        Route("/api/chat",                         chat,               methods=["POST"]),
+        Route("/api/chat/history",                 chat_history,       methods=["GET"]),
+        Route("/api/tracked",                      add_tracked,        methods=["POST"]),
+        Route("/api/tracked/{id:int}",             del_tracked,        methods=["DELETE"]),
+        Route("/api/jobs/{name:str}/toggle",       toggle_job,         methods=["POST"]),
+        Route("/api/optimizations/{id:int}/apply", apply_optimization, methods=["POST"]),
+        Route("/api/alerts/{id:int}/dismiss",      dismiss_alert,      methods=["POST"]),
+        Route("/api/settings",                     set_setting,        methods=["POST"]),
+        Route("/api/campaigns",                    add_campaign,       methods=["POST"]),
+        Route("/api/campaigns/{id:int}",           del_campaign,       methods=["DELETE"]),
+        Route("/api/calendar",                     add_calendar_post,  methods=["POST"]),
+        Route("/api/calendar/{id:int}",            del_calendar_post,  methods=["DELETE"]),
+        Route("/api/content/generate",             generate_content,   methods=["POST"]),
+        Route("/api/reports",                      add_report,         methods=["POST"]),
+        Route("/api/reports/{id:int}",             del_report,         methods=["DELETE"]),
+        Route("/api/accounts",                     connect_account,    methods=["POST"]),
+        Route("/api/accounts/{id:int}/toggle",     toggle_account,     methods=["POST"]),
+        Route("/api/accounts/{id:int}",            disconnect_account, methods=["DELETE"]),
+        Route("/api/users/{id:int}/quota",         set_quota,          methods=["POST"]),
+        Route("/api/users/{id:int}/addquota",      add_quota,          methods=["POST"]),
+        Route("/api/users/{id:int}/reset",         reset_usage,        methods=["POST"]),
+    ]

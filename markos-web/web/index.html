@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Marketing OS — Auto Ads Facebook</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <!-- Sidebar (rendered by JS) -->
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <!-- Main -->
+    <main class="main">
+      <header class="topbar">
+        <button class="ghost-btn only-mobile" id="navToggle">☰</button>
+        <div class="topbar-title" id="topbarTitle"></div>
+        <div class="topbar-right" id="topbarRight"></div>
+      </header>
+
+      <div id="view"><!-- page renders here --></div>
+    </main>
+
+    <!-- Right rail (persistent) -->
+    <aside class="rail" id="rail"></aside>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
